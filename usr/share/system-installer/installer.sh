@@ -26,20 +26,21 @@ set -e
 set -o pipefail
 EFI="$1"
 partitioner="$2"
-LANG="$3"
-TIME_ZONE="$4"
-USERNAME="$5"
-COMPNAME="$6"
-PASS="$7"
-EXTRAS="$8"
-UPDATES="$9"
+TYPE="$3"
+LANG="$4"
+TIME_ZONE="$5"
+USERNAME="$6"
+COMPNAME="$7"
+PASS="$8"
+EXTRAS="$9"
+UPDATES="$10"
 #STEP 1: Partion and format the drive
 if [ "$partioner" == "auto" ]; then
 	#use the autopartioner
 	/usr/share/system-installer/modules/auto-partitioner.sh "$EFI"
 else
 	#use the config the user asked for to partion the drive
-	/usr/share/system-installer/modules/manual-partitioner.sh "$EFI" "$partitioner"
+	/usr/share/system-installer/modules/manual-partitioner.sh "$EFI" "$partitioner" "$TYPE"
 fi
 #STEP 2: Unsquash the sqaushfs and get the files where they need to go
 SQUASHFS=$(cat /etc/system-installer/default.config | sed 's/squashfs_Location=//')

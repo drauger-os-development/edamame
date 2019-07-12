@@ -99,11 +99,14 @@ elif [ "${!$#}" == "Manually" ]; then
 	#see if there is an NVMe drive.
 	#that is where we want to install after all since they are faster
 	SIZE=$(lsblk -o name,type,label,size | grep "disk" | grep "nvme0" | awk '{print $3}' | sed "s/G//")
+	TYPE="NVMe"
 	if [ "$SIZE" == "" ] || [ "$SIZE" == " " ];
 		#if there are none check for another drive to install to.
 		#but, filter out the Live USB
 		#can't install there XD
-		SIZE=$(lsblk -o name,type,label,size | grep "disk" | grep -v "Drauger OS" | grep "sd*" | awk '{print $3}' | sed "s/G//")
+		SIZE=$(lsblk -o name,type,label,size | grep "disk" | grep -v "Drauger OS" | grep "sd" | awk '{print $3}' | sed "s/G//")
+		SIZE=$(echo "${SIZE[*]}" | sort -nr | head -n1)
+		TYPE="sd"
 	fi
 	#make the partitons for this drive
 	#we warned them it favors NVMe drives. \_(*_*)_/
@@ -149,4 +152,4 @@ UPDATES="$2"
 set -Ee
 /usr/share/system-installer/UI/confirm.py $EFI $partitioner $LANG $TIME_ZONE $USERNAME $COMPNAME $PASS $EXTRAS $UPDATES 2>/tmp/system-installer.log
 ## STEP 9: INSTALL THE SYSTEM
-/usr/share/system-installer/installer.sh $EFI $partitioner $LANG $TIME_ZONE $USERNAME $COMPNAME $PASS $EXTRAS $UPDATES 2>/tmp/system-installer.log
+/usr/share/system-installer/installer.sh $EFI $partitioner $TYPE $LANG $TIME_ZONE $USERNAME $COMPNAME $PASS $EXTRAS $UPDATES 2>/tmp/system-installer.log
