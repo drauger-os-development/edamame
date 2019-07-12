@@ -1,0 +1,34 @@
+#!/bin/bash
+# -*- coding: utf-8 -*-
+#
+#  system-installer
+#
+#  Copyright 2019 Thomas Castleman <contact@draugeros.org>
+#
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+#  MA 02110-1301, USA.
+#
+#
+VERSION="0.0.1-alpha1"
+help="\nsystem-installer, Version $VERSION\n\n\t-h,--help\tprint this help dialoge.\n\t-v,--version\tprint current version.\n\nPass nothing to start installer.\n"
+if [ "$1" == "-v" ] || [ "$1" == "--version" ]; then
+	/bin/echo -e "\n$VERSION\n"
+elif [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
+	/bin/echo -e "$help"
+else
+	/usr/bin/xhost +si:localuser:root
+	/usr/bin/pkexec /usr/share/system-installer/engine.sh
+	/usr/bin/xhost -si:localuser:root
+fi
