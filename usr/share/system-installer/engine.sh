@@ -152,4 +152,4 @@ UPDATES="$2"
 set -Ee
 /usr/share/system-installer/UI/confirm.py $EFI $partitioner $LANG $TIME_ZONE $USERNAME $COMPNAME $PASS $EXTRAS $UPDATES 2>/tmp/system-installer.log
 ## STEP 9: INSTALL THE SYSTEM
-/usr/share/system-installer/installer.sh $EFI $partitioner $TYPE $LANG $TIME_ZONE $USERNAME $COMPNAME $PASS $EXTRAS $UPDATES 2>/tmp/system-installer.log
+/usr/share/system-installer/installer.sh $EFI $partitioner $TYPE $LANG $TIME_ZONE $USERNAME $COMPNAME $PASS $EXTRAS $UPDATES $memcheck 2>/tmp/system-installer.log

@@ -69,14 +69,6 @@ class main(Gtk.Window):
 		""")
 		self.label.set_justify(Gtk.Justification.CENTER)
 		self.grid.attach(self.label, 1, 1, 2, 1)
-		
-		self.label6 = Gtk.Label()
-		self.label6.set_markup("	Your Name:	")
-		self.label6.set_justify(Gtk.Justification.LEFT)
-		self.grid.attach(self.label6, 1, 2, 1, 1)
-		
-		self.name = Gtk.Entry()
-		self.grid.attach(self.name, 2, 2, 1, 1)
 
 		self.label1 = Gtk.Label()
 		self.label1.set_markup("	Username:	")

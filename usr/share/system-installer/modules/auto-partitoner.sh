@@ -28,7 +28,10 @@ if $(echo "$disks" | grep -q "nvme0n*"); then
 	DISK="nvme0n1"
 	DISK1="nvme0n1p1"
 	DISK2="nvme0n1p2"
-elif $(echo "$disks" | grep -q "sd*"); then
+elif $(echo "$disks" | grep -q "sd"); then
+	disks=$(echo "$disks" | grep "sd")
+	set -- $disks
+	disks="$1"
 	DISK="$disks"
 	DISK1="$disks"1
 	DISK2="$disks"2
@@ -58,35 +61,20 @@ if [ "$EFI" == "200" ]; then
 	EOF
 	mkfs.fat -F 32 -l "UEFI" /dev/"$DISK1"
 	mkfs.ext4 -L "ROOT" /dev/"$DISK2"
-fi
-set -- $disks
-if (( $# = 2 )); then
-	disks=$(echo "$disks" | sed "s/$DISK//")
-	if $(echo "$disks" | grep -q "nvme0n*"); then
-		SIZE=$(lsblk -o name,type,label,size | grep "disk" | grep -v "Drauger OS" | grep -v "$DISK" | awk '{print $3}')
-		DISK="nvme0n2"
-		DISK1="nvme0n2p1"
-	elif $(echo "$disks" | grep -q "sd*"); then
-		SIZE=$(lsblk -o name,type,label,size | grep "disk" | grep -v "Drauger OS" | grep -v "$DISK" | awk '{print $3}')
-		DISK="$disks"
-		DISK1="$disks"1
-	else
-		DISK=""
-	fi
-	if [ "$DISK" != "" ]; then
-
-			fdisk "/dev/$DISK" << EOF
+else
+	fdisk "/dev/$DISK" << EOF
 	o
 	n
 	p
 	1
-
-	+"$SIZE"
+	
+	
+	a
+	1
 	p
 	w
 	q
 	EOF
-	mkfs.ext4 -L "HOME" /dev/"$DISK1"
-	fi
+	mkfs.ext4 -L "ROOT" /dev/"$DISK1"
 fi
-echo "PARTIONIONING COMPLETED SUCCESSFULLY"
+echo "/dev/$DISK"

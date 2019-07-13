@@ -66,6 +66,7 @@ if [ "$TYPE" == "NVMe" ]; then
 		/usr/share/system-installer/UI/error.py "Unknown Error: Improper EFI Detection"
 		exit 2
 	fi
+	echo "/dev/nvme0n1"
 elif [ "$TYPE" == "sd" ]; then
 	LIST=$(lsblk -o name,type,label,size | grep "disk" | grep -v "Drauger OS")
 	count=0
@@ -129,4 +130,5 @@ elif [ "$TYPE" == "sd" ]; then
 		/usr/share/system-installer/UI/error.py "Unknown Error: Improper EFI Detection"
 		exit 2
 	fi
+	echo "/dev/$LIST"
 fi
