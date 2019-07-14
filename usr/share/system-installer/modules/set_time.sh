@@ -24,7 +24,7 @@
 settime () {
 	ln -sf /usr/share/zoneinfo/Etc/"$1" /etc/localtime
 }
-
+echo "37"
 TIME_ZONE="$1"
 if [ "$TIME_ZONE" == "GMT" ]; then
 	settime "GMT"
@@ -77,4 +77,5 @@ elif [ "$TIME_ZONE" == "CAT" ]; then
 else
 	settime "GMT"
 fi
+echo "38"
 hwclock --systohc

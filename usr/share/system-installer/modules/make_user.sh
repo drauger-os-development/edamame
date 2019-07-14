@@ -23,8 +23,10 @@
 #
 USERNAME="$1"
 PASS="$2"
+echo "46"
 #add new user
 useradd "$USERNAME" -s /bin/bash -m -U
+echo "47"
 usermod -a -G adm "$USERNAME"
 usermod -a -G cdrom "$USERNAME"
 usermod -a -G sudo "$USERNAME"
@@ -32,9 +34,13 @@ usermod -a -G dip "$USERNAME"
 usermod -a -G plugdev "$USERNAME"
 usermod -a -G lpadmin "$USERNAME"
 usermod -a -g sambashare "$USERNAME"
+echo "49"
 echo "$USERNAME:$PASS" | chpasswd
+echo "50"
 cp -R /home/live/* /home/$USERNAME
 chown -R "$USERNAME:$USERNAME" /home/$USERNAME/*
+echo "51"
 #remove live user
 deluser live --remove-home
+echo "52"
 

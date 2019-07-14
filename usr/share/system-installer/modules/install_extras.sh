@@ -31,6 +31,7 @@ if $(lspci | grep -iq "nvidia"); then
 	greatest=$(echo "${list[*]}" | sort -nr | head -n1)
 	toinstall="nvidia-driver-$greatest"
 fi
+echo "76"
 if $(lspci | grep -iq "broadcom"); then
 	if [ "$toinstall" == "" ]; then
 		toinstall="broadcom-sta"
@@ -38,6 +39,7 @@ if $(lspci | grep -iq "broadcom"); then
 		toinstall="$toinstall broadcom-sta"
 	fi
 fi
+echo "80"
 if [ "$toinstall" == "" ]; then
 	toinstall="ubuntu-restricted-extras"
 	toremove="gstreamer1.0-fluendo-mp3"
@@ -45,9 +47,10 @@ else
 	toinstall="$toinstall ubuntu-restricted-extras"
 	toremove="gstreamer1.0-fluendo-mp3"
 fi
+echo "82"
 apt install -y $toinstall
-if [ "$toremove" == "" ];
-	exit 0
-else
+echo "83"
+if [ "$toremove" != "" ];
 	apt purge -y $toremove || echo "Package Not Found? Maybe? Double check cause gstreamer1.0-fluendo-mp3 threw an error during removal" 1>&2
+	echo "83"
 fi

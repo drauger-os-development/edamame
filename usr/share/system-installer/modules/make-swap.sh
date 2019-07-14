@@ -23,10 +23,14 @@
 #
 SWAP="$1"
 KB=(( $SWAP * 1024 ))
+echo "54"
 #STEP 1: allocate file
 dd if=/dev/zero of=/.swapfile bs="$SWAP" count="$KB"
+echo "58"
 #STEP 2: Set permissions
 chmod 600 /.swapfile
+echo "59"
 #STEP 3: Make the file a swapspace
 mkswap /.swapfile
+echo "60"
 

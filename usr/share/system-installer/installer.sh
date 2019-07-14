@@ -22,6 +22,7 @@
 #
 #
 #this file handles most of the installation process OUTSIDE the chroot
+echo "1"
 set -e
 set -o pipefail
 EFI="$1"
@@ -36,6 +37,7 @@ EXTRAS="$9"
 UPDATES="$10"
 SWAP="$11"
 #STEP 1: Partion and format the drive
+echo "3"
 if [ "$partioner" == "auto" ]; then
 	#use the autopartioner
 	MOUNT=$(/usr/share/system-installer/modules/auto-partitoner.sh "$EFI")
@@ -43,6 +45,7 @@ else
 	#use the config the user asked for to partion the drive
 	MOUNT=$(/usr/share/system-installer/modules/manual-partitoner.sh "$EFI" "$partitioner" "$TYPE")
 fi
+echo "12"
 #STEP 2: Mount the new partitions
 if [ "$EFI" == "200" ]; then
 	if $(echo "$MOUNT" | grep -q "nvme"); then
@@ -65,6 +68,7 @@ else
 		mount "$MOUNT"1 /mnt
 	fi
 fi
+echo "14"
 #STEP 3: Unsquash the sqaushfs and get the files where they need to go
 SQUASHFS=$(cat /etc/system-installer/default.config | sed 's/squashfs_Location=//')
 if [ ! -f "$SQUASHFs" ]; then
@@ -72,7 +76,9 @@ if [ ! -f "$SQUASHFs" ]; then
 	/usr/share/system-installer/UI/error.py "SQUASHFS FILE DOES NOT EXIST"
 	exit 2
 fi
+echo "17"
 unsquashfs "$SQUASHFS" -d /mnt
+echo "32"
 #STEP 4: Update fstab
 rm /mnt/etc/fstab
 touch /mnt/etc/fstab
@@ -88,21 +94,26 @@ if [ "$EFI" == "200" ]; then
 	echo "LABEL=URFI	/boot/efi	defaults	0	2" >> /mnt/etc/fstab
 fi
 chmod 644 /mnt/etc/fstab
+echo "34"
 #STEP 5: copy scripts into chroot
 LIST=$(ls /usr/share/system-installer/modules)
 LIST=$(echo $LIST | grep -v "partitoner")
 for each in $LIST; do
 	cp "/usr/share/system-installer/modules/$each" "/mnt/$each"
 done
+echo "35"
 #STEP 6: Run Master script inside chroot
 #don' run it as a background process so we know when it gets done
 mv /mnt/etc/resolv.conf /mnt/resolv.conf.save
 cp /etc/resolv.conf /mnt/etc/resolv.conf
+echo "36"
 chroot /mnt '/MASTER.sh' "$LANG $TIME_ZONE $USERNAME $COMP_NAME $PASS $EXTRAS $UPDATES $SWAP $EFI $MOUNT" 2>/tmp/system-installer.log
 #STEP 7: Clean up
 #I know this isn't the best way of doing this, but it is easier than changing each of the file name in $LIST
 for each in $LIST; do
 	rm "/mnt/$each"
 done
+echo "89"
 rm /mnt/etc/resolv.conf
 mv /mnt/etc/resolv.conf.save /mnt/etc/resolv.conf
+echo "100"

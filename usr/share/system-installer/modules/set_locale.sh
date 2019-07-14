@@ -27,9 +27,13 @@ set_LANG="$1"
 setlocale ()
 {
 	sed -i 's/# $1.UTF-8 UTF-8/$1.UTF-8 UTF-8/g' /etc/locale.gen
+	echo "41"
 	locale-gen
+	echo "42"
 	update-locale LANG="$1.UTF-8" LANGUAGE
+	echo "43"
 }
+echo "40"
 if [ "$set_LANG" == "english" ]; then
 	setlocale "en_US"
 elif [ "$set_LANG" == "chinese" ]; then

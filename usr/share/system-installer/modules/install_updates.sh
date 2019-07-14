@@ -24,6 +24,10 @@
 set -e
 set -o pipefail
 apt update
+echo "67"
 apt -y dist-upgrade
+echo "70"
 apt -y autoremove
+echo "72"
 apt clean
+echo "74"
