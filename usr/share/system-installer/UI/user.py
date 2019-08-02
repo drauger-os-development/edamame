@@ -119,7 +119,6 @@ class main(Gtk.Window):
 		pass2 = self.passconf.get_text()
 		username = self.username.get_text()
 		username = username.lower()
-		name = self.name.get_text()
 		compname = self.compname.get_text()
 		if pass1 != pass2:
 			if self.label5 != None:
@@ -194,7 +193,7 @@ class main(Gtk.Window):
 		else:
 			if self.label5 != None:
 				self.grid.remove(self.label5)
-			print("\"%s\" %s %s %s" % (name, username, compname, pass1))
+			print("%s %s %s" % (username, compname, pass1))
 			pass2 = None
 			pass1 = None
 			exit(0)

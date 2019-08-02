@@ -82,10 +82,17 @@ set +Ee
 #parse the output
 continue=$(echo "$continue" | grep "on$")
 continue=$(echo "$continue" | awk '{print $1}')
-set -- $continue
-if [ "${!$#}" == "Use" ]; then
+if [ "$continue" == "" ]; then
 	partitoner="auto"
-elif [ "${!$#}" == "Manually" ]; then
+	if [ -d /sys/firmware/efi ]; then
+		#EFI var will be used to set UEFI partiton size when the time comes
+		EFI=200
+	else
+		#but if it's -1 you can't have a partition so it's also working as a 
+		#flag variable
+		EFI="-1"
+	fi
+elif $(echo "$continue" | grep -q "Manually"); then
 	#check to see if we are booted using UEFI.
 	#WE NEED TO MAKE SURE WE SUPPORT UEFI
 	if [ -d /sys/firmware/efi ]; then
@@ -100,7 +107,7 @@ elif [ "${!$#}" == "Manually" ]; then
 	#that is where we want to install after all since they are faster
 	SIZE=$(lsblk -o name,type,label,size | grep "disk" | grep "nvme0" | awk '{print $3}' | sed "s/G//")
 	TYPE="NVMe"
-	if [ "$SIZE" == "" ] || [ "$SIZE" == " " ];
+	if [ "$SIZE" == "" ] || [ "$SIZE" == " " ]; then
 		#if there are none check for another drive to install to.
 		#but, filter out the Live USB
 		#can't install there XD
@@ -150,6 +157,6 @@ set -- $OPTIONS
 EXTRAS="$1"
 UPDATES="$2"
 set -Ee
-/usr/share/system-installer/UI/confirm.py $EFI $partitioner $LANG $TIME_ZONE $USERNAME $COMPNAME $PASS $EXTRAS $UPDATES 2>/tmp/system-installer.log
+/usr/share/system-installer/UI/confirm.py $EFI $partitoner $LANG $TIME_ZONE $USERNAME $COMPNAME $PASS $EXTRAS $UPDATES 2>/tmp/system-installer.log
 ## STEP 9: INSTALL THE SYSTEM
-/usr/share/system-installer/installer.sh $EFI $partitioner $TYPE $LANG $TIME_ZONE $USERNAME $COMPNAME $PASS $EXTRAS $UPDATES $memcheck 2>/tmp/system-installer.log | zenity --progress --text="Installing Drauger OS to your internal hard drive.\nThis may take some time. If you have an error, please send\nthe log file (located at /tmp/system-installer.log) to: contact@draugeros.org" --time-remaining --no-cancel
+/usr/share/system-installer/installer.sh $EFI $partitoner $TYPE $LANG $TIME_ZONE $USERNAME $COMPNAME $PASS $EXTRAS $UPDATES $memcheck 2>/tmp/system-installer.log | zenity --progress --text="Installing Drauger OS to your internal hard drive.\nThis may take some time. If you have an error, please send\nthe log file (located at /tmp/system-installer.log) to: contact@draugeros.org" --time-remaining --no-cancel

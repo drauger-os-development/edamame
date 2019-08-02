@@ -32,13 +32,19 @@ TIME_ZONE=argv[4]
 USERNAME=argv[5]
 COMPNAME=argv[6]
 PASS=argv[7]
-EXTRAS=argv[8]
-UPDATES=argv[9]
-if EXTRAS:
+try:
+	EXTRAS=argv[8]
+except:
+	EXTRAS=None
+try:
+	UPDATES=argv[9]
+except:
+	UPDATES=None
+if EXTRAS != "0" and EXTRAS != None:
 	EXTRAS = "Yes"
 else:
 	EXTRAS = "No"
-if UPDATES:
+if UPDATES != "0" and UPDATES != None:
 	UPDATES = "Yes"
 else:
 	UPDATES = "No"
