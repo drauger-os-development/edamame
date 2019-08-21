@@ -78,11 +78,7 @@ fi
 #STEP 4: Select partioning method
 set -Ee
 continue=$(/usr/share/system-installer/UI/partion-type.py 2>&1 2>/tmp/system-installer.log)
-set +Ee
-#parse the output
-continue=$(echo "$continue" | grep "on$")
-continue=$(echo "$continue" | awk '{print $1}')
-if [ "$continue" == "" ]; then
+if [ "$continue" == "on" ]; then
 	partitoner="auto"
 	if [ -d /sys/firmware/efi ]; then
 		#EFI var will be used to set UEFI partiton size when the time comes

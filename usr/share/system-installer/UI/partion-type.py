@@ -70,8 +70,11 @@ class main(Gtk.Window):
 		self.button2 = Gtk.Button.new_with_label("Exit")
 		self.button2.connect("clicked", self.onexitclicked)
 		self.grid.attach(self.button2, 4, 5, 1, 1)
+		
+		self.SETTING = "on"
 			
 	def onnextclicked(self,button):
+			print(self.SETTING)
 			exit(0)
 	def onexitclicked(self,button):
 			exit(1)
@@ -80,17 +83,12 @@ class main(Gtk.Window):
 			
 	# callback function
 	def toggled_cb(self, button):
-		# a string to describe the state of the button
-		state = "unknown"
 		# whenever the button is turned on, state is on
-		if button.get_active():
-			state = "on"
+		if button.get_label() == "Use Entire Disk":
+			self.SETTING = "on"
 		# else state is off
 		else:
-			state = "off"
-		# whenever the function is called (a button is turned on or off)
-		# print on the terminal which button was turned on/off
-		print(button.get_label() + " was turned " + state)
+			self.SETTING = "off"
 
 
 def show_main():

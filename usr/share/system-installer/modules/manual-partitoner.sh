@@ -21,45 +21,50 @@
 #  MA 02110-1301, USA.
 #
 #
+#
+#
+# This monstrosity of code barely works. Only fuck with it if you know
+# what you are doing. If you have no idea, don't do it.
+# Thou hath been warned.
 EFI="$1"
 partitioner="$2"
 TYPE="$3"
 if [ "$TYPE" == "NVMe" ]; then
-	if [ "$EFI" == "200" ]
+	if [ "$EFI" == "200" ]; then
 		fdisk "/dev/nvme0n1" << EOF
-		o
-		n
-		p
-		1
-	
-		+"$EFI"M
-		n
-		p
-		2
+o
+n
+p
+1
 
-		+"$partitioner"G
-		a
-		1
-		p
-		w
-		q
-		EOF
++"$EFI"M
+n
+p
+2
+
++"$partitioner"G
+a
+1
+p
+w
+q
+EOF
 		mkfs.fat -F 32 -l "UEFI" /dev/nvme0n1p1
 		mkfs.ext4 -L "ROOT" /dev/nvme0n1p2
 	elif [ "$EFI" == "-1" ]; then
-		disk "/dev/nvme0n1" << EOF
-		o
-		n
-		p
-		1
-	
-		+"$partitioner"G
-		a
-		1
-		p
-		w
-		q
-		EOF
+		fdisk "/dev/nvme0n1" << EOF
+o
+n
+p
+1
+
++"$partitioner"G
+a
+1
+p
+w
+q
+EOF
 		mkfs.ext4 -L "ROOT" /dev/nvme0n1p1
 	else
 		echo "Unknown Error: Improper EFI Detection" 1>&2
@@ -71,9 +76,9 @@ elif [ "$TYPE" == "sd" ]; then
 	LIST=$(lsblk -o name,type,label,size | grep "disk" | grep -v "Drauger OS")
 	count=0
 	for each in $LIST; do
-		count=(( $count + 1 ))
+		(( count+=1 ))
 	done
-	if (( $count > 1 )); then
+	if [[ $count -gt 1 ]]; then
 		coloumn=$(echo "$LIST" | awk '{print NF}')
 		coloumn=$(echo "${coloumn[*]}" | sort -nr | head -n1)
 		LIST_SIZES=$(echo "$LIST" | awk "{print \$$coloumn}" | sed 's/G//g')
@@ -81,49 +86,49 @@ elif [ "$TYPE" == "sd" ]; then
 		LIST=$(lsblk -o name,type,label,size | grep "disk" | grep -v "Drauger OS" | grep "$LIST_SIZES" | awk '{print $1}')
 		count=0
 		for each in $LIST; do
-			count=(( $count + 1 ))
+			(( count+=1 ))
 		done
-		if (( $count > 1 )); then
+		if [[ $count -gt 1 ]]; then
 			LIST=$(echo "$LIST" | tr '\n' '|')
 			LIST=$(zenity --forms --add-list="Drives:" --list-values="$LIST" --text="An error was detected. Please manually select the installation drive.")
 		fi
 	fi
 	LIST=$(echo "$LIST" | awk '{print $1}')
-	if [ "$EFI" == "200" ]
+	if [ "$EFI" == "200" ]; then
 		fdisk "/dev/$LIST" << EOF
-		o
-		n
-		p
-		1
-	
-		+"$EFI"M
-		n
-		p
-		2
+o
+n
+p
+1
 
-		+"$partitioner"G
-		a
-		1
-		p
-		w
-		q
-		EOF
++"$EFI"M
+n
+p
+2
+
++"$partitioner"G
+a
+1
+p
+w
+q
+EOF
 		mkfs.fat -F 32 -l "UEFI" /dev/"$LIST"1
 		mkfs.ext4 -L "ROOT" /dev/"$LIST"2
 	elif [ "$EFI" == "-1" ]; then
-		disk "/dev/$LIST" << EOF
-		o
-		n
-		p
-		1
-	
-		+"$partitioner"G
-		a
-		1
-		p
-		w
-		q
-		EOF
+		fdisk "/dev/$LIST" << EOF
+o
+n
+p
+1
+
++"$partitioner"G
+a
+1
+p
+w
+q
+EOF
 		mkfs.ext4 -L "ROOT" /dev/"$LIST"1
 	else
 		echo "Unknown Error: Improper EFI Detection" 1>&2
