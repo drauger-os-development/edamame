@@ -132,7 +132,7 @@ set -Ee
 LOCALE=$(/usr/share/system-installer/UI/get_locale.py 2>/tmp/system-installer.log)
 set -- $LOCALE
 #if this is anything OTHER than English we gonna have to install the locale
-LANG="$1"
+LANG_SET="$1"
 #time zone for later
 TIME_ZONE="$2"
 #STEP 6: Keyboard Layout
@@ -157,6 +157,6 @@ set -- $OPTIONS
 EXTRAS="$1"
 UPDATES="$2"
 set -Ee
-/usr/share/system-installer/UI/confirm.py $EFI $partitoner $LANG $TIME_ZONE $USERNAME $COMPNAME $PASS $EXTRAS $UPDATES 2>/tmp/system-installer.log
+/usr/share/system-installer/UI/confirm.py $EFI $partitoner $LANG_SET $TIME_ZONE $USERNAME $COMPNAME $PASS $EXTRAS $UPDATES 2>/tmp/system-installer.log
 ## STEP 9: INSTALL THE SYSTEM
-/usr/share/system-installer/installer.sh $EFI $partitoner $TYPE $LANG $TIME_ZONE $USERNAME $COMPNAME $PASS $EXTRAS $UPDATES $memcheck 2>/tmp/system-installer.log | zenity --progress --text="Installing Drauger OS to your internal hard drive.\nThis may take some time. If you have an error, please send\nthe log file (located at /tmp/system-installer.log) to: contact@draugeros.org" --time-remaining --no-cancel
+/usr/share/system-installer/installer.sh $EFI $partitoner $TYPE $LANG_SET $TIME_ZONE $USERNAME $COMPNAME $PASS $EXTRAS $UPDATES $memcheck 2>/tmp/system-installer.log | zenity --progress --text="Installing Drauger OS to your internal hard drive.\nThis may take some time. If you have an error, please send\nthe log file (located at /tmp/system-installer.log) to: contact@draugeros.org" --time-remaining --no-cancel

@@ -28,7 +28,7 @@ set -o pipefail
 EFI="$1"
 partitioner="$2"
 TYPE="$3"
-LANG="$4"
+LANG_SET="$4"
 TIME_ZONE="$5"
 USERNAME="$6"
 COMPNAME="$7"
@@ -91,7 +91,7 @@ echo "# /etc/fstab: static file system information.
 # <file system>	<mount point>	<type>	<options>	<dump>	<pass>
 LABEL=ROOT	/	ext4	defaults	0	1" > /mnt/etc/fstab
 if [ "$EFI" == "200" ]; then
-	echo "LABEL=URFI	/boot/efi	defaults	0	2" >> /mnt/etc/fstab
+	echo "LABEL=UEFI	/boot/efi	defaults	0	2" >> /mnt/etc/fstab
 fi
 chmod 644 /mnt/etc/fstab
 echo "34"
@@ -107,7 +107,7 @@ echo "35"
 mv /mnt/etc/resolv.conf /mnt/resolv.conf.save
 cp /etc/resolv.conf /mnt/etc/resolv.conf
 echo "36"
-chroot /mnt '/MASTER.sh' "$LANG $TIME_ZONE $USERNAME $COMP_NAME $PASS $EXTRAS $UPDATES $SWAP $EFI $MOUNT" 2>/tmp/system-installer.log
+chroot /mnt '/MASTER.sh' "$LANG_SET $TIME_ZONE $USERNAME $COMP_NAME $PASS $EXTRAS $UPDATES $SWAP $EFI $MOUNT" 2>/tmp/system-installer.log
 #STEP 7: Clean up
 #I know this isn't the best way of doing this, but it is easier than changing each of the file name in $LIST
 for each in $LIST; do

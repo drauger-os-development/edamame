@@ -25,7 +25,7 @@
 echo "37"
 set -e
 set -o pipefail
-LANG="$1"
+LANG_SET="$1"
 TIME_ZONE="$2"
 USERNAME="$3"
 COMP_NAME="$4"
@@ -39,7 +39,7 @@ echo "39"
 . /set_time.sh "$TIME_ZONE"
 echo "42"
 #STEP 2: Generate locales
-. /set_locale.sh "$LANG"
+. /set_locale.sh "$LANG_SET"
 echo "47"
 #STEP 3: Set Computer name
 hostnamectl set-hostname "$COMP_NAME"
