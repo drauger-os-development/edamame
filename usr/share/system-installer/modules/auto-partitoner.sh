@@ -42,39 +42,39 @@ else
 fi
 if [ "$EFI" == "200" ]; then
 	fdisk "/dev/$DISK" << EOF
-	o
-	n
-	p
-	1
+o
+n
+p
+1
 
-	+200M
-	n
-	p
-	2
++200M
+n
+p
+2
 
 
-	a
-	1
-	p
-	w
-	q
-	EOF
+a
+1
+p
+w
+q
+EOF
 	mkfs.fat -F 32 -l "UEFI" /dev/"$DISK1"
 	mkfs.ext4 -L "ROOT" /dev/"$DISK2"
 else
 	fdisk "/dev/$DISK" << EOF
-	o
-	n
-	p
-	1
-	
-	
-	a
-	1
-	p
-	w
-	q
-	EOF
+o
+n
+p
+1
+
+
+a
+1
+p
+w
+q
+EOF
 	mkfs.ext4 -L "ROOT" /dev/"$DISK1"
 fi
 echo "/dev/$DISK"

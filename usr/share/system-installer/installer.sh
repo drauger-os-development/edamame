@@ -38,7 +38,7 @@ UPDATES="$10"
 SWAP="$11"
 #STEP 1: Partion and format the drive
 echo "3"
-if [ "$partioner" == "auto" ]; then
+if [ "$partitioner" == "auto" ]; then
 	#use the autopartioner
 	MOUNT=$(/usr/share/system-installer/modules/auto-partitoner.sh "$EFI")
 else
