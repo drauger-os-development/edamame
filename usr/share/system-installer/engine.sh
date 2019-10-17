@@ -76,53 +76,59 @@ if [ "$continue" == "1" ]; then
 	exit 0
 fi
 #STEP 4: Select partioning method
-set -Ee
-continue=$(/usr/share/system-installer/UI/partion-type.py 2>&1 2>/tmp/system-installer.log)
-if [ "$continue" == "on" ]; then
-	partitoner="auto"
-	if [ -d /sys/firmware/efi ]; then
-		#EFI var will be used to set UEFI partiton size when the time comes
-		EFI=200
-	else
-		#but if it's -1 you can't have a partition so it's also working as a 
-		#flag variable
-		EFI="-1"
-	fi
-elif $(echo "$continue" | grep -q "Manually"); then
-	#check to see if we are booted using UEFI.
-	#WE NEED TO MAKE SURE WE SUPPORT UEFI
-	if [ -d /sys/firmware/efi ]; then
-		#EFI var will be used to set UEFI partiton size when the time comes
-		EFI=200
-	else
-		#but if it's -1 you can't have a partition so it's also working as a 
-		#flag variable
-		EFI="-1"
-	fi
-	#see if there is an NVMe drive.
-	#that is where we want to install after all since they are faster
-	SIZE=$(lsblk -o name,type,label,size | grep "disk" | grep "nvme0" | awk '{print $3}' | sed "s/G//")
-	TYPE="NVMe"
-	if [ "$SIZE" == "" ] || [ "$SIZE" == " " ]; then
-		#if there are none check for another drive to install to.
-		#but, filter out the Live USB
-		#can't install there XD
-		SIZE=$(lsblk -o name,type,label,size | grep "disk" | grep -v "Drauger OS" | grep "sd" | awk '{print $3}' | sed "s/G//")
-		SIZE=$(echo "${SIZE[*]}" | sort -nr | head -n1)
-		TYPE="sd"
-	fi
-	#make the partitons for this drive
-	#we warned them it favors NVMe drives. \_(*_*)_/
-	#don't worry tho, we will be allowing this drive to be changed at a later release
-	set -Ee
-	partioner=$(/usr/share/system-installer/UI/partiton-maker.py "$EFI" "$SIZE" 2>/tmp/system-installer.log)
-	set +Ee
-else
-	#if this is running we have a SERIOUS ISSUE
-	#and I have no idea how it would have happened
-	/usr/share/system-installer/UI/error.py "An unknown error has occured" 2
-	exit 2
+#	Due to some issues with partitoning, the below code is commented out for now.
+#	Do not use unless testing.
+#set -Ee
+continue=$(/usr/share/system-installer/UI/partion-type.py 2>/tmp/system-installer.log)
+if [ "$continue" == "EXIT" ]; then
+	exit 1
 fi
+partitoner=$(/usr/share/system-installer/UI/partition-mapper.py 2>/tmp/system-installer.log)
+#if [ "$continue" == "on" ]; then
+	#partitoner="auto"
+	#if [ -d /sys/firmware/efi ]; then
+		##EFI var will be used to set UEFI partiton size when the time comes
+		#EFI=200
+	#else
+		##but if it's -1 you can't have a partition so it's also working as a
+		##flag variable
+		#EFI="-1"
+	#fi
+#elif $(echo "$continue" | grep -q "Manually"); then
+	##check to see if we are booted using UEFI.
+	##WE NEED TO MAKE SURE WE SUPPORT UEFI
+	#if [ -d /sys/firmware/efi ]; then
+		##EFI var will be used to set UEFI partiton size when the time comes
+		#EFI=200
+	#else
+		##but if it's -1 you can't have a partition so it's also working as a
+		##flag variable
+		#EFI="-1"
+	#fi
+	##see if there is an NVMe drive.
+	##that is where we want to install after all since they are faster
+	#SIZE=$(lsblk -o name,type,label,size | grep "disk" | grep "nvme0" | awk '{print $3}' | sed "s/G//")
+	#TYPE="NVMe"
+	#if [ "$SIZE" == "" ] || [ "$SIZE" == " " ]; then
+		##if there are none check for another drive to install to.
+		##but, filter out the Live USB
+		##can't install there XD
+		#SIZE=$(lsblk -o name,type,label,size | grep "disk" | grep -v "Drauger OS" | grep "sd" | awk '{print $3}' | sed "s/G//")
+		#SIZE=$(echo "${SIZE[*]}" | sort -nr | head -n1)
+		#TYPE="sd"
+	#fi
+	##make the partitons for this drive
+	##we warned them it favors NVMe drives. \_(*_*)_/
+	##don't worry tho, we will be allowing this drive to be changed at a later release
+	#set -Ee
+	#partioner=$(/usr/share/system-installer/UI/partiton-maker.py "$EFI" "$SIZE" 2>/tmp/system-installer.log)
+	#set +Ee
+#else
+	##if this is running we have a SERIOUS ISSUE
+	##and I have no idea how it would have happened
+	#/usr/share/system-installer/UI/error.py "An unknown error has occured" 2
+	#exit 2
+#fi
 #STEP 5: figure out their Locale
 set -Ee
 LOCALE=$(/usr/share/system-installer/UI/get_locale.py 2>/tmp/system-installer.log)
@@ -132,7 +138,7 @@ LANG_SET="$1"
 #time zone for later
 TIME_ZONE="$2"
 #STEP 6: Keyboard Layout
-#setting keyboard layout is not supported for now. But we are getting the stdout of 
+#setting keyboard layout is not supported for now. But we are getting the stdout of
 #keyboard.py anyways to make our lives easier when it IS supported. We will probably be
 #ripping off Ubiquity for this one.
 KEYBOARD=$(/usr/share/system-installer/UI/keyboard.py 2>/tmp/system-installer.log)

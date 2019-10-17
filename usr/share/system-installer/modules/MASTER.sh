@@ -34,6 +34,7 @@ EXTRAS="$6"
 UPDATES="$7"
 SWAP="$8"
 EFI="$9"
+ROOT="$10"
 echo "39"
 #STEP 1: Set the time
 . /set_time.sh "$TIME_ZONE"
@@ -48,9 +49,9 @@ echo "48"
 . /make_user.sh "$USERNAME" "$PASS"
 echo "56"
 #STEP 5: Make swap file
-. /make-swap.sh $SWAP
-echo "64"
-echo "/.swapfile	swap	swap	defaults	0	0" >> /etc/fstab || echo "Adding swap failed. Must manually add later" 1>&2
+#. /make-swap.sh $SWAP
+#echo "64"
+#echo "/.swapfile	swap	swap	defaults	0	0" >> /etc/fstab || echo "Adding swap failed. Must manually add later" 1>&2
 echo "66"
 #STEP 6: install updates
 if $UPDATES; then
@@ -69,15 +70,11 @@ echo "85"
 update-initramfs -u
 echo "87"
 #STEP 10: GRUB
-if [ "$EFI" == 200 ]; then
+if [ "$EFI" != "NULL" ]; then
 	grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="Drauger OS"
 	echo "88"
 else
-	if $(echo "$MOUNT" | grep -q "nvme"); then
-		grub-install --target=i386-pc "$MOUNT"p1
-	else
-		grub-install --target=i386-pc "$MOUNT"1
-	fi
+	grub-install --target=i386-pc "$MOUNT"
 	echo "88"
 fi
 
