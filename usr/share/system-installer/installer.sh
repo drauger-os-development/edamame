@@ -25,17 +25,21 @@
 echo "1"
 set -e
 set -o pipefail
-EFI="$1"
-partitioner="$2"
-TYPE="$3"
-LANG_SET="$4"
-TIME_ZONE="$5"
-USERNAME="$6"
-COMPNAME="$7"
-PASS="$8"
-EXTRAS="$9"
-UPDATES="$10"
-SWAP="$11"
+partitioner="$1"
+TYPE="$2"
+LANG_SET="$3"
+TIME_ZONE="$4"
+USERNAME="$5"
+COMPNAME="$6"
+PASS="$7"
+EXTRAS="$8"
+#UPDATES="$10"
+#SWAP="$11"
+if [ -f updates.flag ]; then
+	UPDATES=true
+else
+	UPDATES=false
+fi
 echo "3"
 partitioner=$(echo "$partitioner" | sed 's/,/ /g' | sed 's/ROOT://' | sed 's/EFI://' | sed 's/HOME://' | sed 's/SWAP://')
 ROOT=$(echo "$partitioner" | awk '{print $1}')
@@ -117,7 +121,7 @@ if [ "$HOME" != "NULL" ]; then
 	echo "UUID=$(lsblk -dno UUID $HOME)	/home	defaults	0	3" >> /mnt/etc/fstab
 fi
 if [ "$SWAP" != "FILE" ]; then
-	echo "UUID=$(lsblk -dno UUID $SWAP)	none	swap	sw	0	o" >> /mnt/etc/fstab
+	echo "UUID=$(lsblk -dno UUID $SWAP)	none	swap	sw	0	0" >> /mnt/etc/fstab
 fi
 chmod 644 /mnt/etc/fstab
 echo "34"
@@ -133,7 +137,7 @@ echo "35"
 mv /mnt/etc/resolv.conf /mnt/resolv.conf.save
 cp /etc/resolv.conf /mnt/etc/resolv.conf
 echo "36"
-chroot /mnt '/MASTER.sh' "$LANG_SET $TIME_ZONE $USERNAME $COMP_NAME $PASS $EXTRAS $UPDATES $SWAP $EFI $ROOT" 2>>/tmp/system-installer.log
+chroot /mnt '/MASTER.sh' "$LANG_SET $TIME_ZONE $USERNAME $COMP_NAME $PASS $EXTRAS $UPDATES $EFI $ROOT" 2>>/tmp/system-installer.log
 #STEP 7: Clean up
 #I know this isn't the best way of doing this, but it is easier than changing each of the file name in $LIST
 for each in $LIST; do

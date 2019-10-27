@@ -25,19 +25,18 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from sys import argv
-EFI=argv[1]
-partitioner=argv[2]
-LANG=argv[3]
-TIME_ZONE=argv[4]
-USERNAME=argv[5]
-COMPNAME=argv[6]
-PASS=argv[7]
+partitioner=argv[1]
+LANG=argv[2]
+TIME_ZONE=argv[3]
+USERNAME=argv[4]
+COMPNAME=argv[5]
+PASS=argv[6]
 try:
-	EXTRAS=argv[8]
+	EXTRAS=argv[7]
 except:
 	EXTRAS=None
 try:
-	UPDATES=argv[9]
+	UPDATES=argv[8]
 except:
 	UPDATES=None
 if EXTRAS != "0" and EXTRAS != None:
@@ -48,18 +47,18 @@ if UPDATES != "0" and UPDATES != None:
 	UPDATES = "Yes"
 else:
 	UPDATES = "No"
-if EFI == "200":
-	EFI = "Yes, 200MB at drive start"
-else:
-	EFI = "No"
+# if EFI == "200":
+	# EFI = "Yes, 200MB at drive start"
+# else:
+	# EFI = "No"
 
-partitioner = partitioner.split()
-count = 0
-for each in partitioner:
-	if (each == ","):
-		partitioner[count] = " "
-	count = count + 1
-partitioner = "".join(partitioner)
+# partitioner = partitioner.split()
+# count = 0
+# for each in partitioner:
+	# if (each == ","):
+		# partitioner[count] = " "
+	# count = count + 1
+# partitioner = "".join(partitioner)
 
 class main(Gtk.Window):
 
@@ -84,15 +83,15 @@ class main(Gtk.Window):
 		self.label1.set_justify(Gtk.Justification.CENTER)
 		self.grid.attach(self.label1, 1, 2, 3, 1)
 
-		self.label2 = Gtk.Label()
-		self.label2.set_markup("""	UEFI:	""")
-		self.label2.set_justify(Gtk.Justification.CENTER)
-		self.grid.attach(self.label2, 1, 3, 1, 1)
+		# self.label2 = Gtk.Label()
+		# self.label2.set_markup("""	UEFI:	""")
+		# self.label2.set_justify(Gtk.Justification.CENTER)
+		# self.grid.attach(self.label2, 1, 3, 1, 1)
 
-		self.label3 = Gtk.Label()
-		self.label3.set_markup("%s" % (EFI))
-		self.label3.set_justify(Gtk.Justification.CENTER)
-		self.grid.attach(self.label3, 3, 3, 1, 1)
+		# self.label3 = Gtk.Label()
+		# self.label3.set_markup("%s" % (EFI))
+		# self.label3.set_justify(Gtk.Justification.CENTER)
+		# self.grid.attach(self.label3, 3, 3, 1, 1)
 
 		self.label4 = Gtk.Label()
 		self.label4.set_markup("""	Partitioning:	""")
