@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 #  partition-mapper.py
@@ -71,18 +71,18 @@ class main(Gtk.Window):
 		self.label4 = Gtk.Label()
 		self.label4.set_markup("SWAP")
 		self.label4.set_justify(Gtk.Justification.RIGHT)
-		self.grid.attach(self.label4, 1, 4, 1, 1)
+		self.grid.attach(self.label4, 1, 5, 1, 1)
 
 		self.swap = Gtk.Entry()
-		self.grid.attach(self.swap, 2, 4, 1, 1)
+		self.grid.attach(self.swap, 2, 5, 1, 1)
 
 		self.button1 = Gtk.Button.new_with_label("Okay -->")
 		self.button1.connect("clicked", self.onnextclicked)
-		self.grid.attach(self.button1, 2, 5, 1, 1)
+		self.grid.attach(self.button1, 2, 6, 1, 1)
 
 		self.button2 = Gtk.Button.new_with_label("Exit")
 		self.button2.connect("clicked", self.onexitclicked)
-		self.grid.attach(self.button2, 1, 5, 1, 1)
+		self.grid.attach(self.button2, 1, 6, 1, 1)
 
 	def onexitclicked(self,button):
 			print("EXIT")
@@ -128,7 +128,6 @@ def show_main():
 	window = main()
 	window.set_decorated(False)
 	window.set_resizable(False)
-	window.set_opacity(0.0)
 	window.set_position(Gtk.WindowPosition.CENTER)
 	window.show_all()
 	Gtk.main()

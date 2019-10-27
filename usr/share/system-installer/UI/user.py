@@ -28,23 +28,23 @@ import re
 
 def hasnumbers(inputString):
 	return any(char.isdigit() for char in inputString)
-	
+
 def hasletters(inputString):
 	if re.search('[a-zA-Z]', inputString):
 		return True
 	else:
 		return False
-		
+
 def hasSC(inputString):
 	regex = re.compile('[@_!#$%^&*()<>?/\|}{~:]')
 	if regex.search(inputString) == None:
 		return False
 	else:
 		return True
-		
+
 def hasspace(inputString):
 	x=0
-	for a in inputString: 
+	for a in inputString:
 		if (a.isspace()) == True:
 			x=1
 			break
@@ -54,7 +54,7 @@ def hasspace(inputString):
 		return True
 	else:
 		return False
-			
+
 
 class main(Gtk.Window):
 
@@ -65,7 +65,7 @@ class main(Gtk.Window):
 
 		self.label = Gtk.Label()
 		self.label.set_markup("""
-	<b>Set Up Main User</b>	
+	<b>Set Up Main User</b>
 		""")
 		self.label.set_justify(Gtk.Justification.CENTER)
 		self.grid.attach(self.label, 1, 1, 2, 1)
@@ -206,7 +206,6 @@ def show_main():
 	window = main()
 	window.set_decorated(False)
 	window.set_resizable(False)
-	window.set_opacity(0.0)
 	window.set_position(Gtk.WindowPosition.CENTER)
 	window.show_all()
 	Gtk.main()

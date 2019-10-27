@@ -133,7 +133,7 @@ echo "35"
 mv /mnt/etc/resolv.conf /mnt/resolv.conf.save
 cp /etc/resolv.conf /mnt/etc/resolv.conf
 echo "36"
-chroot /mnt '/MASTER.sh' "$LANG_SET $TIME_ZONE $USERNAME $COMP_NAME $PASS $EXTRAS $UPDATES $SWAP $EFI $ROOT" 2>/tmp/system-installer.log
+chroot /mnt '/MASTER.sh' "$LANG_SET $TIME_ZONE $USERNAME $COMP_NAME $PASS $EXTRAS $UPDATES $SWAP $EFI $ROOT" 2>>/tmp/system-installer.log
 #STEP 7: Clean up
 #I know this isn't the best way of doing this, but it is easier than changing each of the file name in $LIST
 for each in $LIST; do

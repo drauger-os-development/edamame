@@ -71,7 +71,7 @@ fi
 # STEP 3: Show splash screen
 #start up main.py
 #	main.py has some important info the user will need while installing. Such as warnings and instructions.
-continue=$(/usr/share/system-installer/UI/main.py 2>&1 2>/tmp/system-installer.log)
+continue=$(/usr/share/system-installer/UI/main.py 2>&1 2>>/tmp/system-installer.log)
 if [ "$continue" == "1" ]; then
 	exit 0
 fi
@@ -79,11 +79,11 @@ fi
 #	Due to some issues with partitoning, the below code is commented out for now.
 #	Do not use unless testing.
 #set -Ee
-continue=$(/usr/share/system-installer/UI/partion-type.py 2>/tmp/system-installer.log)
+continue=$(/usr/share/system-installer/UI/partion-type.py 2>>/tmp/system-installer.log)
 if [ "$continue" == "EXIT" ]; then
 	exit 1
 fi
-partitoner=$(/usr/share/system-installer/UI/partition-mapper.py 2>/tmp/system-installer.log)
+partitoner=$(/usr/share/system-installer/UI/partition-mapper.py 2>>/tmp/system-installer.log)
 #if [ "$continue" == "on" ]; then
 	#partitoner="auto"
 	#if [ -d /sys/firmware/efi ]; then
@@ -131,7 +131,7 @@ partitoner=$(/usr/share/system-installer/UI/partition-mapper.py 2>/tmp/system-in
 #fi
 #STEP 5: figure out their Locale
 set -Ee
-LOCALE=$(/usr/share/system-installer/UI/get_locale.py 2>/tmp/system-installer.log)
+LOCALE=$(/usr/share/system-installer/UI/get_locale.py 2>>/tmp/system-installer.log)
 set -- $LOCALE
 #if this is anything OTHER than English we gonna have to install the locale
 LANG_SET="$1"
@@ -141,11 +141,11 @@ TIME_ZONE="$2"
 #setting keyboard layout is not supported for now. But we are getting the stdout of
 #keyboard.py anyways to make our lives easier when it IS supported. We will probably be
 #ripping off Ubiquity for this one.
-KEYBOARD=$(/usr/share/system-installer/UI/keyboard.py 2>/tmp/system-installer.log)
+KEYBOARD=$(/usr/share/system-installer/UI/keyboard.py 2>>/tmp/system-installer.log)
 #STEP 7: Get user configuration
-USER=$(/usr/share/system-installer/UI/user.py 2>/tmp/system-installer.log)
+USER=$(/usr/share/system-installer/UI/user.py 2>>/tmp/system-installer.log)
 #STEP 8: check for extra options
-OPTIONS=$(/usr/share/system-installer/UI/options.py 2>/tmp/system-installer.log)
+OPTIONS=$(/usr/share/system-installer/UI/options.py 2>>/tmp/system-installer.log)
 set +Ee
 #parse the info from the user config step
 NAME=$(echo $USER | grep -o -P '(?<=").*(?=")')
@@ -159,6 +159,6 @@ set -- $OPTIONS
 EXTRAS="$1"
 UPDATES="$2"
 set -Ee
-/usr/share/system-installer/UI/confirm.py $EFI $partitoner $LANG_SET $TIME_ZONE $USERNAME $COMPNAME $PASS $EXTRAS $UPDATES 2>/tmp/system-installer.log
+/usr/share/system-installer/UI/confirm.py $EFI $partitoner $LANG_SET $TIME_ZONE $USERNAME $COMPNAME $PASS $EXTRAS $UPDATES 2>>/tmp/system-installer.log
 ## STEP 9: INSTALL THE SYSTEM
-/usr/share/system-installer/installer.sh $EFI $partitoner $TYPE $LANG_SET $TIME_ZONE $USERNAME $COMPNAME $PASS $EXTRAS $UPDATES $memcheck 2>/tmp/system-installer.log | zenity --progress --text="Installing Drauger OS to your internal hard drive.\nThis may take some time. If you have an error, please send\nthe log file (located at /tmp/system-installer.log) to: contact@draugeros.org" --time-remaining --no-cancel
+/usr/share/system-installer/installer.sh $EFI $partitoner $TYPE $LANG_SET $TIME_ZONE $USERNAME $COMPNAME $PASS $EXTRAS $UPDATES $memcheck 2>>/tmp/system-installer.log | zenity --progress --text="Installing Drauger OS to your internal hard drive.\nThis may take some time. If you have an error, please send\nthe log file (located at /tmp/system-installer.log) to: contact@draugeros.org" --time-remaining --no-cancel

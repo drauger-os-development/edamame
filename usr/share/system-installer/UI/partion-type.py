@@ -124,7 +124,6 @@ def show_main():
 	window = main()
 	window.set_decorated(False)
 	window.set_resizable(False)
-	window.set_opacity(0.0)
 	window.set_position(Gtk.WindowPosition.CENTER)
 	window.show_all()
 	Gtk.main()
