@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-#  error.py
+#  success.py
 #
 #  Copyright 2019 Thomas Castleman <contact@draugeros.org>
 #
@@ -21,36 +21,51 @@
 #  MA 02110-1301, USA.
 #
 #
+
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
-from sys import argv
+from os import system
 
 class main(Gtk.Window):
+
 	def __init__(self):
-			Gtk.Window.__init__(self, title="System Installer")
-			self.grid=Gtk.Grid(orientation=Gtk.Orientation.VERTICAL)
-			self.add(self.grid)
+		Gtk.Window.__init__(self, title="System Installer")
+		self.grid=Gtk.Grid(orientation=Gtk.Orientation.VERTICAL)
+		self.add(self.grid)
 
-			self.label = Gtk.Label()
-			self.label.set_markup(argv[1])
-			self.label.set_justify(Gtk.Justification.LEFT)
-			self.grid.attach(self.label, 1, 1, 3, 1)
+		self.label = Gtk.Label()
+		self.label.set_markup("""	Drauger OS has been successfully installed to your designated partitions!	""")
+		self.label.set_justify(Gtk.Justification.CENTER)
+		self.grid.attach(self.label, 1, 1, 2, 1)
 
+		self.button1 = Gtk.Button.new_with_label("Shut Down System")
+		self.button1.connect("clicked", self.onnextclicked)
+		self.grid.attach(self.button1, 2, 6, 1, 1)
 
-			self.button2 = Gtk.Button.new_with_label("Exit")
-			self.button2.connect("clicked", self.onexitclicked)
-			self.grid.attach(self.button2, 1, 2, 1, 1)
+		self.button2 = Gtk.Button.new_with_label("Exit")
+		self.button2.connect("clicked", self.onexitclicked)
+		self.grid.attach(self.button2, 1, 6, 1, 1)
 
 	def onexitclicked(self,button):
-			exit(argv[2])
+			print("EXIT")
+			exit(1)
+
+	def onnextclicked(self,button):
+			system("poweroff")
+			exit(0)
+
+
+def exit_button(x,y):
+	Gtk.main_quit("delete-event")
+	exit(1)
 
 def show_main():
 	window = main()
-	window.set_decorated(False)
+	window.set_decorated(True)
 	window.set_resizable(False)
 	window.set_position(Gtk.WindowPosition.CENTER)
-	window.connect("delete-event", Gtk.main_quit)
+	window.connect("delete-event",exit_button)
 	window.show_all()
 	Gtk.main()
 

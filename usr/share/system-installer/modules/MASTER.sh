@@ -71,7 +71,7 @@ update-initramfs -u
 echo "87"
 #STEP 10: GRUB
 if [ "$EFI" != "NULL" ]; then
-	grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="Drauger OS"
+	grub-install --force --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="Drauger OS"
 	echo "88"
 else
 	grub-install --force --target=i386-pc "$ROOT"

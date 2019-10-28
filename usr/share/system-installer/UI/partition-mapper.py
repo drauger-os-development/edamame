@@ -26,7 +26,6 @@
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
-from subprocess import Popen
 
 class main(Gtk.Window):
 
@@ -129,8 +128,9 @@ def show_main():
 	window.set_decorated(False)
 	window.set_resizable(False)
 	window.set_position(Gtk.WindowPosition.CENTER)
+	window.connect("delete-event", Gtk.main_quit)
 	window.show_all()
 	Gtk.main()
-	window.connect("delete-event", Gtk.main_quit)
+
 
 show_main()
