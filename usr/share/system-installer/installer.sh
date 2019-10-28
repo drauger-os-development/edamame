@@ -69,7 +69,7 @@ fi
 if [ "$SWAP" != "FILE" ]; then
 	swapon "$SWAP"
 else
-	echo "SWAP FILE SUPPORT NOT IMPLEMENTED YET" 1>2
+	echo "SWAP FILE SUPPORT NOT IMPLEMENTED YET" 1>&2
 fi
 #if [ "$EFI" == "200" ]; then
 	#if $(echo "$MOUNT" | grep -q "nvme"); then
@@ -95,13 +95,18 @@ fi
 echo "14"
 #STEP 3: Unsquash the sqaushfs and get the files where they need to go
 SQUASHFS=$(cat /etc/system-installer/default.config | sed 's/squashfs_Location=//')
-if [ ! -f "$SQUASHFs" ]; then
+if [ "$SQUASHFS" == "" ]; then
 	echo "SQUASHFS FILE DOES NOT EXIST" 1>&2
 	/usr/share/system-installer/UI/error.py "SQUASHFS FILE DOES NOT EXIST"
 	exit 2
 fi
 echo "17"
-unsquashfs "$SQUASHFS" -d /mnt
+cd /mnt
+unsquashfs "$SQUASHFS"
+mv squashfs-root/* -t /mnt/
+rm -rf squashfs-root
+mkdir /mnt/boot || echo "/mnt/boot already created" 1>&2
+cp -R /boot /mnt/boot
 echo "32"
 #STEP 4: Update fstab
 rm /mnt/etc/fstab
@@ -127,7 +132,7 @@ chmod 644 /mnt/etc/fstab
 echo "34"
 #STEP 5: copy scripts into chroot
 LIST=$(ls /usr/share/system-installer/modules)
-LIST=$(echo $LIST | grep -v "partitoner")
+LIST=$(echo "$LIST" | grep -v "partitoner")
 for each in $LIST; do
 	cp "/usr/share/system-installer/modules/$each" "/mnt/$each"
 done

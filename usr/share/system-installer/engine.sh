@@ -160,8 +160,16 @@ EXTRAS="$1"
 UPDATES="$2"
 set -Ee
 /usr/share/system-installer/UI/confirm.py "$partitoner" $LANG_SET $TIME_ZONE $USERNAME $COMPNAME $PASS $EXTRAS $UPDATES 2>>/tmp/system-installer.log
+set +Ee
 ## STEP 9: INSTALL THE SYSTEM
 if [ "$UPDATES" == "1" ]; then
 	touch updates.flag
 fi
-/usr/share/system-installer/installer.sh "$partitoner" $TYPE $LANG_SET $TIME_ZONE $USERNAME $COMPNAME $PASS $EXTRAS 2>>/tmp/system-installer.log | zenity --progress --text="Installing Drauger OS to your internal hard drive.\nThis may take some time. If you have an error, please send\nthe log file (located at /tmp/system-installer.log) to: contact@draugeros.org" --time-remaining --no-cancel
+/usr/share/system-installer/installer.sh "$partitoner" $TYPE $LANG_SET $TIME_ZONE $USERNAME $COMPNAME $PASS $EXTRAS 2>>/tmp/system-installer.log | zenity --progress --text="Installing Drauger OS to your internal hard drive.\nThis may take some time. If you have an error, please send\nthe log file (located at /tmp/system-installer.log) to: contact@draugeros.org" --time-remaining --no-cancel --auto-close || echo "Error detected. Handling . . ."
+test="$?"
+if [ "$test" == "0" ]; then
+	/usr/share/system-installer/UI/success.py
+else
+	/usr/share/system-installer/UI/error.py "Installation has failed. Please send the log file at /tmp/system-installer.log to contact@draugeros.org along with a discription of the issue you experienced. Or, submit an issue on our GitHub at https://github.com/drauger-os-development/system-installer"
+fi
+exit "$test"

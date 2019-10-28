@@ -23,8 +23,8 @@
 #
 #This file handles most of the installation INSIDE the chroot
 echo "37"
-set -e
-set -o pipefail
+#set -e
+#set -o pipefail
 LANG_SET="$1"
 TIME_ZONE="$2"
 USERNAME="$3"
@@ -66,6 +66,7 @@ echo "84"
 echo "root:$PASS" | chpasswd
 echo "85"
 #STEP 9: Initramfs
+apt install -y linux-headers-drauger linux-image-drauger
 update-initramfs -u
 echo "87"
 #STEP 10: GRUB
@@ -73,7 +74,7 @@ if [ "$EFI" != "NULL" ]; then
 	grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="Drauger OS"
 	echo "88"
 else
-	grub-install --target=i386-pc "$MOUNT"
+	grub-install --force --target=i386-pc "$ROOT"
 	echo "88"
 fi
 
