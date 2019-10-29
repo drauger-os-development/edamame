@@ -27,13 +27,19 @@ echo "1"
 #set -e
 #set -o pipefail
 partitioner="$1"
-TYPE="$2"
-LANG_SET="$3"
-TIME_ZONE="$4"
-USERNAME="$5"
-COMPNAME="$6"
-PASS="$7"
-EXTRAS="$8"
+LANG_SET="$2"
+TIME_ZONE="$3"
+USERNAME="$4"
+COMP_NAME="$5"
+PASS="$6"
+EXTRAS="$7"
+echo "LANG_SET = $LANG_SET
+TIME_ZONE = $TIME_ZONE
+USERNAME = $USERNAME
+COMP_NAME = $COMP_NAME
+PASS = $PASS
+EXTRAS = $EXTRAS
+PARTITIONER = $partitioner" 1>&2
 #UPDATES="$10"
 #SWAP="$11"
 if [ -f updates.flag ]; then
@@ -181,8 +187,15 @@ if [ "$UPDATES" == "" ]; then
 	echo "\$UPDATES is not set. Defaulting to false." >>/tmp/system-installer.log
 	UPDATES=false
 fi
-# we don't check EFI or ROOT cause if they weren't set the script would have failed. 
+# we don't check EFI or ROOT cause if they weren't set the script would have failed.
+cd /mnt
+mount --rbind /dev dev/
+mount --rbind /sys sys/
+mount -t proc proc proc/
 chroot /mnt '/MASTER.sh' "$LANG_SET" "$TIME_ZONE" "$USERNAME" "$COMP_NAME" "$PASS" "$EXTRAS" "$UPDATES" "$EFI" "$ROOT" 2>>/tmp/system-installer.log
+umount dev/ || echo "Unable to unmount dev. Continuing . . ." 1>>/tmp/system-installer.log
+umount sys/ || echo "Unable to unmount sys. Continuing . . ." 1>>/tmp/system-installer.log
+umount proc/ || echo "Unable to unmount proc. Continuing . . ." 1>>/tmp/system-installer.log
 #STEP 7: Clean up
 #I know this isn't the best way of doing this, but it is easier than changing each of the file name in $LIST
 for each in $LIST; do
