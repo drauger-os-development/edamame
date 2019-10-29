@@ -76,6 +76,7 @@ elif [ "$TIME_ZONE" == "AGT" ] || [ "$TIME_ZONE" == "BET" ]; then
 elif [ "$TIME_ZONE" == "CAT" ]; then
 	settime "GMT-1"
 else
+	echo "Time Zone $TIME_ZONE not recognized. Defaulting to GMT" 1>&2
 	settime "GMT"
 fi
 echo "41"

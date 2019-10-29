@@ -24,12 +24,12 @@
 echo "	###	install_updates.sh STARTED	###	" 1>&2
 set -e
 set -o pipefail
-apt update
+apt update 2>/dev/null 1>/tmp/system-installer.log
 echo "67"
-apt -y dist-upgrade
+apt -y dist-upgrade 2>/dev/null 1>/tmp/system-installer.log
 echo "70"
-apt -y autoremove
+apt -y autoremove 2>/dev/null 1>/tmp/system-installer.log
 echo "72"
-apt clean
+apt clean 2>/dev/null 1>/tmp/system-installer.log
 echo "74"
 echo "	###	install_updates.sh CLOSED	###	" 1>&2

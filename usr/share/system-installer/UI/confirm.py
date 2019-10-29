@@ -52,13 +52,14 @@ else:
 # else:
 	# EFI = "No"
 
-# partitioner = partitioner.split()
-# count = 0
-# for each in partitioner:
-	# if (each == ","):
-		# partitioner[count] = " "
-	# count = count + 1
-# partitioner = "".join(partitioner)
+partitioner = partitioner.split()
+count = 0
+for each in partitioner:
+	if (each == ","):
+		partitioner[count] = """
+"""
+	count = count + 1
+partitioner = "".join(partitioner)
 
 class main(Gtk.Window):
 

@@ -34,7 +34,7 @@ usermod -a -G sudo "$USERNAME"
 usermod -a -G dip "$USERNAME"
 usermod -a -G plugdev "$USERNAME"
 usermod -a -G lpadmin "$USERNAME"
-usermod -a -g sambashare "$USERNAME"
+usermod -a -g sambashare "$USERNAME" 2>/dev/null || echo "samabashare group does not exist. Cannot add $USERNAME" 1>&2
 echo "51"
 echo "$USERNAME:$PASS" | chpasswd
 echo "52"
@@ -42,7 +42,7 @@ cp -R /home/live/* /home/$USERNAME
 chown -R "$USERNAME:$USERNAME" /home/$USERNAME/*
 echo "54"
 #remove live user
-deluser live --remove-home
+deluser live --remove-home || rm -rf /home/live
 echo "55"
 echo "	###	make_user.sh CLOSED	###	" 1>&2
 

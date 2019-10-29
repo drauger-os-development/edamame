@@ -33,26 +33,26 @@ USERNAME="$4"
 COMP_NAME="$5"
 PASS="$6"
 EXTRAS="$7"
+UPDATES="$8"
 echo "LANG_SET = $LANG_SET
 TIME_ZONE = $TIME_ZONE
 USERNAME = $USERNAME
 COMP_NAME = $COMP_NAME
 PASS = $PASS
 EXTRAS = $EXTRAS
+UPDATES = $UPDATES
 PARTITIONER = $partitioner" 1>&2
-#UPDATES="$10"
 #SWAP="$11"
-if [ -f updates.flag ]; then
-	UPDATES=true
-else
-	UPDATES=false
-fi
 echo "3"
 partitioner=$(echo "$partitioner" | sed 's/,/ /g' | sed 's/ROOT://' | sed 's/EFI://' | sed 's/HOME://' | sed 's/SWAP://')
 ROOT=$(echo "$partitioner" | awk '{print $1}')
 EFI=$(echo "$partitioner" | awk '{print $2}')
 HOME=$(echo "$partitioner" | awk '{print $3}')
 SWAP=$(echo "$partitioner" | awk '{print $4}')
+echo "ROOT = $ROOT
+EFI = $EFI
+HOME = $HOME
+SWAP = $SWAP" 1>&2
 #STEP 1: Partion and format the drive
 # Don't worry about this right now. Taken care of earlier.
 #if [ "$partitioner" == "auto" ]; then

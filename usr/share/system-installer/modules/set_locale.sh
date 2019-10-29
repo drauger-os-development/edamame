@@ -29,7 +29,7 @@ setlocale ()
 {
 	sed -i 's/# $1.UTF-8 UTF-8/$1.UTF-8 UTF-8/g' /etc/locale.gen
 	echo "41"
-	locale-gen
+	locale-gen 1>&2
 	echo "42"
 	update-locale LANG="$1.UTF-8" LANGUAGE
 	echo "43"
