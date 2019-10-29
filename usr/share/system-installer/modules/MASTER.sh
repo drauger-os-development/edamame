@@ -22,6 +22,7 @@
 #
 #
 #This file handles most of the installation INSIDE the chroot
+echo "	###	$0 STARTED	###	" 1>&2
 echo "37"
 #set -e
 #set -o pipefail
@@ -34,6 +35,16 @@ EXTRAS="$6"
 UPDATES="$7"
 EFI="$8"
 ROOT="$9"
+#Variable Verification
+echo "LANG_SET = $LANG_SET
+TIME_ZONE = $TIME_ZONE
+USERNAME = $USERNAME
+COMP_NAME = $COMP_NAME
+PASS = $PASS
+EXTRAS = $EXTRAS
+UPDATES = $UPDATES
+EFI = $EFI
+ROOT = $ROOT" 1>&2
 echo "39"
 #STEP 1: Set the time
 . /set_time.sh "$TIME_ZONE"
@@ -42,6 +53,7 @@ echo "42"
 . /set_locale.sh "$LANG_SET"
 echo "47"
 #STEP 3: Set Computer name
+echo "Setting hostname to \"$COMP_NAME\"" 1>&2
 hostnamectl set-hostname "$COMP_NAME"
 echo "48"
 #STEP 4: Make user account
@@ -66,7 +78,11 @@ echo "84"
 echo "root:$PASS" | chpasswd
 echo "85"
 #STEP 9: Initramfs
-apt install -y linux-headers-drauger linux-image-drauger
+echo "DOING SOME QUICK CLEAN UP BEFORE SETTING UP INITRAMFS AND GRUB" 1>&2
+apt install -y --reinstall linux-headers-drauger linux-image-drauger
+apt purge -y system-installer
+apt autoremove
+apt clean
 update-initramfs -u
 echo "87"
 #STEP 10: GRUB
@@ -77,5 +93,6 @@ else
 	grub-install --force --target=i386-pc "$ROOT"
 	echo "88"
 fi
+echo "	###	$0 CLOSED	###	" 1>&2
 
 

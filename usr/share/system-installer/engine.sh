@@ -23,6 +23,7 @@
 #
 #STEP 1: Figure out if we have enough space to install
 #get list of mounted file systems
+echo "	###	$0 STARTED	###	" 1>&2
 list=$(lsblk | grep "disk" | awk '{print $4}')
 #remove all the fs in the megabyte range
 removeM=$(echo "$list" | grep 'M')
@@ -172,4 +173,5 @@ if [ "$test" == "0" ]; then
 else
 	/usr/share/system-installer/UI/error.py "Installation has failed. Please send the log file at /tmp/system-installer.log to contact@draugeros.org along with a discription of the issue you experienced. Or, submit an issue on our GitHub at https://github.com/drauger-os-development/system-installer"
 fi
+echo "	###	$0 CLOSED	###	" 1>&2
 exit "$test"

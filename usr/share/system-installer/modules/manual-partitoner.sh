@@ -26,6 +26,7 @@
 # This monstrosity of code barely works. Only fuck with it if you know
 # what you are doing. If you have no idea, don't do it.
 # Thou hath been warned.
+echo "	###	manual-partitioner.sh STARTED	###	" 1>&2
 EFI="$1"
 partitioner="$2"
 TYPE="$3"
@@ -137,3 +138,4 @@ EOF
 	fi
 	echo "/dev/$LIST"
 fi
+echo "	###	manual-partitioner.sh CLOSED	###	" 1>&2

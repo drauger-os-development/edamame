@@ -21,6 +21,7 @@
 #  MA 02110-1301, USA.
 #
 #
+echo "	###	make_swap.sh STARTED	###	" 1>&2
 SWAP="$1"
 KB=(( $SWAP * 1024 ))
 echo "54"
@@ -33,4 +34,5 @@ echo "59"
 #STEP 3: Make the file a swapspace
 mkswap /.swapfile
 echo "60"
+echo "	###	make_swap.sh CLOSED	###	" 1>&2
 

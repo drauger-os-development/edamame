@@ -21,6 +21,7 @@
 #  MA 02110-1301, USA.
 #
 #
+echo "	###	set_time.sh STARTED	###	" 1>&2
 settime () {
 	ln -sf /usr/share/zoneinfo/Etc/"$1" /etc/localtime
 }
@@ -79,3 +80,4 @@ else
 fi
 echo "41"
 hwclock --systohc
+echo "	###	set_time.sh CLOSED	###	" 1>&2

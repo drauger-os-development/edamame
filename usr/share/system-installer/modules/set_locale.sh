@@ -21,8 +21,9 @@
 #  MA 02110-1301, USA.
 #
 #
-set -e
-set -o pipefail
+echo "	###	set_locale.sh STARTED	###	" 1>&2
+#set -e
+#set -o pipefail
 set_LANG="$1"
 setlocale ()
 {
@@ -55,5 +56,7 @@ elif [ "$set_LANG" == "korean" ]; then
 elif [ "$set_LANG" == "russian" ]; then
 	setlocale "ru_RU"
 else
-	exit 0
+	echo "No locale set. Defaulting to en_US.UTF-8" 1>&2
+	setlocale "en_US"
 fi
+echo "	###	set_locale.sh CLOSED	###	" 1>&2

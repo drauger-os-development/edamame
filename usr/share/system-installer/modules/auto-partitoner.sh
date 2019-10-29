@@ -21,6 +21,7 @@
 #  MA 02110-1301, USA.
 #
 #
+echo "	###	auto-partioner.sh STARTED	###	" 1>&2
 set -e
 EFI="$1"
 disks=$(lsblk -o name,type,label | grep "disk" | grep -v "Drauger OS" | awk '{print $1}')
@@ -78,3 +79,4 @@ EOF
 	mkfs.ext4 -L "ROOT" /dev/"$DISK1"
 fi
 echo "/dev/$DISK"
+echo "	###	auto-partioner.sh CLOSED	###	" 1>&2

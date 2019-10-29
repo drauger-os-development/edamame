@@ -21,6 +21,7 @@
 #  MA 02110-1301, USA.
 #
 #
+echo "	###	install_extras.sh STARTED	###	" 1>&2
 set -e
 set -o pipefail
 apt update
@@ -50,7 +51,8 @@ fi
 echo "82"
 apt install -y $toinstall
 echo "83"
-if [ "$toremove" != "" ];
+if [ "$toremove" != "" ]; then
 	apt purge -y $toremove || echo "Package Not Found? Maybe? Double check cause gstreamer1.0-fluendo-mp3 threw an error during removal" 1>&2
 	echo "83"
 fi
+echo "	###	install_extras.sh CLOSED	###	" 1>&2

@@ -21,6 +21,7 @@
 #  MA 02110-1301, USA.
 #
 #
+echo "	###	install_updates.sh STARTED	###	" 1>&2
 set -e
 set -o pipefail
 apt update
@@ -31,3 +32,4 @@ apt -y autoremove
 echo "72"
 apt clean
 echo "74"
+echo "	###	install_updates.sh CLOSED	###	" 1>&2

@@ -21,6 +21,7 @@
 #  MA 02110-1301, USA.
 #
 #
+echo "	###	make_user.sh STARTED	###	" 1>&2
 USERNAME="$1"
 PASS="$2"
 echo "49"
@@ -43,4 +44,5 @@ echo "54"
 #remove live user
 deluser live --remove-home
 echo "55"
+echo "	###	make_user.sh CLOSED	###	" 1>&2
 
