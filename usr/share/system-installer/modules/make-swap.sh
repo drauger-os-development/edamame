@@ -22,7 +22,7 @@
 #
 #
 echo "	###	make_swap.sh STARTED	###	" 1>&2
-SWAP="$1"
+SWAP=$(free -m | awk '{print $2}' | grep -v 'used' | head -n 1)
 KB=(( $SWAP * 1024 ))
 echo "54"
 #STEP 1: allocate file
