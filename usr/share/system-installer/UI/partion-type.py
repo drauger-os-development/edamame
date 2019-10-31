@@ -48,6 +48,8 @@ class main(Gtk.Window):
 
 	Furthermore, please ensure you apply the changes to the partiton table when you are done.
 
+	Finally, please make sure to mark the approptiate partition as bootable under "flags".
+
 	If you are not familiar with partitioning drives or the above was gibberish to you, please exit this installer NOW.
 	Partioning drives risks a loss in data if you are inexperienced.
 

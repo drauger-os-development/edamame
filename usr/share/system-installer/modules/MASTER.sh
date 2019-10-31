@@ -54,7 +54,8 @@ echo "42"
 echo "47"
 #STEP 3: Set Computer name
 echo "Setting hostname to \"$COMP_NAME\"" 1>&2
-hostnamectl set-hostname "$COMP_NAME"
+echo "$COMP_NAME" > /etc/hostname
+echo "127.0.1.1	$COMP_NAME" >> /etc/hosts
 echo "48"
 #STEP 4: Make user account
 . /make_user.sh "$USERNAME" "$PASS"
@@ -86,20 +87,25 @@ echo "root:$PASS" | chpasswd
 echo "85"
 #STEP 9: Initramfs
 echo "DOING SOME QUICK CLEAN UP BEFORE SETTING UP INITRAMFS AND GRUB" 1>&2
-apt-cache depends linux-headers-drauger linux-image-drauger | grep '[ |]Depends: [^<]' | cut -d: -f2 | tr -d ' ' | xargs apt install --reinstall -y 2>/dev/null 1>>/tmp/system-installer.log
-apt purge -y system-installer 2>/dev/null 1>>/tmp/system-installer.log
-apt -y autoremove 2>/dev/null 1>>/tmp/system-installer.log
-apt clean 2>/dev/null 1>>/tmp/system-installer.log
-mkinitramfs -o /boot/initrd.img-$(uname --release) 2>/dev/null 1>>/tmp/system-installer.log
+{
+	apt-cache depends linux-headers-drauger linux-image-drauger | grep '[ |]Depends: [^<]' | cut -d: -f2 | tr -d ' ' | xargs apt install --reinstall -y
+	apt purge -y system-installer
+	apt -y autoremove
+	apt clean
+	#mkinitramfs -o /boot/initrd.img-$(uname --release)
+} 2>/dev/null 1>>/tmp/system-installer.log
 echo "87"
 #STEP 10: GRUB
 if [ "$EFI" != "NULL" ]; then
 	grub-install --force --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="Drauger OS" 1>>/tmp/system-installer.log
-	echo "88"
 else
 	grub-install --force --target=i386-pc "$ROOT" 1>>/tmp/system-installer.log
-	echo "88"
 fi
+grub-mkconfig -o /boot/grub/grub.cfg
+mkinitramfs -o /boot/initrd.img-$(uname --release)
+ln /boot/initrd.img /boot/initrd.img-$(uname --release)
+ln /boot/vmlinuz /boot/vmlinux-$(uname --release)
+echo "88"
 echo "	###	$0 CLOSED	###	" 1>&2
 
 

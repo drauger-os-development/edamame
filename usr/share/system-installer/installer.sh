@@ -188,14 +188,14 @@ if [ "$UPDATES" == "" ]; then
 	UPDATES=false
 fi
 # we don't check EFI or ROOT cause if they weren't set the script would have failed.
-cd /mnt
-mount --rbind /dev dev/
-mount --rbind /sys sys/
-mount -t proc proc proc/
-chroot /mnt '/MASTER.sh' "$LANG_SET" "$TIME_ZONE" "$USERNAME" "$COMP_NAME" "$PASS" "$EXTRAS" "$UPDATES" "$EFI" "$ROOT" 2>>/tmp/system-installer.log
-umount dev/ || echo "Unable to unmount dev. Continuing . . ." 1>>/tmp/system-installer.log
-umount sys/ || echo "Unable to unmount sys. Continuing . . ." 1>>/tmp/system-installer.log
-umount proc/ || echo "Unable to unmount proc. Continuing . . ." 1>>/tmp/system-installer.log
+#cd /mnt
+#mount --rbind /dev dev/
+#mount --rbind /sys sys/
+#mount -t proc proc proc/
+arch-chroot /mnt '/MASTER.sh' "$LANG_SET" "$TIME_ZONE" "$USERNAME" "$COMP_NAME" "$PASS" "$EXTRAS" "$UPDATES" "$EFI" "$ROOT" 2>>/tmp/system-installer.log
+#umount dev/ || echo "Unable to unmount dev. Continuing . . ." 1>>/tmp/system-installer.log
+#umount sys/ || echo "Unable to unmount sys. Continuing . . ." 1>>/tmp/system-installer.log
+#umount proc/ || echo "Unable to unmount proc. Continuing . . ." 1>>/tmp/system-installer.log
 #STEP 7: Clean up
 #I know this isn't the best way of doing this, but it is easier than changing each of the file name in $LIST
 for each in $LIST; do
