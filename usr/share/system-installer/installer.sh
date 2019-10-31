@@ -34,14 +34,6 @@ COMP_NAME="$5"
 PASS="$6"
 EXTRAS="$7"
 UPDATES="$8"
-echo "LANG_SET = $LANG_SET
-TIME_ZONE = $TIME_ZONE
-USERNAME = $USERNAME
-COMP_NAME = $COMP_NAME
-PASS = $PASS
-EXTRAS = $EXTRAS
-UPDATES = $UPDATES
-PARTITIONER = $partitioner" 1>&2
 #SWAP="$11"
 echo "3"
 partitioner=$(echo "$partitioner" | sed 's/,/ /g' | sed 's/ROOT://' | sed 's/EFI://' | sed 's/HOME://' | sed 's/SWAP://')
@@ -110,6 +102,7 @@ if [ "$SQUASHFS" == "" ] || [ ! -f "$SQUASHFS" ]; then
 fi
 echo "17"
 cd /mnt
+echo "EXTRACTING SQUASHFS" 1>&2
 unsquashfs "$SQUASHFS" 1>/dev/null
 # While it would be faster to do something like:
 #	mv squashfs-root/{.,}* ../
@@ -117,11 +110,11 @@ unsquashfs "$SQUASHFS" 1>/dev/null
 file_list=$(ls squashfs-root)
 set +Ee
 for each in $file_list; do
-	mv /mnt/squashfs-root/$each /mnt/$each
+	mv -v /mnt/squashfs-root/$each /mnt/$each 1>&2
 done
-rm -rf squashfs-root
+rm -rfv squashfs-root 1>&2
 mkdir /mnt/boot 2>/dev/null || echo "/mnt/boot already created" 1>&2
-cp -R /boot /mnt/boot
+cp -Rv /boot /mnt/boot 1>&2
 echo "32"
 #STEP 4: Update fstab
 rm /mnt/etc/fstab
@@ -198,11 +191,12 @@ arch-chroot /mnt '/MASTER.sh' "$LANG_SET" "$TIME_ZONE" "$USERNAME" "$COMP_NAME" 
 #umount proc/ || echo "Unable to unmount proc. Continuing . . ." 1>>/tmp/system-installer.log
 #STEP 7: Clean up
 #I know this isn't the best way of doing this, but it is easier than changing each of the file name in $LIST
+echo "Removing installation scripts and resetting resolv.conf" 1>&2
 for each in $LIST; do
-	rm "/mnt/$each"
+	rm -v "/mnt/$each"
 done
 echo "89"
-rm /mnt/etc/resolv.conf
-mv /mnt/etc/resolv.conf.save /mnt/etc/resolv.conf
+rm -v /mnt/etc/resolv.conf
+mv -v /mnt/etc/resolv.conf.save /mnt/etc/resolv.conf
 echo "100"
 echo "	###	$0 CLOSED	###	" 1>&2

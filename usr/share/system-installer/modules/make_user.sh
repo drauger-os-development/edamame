@@ -38,11 +38,15 @@ usermod -a -g sambashare "$USERNAME" 2>/dev/null || echo "samabashare group does
 echo "51"
 echo "$USERNAME:$PASS" | chpasswd
 echo "52"
-cp -R /home/live/* /home/$USERNAME
-chown -R "$USERNAME:$USERNAME" /home/$USERNAME/*
+list=$(ls /home/live)
+for each in $live; do
+	cp -Rv /home/live/$each /home/$USERNAME 1>&2
+done
+chown -R "$USERNAME:$USERNAME" /home/$USERNAME/* || chown -r "$USERNAME:$USERNAME" /home/$USERNAME/*
+chmod 755 -R /home/$USERNAME || chmod 755 -r /home/$USERNAME
 echo "54"
 #remove live user
-deluser live --remove-home || rm -rf /home/live
+deluser live --remove-home || rm -rfv /home/live 1>&2
 echo "55"
 echo "	###	make_user.sh CLOSED	###	" 1>&2
 

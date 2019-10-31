@@ -35,16 +35,6 @@ EXTRAS="$6"
 UPDATES="$7"
 EFI="$8"
 ROOT="$9"
-#Variable Verification
-echo "LANG_SET = $LANG_SET
-TIME_ZONE = $TIME_ZONE
-USERNAME = $USERNAME
-COMP_NAME = $COMP_NAME
-PASS = $PASS
-EXTRAS = $EXTRAS
-UPDATES = $UPDATES
-EFI = $EFI
-ROOT = $ROOT" 1>&2
 echo "39"
 #STEP 1: Set the time
 . /set_time.sh "$TIME_ZONE"
