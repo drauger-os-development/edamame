@@ -16,13 +16,20 @@ mkdir ../"$FOLDER"
 # Instead of compiling, we are building a 7z archive of the latest kernel
 cd usr/share/system-installer/modules
 mkdir kernel
-cp -R /home/batcastle/Dropbox/drauger_files/apt-repo/pool/main/l $PWD/kernel # this will error out if you don't have the Drauger OS apt repo on your local system. Replace with wget or curl to fix this.
-rm -rf $(ls kernel | grep -v 'linux')
+cp -R /home/batcastle/Dropbox/drauger_files/apt-repo/pool/main/l/* $PWD/kernel # this will error out if you don't have the Drauger OS apt repo on your local system. Replace with wget or curl to fix this.
+list=$(ls kernel)
+for each in $list; do
+	if $(echo "$each" | grep -q "linux"); then
+		continue
+	else
+		rm -rf kernel/$each
+	fi
+done
 list=$(ls kernel)
 for each in $list; do
 	remove=$(ls kernel/$each | grep -v 'amd64.deb$')
 	for each2 in $remove; do
-		rm kernel/$each/$each2
+		rm -rf kernel/$each/$each2
 	done
 done
 7z a -t7z kernel.7z kernel
@@ -93,7 +100,7 @@ fi
 cp -R DEBIAN ../"$FOLDER"/DEBIAN
 cd ..
 #DELETE STUFF HERE
-rm usr/share/system-installer/modules/kernel.7z
+rm system-installer/usr/share/system-installer/modules/kernel.7z
 #build the shit
 dpkg-deb --build "$FOLDER"
 rm -rf "$FOLDER"
