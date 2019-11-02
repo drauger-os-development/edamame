@@ -36,6 +36,17 @@ UPDATES="$7"
 EFI="$8"
 ROOT="$9"
 echo "39"
+#STEP 1: Check for internet
+function check_internet ()
+{
+	case "$(curl -s --max-time 2 -I http://google.com | sed 's/^[^ ]*  *\([0-9]\).*/\1/; 1q')" in
+		[23]) return true;;
+		5) return false;;
+		*) return false;;
+	esac
+}
+
+internet=$(check_internet)
 #STEP 1: Set the time
 . /set_time.sh "$TIME_ZONE"
 echo "42"
@@ -78,10 +89,19 @@ echo "85"
 #STEP 9: Initramfs
 echo "DOING SOME QUICK CLEAN UP BEFORE SETTING UP INITRAMFS AND GRUB" 1>&2
 {
-	install=$(apt-cache depends linux-headers-drauger linux-image-drauger | grep '[ |]Depends: [^<]' | cut -d: -f2 | tr -d ' ')
-	apt install -y --reinstall linux-headers-drauger linux-image-drauger $install
+	if [ $internet ]; then
+		install=$(apt-cache depends linux-headers-drauger linux-image-drauger | grep '[ |]Depends: [^<]' | cut -d: -f2 | tr -d ' ')
+		apt install -y --reinstall linux-headers-drauger linux-image-drauger $install
+	else
+		7z x kernel.7z
+		apt purge -y linux-headers-drauger linux-image-drauger
+		apt autoremove -y
+		apt purge $(dpkg -l | grep '^rc' | awk '{print $2}')
+		apt install -y kernel/*
+		rm -rf kernel
+	fi
 	apt purge -y system-installer
-	apt -y autoremove
+	apt autoremove -y
 	apt clean
 	#mkinitramfs -o /boot/initrd.img-$(uname --release)
 } 1>>/tmp/system-installer.log
