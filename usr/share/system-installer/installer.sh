@@ -41,10 +41,6 @@ ROOT=$(echo "$partitioner" | awk '{print $1}')
 EFI=$(echo "$partitioner" | awk '{print $2}')
 HOME=$(echo "$partitioner" | awk '{print $3}')
 SWAP=$(echo "$partitioner" | awk '{print $4}')
-echo "ROOT = $ROOT
-EFI = $EFI
-HOME = $HOME
-SWAP = $SWAP" 1>&2
 #STEP 1: Partion and format the drive
 # Don't worry about this right now. Taken care of earlier.
 #if [ "$partitioner" == "auto" ]; then

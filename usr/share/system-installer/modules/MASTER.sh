@@ -39,10 +39,10 @@ echo "39"
 #STEP 1: Check for internet
 function check_internet ()
 {
-	case "$(curl -s --max-time 2 -I http://google.com | sed 's/^[^ ]*  *\([0-9]\).*/\1/; 1q')" in
-		[23]) return true;;
-		5) return false;;
-		*) return false;;
+	case "$(curl -s --max-time 2 -I https://draugeros.org | sed 's/^[^ ]*  *\([0-9]\).*/\1/; 1q')" in
+		[23]) return 0;;
+		5) return 1;;
+		*) return 1;;
 	esac
 }
 
@@ -89,7 +89,7 @@ echo "85"
 #STEP 9: Initramfs
 echo "DOING SOME QUICK CLEAN UP BEFORE SETTING UP INITRAMFS AND GRUB" 1>&2
 {
-	if [ $internet ]; then
+	if [ "$internet" == "0" ]; then
 		install=$(apt-cache depends linux-headers-drauger linux-image-drauger | grep '[ |]Depends: [^<]' | cut -d: -f2 | tr -d ' ')
 		apt install -y --reinstall linux-headers-drauger linux-image-drauger $install
 	else
