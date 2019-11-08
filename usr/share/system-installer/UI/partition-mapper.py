@@ -41,7 +41,7 @@ class main(Gtk.Window):
 	<b> / MUST BE USED </b>
 	""")
 		self.label.set_justify(Gtk.Justification.LEFT)
-		self.grid.attach(self.label, 1, 1, 2, 1)
+		self.grid.attach(self.label, 1, 1, 3, 1)
 
 		self.label2 = Gtk.Label()
 		self.label2.set_markup("/")
@@ -51,6 +51,13 @@ class main(Gtk.Window):
 		self.root = Gtk.Entry()
 		self.grid.attach(self.root, 2, 2, 1, 1)
 
+		self.root_type = Gtk.ComboBoxText.new()
+		self.root_type.append("ext4","ext4")
+		self.root_type.append("ext3","ext3")
+		self.root_type.append("ext2","ext2")
+		self.root_type.append("btrfs","btrfs")
+		self.grid.attach(self.root_type, 3, 2, 1, 1)
+
 		self.label3 = Gtk.Label()
 		self.label3.set_markup("/boot/efi")
 		self.label3.set_justify(Gtk.Justification.RIGHT)
@@ -58,6 +65,11 @@ class main(Gtk.Window):
 
 		self.efi = Gtk.Entry()
 		self.grid.attach(self.efi, 2, 3, 1, 1)
+
+		self.label5 = Gtk.Label()
+		self.label5.set_markup("Must be fat32")
+		self.label5.set_justify(Gtk.Justification.RIGHT)
+		self.grid.attach(self.label5, 3, 3, 1, 1)
 
 		self.label4 = Gtk.Label()
 		self.label4.set_markup("/home")
@@ -67,6 +79,16 @@ class main(Gtk.Window):
 		self.home = Gtk.Entry()
 		self.grid.attach(self.home, 2, 4, 1, 1)
 
+		self.home_type = Gtk.ComboBoxText.new()
+		self.home_type.append("(blank)","(no /home)")
+		self.home_type.append("ext4","ext4")
+		self.home_type.append("ext3","ext3")
+		self.home_type.append("ext2","ext2")
+		self.home_type.append("btrfs","btrfs")
+		self.home_type.append("xfs","xfs")
+		self.home_type.append("zfs","zfs")
+		self.grid.attach(self.home_type, 3, 4, 1, 1)
+
 		self.label4 = Gtk.Label()
 		self.label4.set_markup("SWAP")
 		self.label4.set_justify(Gtk.Justification.RIGHT)
@@ -75,9 +97,14 @@ class main(Gtk.Window):
 		self.swap = Gtk.Entry()
 		self.grid.attach(self.swap, 2, 5, 1, 1)
 
+		self.label5 = Gtk.Label()
+		self.label5.set_markup("Must be linux-swap or file")
+		self.label5.set_justify(Gtk.Justification.RIGHT)
+		self.grid.attach(self.label5, 3, 5, 1, 1)
+
 		self.button1 = Gtk.Button.new_with_label("Okay -->")
 		self.button1.connect("clicked", self.onnextclicked)
-		self.grid.attach(self.button1, 2, 6, 1, 1)
+		self.grid.attach(self.button1, 3, 6, 1, 1)
 
 		self.button2 = Gtk.Button.new_with_label("Exit")
 		self.button2.connect("clicked", self.onexitclicked)
@@ -107,6 +134,7 @@ class main(Gtk.Window):
 				self.label.set_justify(Gtk.Justification.LEFT)
 				self.grid.attach(self.label, 1, 1, 2, 1)
 				root = self.root.get_text()
+				root_type = self.root_type.get_active_text()
 			if (self.efi.get_text() == ""):
 				efi = "NULL"
 			else:
@@ -115,11 +143,13 @@ class main(Gtk.Window):
 				home = "NULL"
 			else:
 				home = self.home.get_text()
+				home_type = self.home_type.get_active_text()
 			if (self.swap.get_text() == ""):
 				swap = "FILE"
 			else:
 				swap = self.swap.get_text()
-			print("ROOT:%s,EFI:%s,HOME:%s,SWAP:%s" % (root,efi,home,swap))
+
+			print("ROOT:%s:%s,EFI:%s,HOME:%s:%s,SWAP:%s" % (root,root_type,efi,home,home_type,swap))
 			exit(0)
 
 

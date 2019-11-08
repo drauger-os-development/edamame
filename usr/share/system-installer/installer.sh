@@ -37,9 +37,9 @@ UPDATES="$8"
 #SWAP="$11"
 echo "3"
 partitioner=$(echo "$partitioner" | sed 's/,/ /g' | sed 's/ROOT://' | sed 's/EFI://' | sed 's/HOME://' | sed 's/SWAP://')
-ROOT=$(echo "$partitioner" | awk '{print $1}')
+ROOT=$(echo "$partitioner" | awk '{print $1}' | sed 's/:/ /g')
 EFI=$(echo "$partitioner" | awk '{print $2}')
-HOME=$(echo "$partitioner" | awk '{print $3}')
+HOME=$(echo "$partitioner" | awk '{print $3}' | sed 's/:/ /g')
 SWAP=$(echo "$partitioner" | awk '{print $4}')
 #STEP 1: Partion and format the drive
 # Don't worry about this right now. Taken care of earlier.
@@ -58,9 +58,9 @@ if [ "$EFI" != "NULL" ]; then
 	mkdir -p /mnt/boot/efi
 	mount "$EFI" /mnt/boot/efi
 fi
-if [ "$HOME" != "NULL" ]; then
+if $(echo "$HOME" | grep -q "NULL"); then
 	mkdir -p /mnt/home
-	mount "$HOME" /mnt/home
+	mount $(echo "$HOME" | awk '{print $1}') /mnt/home
 fi
 if [ "$SWAP" != "FILE" ]; then
 	swapon "$SWAP"
@@ -122,12 +122,12 @@ echo "# /etc/fstab: static file system information.
 # that works even if disks are added and removed. See fstab(5).
 #
 # <file system>	<mount point>	<type>	<options>	<dump>	<pass>
-UUID=$(lsblk -dno UUID $ROOT)	/	ext4	defaults	0	1" > /mnt/etc/fstab
+UUID=$(lsblk -dno UUID $(echo $ROOT | awk '{print $1}'))	/	ext4	defaults	0	1" > /mnt/etc/fstab
 if [ "$EFI" != "NULL" ]; then
 	echo "UUID=$(lsblk -dno UUID $EFI)	/boot/efi	vfat	defaults	0	2" >> /mnt/etc/fstab
 fi
 if [ "$HOME" != "NULL" ]; then
-	echo "UUID=$(lsblk -dno UUID $HOME)	/home	defaults	0	3" >> /mnt/etc/fstab
+	echo "UUID=$(lsblk -dno UUID $(echo $HOME | awk '{print $1}'))	/home	defaults	0	3" >> /mnt/etc/fstab
 fi
 if [ "$SWAP" != "FILE" ]; then
 	echo "UUID=$(lsblk -dno UUID $SWAP)	none	swap	sw	0	0" >> /mnt/etc/fstab
@@ -181,7 +181,7 @@ fi
 #mount --rbind /dev dev/
 #mount --rbind /sys sys/
 #mount -t proc proc proc/
-arch-chroot /mnt '/MASTER.sh' "$LANG_SET" "$TIME_ZONE" "$USERNAME" "$COMP_NAME" "$PASS" "$EXTRAS" "$UPDATES" "$EFI" "$ROOT" 2>>/tmp/system-installer.log
+arch-chroot /mnt '/MASTER.sh' "$LANG_SET" "$TIME_ZONE" "$USERNAME" "$COMP_NAME" "$PASS" "$EXTRAS" "$UPDATES" "$EFI" $(echo "$ROOT" | awk '{print $1}') 2>>/tmp/system-installer.log
 #umount dev/ || echo "Unable to unmount dev. Continuing . . ." 1>>/tmp/system-installer.log
 #umount sys/ || echo "Unable to unmount sys. Continuing . . ." 1>>/tmp/system-installer.log
 #umount proc/ || echo "Unable to unmount proc. Continuing . . ." 1>>/tmp/system-installer.log

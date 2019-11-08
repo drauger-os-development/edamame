@@ -72,6 +72,7 @@ fi
 # STEP 3: Show splash screen
 #start up main.py
 #	main.py has some important info the user will need while installing. Such as warnings and instructions.
+set -Ee
 continue=$(/usr/share/system-installer/UI/main.py 2>&1 2>>/tmp/system-installer.log)
 if [ "$continue" == "1" ]; then
 	exit 0
@@ -131,7 +132,6 @@ partitoner=$(/usr/share/system-installer/UI/partition-mapper.py 2>>/tmp/system-i
 	#exit 2
 #fi
 #STEP 5: figure out their Locale
-set -Ee
 LOCALE=$(/usr/share/system-installer/UI/get_locale.py 2>>/tmp/system-installer.log)
 set -- $LOCALE
 #if this is anything OTHER than English we gonna have to install the locale
@@ -163,7 +163,7 @@ set -Ee
 /usr/share/system-installer/UI/confirm.py "$partitoner" $LANG_SET $TIME_ZONE $USERNAME $COMPNAME $PASS $EXTRAS $UPDATES 2>>/tmp/system-installer.log
 set +Ee
 ## STEP 9: INSTALL THE SYSTEM
-/usr/share/system-installer/installer.sh "$partitoner" $LANG_SET $TIME_ZONE $USERNAME $COMPNAME $PASS $EXTRAS $UPDATES 2>>/tmp/system-installer.log | zenity --progress --text="Installing Drauger OS to your internal hard drive.\nThis may take some time. If you have an error, please send\nthe log file (located at /tmp/system-installer.log) to: contact@draugeros.org" --time-remaining --no-cancel --auto-close || echo "Error detected. Handling . . ."
+/usr/share/system-installer/installer.sh "$partitoner" $LANG_SET $TIME_ZONE $USERNAME $COMPNAME $PASS $EXTRAS $UPDATES 2>>/tmp/system-installer.log | zenity --progress --text="Installing Drauger OS to your internal hard drive.\nThis may take some time. If you have an error, please send\nthe log file (located at /tmp/system-installer.log) to: contact@draugeros.org" --time-remaining --no-cancel --auto-close || /usr/share/system-installer/UI/error.py  "Error detected. Error Code: $?\nPlease see /tmp/system-installer.log for details."
 test="$?"
 if [ "$test" == "0" ]; then
 	/usr/share/system-installer/UI/success.py

@@ -43,11 +43,11 @@ class main(Gtk.Window):
 			self.grid.attach(self.button2, 1, 2, 1, 1)
 
 	def onexitclicked(self,button):
-			exit(argv[2])
+			exit(0)
 
 def show_main():
 	window = main()
-	window.set_decorated(False)
+	window.set_decorated(True)
 	window.set_resizable(False)
 	window.set_position(Gtk.WindowPosition.CENTER)
 	window.connect("delete-event", Gtk.main_quit)

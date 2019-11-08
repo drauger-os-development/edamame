@@ -52,14 +52,29 @@ else:
 # else:
 	# EFI = "No"
 
-partitioner = partitioner.split()
-count = 0
-for each in partitioner:
-	if (each == ","):
-		partitioner[count] = """
-"""
-	count = count + 1
-partitioner = "".join(partitioner)
+partitioner = partitioner.split(",")
+ROOT_LIST = partitioner[0]
+EFI_LIST = partitioner[1]
+HOME_LIST = partitioner[2]
+SWAP_LIST = partitioner[3]
+partitioner = {}
+ROOT_LIST = ROOT_LIST.split(":")
+EFI_LIST = EFI_LIST.split(":")
+HOME_LIST = HOME_LIST.split(":")
+SWAP_LIST = SWAP_LIST.split(":")
+partitioner.update( {"ROOT":[ROOT_LIST[1],ROOT_LIST[2]]} )
+partitioner.update( {"EFI":[EFI_LIST[1]]} )
+partitioner.update( {"HOME":[HOME_LIST[1],HOME_LIST[2]]} )
+partitioner.update( {"SWAP":[SWAP_LIST[1]]} )
+
+
+# count = 0
+# for each in partitioner:
+	# if (each == ","):
+		# partitioner[count] = """
+# """
+	# count = count + 1
+# partitioner = "".join(partitioner)
 
 class main(Gtk.Window):
 
@@ -100,7 +115,10 @@ class main(Gtk.Window):
 		self.grid.attach(self.label4, 1, 4, 1, 1)
 
 		self.label5 = Gtk.Label()
-		self.label5.set_markup("%s" % (partitioner))
+		self.label5.set_markup("""ROOT: %s, TYPE: %s
+EFI: %s
+HOME: %s, TYPE: %s
+SWAP: %s""" % (partitioner["ROOT"][0],partitioner["ROOT"][1],partitioner["EFI"][0],partitioner["HOME"][0],partitioner["HOME"][1],partitioner["SWAP"][0]))
 		self.label5.set_justify(Gtk.Justification.CENTER)
 		self.grid.attach(self.label5, 3, 4, 1, 1)
 

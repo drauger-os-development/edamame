@@ -24,8 +24,8 @@
 #This file handles most of the installation INSIDE the chroot
 echo "	###	$0 STARTED	###	" 1>&2
 echo "37"
-set -e
-set -o pipefail
+#set -e
+#set -o pipefail
 LANG_SET="$1"
 TIME_ZONE="$2"
 USERNAME="$3"
