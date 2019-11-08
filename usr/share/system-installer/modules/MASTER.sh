@@ -112,7 +112,7 @@ echo -e "2\n" | update-alternatives --config default.plymouth
 echo "87"
 #STEP 10: GRUB
 if [ "$EFI" != "NULL" ]; then
-	grub-install --force --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="Drauger OS" "$EFI" 1>>/tmp/system-installer.log
+	grub-install --force --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="Drauger OS" "$(echo $EFI | sed 's/[0-9]//')" 1>>/tmp/system-installer.log
 else
 	grub-install --force --target=i386-pc "$ROOT" 1>>/tmp/system-installer.log
 fi
