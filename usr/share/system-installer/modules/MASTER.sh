@@ -40,9 +40,9 @@ echo "39"
 function check_internet ()
 {
 	case "$(curl -s --max-time 2 -I https://draugeros.org | sed 's/^[^ ]*  *\([0-9]\).*/\1/; 1q')" in
-		[23]) return 0;;
-		5) return 1;;
-		*) return 1;;
+		[23]) echo "0";;
+		5) echo "1";;
+		*) echo "1";;
 	esac
 }
 
@@ -86,8 +86,10 @@ echo "84"
 #STEP 8: Set new root password
 echo "root:$PASS" | chpasswd
 echo "85"
-#STEP 9: Initramfs
+#STEP 9: Kernel, Plymouth, Initramfs
 echo "DOING SOME QUICK CLEAN UP BEFORE SETTING UP INITRAMFS AND GRUB" 1>&2
+update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth /usr/share/plymouth/themes/drauger-theme/drauger-theme.plymouth 100 --slave /usr/share/plymouth/themes/default.grub default.plymouth.grub /usr/share/plymouth/themes/drauger-theme/drauger-theme.grub
+echo -e "2\n" | update-alternatives --config default.plymouth
 {
 	if [ "$internet" == "0" ]; then
 		install=$(apt-cache depends linux-headers-drauger linux-image-drauger | grep '[ |]Depends: [^<]' | cut -d: -f2 | tr -d ' ')
@@ -97,7 +99,9 @@ echo "DOING SOME QUICK CLEAN UP BEFORE SETTING UP INITRAMFS AND GRUB" 1>&2
 		apt purge -y linux-headers-drauger linux-image-drauger
 		apt autoremove -y
 		apt purge $(dpkg -l | grep '^rc' | awk '{print $2}')
-		apt install -y kernel/*
+		#dpkg installs packages whether it's already installed or not. So we don't need some sort of --reinstall flag
+		#that's an apt thing, I'd assume. For security and stability.
+		dpkg -R --install -y kernel/
 		rm -rf kernel
 	fi
 	apt purge -y system-installer

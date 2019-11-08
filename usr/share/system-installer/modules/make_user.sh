@@ -42,8 +42,24 @@ list=$(ls /home/live)
 for each in $live; do
 	cp -Rv /home/live/$each /home/$USERNAME 1>&2
 done
-chown -R "$USERNAME:$USERNAME" /home/$USERNAME/* || chown -r "$USERNAME:$USERNAME" /home/$USERNAME/*
-chmod 755 -R /home/$USERNAME || chmod 755 -r /home/$USERNAME
+chown -R "$USERNAME:$USERNAME" /home/$USERNAME/*
+chmod 755 -R /home/$USERNAME/*
+cd /home/$USERNAME
+list=$(ls -a)
+for each in $list; do
+	if [ "$each" == ".bashrc" ]; then
+		chmod 777 $each
+	elif [ "$each" == ".gnome" ]  || [ "$each" == ".gnome2" ] || [ "$each" == ".gnome2_private" ] || [ "$each" == ".gvfs" ] || [ "$each" == ".synaptic" ]; then
+		chmod 700 $each
+	elif [ "$each" == ".cache" ] || [ "$each" == ".mozilla" ] || [ "$each" == ".thumbnails" ]; then
+		chmod -R 775 .cache
+		chmod -R 775 .cache/*
+	elif [ "$each" == ".config" ] || [ "$each" == "Desktop" ] || [ "$each" == "Documents" ] || [ "$each" == "Downloads" ] || [ "$each" == "Pictures" ] || [ "$each" == "Music" ] || [ "$each" == "Public" ] || [ "$each" == "Templates" ] || [ "$each" == "Videos" ] || [ "$each" == ".local" ] || [ "$each" == ".gconf" ] || [ "$each" == ".dbus" ]; then
+		chmod -R 755 $each
+	elif [ "$each" == ".bash_logout" ] || [ "$each" == ".profile" ] || [ "$each" == ".dmrc" ]; then
+		chmod -R 644 "$each"
+	fi
+done
 echo "54"
 #remove live user
 deluser live --remove-home || rm -rfv /home/live 1>&2
