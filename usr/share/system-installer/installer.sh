@@ -110,7 +110,7 @@ for each in $file_list; do
 done
 rm -rfv squashfs-root 1>&2
 mkdir /mnt/boot 2>/dev/null || echo "/mnt/boot already created" 1>&2
-cp -Rv /boot /mnt/boot 1>&2
+cp -Rv /boot/* /mnt/boot 1>&2
 echo "32"
 #STEP 4: Update fstab
 rm /mnt/etc/fstab
