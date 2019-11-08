@@ -3,6 +3,5 @@ List of known bugs
 - Default user config not copying over
 - Poor file system type support
 - built in partitioner is TERRIBLE
-- Offline mode not correctly identifying when system is online vs offline
 - No slideshow or installation segment progress bar.
 - Consistent false positives
