@@ -119,7 +119,7 @@ class main(Gtk.Window):
 EFI: %s
 HOME: %s, TYPE: %s
 SWAP: %s""" % (partitioner["ROOT"][0],partitioner["ROOT"][1],partitioner["EFI"][0],partitioner["HOME"][0],partitioner["HOME"][1],partitioner["SWAP"][0]))
-		self.label5.set_justify(Gtk.Justification.CENTER)
+		self.label5.set_justify(Gtk.Justification.LEFT)
 		self.grid.attach(self.label5, 3, 4, 1, 1)
 
 		self.label6 = Gtk.Label()

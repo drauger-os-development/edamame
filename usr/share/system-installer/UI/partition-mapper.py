@@ -141,6 +141,7 @@ class main(Gtk.Window):
 				efi = self.efi.get_text()
 			if (self.home.get_text() == ""):
 				home = "NULL"
+				home_type = "(blank)"
 			else:
 				home = self.home.get_text()
 				home_type = self.home_type.get_active_text()

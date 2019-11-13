@@ -39,7 +39,7 @@ echo "3"
 partitioner=$(echo "$partitioner" | sed 's/,/ /g' | sed 's/ROOT://' | sed 's/EFI://' | sed 's/HOME://' | sed 's/SWAP://')
 ROOT=$(echo "$partitioner" | awk '{print $1}' | sed 's/:/ /g')
 EFI=$(echo "$partitioner" | awk '{print $2}')
-HOME=$(echo "$partitioner" | awk '{print $3}' | sed 's/:/ /g')
+HOME_DATA=$(echo "$partitioner" | awk '{print $3}' | sed 's/:/ /g')
 SWAP=$(echo "$partitioner" | awk '{print $4}')
 #STEP 1: Partion and format the drive
 # Don't worry about this right now. Taken care of earlier.
@@ -53,14 +53,16 @@ SWAP=$(echo "$partitioner" | awk '{print $4}')
 set -Ee
 echo "12"
 #STEP 2: Mount the new partitions
-mount "$ROOT" /mnt
+mount "$(echo $ROOT | awk '{print $1}')" /mnt
 if [ "$EFI" != "NULL" ]; then
 	mkdir -p /mnt/boot/efi
 	mount "$EFI" /mnt/boot/efi
 fi
-if $(echo "$HOME" | grep -q "NULL"); then
+echo "$HOME_DATA" | grep -q "NULL" 1>/dev/null 2>/dev/null
+TEST="$?"
+if [ "$TEST" != "0" ]; then
 	mkdir -p /mnt/home
-	mount $(echo "$HOME" | awk '{print $1}') /mnt/home
+	mount "$(echo "$HOME_DATA" | awk '{print $1}')" /mnt/home
 fi
 if [ "$SWAP" != "FILE" ]; then
 	swapon "$SWAP"
@@ -122,12 +124,12 @@ echo "# /etc/fstab: static file system information.
 # that works even if disks are added and removed. See fstab(5).
 #
 # <file system>	<mount point>	<type>	<options>	<dump>	<pass>
-UUID=$(lsblk -dno UUID $(echo $ROOT | awk '{print $1}'))	/	ext4	defaults	0	1" > /mnt/etc/fstab
+UUID=$(lsblk -dno UUID $(echo $ROOT | awk '{print $1}'))	/	$(echo $ROOT | awk '{print $2}')	defaults	0	1" > /mnt/etc/fstab
 if [ "$EFI" != "NULL" ]; then
 	echo "UUID=$(lsblk -dno UUID $EFI)	/boot/efi	vfat	defaults	0	2" >> /mnt/etc/fstab
 fi
-if [ "$HOME" != "NULL" ]; then
-	echo "UUID=$(lsblk -dno UUID $(echo $HOME | awk '{print $1}'))	/home	defaults	0	3" >> /mnt/etc/fstab
+if $(echo "$HOME_DATA" | grep -q "NULL"); then
+	echo "UUID=$(lsblk -dno UUID $(echo $HOME_DATA | awk '{print $1}'))	/home	$(echo $HOME_DATA | awk '{print $2}')	defaults	0	3" >> /mnt/etc/fstab
 fi
 if [ "$SWAP" != "FILE" ]; then
 	echo "UUID=$(lsblk -dno UUID $SWAP)	none	swap	sw	0	0" >> /mnt/etc/fstab
