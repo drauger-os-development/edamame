@@ -25,7 +25,7 @@
 echo "	###	$0 STARTED	###	" 1>&2
 echo "37"
 #set -e
-#set -o pipefail
+set -o pipefail
 LANG_SET="$1"
 TIME_ZONE="$2"
 USERNAME="$3"
@@ -108,13 +108,14 @@ echo -e "2\n" | update-alternatives --config default.plymouth
 	apt autoremove -y
 	apt clean
 	#mkinitramfs -o /boot/initrd.img-$(uname --release)
-} 1>>/tmp/system-installer.log
+} 1>&2
 echo "87"
 #STEP 10: GRUB
+grub-mkdevicemap
 if [ "$EFI" != "NULL" ]; then
-	grub-install --force --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="Drauger OS" "$(echo $EFI | sed 's/[0-9]//')" 1>>/tmp/system-installer.log
+	grub-install --force --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="Drauger OS" "$(echo $EFI | sed 's/[0-9]//')" 1>&2
 else
-	grub-install --force --target=i386-pc "$ROOT" 1>>/tmp/system-installer.log
+	grub-install --force --target=i386-pc "$ROOT" 1>&2
 fi
 grub-mkconfig -o /boot/grub/grub.cfg
 mkinitramfs -o /boot/initrd.img-$(uname --release)

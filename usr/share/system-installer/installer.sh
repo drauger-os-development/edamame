@@ -51,6 +51,7 @@ SWAP=$(echo "$partitioner" | awk '{print $4}')
 	#MOUNT=$(/usr/share/system-installer/modules/manual-partitoner.sh "$EFI" "$partitioner" "$TYPE")
 #fi
 set -Ee
+set -o pipefail
 echo "12"
 #STEP 2: Mount the new partitions
 mount "$(echo $ROOT | awk '{print $1}')" /mnt
