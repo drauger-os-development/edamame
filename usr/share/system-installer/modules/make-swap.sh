@@ -22,17 +22,19 @@
 #
 #
 echo "	###	make_swap.sh STARTED	###	" 1>&2
-SWAP=$(free -m | awk '{print $2}' | grep -v 'used' | head -n 1)
-KB=(( $SWAP * 1024 ))
-echo "54"
+SWAP=$(free -m | awk '{print $2}' | grep -v 'used' | head -n 1) 1>&2
+(( SWAP *= 1024 ))
+KB=$SWAP
+(( SWAP /= 1024 ))
+echo "57"
 #STEP 1: allocate file
-dd if=/dev/zero of=/.swapfile bs="$SWAP" count="$KB"
-echo "58"
-#STEP 2: Set permissions
-chmod 600 /.swapfile
-echo "59"
-#STEP 3: Make the file a swapspace
-mkswap /.swapfile
+dd if=/dev/zero of=/.swapfile bs="$SWAP" count="$KB" 1>&2
 echo "60"
+#STEP 2: Set permissions
+chmod 600 /.swapfile 1>&2
+echo "62"
+#STEP 3: Make the file a swapspace
+mkswap /.swapfile 1>&2
+echo "64"
 echo "	###	make_swap.sh CLOSED	###	" 1>&2
 

@@ -62,25 +62,27 @@ echo "48"
 . /make_user.sh "$USERNAME" "$PASS"
 echo "56"
 #STEP 5: Make swap file
-#if [ "$SWAP" == "FILE" ]; then
-#	{
-#		. /make-swap.sh
-#		echo "/.swapfile	swap	swap	defaults	0	0" >> /etc/fstab
-#	} || { 
-#		echo "Adding swap failed. Must manually add later" 1>&2
-#	}
-#fi
-#echo "64"
-
+if [ "$SWAP" == "FILE" ]; then
+	{
+		. /make-swap.sh
+		echo "/.swapfile	swap	swap	defaults	0	0" >> /etc/fstab
+	} || { 
+		echo "Adding swap failed. Must manually add later" 1>&2
+	}
+fi
 echo "66"
 #STEP 6: install updates
-if [ "$UPDATES" == "1" ]; then
+if [ "$UPDATES" == "1" ] && [ "$internet" == "0" ]; then
 	. /install_updates.sh
+elif [ "$internet" == "1" ]; then
+	echo "Cannot install updates. No internet." 1>&2
 fi
 echo "75"
 #STEP 7: install extras
-if [ "$EXTRAS" == "1" ]; then
+if [ "$EXTRAS" == "1" ] && [ "$internet" == "0" ]; then
 	. /install_extras.sh
+elif [ "$internet" == "1" ]; then
+	echo "Cannot install extras. No internet." 1>&2
 fi
 echo "84"
 #STEP 8: Set new root password
@@ -90,6 +92,7 @@ echo "85"
 echo "DOING SOME QUICK CLEAN UP BEFORE SETTING UP INITRAMFS AND GRUB" 1>&2
 update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth /usr/share/plymouth/themes/drauger-theme/drauger-theme.plymouth 100 --slave /usr/share/plymouth/themes/default.grub default.plymouth.grub /usr/share/plymouth/themes/drauger-theme/drauger-theme.grub
 echo -e "2\n" | update-alternatives --config default.plymouth
+echo "86"
 {
 	if [ "$internet" == "0" ]; then
 		install=$(apt-cache depends linux-headers-drauger linux-image-drauger | grep '[ |]Depends: [^<]' | cut -d: -f2 | tr -d ' ')
@@ -111,17 +114,19 @@ echo -e "2\n" | update-alternatives --config default.plymouth
 } 1>&2
 echo "87"
 #STEP 10: GRUB
-grub-mkdevicemap
-if [ "$EFI" != "NULL" ]; then
-	grub-install --force --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="Drauger OS" "$(echo $EFI | sed 's/[0-9]//')" 1>&2
-else
-	grub-install --force --target=i386-pc "$ROOT" 1>&2
-fi
-grub-mkconfig -o /boot/grub/grub.cfg
-mkinitramfs -o /boot/initrd.img-$(uname --release)
-sleep 1s
-ln /boot/initrd.img-$(uname --release) /boot/initrd.img
-ln /boot/vmlinuz-$(uname --release) /boot/vmlinuz
+{
+	grub-mkdevicemap
+	if [ "$EFI" != "NULL" ]; then
+		grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="Drauger OS" "$(echo $EFI | sed 's/[0-9]//')"
+	else
+		grub-install --force --target=i386-pc "$ROOT"
+	fi
+	grub-mkconfig -o /boot/grub/grub.cfg
+	mkinitramfs -o /boot/initrd.img-$(uname --release)
+	sleep 1s
+	ln /boot/initrd.img-$(uname --release) /boot/initrd.img
+	ln /boot/vmlinuz-$(uname --release) /boot/vmlinuz
+} 1>&2
 echo "88"
 echo "	###	$0 CLOSED	###	" 1>&2
 

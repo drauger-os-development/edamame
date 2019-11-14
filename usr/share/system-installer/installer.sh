@@ -25,7 +25,7 @@
 echo "	###	$0 STARTED	###	" 1>&2
 echo "1"
 #set -e
-#set -o pipefail
+set -o pipefail
 partitioner="$1"
 LANG_SET="$2"
 TIME_ZONE="$3"
@@ -51,7 +51,6 @@ SWAP=$(echo "$partitioner" | awk '{print $4}')
 	#MOUNT=$(/usr/share/system-installer/modules/manual-partitoner.sh "$EFI" "$partitioner" "$TYPE")
 #fi
 set -Ee
-set -o pipefail
 echo "12"
 #STEP 2: Mount the new partitions
 mount "$(echo $ROOT | awk '{print $1}')" /mnt
@@ -101,6 +100,8 @@ if [ "$SQUASHFS" == "" ] || [ ! -f "$SQUASHFS" ]; then
 fi
 echo "17"
 cd /mnt
+echo "CLEANING INSTALLATION DIRECTORY." 1>&2
+rm -rf *
 echo "EXTRACTING SQUASHFS" 1>&2
 unsquashfs "$SQUASHFS" 1>/dev/null
 # While it would be faster to do something like:
@@ -134,6 +135,8 @@ if $(echo "$HOME_DATA" | grep -q "NULL"); then
 fi
 if [ "$SWAP" != "FILE" ]; then
 	echo "UUID=$(lsblk -dno UUID $SWAP)	none	swap	sw	0	0" >> /mnt/etc/fstab
+	# DO NOT PUT A HANDLER FOR SWAP FILES HERE
+	# THIS IS DONE IN MASTER.sh
 fi
 chmod 644 /mnt/etc/fstab
 echo "34"
@@ -164,7 +167,7 @@ if [ "$USERNAME" == "" ]; then
 	USERNAME=$(zenity --entry --text="We're sorry. We lost your username somewhere in the chain. What was it again?")
 fi
 if [ "$COMP_NAME" == "" ]; then
-	echo "\$COMP_NAME is not set. Defaulting to drauger-system-installed" 2>>/tmp/system-installer.log
+	echo "\$COMP_NAME is not set. Defaulting to drauger-system-installed" >>/tmp/system-installer.log
 	COMP_NAME="drauger-system-installed"
 fi
 if [ "$PASS" == "" ]; then
