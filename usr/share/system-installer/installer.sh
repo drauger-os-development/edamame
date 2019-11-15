@@ -100,8 +100,26 @@ if [ "$SQUASHFS" == "" ] || [ ! -f "$SQUASHFS" ]; then
 fi
 echo "17"
 cd /mnt
-echo "CLEANING INSTALLATION DIRECTORY." 1>&2
-rm -rf *
+{
+	echo "CLEANING INSTALLATION DIRECTORY."
+	#cleaning the long way in order to handle some bugs
+	list=$(ls -A)
+	for each in $list; do
+		if [ "$each" != "boot" ]; then
+			rm -rf "$each"
+		else
+			cd boot
+			list2=$(ls -A)
+			for each2 in $list2; do
+				if [ "$each2" != "efi" ]; then
+					rm -rf "$each2"
+				else
+					rm -rf efi/*
+			done
+			cd ..
+		fi
+	done
+} 1>&2
 echo "EXTRACTING SQUASHFS" 1>&2
 unsquashfs "$SQUASHFS" 1>/dev/null
 # While it would be faster to do something like:

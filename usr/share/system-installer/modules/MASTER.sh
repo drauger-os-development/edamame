@@ -113,16 +113,25 @@ echo "86"
 	#mkinitramfs -o /boot/initrd.img-$(uname --release)
 } 1>&2
 echo "87"
-#STEP 10: GRUB
+#STEP 10: Bootloader
 {
-	grub-mkdevicemap
-	if [ "$EFI" != "NULL" ]; then
-		grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="Drauger OS" "$(echo $EFI | sed 's/[0-9]//')"
-	else
-		grub-install --force --target=i386-pc "$ROOT"
-	fi
-	grub-mkconfig -o /boot/grub/grub.cfg
+	
 	mkinitramfs -o /boot/initrd.img-$(uname --release)
+	if [ "$EFI" != "NULL" ]; then
+		#grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="Drauger OS" "$(echo $EFI | sed 's/[0-9]//')"
+		#systemd-boot
+		if [ -d /sys/firmware/efi/efivars ]; then
+			cp /boot/vmlinuz-$(uname --release) /boot/efi/vmlinuz
+			cp /boot/initrd.img-$(uname --release) /boot/efi/initrd.img
+			bootctl --path=/boot/efi install
+		else
+			echo "### WARNING: CANNOT INSTALL systemd-boot. USER MUST MANUALLY INSTALL BOOTLOADER. ###"
+		fi
+	else
+		grub-mkdevicemap
+		grub-install --force --target=i386-pc "$ROOT"
+		grub-mkconfig -o /boot/grub/grub.cfg
+	fi
 	sleep 1s
 	ln /boot/initrd.img-$(uname --release) /boot/initrd.img
 	ln /boot/vmlinuz-$(uname --release) /boot/vmlinuz
