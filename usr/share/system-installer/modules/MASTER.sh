@@ -121,6 +121,100 @@ echo "87"
 		#grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="Drauger OS" "$(echo $EFI | sed 's/[0-9]//')"
 		#systemd-boot
 		if [ -d /sys/firmware/efi/efivars ]; then
+			mkdir -p /boot/efi/loader/entries /boot/efi/Drauger_OS
+			echo -e "default Drauger_OS\ntimeout 5\neditor 0" > /boot/efi/loader/loader.conf
+			#set up kernel version hook
+			echo "#!/bin/bash
+#
+# This is a simple kernel hook to populate the systemd-boot entries
+# whenever kernels are added or removed.
+#
+
+
+
+# The UUID of your disk.
+UUID=\"$(lsblk -dno UUID $(echo $ROOT))\"
+
+# The LUKS volume slug you want to use, which will result in the
+# partition being mounted to /dev/mapper/CHANGEME.
+#VOLUME=\"CHANGEME\"
+
+# Any rootflags you wish to set.
+ROOTFLAGS=\"quiet splash\"
+
+
+
+# Our kernels.
+KERNELS=()
+FIND=\"find /boot -maxdepth 1 -name 'vmlinuz-*' -type f -print0 | sort -rz\"
+while IFS= read -r -u3 -d $'\0' LINE; do
+	KERNEL=$(basename "${LINE}")
+	KERNELS+=("${KERNEL:8}")
+done 3< <(eval "${FIND}")
+
+# There has to be at least one kernel.
+if [ ${#KERNELS[@]} -lt 1 ]; then
+	echo -e \"\e[2msystemd-boot\e[0m \e[1;31mNo kernels found.\e[0m\"
+	exit 1
+fi
+
+
+
+# Perform a nuclear clean to ensure everything is always in perfect
+# sync.
+rm /boot/efi/loader/entries/*.conf
+rm -rf /boot/efi/Drauger_OS
+mkdir /boot/efi/Drauger_OS
+
+
+
+# Copy the latest kernel files to a consistent place so we can keep
+# using the same loader configuration.
+LATEST="${KERNELS[@]:0:1}"
+echo -e \"\e[2msystemd-boot\e[0m \e[1;32m${LATEST}\e[0m\"
+for FILE in config initrd.img System.map vmlinuz; do
+    cp \"/boot/${FILE}-${LATEST}" "/boot/efi/Drauger_OS/${FILE}\"
+    cat << EOF > /boot/efi/loader/entries/Drauger_OS.conf
+title   Drauger OS
+linux   /Drauger_OS/vmlinuz
+initrd  /Drauger_OS/initrd.img
+options ro rootflags=${ROOTFLAGS}
+EOF
+done
+
+
+
+# Copy any legacy kernels over too, but maintain their version-based
+# names to avoid collisions.
+if [ ${#KERNELS[@]} -gt 1 ]; then
+	LEGACY=("${KERNELS[@]:1}")
+	for VERSION in "${LEGACY[@]}"; do
+	    echo -e \"\e[2msystemd-boot\e[0m \e[1;32m${VERSION}\e[0m\"
+	    for FILE in config initrd.img System.map vmlinuz; do
+	        cp \"/boot/${FILE}-${VERSION}\" \"/boot/efi/Drauger_OS/${FILE}-${VERSION}\"
+	        cat << EOF > /boot/efi/loader/entries/Drauger_OS-${VERSION}.conf
+title   Drauger OS ${VERSION}
+linux   /Drauger_OS/vmlinuz-${VERSION}
+initrd  /Drauger_OS/initrd.img-${VERSION}
+options ro rootflags=${ROOTFLAGS}
+EOF
+	    done
+	done
+fi
+
+
+
+# Success!
+exit 0" > /etc/kernel/postinstall.d/zz-update-systemd-boot
+			cp /etc/kernel/postinstall.d/zz-update-systemd-boot /etc/kernel/postrm.d/zz-update-systemd-boot
+			# Set the right owner.
+			chown root: /etc/kernel/postinstall.d/zz-update-systemd-boot
+			chown root: /etc/kernel/postrm.d/zz-update-systemd-boot
+			# Set the right permissions.
+			chmod 0755 /etc/kernel/postinstall.d/zz-update-systemd-boot
+			chmod 0755 /etc/kernel/postrm.d/zz-update-systemd-boot
+			#copy over the kernel and initramfs
+			cp /etc/kernel/postinstall.d/zz-update-systemd-boot /etc/kernel/postrm.d/zz-update-systemd-boot
 			cp /boot/vmlinuz-$(uname --release) /boot/efi/vmlinuz
 			cp /boot/initrd.img-$(uname --release) /boot/efi/initrd.img
 			bootctl --path=/boot/efi install

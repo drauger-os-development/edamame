@@ -115,6 +115,7 @@ cd /mnt
 					rm -rf "$each2"
 				else
 					rm -rf efi/*
+				fi
 			done
 			cd ..
 		fi
