@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-#  system-installer
+#  progress.py
 #
 #  Copyright 2019 Thomas Castleman <contact@draugeros.org>
 #
@@ -21,14 +21,31 @@
 #  MA 02110-1301, USA.
 #
 #
-VERSION="0.3.7-alpha4"
-help="\nsystem-installer, Version $VERSION\n\n\t-h,--help\tprint this help dialoge.\n\t-v,--version\tprint current version.\n\nPass nothing to start installer.\n"
-if [ "$1" == "-v" ] || [ "$1" == "--version" ]; then
-	/bin/echo -e "\n$VERSION\n"
-elif [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
-	/bin/echo -e "$help"
-else
-	/usr/bin/xhost +si:localuser:root
-	/usr/bin/pkexec /usr/share/system-installer/engine.sh 2>/tmp/system-installer.log
-	/usr/bin/xhost -si:localuser:root
-fi
+
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+from os import system
+
+class main(Gtk.Window):
+
+	def __init__(self):
+		Gtk.Window.__init__(self, title="System Installer")
+		self.grid=Gtk.Grid(orientation=Gtk.Orientation.VERTICAL)
+		self.add(self.grid)
+
+def exit_button(x,y):
+	Gtk.main_quit("delete-event")
+	exit(1)
+
+def show_main():
+	window = main()
+	window.set_decorated(True)
+	window.set_resizable(False)
+	window.set_position(Gtk.WindowPosition.CENTER)
+	window.connect("delete-event",exit_button)
+	window.show_all()
+	Gtk.main()
+
+
+show_main()

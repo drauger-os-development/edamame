@@ -146,22 +146,20 @@ ROOTFLAGS=\"quiet splash\"
 
 # Our kernels.
 KERNELS=()
-FIND=\"find /boot -maxdepth 1 -name 'vmlinuz-*' -type f -print0 | sort -rz\"
-while IFS= read -r -u3 -d $'\0' LINE; do
-	KERNEL=$(basename "${LINE}")
-	KERNELS+=("${KERNEL:8}")
-done 3< <(eval "${FIND}")
+FIND=\$(ls -A /boot | grep \"vmlinuz-*\")
+for each in \$FIND; do
+	KERNELS+=\"/boot/\$each \"
+done
 
 # There has to be at least one kernel.
-if [ ${#KERNELS[@]} -lt 1 ]; then
+if [ \${#KERNELS[@]} -lt 1 ]; then
 	echo -e \"\e[2msystemd-boot\e[0m \e[1;31mNo kernels found.\e[0m\"
 	exit 1
 fi
 
 
 
-# Perform a nuclear clean to ensure everything is always in perfect
-# sync.
+# Perform a nuclear clean to ensure everything is always in perfect sync.
 rm /boot/efi/loader/entries/*.conf
 rm -rf /boot/efi/Drauger_OS
 mkdir /boot/efi/Drauger_OS
@@ -170,15 +168,15 @@ mkdir /boot/efi/Drauger_OS
 
 # Copy the latest kernel files to a consistent place so we can keep
 # using the same loader configuration.
-LATEST="${KERNELS[@]:0:1}"
-echo -e \"\e[2msystemd-boot\e[0m \e[1;32m${LATEST}\e[0m\"
+LATEST=\"\$(echo \$KERNELS | sed 's/\/boot\/vmlinuz//g' | sed 's/ /\n/g' | sed 's/.old//g' | sed '/^[[:space:]]*$/d' | sort -nr | head -n1)\"
+echo -e \"\e[2msystemd-boot\e[0m\e[1;32m\${LATEST}\e[0m\"
 for FILE in config initrd.img System.map vmlinuz; do
-    cp \"/boot/${FILE}-${LATEST}" "/boot/efi/Drauger_OS/${FILE}\"
+    cp \"/boot/\${FILE}\${LATEST}\" \"/boot/efi/Drauger_OS/\${FILE}\"
     cat << EOF > /boot/efi/loader/entries/Drauger_OS.conf
 title   Drauger OS
 linux   /Drauger_OS/vmlinuz
 initrd  /Drauger_OS/initrd.img
-options ro rootflags=${ROOTFLAGS}
+options ro rootflags=\${ROOTFLAGS}
 EOF
 done
 
@@ -186,17 +184,17 @@ done
 
 # Copy any legacy kernels over too, but maintain their version-based
 # names to avoid collisions.
-if [ ${#KERNELS[@]} -gt 1 ]; then
-	LEGACY=("${KERNELS[@]:1}")
-	for VERSION in "${LEGACY[@]}"; do
-	    echo -e \"\e[2msystemd-boot\e[0m \e[1;32m${VERSION}\e[0m\"
+if [ \${#KERNELS[@]} -gt 1 ]; then
+	LEGACY=\"\$(echo \$KERNELS | sed 's/\/boot\/vmlinuz//g' | sed 's/ /\n/g' | sed 's/.old//g' | sed '/^[[:space:]]*$/d' | sort -nr | sed s/\$LATEST//g)\"
+	for VERSION in \${LEGACY[@]}; do
+	    echo -e \"\e[2msystemd-boot\e[0m\e[1;32m\${VERSION}\e[0m\"
 	    for FILE in config initrd.img System.map vmlinuz; do
-	        cp \"/boot/${FILE}-${VERSION}\" \"/boot/efi/Drauger_OS/${FILE}-${VERSION}\"
-	        cat << EOF > /boot/efi/loader/entries/Drauger_OS-${VERSION}.conf
-title   Drauger OS ${VERSION}
-linux   /Drauger_OS/vmlinuz-${VERSION}
-initrd  /Drauger_OS/initrd.img-${VERSION}
-options ro rootflags=${ROOTFLAGS}
+	        cp \"/boot/\${FILE}\${VERSION}\" \"/boot/efi/Drauger_OS/\${FILE}\${VERSION}\"
+	        cat << EOF > /boot/efi/loader/entries/Drauger_OS\${VERSION}.conf
+title   Drauger OS \${VERSION}
+linux   /Drauger_OS/vmlinuz\${VERSION}
+initrd  /Drauger_OS/initrd.img\${VERSION}
+options ro rootflags=\${ROOTFLAGS}
 EOF
 	    done
 	done
