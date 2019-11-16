@@ -66,7 +66,7 @@ if [ "$SWAP" == "FILE" ]; then
 	{
 		. /make-swap.sh
 		echo "/.swapfile	swap	swap	defaults	0	0" >> /etc/fstab
-	} || { 
+	} || {
 		echo "Adding swap failed. Must manually add later" 1>&2
 	}
 fi
@@ -115,7 +115,7 @@ echo "86"
 echo "87"
 #STEP 10: Bootloader
 {
-	
+
 	mkinitramfs -o /boot/initrd.img-$(uname --release)
 	if [ "$EFI" != "NULL" ]; then
 		#grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="Drauger OS" "$(echo $EFI | sed 's/[0-9]//')"
@@ -129,9 +129,12 @@ echo "87"
 			chattr -i /boot/efi/loader/loader.conf
 			#set up kernel version hook
 			. /systemd-boot-config.sh "$ROOT"
+			#Update the initramfs? At this point we get dropped at an initramfs prompt so it's something wrong there.
+			mkinitramfs -o /boot/initrd.img-$(uname --release)
+			#copy over the kernel and initramfs
 			cp /boot/vmlinuz-$(uname --release) /boot/efi/vmlinuz
 			cp /boot/initrd.img-$(uname --release) /boot/efi/initrd.img
-			
+
 		else
 			echo "### WARNING: CANNOT INSTALL systemd-boot. USER MUST MANUALLY INSTALL BOOTLOADER. ###"
 		fi

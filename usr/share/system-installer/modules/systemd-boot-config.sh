@@ -2,26 +2,27 @@
 # -*- coding: utf-8 -*-
 #
 #  systemd-boot-config.sh
-#  
+#
 #  Copyright 2019 Thomas Castleman <contact@draugeros.org>
-#  
+#
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or
 #  (at your option) any later version.
-#  
+#
 #  This program is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
-#  
+#
 #  You should have received a copy of the GNU General Public License
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
-#  
+#
 #
 ROOT="$1"
+echo "	###	$0 STARTED	###	" 1>&2
 mkdir -p /etc/kernel/postinstall.d /etc/kernel/postrm.d
 echo "#!/bin/bash
 #
@@ -110,5 +111,6 @@ chown root: /etc/kernel/postrm.d/zz-update-systemd-boot
 # Set the right permissions.
 chmod 0755 /etc/kernel/postinstall.d/zz-update-systemd-boot
 chmod 0755 /etc/kernel/postrm.d/zz-update-systemd-boot
-#copy over the kernel and initramfs
-cp /etc/kernel/postinstall.d/zz-update-systemd-boot /etc/kernel/postrm.d/zz-update-systemd-boot
+#set up the loaders
+/etc/kernel/postinstall.d/zz-update-systemd-boot || /etc/kernel/postrm.d/zz-update-systemd-boot
+echo "	###	$0 CLOSED	###	" 1>&2

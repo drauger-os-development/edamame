@@ -24,8 +24,9 @@
 
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
+from gi.repository import Gtk,GLib
 from os import system
+import sys, select
 
 class main(Gtk.Window):
 
@@ -33,6 +34,46 @@ class main(Gtk.Window):
 		Gtk.Window.__init__(self, title="System Installer")
 		self.grid=Gtk.Grid(orientation=Gtk.Orientation.VERTICAL)
 		self.add(self.grid)
+
+		self.label = Gtk.Label()
+		self.label.set_markup("""	Installing Drauger OS to your internal hard drive.\nThis may take some time. If you have an error, please send\nthe log file (located at /tmp/system-installer.log) to: contact@draugeros.org	""")
+		self.label.set_justify(Gtk.Justification.CENTER)
+		self.grid.attach(self.label, 1, 1, 1, 1)
+
+
+		self.progress = Gtk.ProgressBar()
+		self.progress.set_fraction(0)
+		self.progress.set_show_text(True)
+		self.progress.set_text("0 %")
+		self.source_id = GLib.timeout_add(1000, self.pulse)
+		self.grid.attach(self.progress, 1, 2, 1, 1)
+
+		self.file_contents = Gtk.TextBuffer()
+		self.text = Gtk.TextView.new_with_buffer(self.file_contents)
+		self.text.set_editable(False)
+		self.text.set_cursor_visible(False)
+		self.text.set_monospace(True)
+
+		#self.file = open("/home/batcastle/Documents/.running-time.log")
+		#self.file.read()
+		#self.file.close()
+		self.grid.attach(self.text, 1, 3, 1, 1)
+
+
+	def pulse(self):
+		print("pulse")
+		i, o, e = select.select( [sys.stdin], [], [], 1 )
+		fraction=sys.stdin.readline().strip()
+		if (not i):
+			print("got nothing")
+			return True
+		fraction_bar=int(fraction) / 100
+		self.progress.set_fraction(fraction_bar)
+		self.progress.set_text("%s \%" % (fraction))
+		if (fraction == 100):
+			exit(0)
+		return True
+
 
 def exit_button(x,y):
 	Gtk.main_quit("delete-event")
