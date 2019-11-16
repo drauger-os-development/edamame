@@ -125,7 +125,7 @@ echo "87"
 			export SYSTEMD_RELAX_ESP_CHECKS=1
 			echo "export SYSTEMD_RELAX_ESP_CHECKS=1" >> /etc/environment
 			bootctl --path=/boot/efi install
-			echo -e "default Drauger_OS\ntimeout 5\neditor 0" > /boot/efi/loader/loader.conf
+			echo -e "default Drauger_OS\ntimeout 5\neditor 1" > /boot/efi/loader/loader.conf
 			chattr -i /boot/efi/loader/loader.conf
 			#set up kernel version hook
 			. /systemd-boot-config.sh "$ROOT"

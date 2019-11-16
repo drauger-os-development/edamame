@@ -1,5 +1,5 @@
 List of known bugs
-- Not installing correctly to UEFI systems, drops to GRUB rescue terminal
+- Not installing correctly to UEFI systems, drops to initramfs rescue terminal
 - Default user config not copying over
 - built in partitioner is TERRIBLE
 - No slideshow or installation segment progress bar, or some other form of progress indicator

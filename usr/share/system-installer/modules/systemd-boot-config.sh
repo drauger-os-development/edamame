@@ -76,7 +76,7 @@ for FILE in config initrd.img System.map vmlinuz; do
 title   Drauger OS
 linux   /Drauger_OS/vmlinuz
 initrd  /Drauger_OS/initrd.img
-options ro rootflags=\${ROOTFLAGS}
+options root=PARTUUID=\$UUID rootflags=\${ROOTFLAGS}
 EOF
 done
 
@@ -94,7 +94,7 @@ if [ \${#KERNELS[@]} -gt 1 ]; then
 title   Drauger OS \${VERSION}
 linux   /Drauger_OS/vmlinuz\${VERSION}
 initrd  /Drauger_OS/initrd.img\${VERSION}
-options ro rootflags=\${ROOTFLAGS}
+options root=PARTUUID=\$UUID rootflags=\${ROOTFLAGS}
 EOF
 	    done
 	done
