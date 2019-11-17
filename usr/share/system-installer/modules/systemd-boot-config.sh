@@ -33,14 +33,14 @@ echo "#!/bin/bash
 
 
 # The UUID of your disk.
-UUID=\"$(lsblk -dno UUID $(echo $ROOT))\"
+UUID=\"$(blkid -s PARTUUID -o value $ROOT)\"
 
 # The LUKS volume slug you want to use, which will result in the
 # partition being mounted to /dev/mapper/CHANGEME.
 #VOLUME=\"CHANGEME\"
 
 # Any rootflags you wish to set.
-ROOTFLAGS=\"quiet splash\"
+ROOTFLAGS=\"quiet splash init=/lib/systemd/systemd\"
 
 
 
@@ -76,7 +76,7 @@ for FILE in config initrd.img System.map vmlinuz; do
 title   Drauger OS
 linux   /Drauger_OS/vmlinuz
 initrd  /Drauger_OS/initrd.img
-options root=PARTUUID=\$UUID rootflags=\${ROOTFLAGS}
+options root=PARTUUID=\$UUID \${ROOTFLAGS}
 EOF
 done
 
@@ -94,7 +94,7 @@ if [ \${#KERNELS[@]} -gt 1 ]; then
 title   Drauger OS \${VERSION}
 linux   /Drauger_OS/vmlinuz\${VERSION}
 initrd  /Drauger_OS/initrd.img\${VERSION}
-options root=PARTUUID=\$UUID rootflags=\${ROOTFLAGS}
+options root=PARTUUID=\$UUID \${ROOTFLAGS}
 EOF
 	    done
 	done

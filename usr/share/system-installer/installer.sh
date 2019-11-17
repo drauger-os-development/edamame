@@ -145,15 +145,15 @@ echo "# /etc/fstab: static file system information.
 # that works even if disks are added and removed. See fstab(5).
 #
 # <file system>	<mount point>	<type>	<options>	<dump>	<pass>
-UUID=$(lsblk -dno UUID $(echo $ROOT | awk '{print $1}'))	/	$(echo $ROOT | awk '{print $2}')	defaults	0	1" > /mnt/etc/fstab
+UUID=$(blkid -s PARTUUID -o value $(echo $ROOT | awk '{print $1}'))	/	$(echo $ROOT | awk '{print $2}')	defaults	0	1" > /mnt/etc/fstab
 if [ "$EFI" != "NULL" ]; then
-	echo "UUID=$(lsblk -dno UUID $EFI)	/boot/efi	vfat	defaults	0	2" >> /mnt/etc/fstab
+	echo "UUID=$(blkid -s PARTUUID -o value $EFI)	/boot/efi	vfat	defaults	0	2" >> /mnt/etc/fstab
 fi
 if $(echo "$HOME_DATA" | grep -q "NULL"); then
-	echo "UUID=$(lsblk -dno UUID $(echo $HOME_DATA | awk '{print $1}'))	/home	$(echo $HOME_DATA | awk '{print $2}')	defaults	0	3" >> /mnt/etc/fstab
+	echo "UUID=$(blkid -s PARTUUID -o value $(echo $HOME_DATA | awk '{print $1}'))	/home	$(echo $HOME_DATA | awk '{print $2}')	defaults	0	3" >> /mnt/etc/fstab
 fi
 if [ "$SWAP" != "FILE" ]; then
-	echo "UUID=$(lsblk -dno UUID $SWAP)	none	swap	sw	0	0" >> /mnt/etc/fstab
+	echo "UUID=$(blkid -s PARTUUID -o value $SWAP)	none	swap	sw	0	0" >> /mnt/etc/fstab
 	# DO NOT PUT A HANDLER FOR SWAP FILES HERE
 	# THIS IS DONE IN MASTER.sh
 fi

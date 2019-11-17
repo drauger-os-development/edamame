@@ -110,7 +110,6 @@ echo "86"
 	apt purge -y system-installer
 	apt autoremove -y
 	apt clean
-	#mkinitramfs -o /boot/initrd.img-$(uname --release)
 } 1>&2
 echo "87"
 #STEP 10: Bootloader
