@@ -40,7 +40,7 @@ done
 cd /
 echo "51"
 #rename home directory
-usermod -d /home/"$USERNAME" "$USERNAME"
+usermod -d -m /home/"$USERNAME" "$USERNAME"
 echo "54"
 #change password
 echo "$USERNAME:$PASS" | chpasswd

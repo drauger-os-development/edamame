@@ -24,7 +24,7 @@
 echo "	###	install_extras.sh STARTED	###	" 1>&2
 set -e
 set -o pipefail
-apt update 2>/dev/null 1>>/tmp/system-installer.log
+apt update 1>&2
 toinstall=""
 toremove=""
 if $(lspci | grep -iq "nvidia"); then
@@ -49,10 +49,10 @@ else
 	toremove="gstreamer1.0-fluendo-mp3"
 fi
 echo "82"
-apt install -y $toinstall
+apt install -y $toinstall 1>&2
 echo "83"
 if [ "$toremove" != "" ]; then
-	apt purge -y $toremove 2>/dev/null 1>>/tmp/system-installer.log || echo "Package Not Found? Maybe? Double check cause gstreamer1.0-fluendo-mp3 threw an error during removal" 1>&2
-	echo "83"
+	apt purge -y $toremove 1>&2 || echo "Package Not Found? Maybe? Double check cause gstreamer1.0-fluendo-mp3 threw an error during removal" 1>&2
+	
 fi
 echo "	###	install_extras.sh CLOSED	###	" 1>&2

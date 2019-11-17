@@ -199,7 +199,14 @@ done
 echo "89"
 rm -v /mnt/etc/resolv.conf
 mv -v /mnt/etc/resolv.conf.save /mnt/etc/resolv.conf
-done
 echo "98"
+#check to make sure systemd-boot got configured
+contents=$(ls /mnt/boot/efi/loader/entries)
+if [ "$contents" == "" ]; then
+	echo "	### SYSTEMD-BOOT NOT CONFIGURED. CORRECTING . . .	###	" 1>&2
+	cp /usr/share/system-installer/modules/systemd-boot-config.sh /mnt
+	arch-chroot /mnt '/systemd-boot-config.sh' "$(echo "$ROOT" | awk '{print $1}')"
+	rm /mnt/systemd-boot-config.sh
+fi
 echo "100"
 echo "	###	$0 CLOSED	###	" 1>&2
