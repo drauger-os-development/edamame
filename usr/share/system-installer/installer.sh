@@ -137,27 +137,7 @@ cp -Rv /boot/* /mnt/boot 1>&2
 echo "32"
 #STEP 4: Update fstab
 rm /mnt/etc/fstab
-touch /mnt/etc/fstab
-echo "# /etc/fstab: static file system information.
-#
-# Use 'blkid' to print the universally unique identifier for a
-# device; this may be used with UUID= as a more robust way to name devices
-# that works even if disks are added and removed. See fstab(5).
-#
-# <file system>	<mount point>	<type>	<options>	<dump>	<pass>
-UUID=$(blkid -s PARTUUID -o value $(echo $ROOT | awk '{print $1}'))	/	$(echo $ROOT | awk '{print $2}')	defaults	0	1" > /mnt/etc/fstab
-if [ "$EFI" != "NULL" ]; then
-	echo "UUID=$(blkid -s PARTUUID -o value $EFI)	/boot/efi	vfat	defaults	0	2" >> /mnt/etc/fstab
-fi
-if $(echo "$HOME_DATA" | grep -q "NULL"); then
-	echo "UUID=$(blkid -s PARTUUID -o value $(echo $HOME_DATA | awk '{print $1}'))	/home	$(echo $HOME_DATA | awk '{print $2}')	defaults	0	3" >> /mnt/etc/fstab
-fi
-if [ "$SWAP" != "FILE" ]; then
-	echo "UUID=$(blkid -s PARTUUID -o value $SWAP)	none	swap	sw	0	0" >> /mnt/etc/fstab
-	# DO NOT PUT A HANDLER FOR SWAP FILES HERE
-	# THIS IS DONE IN MASTER.sh
-fi
-chmod 644 /mnt/etc/fstab
+genfstab -U /mnt > /mnt/etc/fstab
 echo "34"
 #STEP 5: copy scripts into chroot
 LIST=$(ls /usr/share/system-installer/modules)
@@ -214,10 +194,21 @@ arch-chroot /mnt '/MASTER.sh' "$LANG_SET" "$TIME_ZONE" "$USERNAME" "$COMP_NAME" 
 #I know this isn't the best way of doing this, but it is easier than changing each of the file name in $LIST
 echo "Removing installation scripts and resetting resolv.conf" 1>&2
 for each in $LIST; do
-	rm -v "/mnt/$each"
+	if [ "$each" != "make_user.sh" ]; then
+		rm -v "/mnt/$each"
+	fi
 done
 echo "89"
 rm -v /mnt/etc/resolv.conf
 mv -v /mnt/etc/resolv.conf.save /mnt/etc/resolv.conf
+#STEP 8: Copy Config
+echo "90"
+list=$(ls /home/live)
+for each in $live; do
+	cp -Rv /home/live/$each /mnt/home/$USERNAME 1>&2
+done
+echo "91"
+#set proper permissions for config files
+arch-chroot /mnt '/make_user.sh' "$USERNAME" "0000" "config"
 echo "100"
 echo "	###	$0 CLOSED	###	" 1>&2

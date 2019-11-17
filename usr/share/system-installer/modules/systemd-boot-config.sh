@@ -22,7 +22,7 @@
 #
 #
 ROOT="$1"
-echo "	###	$0 STARTED	###	" 1>&2
+echo "	###	systemd-boot-config.sh STARTED	###	" 1>&2
 mkdir -p /etc/kernel/postinstall.d /etc/kernel/postrm.d
 echo "#!/bin/bash
 #
@@ -113,4 +113,4 @@ chmod 0755 /etc/kernel/postinstall.d/zz-update-systemd-boot
 chmod 0755 /etc/kernel/postrm.d/zz-update-systemd-boot
 #set up the loaders
 /etc/kernel/postinstall.d/zz-update-systemd-boot || /etc/kernel/postrm.d/zz-update-systemd-boot
-echo "	###	$0 CLOSED	###	" 1>&2
+echo "	###	systemd-boot-config.sh CLOSED	###	" 1>&2

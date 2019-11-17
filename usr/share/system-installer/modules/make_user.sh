@@ -24,10 +24,40 @@
 echo "	###	make_user.sh STARTED	###	" 1>&2
 USERNAME="$1"
 PASS="$2"
+MODE="$3"
+#if $MODE is set, installer.sh is calling us directly, which means it is time to set up the config. 
+if [ "$MODE" != "" ]; then
+	#set proper permissions for the config files
+	chown -R "$USERNAME:$USERNAME" /home/$USERNAME/*
+	chmod 755 -R /home/$USERNAME/*
+	cd /home/$USERNAME
+	list=$(ls -a)
+	echo "91"
+	for each in $list; do
+		if [ "$each" == ".bashrc" ]; then
+			chmod 777 $each
+		elif [ "$each" == ".gnome" ]  || [ "$each" == ".gnome2" ] || [ "$each" == ".gnome2_private" ] || [ "$each" == ".gvfs" ] || [ "$each" == ".synaptic" ]; then
+			chmod 700 $each
+		elif [ "$each" == ".cache" ] || [ "$each" == ".mozilla" ] || [ "$each" == ".thumbnails" ]; then
+			chmod -R 775 .cache
+			chmod -R 775 .cache/*
+		elif [ "$each" == ".config" ] || [ "$each" == "Desktop" ] || [ "$each" == "Documents" ] || [ "$each" == "Downloads" ] || [ "$each" == "Pictures" ] || [ "$each" == "Music" ] || [ "$each" == "Public" ] || [ "$each" == "Templates" ] || [ "$each" == "Videos" ] || [ "$each" == ".local" ] || [ "$each" == ".gconf" ] || [ "$each" == ".dbus" ]; then
+			chmod -R 755 $each
+		elif [ "$each" == ".bash_logout" ] || [ "$each" == ".profile" ] || [ "$each" == ".dmrc" ]; then
+			chmod -R 644 "$each"
+		fi
+	done
+	echo "98"
+	exit
+fi
 echo "49"
 #add new user
 useradd "$USERNAME" -s /bin/bash -m -U
 echo "50"
+if [ ! -d /home/"$USERNAME" ]; then
+	mkdir -p /home/"$USERNAME"
+	chmod 755 /home/"$USERNAME"
+fi
 usermod -a -G adm "$USERNAME"
 usermod -a -G cdrom "$USERNAME"
 usermod -a -G sudo "$USERNAME"
@@ -37,29 +67,6 @@ usermod -a -G lpadmin "$USERNAME"
 usermod -a -g sambashare "$USERNAME" 2>/dev/null || echo "samabashare group does not exist. Cannot add $USERNAME" 1>&2
 echo "51"
 echo "$USERNAME:$PASS" | chpasswd
-echo "52"
-list=$(ls /home/live)
-for each in $live; do
-	cp -Rv /home/live/$each /home/$USERNAME 1>&2
-done
-chown -R "$USERNAME:$USERNAME" /home/$USERNAME/*
-chmod 755 -R /home/$USERNAME/*
-cd /home/$USERNAME
-list=$(ls -a)
-for each in $list; do
-	if [ "$each" == ".bashrc" ]; then
-		chmod 777 $each
-	elif [ "$each" == ".gnome" ]  || [ "$each" == ".gnome2" ] || [ "$each" == ".gnome2_private" ] || [ "$each" == ".gvfs" ] || [ "$each" == ".synaptic" ]; then
-		chmod 700 $each
-	elif [ "$each" == ".cache" ] || [ "$each" == ".mozilla" ] || [ "$each" == ".thumbnails" ]; then
-		chmod -R 775 .cache
-		chmod -R 775 .cache/*
-	elif [ "$each" == ".config" ] || [ "$each" == "Desktop" ] || [ "$each" == "Documents" ] || [ "$each" == "Downloads" ] || [ "$each" == "Pictures" ] || [ "$each" == "Music" ] || [ "$each" == "Public" ] || [ "$each" == "Templates" ] || [ "$each" == "Videos" ] || [ "$each" == ".local" ] || [ "$each" == ".gconf" ] || [ "$each" == ".dbus" ]; then
-		chmod -R 755 $each
-	elif [ "$each" == ".bash_logout" ] || [ "$each" == ".profile" ] || [ "$each" == ".dmrc" ]; then
-		chmod -R 644 "$each"
-	fi
-done
 echo "54"
 #remove live user
 deluser live --remove-home || rm -rfv /home/live 1>&2
