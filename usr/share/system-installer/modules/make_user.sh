@@ -40,8 +40,14 @@ done
 cd /
 echo "51"
 #rename home directory
-usermod -d -m /home/"$USERNAME" "$USERNAME"
+mv /home/live /home/"$USERNAME"
+sed -i "s/\/home\/live/\/home\/$USERNAME/g" /etc/passwd
+#change "fingername"
+chfn -f "$username" "$username"
 echo "54"
+#Disable autologin
+new_contents=$(cat /etc/lightdm/lightdm.conf | grep -v 'autologin')
+echo "$new_contents" > /etc/lightdm/lightdm.conf
 #change password
 echo "$USERNAME:$PASS" | chpasswd
 echo "55"
