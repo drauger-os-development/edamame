@@ -41,9 +41,7 @@ cd /
 echo "51"
 #rename home directory
 mv /home/live /home/"$USERNAME"
-sed -i "s/\/home\/live/\/home\/$USERNAME/g" /etc/passwd
-#change "fingername"
-chfn -f "$username" "$username"
+sed -i "s/live/$USERNAME/g" /etc/passwd
 echo "54"
 #Disable autologin
 new_contents=$(cat /etc/lightdm/lightdm.conf | grep -v 'autologin')
