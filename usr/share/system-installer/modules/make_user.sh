@@ -25,25 +25,22 @@ echo "	###	make_user.sh STARTED	###	" 1>&2
 USERNAME="$1"
 PASS="$2"
 echo "49"
-#add new user
-useradd "$USERNAME" -s /bin/bash -m -U
+#change live user to $USERNAME
+usermod -l "$USERNAME" live 1>&2
+groupmod -n "$USERNAME" live 1>&2
 echo "50"
-if [ ! -d /home/"$USERNAME" ]; then
-	mkdir -p /home/"$USERNAME"
-	chmod 755 /home/"$USERNAME"
-fi
-usermod -a -G adm "$USERNAME"
-usermod -a -G cdrom "$USERNAME"
-usermod -a -G sudo "$USERNAME"
-usermod -a -G dip "$USERNAME"
-usermod -a -G plugdev "$USERNAME"
-usermod -a -G lpadmin "$USERNAME"
-usermod -a -g sambashare "$USERNAME" 2>/dev/null || echo "samabashare group does not exist. Cannot add $USERNAME" 1>&2
+#change refrences from old home to new
+echo "Fixing refrences to old home . . ." 1>&2
+list=$(grep -IRFl /home/live 2>/dev/null)
+for each in $list; do
+	sed -i "s/\/home\/live/\/home\/$USERNAME/g" "$each"
+done
 echo "51"
-echo "$USERNAME:$PASS" | chpasswd
+#rename home directory
+usermod -d /home/"$USERNAME" "$USERNAME"
 echo "54"
-#remove live user
-deluser live --remove-home || rm -rfv /home/live 1>&2
+#change password
+echo "$USERNAME:$PASS" | chpasswd
 echo "55"
 echo "	###	make_user.sh CLOSED	###	" 1>&2
 
