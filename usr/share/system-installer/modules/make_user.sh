@@ -30,11 +30,14 @@ usermod -l "$USERNAME" live 1>&2
 groupmod -n "$USERNAME" live 1>&2
 echo "50"
 #change refrences from old home to new
+cd /home
 echo "Fixing refrences to old home . . ." 1>&2
 list=$(grep -IRFl /home/live 2>/dev/null)
 for each in $list; do
+	echo "$each" 1>&2
 	sed -i "s/\/home\/live/\/home\/$USERNAME/g" "$each"
 done
+cd /
 echo "51"
 #rename home directory
 usermod -d /home/"$USERNAME" "$USERNAME"
