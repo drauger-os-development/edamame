@@ -194,21 +194,34 @@ arch-chroot /mnt '/MASTER.sh' "$LANG_SET" "$TIME_ZONE" "$USERNAME" "$COMP_NAME" 
 #I know this isn't the best way of doing this, but it is easier than changing each of the file name in $LIST
 echo "Removing installation scripts and resetting resolv.conf" 1>&2
 for each in $LIST; do
-	if [ "$each" != "make_user.sh" ]; then
-		rm -v "/mnt/$each"
-	fi
+	rm -v "/mnt/$each"
 done
 echo "89"
 rm -v /mnt/etc/resolv.conf
 mv -v /mnt/etc/resolv.conf.save /mnt/etc/resolv.conf
 #STEP 8: Copy Config
 echo "90"
-list=$(ls /home/live)
-for each in $live; do
-	cp -Rv /home/live/$each /mnt/home/$USERNAME 1>&2
-done
+rsync -avu "/home/live/" "/home/$USERNAME" 1>&2
+#set proper permissions for the config files
+arch-chroot /mnt 'chown' '-R' "$USERNAME:$USERNAME" "/home/$USERNAME/*"
+chmod 755 -R /home/$USERNAME/*
+cd /mnt/home/$USERNAME
+list=$(ls -a)
 echo "91"
-#set proper permissions for config files
-arch-chroot /mnt '/make_user.sh' "$USERNAME" "0000" "config"
+for each in $list; do
+	if [ "$each" == ".bashrc" ]; then
+		chmod 777 /mnt/home/$USERNAME/$each
+	elif [ "$each" == ".gnome" ]  || [ "$each" == ".gnome2" ] || [ "$each" == ".gnome2_private" ] || [ "$each" == ".gvfs" ] || [ "$each" == ".synaptic" ]; then
+		chmod 700 /mnt/home/$USERNAME/$each
+	elif [ "$each" == ".cache" ] || [ "$each" == ".mozilla" ] || [ "$each" == ".thumbnails" ]; then
+		chmod -R 775 ./mnt/home/$USERNAME/cache
+		chmod -R 775 /mnt/home/$USERNAME/.cache/*
+	elif [ "$each" == ".config" ] || [ "$each" == "Desktop" ] || [ "$each" == "Documents" ] || [ "$each" == "Downloads" ] || [ "$each" == "Pictures" ] || [ "$each" == "Music" ] || [ "$each" == "Public" ] || [ "$each" == "Templates" ] || [ "$each" == "Videos" ] || [ "$each" == ".local" ] || [ "$each" == ".gconf" ] || [ "$each" == ".dbus" ]; then
+		chmod -R 755 /mnt/home/$USERNAME/$each
+	elif [ "$each" == ".bash_logout" ] || [ "$each" == ".profile" ] || [ "$each" == ".dmrc" ]; then
+		chmod -R 644 /mnt/home/$USERNAME/"$each"
+	fi
+done
+echo "98"
 echo "100"
 echo "	###	$0 CLOSED	###	" 1>&2

@@ -93,6 +93,9 @@ echo "DOING SOME QUICK CLEAN UP BEFORE SETTING UP INITRAMFS AND GRUB" 1>&2
 update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth /usr/share/plymouth/themes/drauger-theme/drauger-theme.plymouth 100 --slave /usr/share/plymouth/themes/default.grub default.plymouth.grub /usr/share/plymouth/themes/drauger-theme/drauger-theme.grub
 echo -e "2\n" | update-alternatives --config default.plymouth
 echo "86"
+if [ "$EFI" != "NULL" ]; then
+	remove="grub-efi grub-pc-bin grub-efi-amd64 grub-efi-amd64-bin"
+fi
 {
 	if [ "$internet" == "0" ]; then
 		install=$(apt-cache depends linux-headers-drauger linux-image-drauger | grep '[ |]Depends: [^<]' | cut -d: -f2 | tr -d ' ')
@@ -107,8 +110,8 @@ echo "86"
 		dpkg -R --install -y kernel/
 		rm -rf kernel
 	fi
-	apt purge -y system-installer
-	apt autoremove -y
+	apt purge -y system-installer $remove
+	apt autoremove -y --purge
 	apt clean
 } 1>&2
 echo "87"
