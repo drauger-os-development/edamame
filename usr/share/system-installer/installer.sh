@@ -67,7 +67,7 @@ fi
 if [ "$SWAP" != "FILE" ]; then
 	swapon "$SWAP"
 else
-	echo "SWAP FILE SUPPORT NOT IMPLEMENTED YET" 1>&2
+	echo "SWAP FILE NOT CREATED YET" 1>&2
 fi
 #if [ "$EFI" == "200" ]; then
 	#if $(echo "$MOUNT" | grep -q "nvme"); then
@@ -154,31 +154,31 @@ echo "36"
 #Check to make sure all these vars are set
 #if not, set them to some defaults
 if [ "$LANG_SET" == "" ]; then
-	echo "\$LANG_SET is not set. Defaulting to english" >>/tmp/system-installer.log
+	echo "\$LANG_SET is not set. Defaulting to english" 1>&2
 	LANG_SET="english"
 fi
 if [ "$TIME_ZONE" == "" ]; then
-	echo "\$TIME_ZONE is not set. Defaulting to EST" >>/tmp/system-installer.log
+	echo "\$TIME_ZONE is not set. Defaulting to EST" 1>&2
 	TIME_ZONE="EST"
 fi
 if [ "$USERNAME" == "" ]; then
-	echo "\$USERNAME is not set. No default. Prompting user . . ." >>/tmp/system-installer.log
+	echo "\$USERNAME is not set. No default. Prompting user . . ." 1>&2
 	USERNAME=$(zenity --entry --text="We're sorry. We lost your username somewhere in the chain. What was it again?")
 fi
 if [ "$COMP_NAME" == "" ]; then
-	echo "\$COMP_NAME is not set. Defaulting to drauger-system-installed" >>/tmp/system-installer.log
+	echo "\$COMP_NAME is not set. Defaulting to drauger-system-installed" 1>&2
 	COMP_NAME="drauger-system-installed"
 fi
 if [ "$PASS" == "" ]; then
-	echo "\$PASS is not set. No default. Prompting user . . ." >>/tmp/system-installer.log
+	echo "\$PASS is not set. No default. Prompting user . . ." 1>&2
 	PASS=$(zenity --entry --hide-text --text="We're sorry. We lost your password somewhere in the chain. What was it again?")
 fi
 if [ "$EXTRAS" == "" ]; then
-	echo "\$EXTRAS is not set. Defaulting to false." >>/tmp/system-installer.log
+	echo "\$EXTRAS is not set. Defaulting to false." 1>&2
 	EXTRAS=false
 fi
 if [ "$UPDATES" == "" ]; then
-	echo "\$UPDATES is not set. Defaulting to false." >>/tmp/system-installer.log
+	echo "\$UPDATES is not set. Defaulting to false." 1>&2
 	UPDATES=false
 fi
 # we don't check EFI or ROOT cause if they weren't set the script would have failed.
