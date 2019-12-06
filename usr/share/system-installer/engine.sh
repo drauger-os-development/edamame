@@ -76,6 +76,47 @@ set -Ee
 continue=$(/usr/share/system-installer/UI/main.py 2>&1)
 if [ "$continue" == "1" ]; then
 	exit 0
+elif [ -f "$continue" ]; then
+	# QUICK INSTALL MODE
+	CONFIG=$(<"$continue")
+	CONFIG=$(echo "$CONFIG" | grep -v "^#" | grep "=" | sed 's/=/ /g')
+	USERNAME=$(echo "$CONFIG" | grep "^username" | awk '{print $2}')
+	PASS=$(echo "$CONFIG" | grep "^password" | awk '{print $2}')
+	COMPNAME=$(echo "$CONFIG" | grep "^hostname" | awk '{print $2}')
+	partitoner=$(echo "$CONFIG" | grep "^paritioner" | awk '{print $2}')
+	LANG_SET=$(echo "$CONFIG" | grep "^locale" | awk '{print $2}')
+	TIME_ZONE=$(echo "$CONFIG" | grep "^timezone" | awk '{print $2}')
+	LOGIN=$(echo "$CONFIG" | grep "^auto-login" | awk '{print $2}')
+	if [ "$LOGIN" == "True" ] || [ "$LOGIN" == "true" ]; then
+		LOGIN="1"
+	else
+		LOGIN="0"
+	fi
+	UPDATES=$(echo "$CONFIG" | grep "^updates" | awk '{print $2}')
+	if [ "$UPDATES" == "True" ] || [ "$UPDATES" == "true" ]; then
+		UPDATES="1"
+	else
+		UPDATES="0"
+	fi
+	EXTRAS=$(echo "$CONFIG" | grep "^thirdparty" | awk '{print $2}')
+	if [ "$EXTRAS" == "True" ] || [ "$EXTRAS" == "true" ]; then
+		EXTRAS="1"
+	else
+		EXTRAS="0"
+	fi
+	set -Ee
+	/usr/share/system-installer/UI/confirm.py "$partitoner" $LANG_SET $TIME_ZONE $USERNAME $COMPNAME $PASS $EXTRAS $UPDATES $LOGIN
+	set +Ee
+	## INSTALL THE SYSTEM
+	/usr/share/system-installer/installer.sh "$partitoner" $LANG_SET $TIME_ZONE $USERNAME $COMPNAME $PASS $EXTRAS $UPDATES $LOGIN | zenity --progress --text="Installing Drauger OS to your internal hard drive.\nThis may take 	some time. If you have an error, please send\nthe log file (located at /tmp/system-installer.log) to: contact@draugeros.org" --time-remaining --no-cancel --auto-close || /usr/share/system-installer/UI/error.py  "Error detected. Error Code: $?\nPlease see /tmp/system-installer.log for details."
+	test="$?"
+	if [ "$test" == "0" ]; then
+		/usr/share/system-installer/UI/success.py
+	else
+		/usr/share/system-installer/UI/error.py "Installation has failed. Please send the log file at /tmp/system-installer.log to contact@draugeros.org along with a discription of the issue you experienced. Or, submit an issue on our GitHub at https://github.com/drauger-os-development/system-installer"
+	fi
+	echo "	###	$0 CLOSED	###	" 1>&2
+	exit "$test"
 fi
 #STEP 4: Select partioning method
 #	Due to some issues with partitoning, the below code is commented out for now.

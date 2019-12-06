@@ -28,13 +28,14 @@ echo "37"
 set -o pipefail
 LANG_SET="$1"
 TIME_ZONE="$2"
-USERNAME="$3"
+USERNAME="$(echo $3 | sed 's/:/ /' | awk '{print $1}')"
+PASS="$(echo $3 | sed 's/:/ /' | awk '{print $2}')"
 COMP_NAME="$4"
-PASS="$5"
-EXTRAS="$6"
-UPDATES="$7"
-EFI="$8"
-ROOT="$9"
+EXTRAS="$5"
+UPDATES="$6"
+EFI="$7"
+ROOT="$8"
+LOGIN="$9"
 echo "39"
 #STEP 1: Check for internet
 function check_internet ()
@@ -88,7 +89,11 @@ echo "84"
 #STEP 8: Set new root password
 echo "root:$PASS" | chpasswd
 echo "85"
-#STEP 9: Kernel, Plymouth, Initramfs
+#STEP 9: Set auto-login
+if [ "$LOGIN" == "0" ]; then
+	. /auto-login-off.sh
+fi
+#STEP 10: Kernel, Plymouth, Initramfs
 echo "DOING SOME QUICK CLEAN UP BEFORE SETTING UP INITRAMFS AND GRUB" 1>&2
 update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth /usr/share/plymouth/themes/drauger-theme/drauger-theme.plymouth 100 --slave /usr/share/plymouth/themes/default.grub default.plymouth.grub /usr/share/plymouth/themes/drauger-theme/drauger-theme.grub
 echo -e "2\n" | update-alternatives --config default.plymouth
@@ -115,7 +120,7 @@ fi
 	apt clean
 } 1>&2
 echo "87"
-#STEP 10: Bootloader
+#STEP 11: Bootloader
 {
 
 	mkinitramfs -o /boot/initrd.img-$(uname --release)
