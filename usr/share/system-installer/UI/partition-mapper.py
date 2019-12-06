@@ -51,13 +51,6 @@ class main(Gtk.Window):
 		self.root = Gtk.Entry()
 		self.grid.attach(self.root, 2, 2, 1, 1)
 
-		self.root_type = Gtk.ComboBoxText.new()
-		self.root_type.append("ext4","ext4")
-		self.root_type.append("ext3","ext3")
-		self.root_type.append("ext2","ext2")
-		self.root_type.append("btrfs","btrfs")
-		self.grid.attach(self.root_type, 3, 2, 1, 1)
-
 		self.label3 = Gtk.Label()
 		self.label3.set_markup("/boot/efi")
 		self.label3.set_justify(Gtk.Justification.RIGHT)
@@ -78,16 +71,6 @@ class main(Gtk.Window):
 
 		self.home = Gtk.Entry()
 		self.grid.attach(self.home, 2, 4, 1, 1)
-
-		self.home_type = Gtk.ComboBoxText.new()
-		self.home_type.append("(blank)","(no /home)")
-		self.home_type.append("ext4","ext4")
-		self.home_type.append("ext3","ext3")
-		self.home_type.append("ext2","ext2")
-		self.home_type.append("btrfs","btrfs")
-		self.home_type.append("xfs","xfs")
-		self.home_type.append("zfs","zfs")
-		self.grid.attach(self.home_type, 3, 4, 1, 1)
 
 		self.label4 = Gtk.Label()
 		self.label4.set_markup("SWAP")
@@ -134,23 +117,20 @@ class main(Gtk.Window):
 				self.label.set_justify(Gtk.Justification.LEFT)
 				self.grid.attach(self.label, 1, 1, 2, 1)
 				root = self.root.get_text()
-				root_type = self.root_type.get_active_text()
 			if (self.efi.get_text() == ""):
 				efi = "NULL"
 			else:
 				efi = self.efi.get_text()
 			if (self.home.get_text() == ""):
 				home = "NULL"
-				home_type = "(blank)"
 			else:
 				home = self.home.get_text()
-				home_type = self.home_type.get_active_text()
 			if (self.swap.get_text() == ""):
 				swap = "FILE"
 			else:
 				swap = self.swap.get_text()
 
-			print("ROOT:%s:%s,EFI:%s,HOME:%s:%s,SWAP:%s" % (root,root_type,efi,home,home_type,swap))
+			print("ROOT:%s,EFI:%s,HOME:%s,SWAP:%s" % (root,efi,home,swap))
 			exit(0)
 
 

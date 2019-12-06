@@ -59,13 +59,22 @@ class main(Gtk.Window):
 		self.updates = Gtk.CheckButton.new_with_label("Update before reboot")
 		self.grid.attach(self.updates, 1, 5, 2, 1)
 
+		self.label2 = Gtk.Label()
+		self.label2.set_markup("""
+		Automaticly login upon boot up""")
+		self.label2.set_justify(Gtk.Justification.LEFT)
+		self.grid.attach(self.label2, 2, 6, 1, 1)
+
+		self.login = Gtk.CheckButton.new_with_label("Enable Auto-Login")
+		self.grid.attach(self.login, 1, 7, 2, 1)
+
 		self.button1 = Gtk.Button.new_with_label("Okay -->")
 		self.button1.connect("clicked", self.onnextclicked)
-		self.grid.attach(self.button1, 2, 6, 1, 1)
+		self.grid.attach(self.button1, 2, 8, 1, 1)
 
 		self.button2 = Gtk.Button.new_with_label("Exit")
 		self.button2.connect("clicked", self.onexitclicked)
-		self.grid.attach(self.button2, 1, 6, 1, 1)
+		self.grid.attach(self.button2, 1, 8, 1, 1)
 
 	def onnextclicked(self,button):
 		if self.extras.get_active():
@@ -76,7 +85,11 @@ class main(Gtk.Window):
 			updates = 1
 		else:
 			updates = 0
-		print("%s %s" % (extras, updates))
+		if self.login.get_active():
+			login = 1
+		else:
+			login = 0
+		print("%s %s %s" % (extras, updates, login))
 		exit(0)
 	def onexitclicked(self,button):
 			exit(1)

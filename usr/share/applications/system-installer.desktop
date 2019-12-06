@@ -8,3 +8,4 @@ Terminal=false
 StartupNotify=true
 Encoding=UTF-8
 Categories=System;
+Comment=Install Drauger OS to your internal drive

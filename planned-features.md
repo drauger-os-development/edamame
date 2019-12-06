@@ -4,4 +4,5 @@ List of Planned Features
   - User provides properly formatted config file that allows installation to proceed immediately
 - Advanced configuration
   - Allow the user access to the `chroot` once the installation and set up is complete
-  - Provide a warning about risking bricking the system and no GUI being available
+  	- Provide a warning about risking bricking the system and no GUI being available
+  - Add PPAs

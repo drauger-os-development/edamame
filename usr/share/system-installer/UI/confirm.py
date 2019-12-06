@@ -39,6 +39,10 @@ try:
 	UPDATES=argv[8]
 except:
 	UPDATES=None
+try:
+	LOGIN=argv[9]
+except:
+	LOGIN=None
 if EXTRAS != "0" and EXTRAS != None:
 	EXTRAS = "Yes"
 else:
@@ -62,9 +66,9 @@ ROOT_LIST = ROOT_LIST.split(":")
 EFI_LIST = EFI_LIST.split(":")
 HOME_LIST = HOME_LIST.split(":")
 SWAP_LIST = SWAP_LIST.split(":")
-partitioner.update( {"ROOT":[ROOT_LIST[1],ROOT_LIST[2]]} )
+partitioner.update( {"ROOT":[ROOT_LIST[1]]} )
 partitioner.update( {"EFI":[EFI_LIST[1]]} )
-partitioner.update( {"HOME":[HOME_LIST[1],HOME_LIST[2]]} )
+partitioner.update( {"HOME":[HOME_LIST[1]]} )
 partitioner.update( {"SWAP":[SWAP_LIST[1]]} )
 
 
@@ -115,10 +119,10 @@ class main(Gtk.Window):
 		self.grid.attach(self.label4, 1, 4, 1, 1)
 
 		self.label5 = Gtk.Label()
-		self.label5.set_markup("""ROOT: %s, TYPE: %s
+		self.label5.set_markup("""ROOT: %s
 EFI: %s
-HOME: %s, TYPE: %s
-SWAP: %s""" % (partitioner["ROOT"][0],partitioner["ROOT"][1],partitioner["EFI"][0],partitioner["HOME"][0],partitioner["HOME"][1],partitioner["SWAP"][0]))
+HOME: %s,
+SWAP: %s""" % (partitioner["ROOT"][0],partitioner["EFI"][0],partitioner["HOME"][0],partitioner["SWAP"][0]))
 		self.label5.set_justify(Gtk.Justification.LEFT)
 		self.grid.attach(self.label5, 3, 4, 1, 1)
 
@@ -135,7 +139,7 @@ SWAP: %s""" % (partitioner["ROOT"][0],partitioner["ROOT"][1],partitioner["EFI"][
 		self.grid.attach(self.label7, 1, 6, 1, 1)
 
 		self.label8 = Gtk.Label()
-		self.label8.set_markup("%s" % (LANG))
+		self.label8.set_markup(LANG)
 		self.label8.set_justify(Gtk.Justification.CENTER)
 		self.grid.attach(self.label8, 3, 6, 1, 1)
 
@@ -145,7 +149,7 @@ SWAP: %s""" % (partitioner["ROOT"][0],partitioner["ROOT"][1],partitioner["EFI"][
 		self.grid.attach(self.label9, 1, 7, 1, 1)
 
 		self.label10 = Gtk.Label()
-		self.label10.set_markup("%s" % (TIME_ZONE))
+		self.label10.set_markup(TIME_ZONE)
 		self.label10.set_justify(Gtk.Justification.CENTER)
 		self.grid.attach(self.label10, 3, 7, 1, 1)
 
@@ -155,7 +159,7 @@ SWAP: %s""" % (partitioner["ROOT"][0],partitioner["ROOT"][1],partitioner["EFI"][
 		self.grid.attach(self.label11, 1, 8, 1, 1)
 
 		self.label12 = Gtk.Label()
-		self.label12.set_markup("%s" % (COMPNAME))
+		self.label12.set_markup(COMPNAME)
 		self.label12.set_justify(Gtk.Justification.CENTER)
 		self.grid.attach(self.label12, 3, 8, 1, 1)
 
@@ -172,7 +176,7 @@ SWAP: %s""" % (partitioner["ROOT"][0],partitioner["ROOT"][1],partitioner["EFI"][
 		self.grid.attach(self.label14, 1, 10, 1, 1)
 
 		self.label15 = Gtk.Label()
-		self.label15.set_markup("%s" % (USERNAME))
+		self.label15.set_markup(USERNAME)
 		self.label15.set_justify(Gtk.Justification.CENTER)
 		self.grid.attach(self.label15, 3, 10, 1, 1)
 
@@ -182,44 +186,54 @@ SWAP: %s""" % (partitioner["ROOT"][0],partitioner["ROOT"][1],partitioner["EFI"][
 		self.grid.attach(self.label16, 1, 11, 1, 1)
 
 		self.label17 = Gtk.Label()
-		self.label17.set_markup("%s" % (PASS))
+		self.label17.set_markup(PASS)
 		self.label17.set_justify(Gtk.Justification.CENTER)
 		self.grid.attach(self.label17, 3, 11, 1, 1)
+
+		self.label23 = Gtk.Label()
+		self.label23.set_markup("""	Auto-Login:	""")
+		self.label23.set_justify(Gtk.Justification.CENTER)
+		self.grid.attach(self.label23, 1, 12, 1, 1)
+
+		self.label24 = Gtk.Label()
+		self.label24.set_markup(LOGIN)
+		self.label24.set_justify(Gtk.Justification.CENTER)
+		self.grid.attach(self.label24, 3, 12, 1, 1)
 
 		self.label18 = Gtk.Label()
 		self.label18.set_markup("""
 	<b>OTHER</b>
 		""")
 		self.label18.set_justify(Gtk.Justification.CENTER)
-		self.grid.attach(self.label18, 1, 12, 3, 1)
+		self.grid.attach(self.label18, 1, 13, 3, 1)
 
 		self.label19 = Gtk.Label()
 		self.label19.set_markup("""	Install Extras:	""")
 		self.label19.set_justify(Gtk.Justification.CENTER)
-		self.grid.attach(self.label19, 1, 13, 1, 1)
+		self.grid.attach(self.label19, 1, 14, 1, 1)
 
 		self.label20 = Gtk.Label()
-		self.label20.set_markup("%s" % (EXTRAS))
+		self.label20.set_markup(EXTRAS)
 		self.label20.set_justify(Gtk.Justification.CENTER)
-		self.grid.attach(self.label20, 3, 13, 1, 1)
+		self.grid.attach(self.label20, 3, 14, 1, 1)
 
 		self.label21 = Gtk.Label()
 		self.label21.set_markup("""	Install Updates:	""")
 		self.label21.set_justify(Gtk.Justification.CENTER)
-		self.grid.attach(self.label21, 1, 14, 1, 1)
+		self.grid.attach(self.label21, 1, 15, 1, 1)
 
 		self.label22 = Gtk.Label()
-		self.label22.set_markup("%s" % (UPDATES))
+		self.label22.set_markup(UPDATES)
 		self.label22.set_justify(Gtk.Justification.CENTER)
-		self.grid.attach(self.label22, 3, 14, 1, 1)
+		self.grid.attach(self.label22, 3, 15, 1, 1)
 
 		self.button1 = Gtk.Button.new_with_label("INSTALL NOW -->")
 		self.button1.connect("clicked", self.onnextclicked)
-		self.grid.attach(self.button1, 3, 16, 1, 1)
+		self.grid.attach(self.button1, 3, 17, 1, 1)
 
 		self.button2 = Gtk.Button.new_with_label("Exit")
 		self.button2.connect("clicked", self.onexitclicked)
-		self.grid.attach(self.button2, 1, 16, 1, 1)
+		self.grid.attach(self.button2, 1, 17, 1, 1)
 
 	def onnextclicked(self,button):
 			exit(0)

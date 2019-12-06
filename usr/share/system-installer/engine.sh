@@ -159,11 +159,12 @@ PASS="$3"
 set -- $OPTIONS
 EXTRAS="$1"
 UPDATES="$2"
+LOGIN="$3"
 set -Ee
-/usr/share/system-installer/UI/confirm.py "$partitoner" $LANG_SET $TIME_ZONE $USERNAME $COMPNAME $PASS $EXTRAS $UPDATES
+/usr/share/system-installer/UI/confirm.py "$partitoner" $LANG_SET $TIME_ZONE $USERNAME $COMPNAME $PASS $EXTRAS $UPDATES $LOGIN
 set +Ee
 ## STEP 9: INSTALL THE SYSTEM
-/usr/share/system-installer/installer.sh "$partitoner" $LANG_SET $TIME_ZONE $USERNAME $COMPNAME $PASS $EXTRAS $UPDATES | zenity --progress --text="Installing Drauger OS to your internal hard drive.\nThis may take some time. If you have an error, please send\nthe log file (located at /tmp/system-installer.log) to: contact@draugeros.org" --time-remaining --no-cancel --auto-close || /usr/share/system-installer/UI/error.py  "Error detected. Error Code: $?\nPlease see /tmp/system-installer.log for details."
+/usr/share/system-installer/installer.sh "$partitoner" $LANG_SET $TIME_ZONE $USERNAME $COMPNAME $PASS $EXTRAS $UPDATES $LOGIN | zenity --progress --text="Installing Drauger OS to your internal hard drive.\nThis may take some time. If you have an error, please send\nthe log file (located at /tmp/system-installer.log) to: contact@draugeros.org" --time-remaining --no-cancel --auto-close || /usr/share/system-installer/UI/error.py  "Error detected. Error Code: $?\nPlease see /tmp/system-installer.log for details."
 test="$?"
 if [ "$test" == "0" ]; then
 	/usr/share/system-installer/UI/success.py

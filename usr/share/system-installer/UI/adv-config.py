@@ -1,31 +1,31 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-#  success.py
-#
+#  adv-config.py
+#  
 #  Copyright 2019 Thomas Castleman <contact@draugeros.org>
-#
+#  
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or
 #  (at your option) any later version.
-#
+#  
 #  This program is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
-#
+#  
 #  You should have received a copy of the GNU General Public License
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
-#
-#
-
+#  
+#  
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from os import system
+from subprocess import Popen
 
 class main(Gtk.Window):
 
@@ -35,32 +35,32 @@ class main(Gtk.Window):
 		self.add(self.grid)
 
 		self.label = Gtk.Label()
-		self.label.set_markup("""\n	Drauger OS has been successfully installed to your designated partitions!	\n""")
+		self.label.set_markup("""\n	The below options are meant exclusivly for advanced users. User discretion is advised.	\n""")
 		self.label.set_justify(Gtk.Justification.CENTER)
 		self.grid.attach(self.label, 1, 1, 3, 1)
 
-		self.button1 = Gtk.Button.new_with_label("Shut Down System")
-		self.button1.connect("clicked", self.onnextclicked)
+		self.button1 = Gtk.Button.new_with_label("Open Chroot Terminal")
+		self.button1.connect("clicked", self.chrootclicked)
 		self.grid.attach(self.button1, 3, 6, 1, 1)
 
-		self.button2 = Gtk.Button.new_with_label("Exit")
-		self.button2.connect("clicked", self.onexitclicked)
+		self.button2 = Gtk.Button.new_with_label("Delete Installation")
+		self.button2.connect("clicked", self.ondeleteclicked)
 		self.grid.attach(self.button2, 1, 6, 1, 1)
 		
-		self.button2 = Gtk.Button.new_with_label("Advanced")
-		self.button2.connect("clicked", self.onadvclicked)
+		self.button2 = Gtk.Button.new_with_label("Exit")
+		self.button2.connect("clicked", self.onexitclicked)
 		self.grid.attach(self.button2, 2, 6, 1, 1)
 
 	def onexitclicked(self,button):
 		print("EXIT")
 		exit(1)
 
-	def onnextclicked(self,button):
-		system("poweroff")
+	def ondeleteclicked(self,button):
+		#warn of rm -rf in chroot
 		exit(0)
 			
-	def onadvclicked(self,button):
-		system("gnome-terminal -e \"bash -c \\\"echo When done, run exit;arch-chroot /mnt\\\"\"")
+	def chrootclicked(self,button):
+		Popen(["gnome-terminal","-e","\"bash","-c","\\\"echo","When","done,","run","exit;","arch-chroot","/mnt\\\"\""])
 		exit(0)
 
 

@@ -37,9 +37,9 @@ UPDATES="$8"
 #SWAP="$11"
 echo "3"
 partitioner=$(echo "$partitioner" | sed 's/,/ /g' | sed 's/ROOT://' | sed 's/EFI://' | sed 's/HOME://' | sed 's/SWAP://')
-ROOT=$(echo "$partitioner" | awk '{print $1}' | sed 's/:/ /g')
+ROOT=$(echo "$partitioner" | awk '{print $1}')
 EFI=$(echo "$partitioner" | awk '{print $2}')
-HOME_DATA=$(echo "$partitioner" | awk '{print $3}' | sed 's/:/ /g')
+HOME_DATA=$(echo "$partitioner" | awk '{print $3}')
 SWAP=$(echo "$partitioner" | awk '{print $4}')
 #STEP 1: Partion and format the drive
 # Don't worry about this right now. Taken care of earlier.
@@ -53,7 +53,7 @@ SWAP=$(echo "$partitioner" | awk '{print $4}')
 set -Ee
 echo "12"
 #STEP 2: Mount the new partitions
-mount "$(echo $ROOT | awk '{print $1}')" /mnt
+mount "$ROOT" /mnt
 if [ "$EFI" != "NULL" ]; then
 	mkdir -p /mnt/boot/efi
 	mount "$EFI" /mnt/boot/efi
@@ -62,7 +62,7 @@ echo "$HOME_DATA" | grep -q "NULL" 1>/dev/null 2>/dev/null
 TEST="$?"
 if [ "$TEST" != "0" ]; then
 	mkdir -p /mnt/home
-	mount "$(echo "$HOME_DATA" | awk '{print $1}')" /mnt/home
+	mount "$HOME_DATA" /mnt/home
 fi
 if [ "$SWAP" != "FILE" ]; then
 	swapon "$SWAP"
@@ -186,7 +186,7 @@ fi
 #mount --rbind /dev dev/
 #mount --rbind /sys sys/
 #mount -t proc proc proc/
-arch-chroot /mnt '/MASTER.sh' "$LANG_SET" "$TIME_ZONE" "$USERNAME" "$COMP_NAME" "$PASS" "$EXTRAS" "$UPDATES" "$EFI" $(echo "$ROOT" | awk '{print $1}') 2>>/tmp/system-installer.log
+arch-chroot /mnt '/MASTER.sh' "$LANG_SET" "$TIME_ZONE" "$USERNAME" "$COMP_NAME" "$PASS" "$EXTRAS" "$UPDATES" "$EFI" "$ROOT" 2>>/tmp/system-installer.log
 #umount dev/ || echo "Unable to unmount dev. Continuing . . ." 1>>/tmp/system-installer.log
 #umount sys/ || echo "Unable to unmount sys. Continuing . . ." 1>>/tmp/system-installer.log
 #umount proc/ || echo "Unable to unmount proc. Continuing . . ." 1>>/tmp/system-installer.log
@@ -205,7 +205,7 @@ contents=$(ls /mnt/boot/efi/loader/entries)
 if [ "$contents" == "" ]; then
 	echo "	### SYSTEMD-BOOT NOT CONFIGURED. CORRECTING . . .	###	" 1>&2
 	cp /usr/share/system-installer/modules/systemd-boot-config.sh /mnt
-	arch-chroot /mnt '/systemd-boot-config.sh' "$(echo "$ROOT" | awk '{print $1}')"
+	arch-chroot /mnt '/systemd-boot-config.sh' "$ROOT"
 	rm /mnt/systemd-boot-config.sh
 fi
 echo "100"

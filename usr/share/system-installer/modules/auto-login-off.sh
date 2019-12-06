@@ -1,39 +1,26 @@
-#!/usr/bin/env python3
+#!/bin/bash
 # -*- coding: utf-8 -*-
 #
-#  system-installer
-#
+#  auto-login-off.sh
+#  
 #  Copyright 2019 Thomas Castleman <contact@draugeros.org>
-#
+#  
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or
 #  (at your option) any later version.
-#
+#  
 #  This program is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
-#
+#  
 #  You should have received a copy of the GNU General Public License
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
+#  
 #
-#
-from sys import argv
-from os import system
-argc = len(argv)
-VERSION = "0.5.0-alpha6"
-HELP = "\nsystem-installer, Version %s\n\n\t-h, --help\tprint this help dialoge.\n\t-v, --version\tprint current version.\n\nPass nothing to start installer.\n"
-if (argc > 1):
-	if (argv[1] == "-v" or argv[1] == "--version"):
-		print("\n%s" % (VERSION))
-	elif (argv[1] == "-h" or argv[1] == "--help"):
-		print(HELP % (VERSION))
-	else:
-		print("Option %s not recognized.\n%s" % (argv[1],HELP % (VERSION)))
-else:
-	system("/usr/bin/xhost +si:localuser:root")
-	system("/usr/bin/pkexec /usr/share/system-installer/engine.sh 2>/tmp/system-installer.log")
-	system("/usr/bin/xhost -si:localuser:root")
+new_conf=$(cat /etc/lightdm/lightdm.conf | grep -v '^autologin-user')
+rm /etc/lightdm/lightdm.conf
+echo "$new_conf" > /etc/lightdm/lightdm.conf
