@@ -131,9 +131,10 @@ class main(Gtk.Window):
 		dialog.add_filter(filter_any)
 
 	def onnextclicked(self,button):
-		exit(2)
+		exit(0)
 
 	def onexitclicked(self,button):
+		print(1)
 		exit(1)
 
 def show_main():

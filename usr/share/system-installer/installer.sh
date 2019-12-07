@@ -187,7 +187,7 @@ fi
 #mount --rbind /dev dev/
 #mount --rbind /sys sys/
 #mount -t proc proc proc/
-arch-chroot /mnt '/MASTER.sh' "$LANG_SET" "$TIME_ZONE" "$USERNAME:$PASS" "$COMP_NAME" "$EXTRAS" "$UPDATES" "$EFI" "$ROOT" "$LOGIN" 2>>/tmp/system-installer.log
+arch-chroot /mnt '/MASTER.sh' "$LANG_SET" "$TIME_ZONE" "$USERNAME:$PASS" "$COMP_NAME" "$EXTRAS" "$UPDATES" "$EFI" "$ROOT" "$LOGIN" 2>&1
 #umount dev/ || echo "Unable to unmount dev. Continuing . . ." 1>>/tmp/system-installer.log
 #umount sys/ || echo "Unable to unmount sys. Continuing . . ." 1>>/tmp/system-installer.log
 #umount proc/ || echo "Unable to unmount proc. Continuing . . ." 1>>/tmp/system-installer.log
