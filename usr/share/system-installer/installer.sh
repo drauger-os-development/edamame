@@ -187,7 +187,7 @@ fi
 #mount --rbind /dev dev/
 #mount --rbind /sys sys/
 #mount -t proc proc proc/
-arch-chroot /mnt '/MASTER.sh' "$LANG_SET" "$TIME_ZONE" "$USERNAME:$PASS" "$COMP_NAME" "$EXTRAS" "$UPDATES" "$EFI" "$ROOT" "$LOGIN" 2>&1
+arch-chroot /mnt '/MASTER.sh' "$LANG_SET" "$TIME_ZONE" "$USERNAME:$PASS" "$COMP_NAME" "$EXTRAS" "$UPDATES" "$EFI" "$ROOT" "$LOGIN" 1>&2
 #umount dev/ || echo "Unable to unmount dev. Continuing . . ." 1>>/tmp/system-installer.log
 #umount sys/ || echo "Unable to unmount sys. Continuing . . ." 1>>/tmp/system-installer.log
 #umount proc/ || echo "Unable to unmount proc. Continuing . . ." 1>>/tmp/system-installer.log
@@ -206,8 +206,9 @@ contents=$(ls /mnt/boot/efi/loader/entries)
 if [ "$contents" == "" ]; then
 	echo "	### SYSTEMD-BOOT NOT CONFIGURED. CORRECTING . . .	###	" 1>&2
 	cp /usr/share/system-installer/modules/systemd-boot-config.sh /mnt
-	arch-chroot /mnt '/systemd-boot-config.sh' "$ROOT"
+	arch-chroot /mnt '/systemd-boot-config.sh' "$ROOT" 1>&2
 	rm /mnt/systemd-boot-config.sh
 fi
+rm -rf /mnt/home/$USERNAME/.config/xfce4/panel/launcher-20
 echo "100"
 echo "	###	$0 CLOSED	###	" 1>&2
