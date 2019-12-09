@@ -51,6 +51,10 @@ if UPDATES != "0" and UPDATES != None:
 	UPDATES = "Yes"
 else:
 	UPDATES = "No"
+if LOGIN != "0" and LOGIN != None:
+	LOGIN = "Yes"
+else:
+	LOGIN = "No"
 # if EFI == "200":
 	# EFI = "Yes, 200MB at drive start"
 # else:

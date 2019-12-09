@@ -53,7 +53,7 @@ done
 #16 GB are found
 if [ "$allowable" == "" ]; then
 	#/usr/share/system-installer/UI/error.py "No Drives Larger than 16 GB detected"
-	echo "No Drives Larger than 16 GB detected"
+	/usr/share/system-installer/UI/error.py "No Drives Larger than 16 GB detected"
 	exit 2
 fi
 #STEP 2: checking for minumim memory
@@ -64,7 +64,7 @@ memcheck="$2"
 #make sure memory is equal to or greater than 1024 MB, or 1 GB
 if (( $(echo "$memcheck < 1024" | bc -l) )); then
 	#/usr/share/system-installer/UI/error.py "RAM is less than 1 GB"
-	echo "RAM is less than 1 GB"
+	/usr/share/system-installer/UI/error.py "RAM is less than 1 GB"
 	exit 2
 fi
 #if the code is down to here and has not had some sort of bug, then we are good to go.
