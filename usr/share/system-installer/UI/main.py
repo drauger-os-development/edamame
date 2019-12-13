@@ -24,7 +24,6 @@
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk
-from time import sleep
 
 default = """
 	Welcome to the Drauger OS System Installer!
@@ -57,11 +56,11 @@ class main(Gtk.Window):
 		self.grid.attach(self.label, 1, 1, 3, 1)
 
 		self.button1 = Gtk.Button.new_with_label("Okay -->")
-		self.button1.connect("clicked", self.onnextclicked)
+		self.button1.connect("clicked", self.onnext1clicked)
 		self.grid.attach(self.button1, 3, 2, 1, 1)
 
 		self.button2 = Gtk.Button.new_with_label("Exit")
-		self.button2.connect("clicked", self.onexitclicked)
+		self.button2.connect("clicked", self.exit)
 		self.grid.attach(self.button2, 1, 2, 1, 1)
 
 		self.button3 = Gtk.Button.new_with_label("Quick Install")
@@ -130,12 +129,130 @@ class main(Gtk.Window):
 		filter_any.add_pattern("*")
 		dialog.add_filter(filter_any)
 
-	def onnextclicked(self,button):
+	def onnext1clicked(self,button):
+		clear_window(self.grid)
+
+		self.label.set_markup("""
+		Feel free to complete any of the below segments in any order.\t
+		However, all segments must be completed.""")
+		self.grid.attach(self.label, 2, 1, 1, 1)
+
+		self.button8 = Gtk.Button.new_with_label("Keyboard")
+		self.button8.connect("clicked",self.keyboard)
+		self.grid.attach(self.button8, 2, 2, 1, 1)
+
+		self.button4 = Gtk.Button.new_with_label("Locale and Time")
+		self.button4.connect("clicked",self.locale)
+		self.grid.attach(self.button4, 2, 3, 1, 1)
+
+		self.button5 = Gtk.Button.new_with_label("Options")
+		self.button5.connect("clicked",self.options)
+		self.grid.attach(self.button5, 2, 4, 1, 1)
+
+		self.button6 = Gtk.Button.new_with_label("Partitioning")
+		self.button6.connect("clicked",self.partitioning)
+		self.grid.attach(self.button6, 2, 5, 1, 1)
+
+		self.button7 = Gtk.Button.new_with_label("User Settings")
+		self.button7.connect("clicked",self.user)
+		self.grid.attach(self.button7, 2, 6, 1, 1)
+
+		self.button1.set_label("DONE")
+		self.button1.connect("clicked",self.done)
+		self.grid.attach(self.button1, 3, 7, 1, 1)
+
+		self.grid.attach(self.button2, 1, 7, 1, 1)
+
+		self.show_all()
+
+	def user(self,button):
+		print("USER")
+
+	def partitioning(self,button):
+		print("PART")
+
+	def options(self,button):
+		clear_window(self.grid)
+
+		self.label.set_markup("""
+	<b>Extra Options</b>
+	The below options require a network connection.
+	Please ensure you are connected before selecting any of these options.
+		""")
+		self.label.set_justify(Gtk.Justification.CENTER)
+		self.grid.attach(self.label, 1, 1, 2, 1)
+
+		self.label1 = Gtk.Label()
+		self.label1.set_markup("""
+		Install third-party packages such as NVIDIA drivers if necessary""")
+		self.label1.set_justify(Gtk.Justification.LEFT)
+		self.grid.attach(self.label1, 2, 2, 1, 1)
+
+		self.extras = Gtk.CheckButton.new_with_label("Install Restricted Extras")
+		self.grid.attach(self.extras, 1, 3, 2, 1)
+
+		self.label2 = Gtk.Label()
+		self.label2.set_markup("""
+		Update the system during installation""")
+		self.label2.set_justify(Gtk.Justification.LEFT)
+		self.grid.attach(self.label2, 2, 4, 1, 1)
+
+		self.updates = Gtk.CheckButton.new_with_label("Update before reboot")
+		self.grid.attach(self.updates, 1, 5, 2, 1)
+
+		self.label2 = Gtk.Label()
+		self.label2.set_markup("""
+		Automaticly login upon boot up""")
+		self.label2.set_justify(Gtk.Justification.LEFT)
+		self.grid.attach(self.label2, 2, 6, 1, 1)
+
+		self.login = Gtk.CheckButton.new_with_label("Enable Auto-Login")
+		self.grid.attach(self.login, 1, 7, 2, 1)
+
+		self.button1 = Gtk.Button.new_with_label("Okay -->")
+		self.button1.connect("clicked", self.options_next)
+		self.grid.attach(self.button1, 2, 8, 1, 1)
+
+		self.grid.attach(self.button2, 1, 8, 1, 1)
+
+		self.show_all()
+
+	def options_next(self,button):
+		if self.extras.get_active():
+			self.extras_setting = 1
+		else:
+			self.extras_setting = 0
+		if self.updates.get_active():
+			self.updates_setting = 1
+		else:
+			self.updates_setting = 0
+		if self.login.get_active():
+			self.login_setting = 1
+		else:
+			self.login_setting = 0
+		self.onnext1clicked("clicked")
+
+	def locale(self,button):
+		print("LOCALE AND TIME")
+
+	def keyboard(self,button):
+		print("KEYBOARD")
+
+	def done(self,button):
+		# Check to see if each segment has been completed
+		# If it hasn't, print a warning, else
+		# Print out the value of stuffs and exit
 		exit(0)
 
-	def onexitclicked(self,button):
+	def exit(self,button):
 		print(1)
 		exit(1)
+
+def clear_window(window):
+	children = Gtk.Container.get_children(window)
+	for each in children:
+		Gtk.Widget.destroy(each)
+
 
 def show_main():
 	window = main()
