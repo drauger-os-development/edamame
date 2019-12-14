@@ -25,6 +25,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk
 import re
+from subprocess import Popen
 
 def hasnumbers(inputString):
 	return any(char.isdigit() for char in inputString)
@@ -174,7 +175,7 @@ class main(Gtk.Window):
 		self.grid.attach(self.label, 2, 1, 2, 1)
 
 		self.completion_label = Gtk.Label()
-		self.completion_label.set_markup("""COMPLETION""")
+		self.completion_label.set_markup("""<b>COMPLETION</b>""")
 		self.grid.attach(self.completion_label, 2, 2, 1, 1)
 
 		self.button8 = Gtk.Button.new_with_label("Keyboard")
@@ -358,13 +359,164 @@ class main(Gtk.Window):
 			self.label5.set_justify(Gtk.Justification.CENTER)
 			self.grid.attach(self.label5, 1, 7, 2, 1)
 		else:
+			global user_completion
 			user_completion = "COMPLETED"
 			self.main_menu("clicked")
 
 		self.show_all()
 
 	def partitioning(self,button):
-		print("PART")
+		self.clear_window()
+
+		self.label = Gtk.Label()
+		self.label.set_markup("""
+	<b> PLEASE READ </b>
+
+	When you are ready, click the "Open Gparted" button to open Gparted and partiton your drive how you wish it to be.
+	This is done while bugs are worked out of the partioning system inside the Drauger OS installer.
+
+	Please make note of the mount point for the partions you wish to install to. Individual partions are supported for:
+		* /
+		* /boot/efi
+		* /home
+		* Swap
+
+	Furthermore, please ensure you apply the changes to the partiton table when you are done.
+
+	Finally, please make sure to mark the approptiate partition as bootable under "flags".
+
+	If you are not familiar with partitioning drives or the above was gibberish to you, please exit this installer NOW.
+	Partioning drives risks a loss in data if you are inexperienced.
+
+	The user assumes fault and all liability for all loss of data which may occur due to repartioning any drive.
+
+	Once you are done with your changes, please click "Okay -->".
+	""")
+		self.label.set_justify(Gtk.Justification.LEFT)
+		self.grid.attach(self.label, 1, 1, 5, 1)
+
+		self.link = Gtk.Button.new_with_label("Open Gparted")
+		self.link.connect("clicked", self.opengparted)
+		self.grid.attach(self.link, 3, 5, 1, 1)
+
+		self.button1 = Gtk.Button.new_with_label("Okay -->")
+		self.button1.connect("clicked", self.input_part)
+		self.grid.attach(self.button1, 5, 5, 1, 1)
+
+		self.button2 = Gtk.Button.new_with_label("Exit")
+		self.button2.connect("clicked", self.exit)
+		self.grid.attach(self.button2, 1, 5, 1, 1)
+
+		self.show_all()
+
+	def input_part(self,button):
+		self.clear_window()
+
+		self.label = Gtk.Label()
+		self.label.set_markup("""
+	What are the mount points for the partions you wish to be used?
+	Leave empty the partions you don't want.
+	<b> / MUST BE USED </b>
+	""")
+		self.label.set_justify(Gtk.Justification.LEFT)
+		self.grid.attach(self.label, 1, 1, 3, 1)
+
+		self.label2 = Gtk.Label()
+		self.label2.set_markup("/")
+		self.label2.set_justify(Gtk.Justification.RIGHT)
+		self.grid.attach(self.label2, 1, 2, 1, 1)
+
+		self.root = Gtk.Entry()
+		self.grid.attach(self.root, 2, 2, 1, 1)
+
+		self.label3 = Gtk.Label()
+		self.label3.set_markup("/boot/efi")
+		self.label3.set_justify(Gtk.Justification.RIGHT)
+		self.grid.attach(self.label3, 1, 3, 1, 1)
+
+		self.efi = Gtk.Entry()
+		self.grid.attach(self.efi, 2, 3, 1, 1)
+
+		self.label5 = Gtk.Label()
+		self.label5.set_markup("Must be fat32")
+		self.label5.set_justify(Gtk.Justification.RIGHT)
+		self.grid.attach(self.label5, 3, 3, 1, 1)
+
+		self.label4 = Gtk.Label()
+		self.label4.set_markup("/home")
+		self.label4.set_justify(Gtk.Justification.RIGHT)
+		self.grid.attach(self.label4, 1, 4, 1, 1)
+
+		self.home = Gtk.Entry()
+		self.grid.attach(self.home, 2, 4, 1, 1)
+
+		self.label4 = Gtk.Label()
+		self.label4.set_markup("SWAP")
+		self.label4.set_justify(Gtk.Justification.RIGHT)
+		self.grid.attach(self.label4, 1, 5, 1, 1)
+
+		self.swap = Gtk.Entry()
+		self.grid.attach(self.swap, 2, 5, 1, 1)
+
+		self.label5 = Gtk.Label()
+		self.label5.set_markup("Must be linux-swap or file")
+		self.label5.set_justify(Gtk.Justification.RIGHT)
+		self.grid.attach(self.label5, 3, 5, 1, 1)
+
+		self.button1 = Gtk.Button.new_with_label("Okay -->")
+		self.button1.connect("clicked", self.onnext4clicked)
+		self.grid.attach(self.button1, 3, 6, 1, 1)
+
+		self.button2 = Gtk.Button.new_with_label("Exit")
+		self.button2.connect("clicked", self.exit)
+		self.grid.attach(self.button2, 1, 6, 1, 1)
+
+		self.show_all()
+
+	def onnext4clicked(self,button):
+		if (self.root.get_text() == ""):
+			self.label.set_markup("""
+	What are the mount points for the partions you wish to be used?
+	Leave empty the partions you don't want.
+	<b> / MUST BE USED </b>
+
+	/ NOT SET
+	""")
+			self.label.set_justify(Gtk.Justification.LEFT)
+			self.grid.attach(self.label, 1, 1, 2, 1)
+
+			self.show_all()
+		else:
+			self.label.set_markup("""
+	What are the mount points for the partions you wish to be used?
+	Leave empty the partions you don't want.
+	<b> / MUST BE USED </b>
+	""")
+			self.label.set_justify(Gtk.Justification.LEFT)
+			self.grid.attach(self.label, 1, 1, 2, 1)
+			self.root_setting = self.root.get_text()
+
+			self.show_all()
+			if (self.efi.get_text() == ""):
+				self.efi_setting = "NULL"
+			else:
+				self.efi_setting = self.efi.get_text()
+			if (self.home.get_text() == ""):
+				self.home_setting = "NULL"
+			else:
+				self.home_setting = self.home.get_text()
+			if (self.swap.get_text() == ""):
+				self.swap_setting = "FILE"
+			else:
+				self.swap_setting = self.swap.get_text()
+			global part_completion
+			part_completion = "COMPLETED"
+			self.main_menu("clicked")
+
+
+
+	def opengparted(self,button):
+		Popen("gparted")
 
 	def options(self,button):
 		self.clear_window()
@@ -425,11 +577,101 @@ class main(Gtk.Window):
 			self.login_setting = 1
 		else:
 			self.login_setting = 0
+		global options_completion
 		options_completion = "COMPLETED"
 		self.main_menu("clicked")
 
 	def locale(self,button):
-		print("LOCALE AND TIME")
+		self.clear_window()
+
+		self.label = Gtk.Label()
+		self.label.set_markup("""
+<b>Choose your Language and Time Zone</b>""")
+		self.label.set_justify(Gtk.Justification.CENTER)
+		self.grid.attach(self.label, 1, 1, 3, 1)
+
+		self.label2 = Gtk.Label()
+		self.label2.set_markup("""
+
+Langauge""")
+		self.label2.set_justify(Gtk.Justification.LEFT)
+		self.grid.attach(self.label2, 1, 2, 1, 1)
+
+		self.lang_menu = Gtk.ComboBoxText.new()
+		self.lang_menu.append("english", "English")
+		self.lang_menu.append("chinese", "Chinese")
+		self.lang_menu.append("japanese", "Japanese")
+		self.lang_menu.append("spanish", "Spanish")
+		self.lang_menu.append("hindi", "Hindi")
+		self.lang_menu.append("german", "German")
+		self.lang_menu.append("french", "French")
+		self.lang_menu.append("italian", "Italian")
+		self.lang_menu.append("korean", "Korean")
+		self.lang_menu.append("russian", "Russian")
+		self.lang_menu.append("other", "Other, User will need to set up manually.")
+		self.grid.attach(self.lang_menu, 1, 3, 1, 1)
+
+		self.label2 = Gtk.Label()
+		self.label2.set_markup("""
+
+Time Zone""")
+		self.label2.set_justify(Gtk.Justification.LEFT)
+		self.grid.attach(self.label2, 1, 4, 1, 1)
+
+		self.time_menu = Gtk.ComboBoxText.new()
+		self.time_menu.append("EST", "Eastern Standard Time")
+		self.time_menu.append("CST", "Central Standard Time")
+		self.time_menu.append("MST", "Mountain Standard Time")
+		self.time_menu.append("PST", "Pacific Standard Time")
+		self.time_menu.append("AST", "Alaska Standard Time")
+		self.time_menu.append("HST", "Hawaii Standard Time")
+		self.time_menu.append("MIT", "Midway Islands Time")
+		self.time_menu.append("NST", "New Zealand Standard Time")
+		self.time_menu.append("SST", "Soloman Standard Time")
+		self.time_menu.append("AET", "Austrailia Eastern Time")
+		self.time_menu.append("ACT", "Austrailia Central Time")
+		self.time_menu.append("JST", "Japan Standard Time")
+		self.time_menu.append("CTT", "China Taiwan Time")
+		self.time_menu.append("VST", "Vietnam Standard Time")
+		self.time_menu.append("BST", "Bangladesh Standard Time")
+		self.time_menu.append("PLT", "Pakistan Lahore Time")
+		self.time_menu.append("NET", "Near East Time")
+		self.time_menu.append("EAT", "East Africa Time")
+		self.time_menu.append("ART", "(Arabic) Egypt Standard Time")
+		self.time_menu.append("EET", "Eastern European Time")
+		self.time_menu.append("ECT", "European Central Time")
+		self.time_menu.append("GMT", "Greenwich Mean Time")
+		self.time_menu.append("CAT", "Central African Time")
+		self.time_menu.append("BET", "Brazil Eastern Time")
+		self.time_menu.append("AGT", "Argentina Standard Time")
+		self.time_menu.append("PRT", "Puerto Rico and US Virgin Islands Time")
+		self.time_menu.append("IET", "Indiana Eastern Standard Time")
+		self.grid.attach(self.time_menu, 1, 5, 1, 1)
+
+		self.button1 = Gtk.Button.new_with_label("Okay -->")
+		self.button1.connect("clicked", self.onnext3clicked)
+		self.grid.attach(self.button1, 3, 6, 1, 1)
+
+		self.button2 = Gtk.Button.new_with_label("Exit")
+		self.button2.connect("clicked", self.exit)
+		self.grid.attach(self.button2, 2, 6, 1, 1)
+
+		self.show_all()
+
+	def onnext3clicked(self,button):
+		try:
+			self.lang_setting = self.lang_menu.get_active_id()
+		except:
+			self.lang_setting = "english"
+
+		try:
+			self.time_zone = self.time_menu.get_active_id()
+		except:
+			self.time_zone = "EST"
+
+		global locale_completion
+		locale_completion = "COMPLETED"
+		self.main_menu("clicked")
 
 	def keyboard(self,button):
 		print("KEYBOARD")
@@ -438,7 +680,23 @@ class main(Gtk.Window):
 		# Check to see if each segment has been completed
 		# If it hasn't, print a warning, else
 		# Print out the value of stuffs and exit
-		exit(0)
+		global keyboard_completion
+		global locale_completion
+		global options_completion
+		global part_completion
+		global user_completion
+		if (( keyboard_completion != "COMPLETED" ) or ( locale_completion != "COMPLETED" ) or ( options_completion != "COMPLETED" ) or ( part_completion != "COMPLETED" ) or ( user_completion != "COMPLETED" )):
+			self.label.set_markup("""
+		Feel free to complete any of the below segments in any order.\t
+		However, all segments must be completed.
+
+		<b>One or more segments have not been completed</b>
+		Please complete these segments, then try again.
+		Or, exit installation.\n""")
+		else:
+			print("NOTHING TO PRINT YET!")
+			exit(0)
+		self.show_all()
 
 	def exit(self,button):
 		Gtk.main_quit("delete-event")
