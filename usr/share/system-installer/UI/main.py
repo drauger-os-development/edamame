@@ -25,7 +25,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk
 import re
-from subprocess import Popen
+from subprocess import Popen, check_output
 
 def hasnumbers(inputString):
 	return any(char.isdigit() for char in inputString)
@@ -674,7 +674,39 @@ Time Zone""")
 		self.main_menu("clicked")
 
 	def keyboard(self,button):
-		print("KEYBOARD")
+		self.clear_window()
+
+		self.label = Gtk.Label()
+		self.label.set_markup("""
+	<b>Choose your Keyboard layout</b>\t
+	""")
+		self.label.set_justify(Gtk.Justification.CENTER)
+		self.grid.attach(self.label, 1, 1, 3, 1)
+
+		self.layout_menu = Gtk.ComboBoxText.new()
+		layouts = check_output(["/usr/share/console-setup/kbdnames-maker"])
+		layouts = layouts.split("\n")
+		layout_list = []
+		for each in layouts:
+			layouts_list.append(each.split("*"))
+		for each in range(len(layout_list)):
+			del(layout_list[each][0])
+		model = []
+		for each in range(len(layout_list)):
+			if (layout_list[each][0] == model):
+				model.append(layout_list[each])
+
+
+		self.button1 = Gtk.Button.new_with_label("Okay -->")
+		self.button1.connect("clicked", self.onnext5clicked)
+		self.grid.attach(self.button1, 3, 6, 1, 1)
+
+		self.button2 = Gtk.Button.new_with_label("Exit")
+		self.button2.connect("clicked", self.exit)
+		self.grid.attach(self.button2, 1, 6, 1, 1)
+
+	def onnext5clicked(self,button):
+		print("blah")
 
 	def done(self,button):
 		# Check to see if each segment has been completed
