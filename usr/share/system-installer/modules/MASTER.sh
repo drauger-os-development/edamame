@@ -26,16 +26,24 @@ echo "	###	$0 STARTED	###	" 1>&2
 echo "37"
 #set -e
 set -o pipefail
-LANG_SET="$1"
-TIME_ZONE="$2"
-USERNAME="$(echo $3 | sed 's/:/ /' | awk '{print $1}')"
-PASS="$(echo $3 | sed 's/:/ /' | awk '{print $2}')"
-COMP_NAME="$4"
-EXTRAS="$5"
-UPDATES="$6"
-EFI="$7"
-ROOT="$8"
-LOGIN="$9"
+SETTINGS="$1"
+GLOBAL_IFS=$IFS
+IFS=","
+SETTINGS=($SETTINGS)
+IFS=$GLOBAL_IFS
+LANG_SET=${SETTINGS[0]}
+TIME_ZONE=${SETTINGS[1]}
+USERNAME=${SETTINGS[2]}
+PASS=${SETTINGS[3]}
+COMP_NAME=${SETTINGS[4]}
+EXTRAS=${SETTINGS[5]}
+UPDATES=${SETTINGS[6]}
+EFI=${SETTINGS[7]}
+ROOT=${SETTINGS[8]}
+LOGIN=${SETTINGS[9]}
+MODEL=${SETTINGS[10]}
+LAYOUT=${SETTINGS[11]}
+VARIENT=${SETTINGS[12]}
 echo "39"
 #STEP 1: Check for internet
 function check_internet ()
@@ -120,7 +128,26 @@ fi
 	apt clean
 } 1>&2
 echo "87"
-#STEP 11: Bootloader
+#STEP 11: KEYBOARD
+# God fucking damn it humanity. Why are there so many keyboard layouts?
+# I hope I only REALLY need to support one of these for each major language
+KEYBOARD_CONFIG_DATA=$(</usr/share/X11/xkb/rules/base.lst)
+rm /etc/default/keyboard
+XKBMODEL=$(echo "$KEYBOARD_CONFIG_DATA" | grep "$MODEL" | awk '{print $1}')
+XKBLAYOUT=$(echo "$KEYBOARD_CONFIG_DATA" | grep "$LAYOUT" | awk '{print $1}')
+XKBVARIENT=$(echo "$KEYBOARD_CONFIG_DATA" | grep "$VARIENT" | awk '{print $1}')
+echo "XKBMODEL=\"$XKBMODEL\"
+XKBLAYOUT=\"$XKBLAYOUT\"
+XKBVARIANT=\"$XKBVARIENT\"
+XKBOPTIONS=\"\"
+
+BACKSPACE=\"guess\"
+" > /etc/default/keyboard
+
+# This is the final step to get shit to be seen by X, not really necessary, but imma do it just in case
+udevadm trigger --subsystem-match=input --action=change
+# And lets hope to god all that worked
+#STEP 12: Bootloader
 {
 
 	mkinitramfs -o /boot/initrd.img-$(uname --release)

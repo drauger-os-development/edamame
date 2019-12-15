@@ -73,6 +73,7 @@ fi
 #start up main.py
 #	main.py has some important info the user will need while installing. Such as warnings and instructions.
 set -Ee
+# WITH SYSTEM-INSTALLER 0.5.4-ALPHA6, MAIN.PY OBTAINS ALL USER SETTINGS
 continue=$(/usr/share/system-installer/UI/main.py 2>&1)
 if [ "$continue" == "1" ]; then
 	exit 0
@@ -118,94 +119,13 @@ elif [ -f "$continue" ]; then
 	echo "	###	$0 CLOSED	###	" 1>&2
 	exit "$test"
 fi
-#STEP 4: Select partioning method
-#	Due to some issues with partitoning, the below code is commented out for now.
-#	Do not use unless testing.
 #set -Ee
-continue=$(/usr/share/system-installer/UI/partion-type.py)
-if [ "$continue" == "EXIT" ]; then
-	exit 1
-fi
-partitoner=$(/usr/share/system-installer/UI/partition-mapper.py)
-#if [ "$continue" == "on" ]; then
-	#partitoner="auto"
-	#if [ -d /sys/firmware/efi ]; then
-		##EFI var will be used to set UEFI partiton size when the time comes
-		#EFI=200
-	#else
-		##but if it's -1 you can't have a partition so it's also working as a
-		##flag variable
-		#EFI="-1"
-	#fi
-#elif $(echo "$continue" | grep -q "Manually"); then
-	##check to see if we are booted using UEFI.
-	##WE NEED TO MAKE SURE WE SUPPORT UEFI
-	#if [ -d /sys/firmware/efi ]; then
-		##EFI var will be used to set UEFI partiton size when the time comes
-		#EFI=200
-	#else
-		##but if it's -1 you can't have a partition so it's also working as a
-		##flag variable
-		#EFI="-1"
-	#fi
-	##see if there is an NVMe drive.
-	##that is where we want to install after all since they are faster
-	#SIZE=$(lsblk -o name,type,label,size | grep "disk" | grep "nvme0" | awk '{print $3}' | sed "s/G//")
-	#TYPE="NVMe"
-	#if [ "$SIZE" == "" ] || [ "$SIZE" == " " ]; then
-		##if there are none check for another drive to install to.
-		##but, filter out the Live USB
-		##can't install there XD
-		#SIZE=$(lsblk -o name,type,label,size | grep "disk" | grep -v "Drauger OS" | grep "sd" | awk '{print $3}' | sed "s/G//")
-		#SIZE=$(echo "${SIZE[*]}" | sort -nr | head -n1)
-		#TYPE="sd"
-	#fi
-	##make the partitons for this drive
-	##we warned them it favors NVMe drives. \_(*_*)_/
-	##don't worry tho, we will be allowing this drive to be changed at a later release
-	#set -Ee
-	#partioner=$(/usr/share/system-installer/UI/partiton-maker.py "$EFI" "$SIZE" 2>/tmp/system-installer.log)
-	#set +Ee
-#else
-	##if this is running we have a SERIOUS ISSUE
-	##and I have no idea how it would have happened
-	#/usr/share/system-installer/UI/error.py "An unknown error has occured" 2
-	#exit 2
-#fi
-#STEP 5: figure out their Locale
-LOCALE=$(/usr/share/system-installer/UI/get_locale.py)
-set -- $LOCALE
-#if this is anything OTHER than English we gonna have to install the locale
-LANG_SET="$1"
-#time zone for later
-TIME_ZONE="$2"
-#STEP 6: Keyboard Layout
-#setting keyboard layout is not supported for now. But we are getting the stdout of
-#keyboard.py anyways to make our lives easier when it IS supported. We will probably be
-#ripping off Ubiquity for this one.
-KEYBOARD=$(/usr/share/system-installer/UI/keyboard.py)
-#STEP 7: Get user configuration
-USER=$(/usr/share/system-installer/UI/user.py)
-#STEP 8: check for extra options
-OPTIONS=$(/usr/share/system-installer/UI/options.py)
-set +Ee
-#parse the info from the user config step
-NAME=$(echo $USER | grep -o -P '(?<=").*(?=")')
-USER=$(echo "$USER" | sed "s/\"$NAME\" //")
-set -- $USER
-USERNAME="$1"
-COMPNAME="$2"
-PASS="$3"
-#parse the info from the options stage
-set -- $OPTIONS
-EXTRAS="$1"
-UPDATES="$2"
-LOGIN="$3"
-set -Ee
-/usr/share/system-installer/UI/confirm.py "$partitoner" $LANG_SET $TIME_ZONE $USERNAME $COMPNAME $PASS $EXTRAS $UPDATES $LOGIN
+# Instead of parsing everything out here, just pass the data and let the parts that need it parse it
+# If a part doesn't need as much data, the parent process will parse it down to the bare necessities before passing
+/usr/share/system-installer/UI/confirm.py "$continue"
 set +Ee
 ## STEP 9: INSTALL THE SYSTEM
-/usr/share/system-installer/installer.sh "$partitoner" $LANG_SET $TIME_ZONE $USERNAME $COMPNAME $PASS $EXTRAS $UPDATES $LOGIN | zenity --progress --text="Installing Drauger OS to your internal hard drive.\nThis may take some time. If you have an error, please send\nthe log file (located at /tmp/system-installer.log) to: contact@draugeros.org" --time-remaining --no-cancel --auto-close || /usr/share/system-installer/UI/error.py  "Error detected. Error Code: $?\nPlease see /tmp/system-installer.log for details."
+/usr/share/system-installer/installer.sh "$continue" | zenity --progress --text="Installing Drauger OS to your internal hard drive.\nThis may take some time. If you have an error, please send\nthe log file (located at /tmp/system-installer.log) to: contact@draugeros.org" --time-remaining --no-cancel --auto-close || /usr/share/system-installer/UI/error.py  "Error detected. Error Code: $?\nPlease see /tmp/system-installer.log for details."
 test="$?"
 if [ "$test" == "0" ]; then
 	/usr/share/system-installer/UI/success.py

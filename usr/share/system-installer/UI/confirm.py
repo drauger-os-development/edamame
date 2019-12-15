@@ -25,24 +25,33 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from sys import argv
-partitioner=argv[1]
-LANG=argv[2]
-TIME_ZONE=argv[3]
-USERNAME=argv[4]
-COMPNAME=argv[5]
-PASS=argv[6]
-try:
-	EXTRAS=argv[7]
-except:
-	EXTRAS=None
-try:
-	UPDATES=argv[8]
-except:
-	UPDATES=None
-try:
-	LOGIN=argv[9]
-except:
-	LOGIN=None
+SETTINGS = argv[1]
+SETTINGS = SETTINGS.split(",")
+
+# Partitioning settings
+ROOT = SETTINGS[0]
+EFI = SETTINGS[1]
+HOME = SETTINGS[2]
+SWAP = SETTINGS[3]
+
+# Locale settings
+LANG = SETTINGS[4]
+TIME_ZONE = SETTINGS[5]
+
+# User settings
+USERNAME = SETTINGS[6]
+PASS = SETTINGS[8]
+COMPNAME = SETTINGS[7]
+
+# Options settings
+EXTRAS = SETTINGS[9]
+UPDATES = SETTINGS[10]
+LOGIN = SETTINGS[11]
+
+#Keyboard Settings
+MODEL = SETTINGS[12]
+LAYOUT = SETTINGS[13]
+VARIENT = SETTINGS[14]
 if EXTRAS != "0" and EXTRAS != None:
 	EXTRAS = "Yes"
 else:
@@ -55,34 +64,6 @@ if LOGIN != "0" and LOGIN != None:
 	LOGIN = "Yes"
 else:
 	LOGIN = "No"
-# if EFI == "200":
-	# EFI = "Yes, 200MB at drive start"
-# else:
-	# EFI = "No"
-
-partitioner = partitioner.split(",")
-ROOT_LIST = partitioner[0]
-EFI_LIST = partitioner[1]
-HOME_LIST = partitioner[2]
-SWAP_LIST = partitioner[3]
-partitioner = {}
-ROOT_LIST = ROOT_LIST.split(":")
-EFI_LIST = EFI_LIST.split(":")
-HOME_LIST = HOME_LIST.split(":")
-SWAP_LIST = SWAP_LIST.split(":")
-partitioner.update( {"ROOT":[ROOT_LIST[1]]} )
-partitioner.update( {"EFI":[EFI_LIST[1]]} )
-partitioner.update( {"HOME":[HOME_LIST[1]]} )
-partitioner.update( {"SWAP":[SWAP_LIST[1]]} )
-
-
-# count = 0
-# for each in partitioner:
-	# if (each == ","):
-		# partitioner[count] = """
-# """
-	# count = count + 1
-# partitioner = "".join(partitioner)
 
 class main(Gtk.Window):
 
@@ -95,7 +76,7 @@ class main(Gtk.Window):
 		self.label.set_markup("""
 	<b>FINAL CONFIRMATION</b>
 	Please read the below summary carefully.
-	This is your final chance to cancel installation.
+	This is your final chance to cancel installation.\t
 		""")
 		self.label.set_justify(Gtk.Justification.CENTER)
 		self.grid.attach(self.label, 1, 1, 3, 1)
@@ -107,16 +88,6 @@ class main(Gtk.Window):
 		self.label1.set_justify(Gtk.Justification.CENTER)
 		self.grid.attach(self.label1, 1, 2, 3, 1)
 
-		# self.label2 = Gtk.Label()
-		# self.label2.set_markup("""	UEFI:	""")
-		# self.label2.set_justify(Gtk.Justification.CENTER)
-		# self.grid.attach(self.label2, 1, 3, 1, 1)
-
-		# self.label3 = Gtk.Label()
-		# self.label3.set_markup("%s" % (EFI))
-		# self.label3.set_justify(Gtk.Justification.CENTER)
-		# self.grid.attach(self.label3, 3, 3, 1, 1)
-
 		self.label4 = Gtk.Label()
 		self.label4.set_markup("""	Partitioning:	""")
 		self.label4.set_justify(Gtk.Justification.CENTER)
@@ -125,8 +96,8 @@ class main(Gtk.Window):
 		self.label5 = Gtk.Label()
 		self.label5.set_markup("""ROOT: %s
 EFI: %s
-HOME: %s,
-SWAP: %s""" % (partitioner["ROOT"][0],partitioner["EFI"][0],partitioner["HOME"][0],partitioner["SWAP"][0]))
+HOME: %s
+SWAP: %s""" % (ROOT,EFI,HOME,SWAP))
 		self.label5.set_justify(Gtk.Justification.LEFT)
 		self.grid.attach(self.label5, 3, 4, 1, 1)
 
@@ -231,13 +202,43 @@ SWAP: %s""" % (partitioner["ROOT"][0],partitioner["EFI"][0],partitioner["HOME"][
 		self.label22.set_justify(Gtk.Justification.CENTER)
 		self.grid.attach(self.label22, 3, 15, 1, 1)
 
+		self.label25 = Gtk.Label()
+		self.label25.set_markup("""	Keyboard Model:	""")
+		self.label25.set_justify(Gtk.Justification.CENTER)
+		self.grid.attach(self.label25, 1, 16, 1, 1)
+
+		self.label26 = Gtk.Label()
+		self.label26.set_markup(MODEL)
+		self.label26.set_justify(Gtk.Justification.CENTER)
+		self.grid.attach(self.label26, 3, 16, 1, 1)
+
+		self.label27 = Gtk.Label()
+		self.label27.set_markup("""	Keyboard Layout:	""")
+		self.label27.set_justify(Gtk.Justification.CENTER)
+		self.grid.attach(self.label27, 1, 17, 1, 1)
+
+		self.label28 = Gtk.Label()
+		self.label28.set_markup(LAYOUT)
+		self.label28.set_justify(Gtk.Justification.CENTER)
+		self.grid.attach(self.label28, 3, 17, 1, 1)
+
+		self.label29 = Gtk.Label()
+		self.label29.set_markup("""	Keyboard Varient:	""")
+		self.label29.set_justify(Gtk.Justification.CENTER)
+		self.grid.attach(self.label29, 1, 18, 1, 1)
+
+		self.label30 = Gtk.Label()
+		self.label30.set_markup(VARIENT)
+		self.label30.set_justify(Gtk.Justification.CENTER)
+		self.grid.attach(self.label30, 3, 18, 1, 1)
+
 		self.button1 = Gtk.Button.new_with_label("INSTALL NOW -->")
 		self.button1.connect("clicked", self.onnextclicked)
-		self.grid.attach(self.button1, 3, 17, 1, 1)
+		self.grid.attach(self.button1, 3, 19, 1, 1)
 
 		self.button2 = Gtk.Button.new_with_label("Exit")
 		self.button2.connect("clicked", self.onexitclicked)
-		self.grid.attach(self.button2, 1, 17, 1, 1)
+		self.grid.attach(self.button2, 1, 19, 1, 1)
 
 	def onnextclicked(self,button):
 			exit(0)

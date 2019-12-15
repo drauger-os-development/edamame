@@ -26,22 +26,26 @@ echo "	###	$0 STARTED	###	" 1>&2
 echo "1"
 #set -e
 set -o pipefail
-partitioner="$1"
-LANG_SET="$2"
-TIME_ZONE="$3"
-USERNAME="$4"
-COMP_NAME="$5"
-PASS="$6"
-EXTRAS="$7"
-UPDATES="$8"
-LOGIN="$9"
-#SWAP="$11"
+GLOBAL_IFS=$IFS
 echo "3"
-partitioner=$(echo "$partitioner" | sed 's/,/ /g' | sed 's/ROOT://' | sed 's/EFI://' | sed 's/HOME://' | sed 's/SWAP://')
-ROOT=$(echo "$partitioner" | awk '{print $1}')
-EFI=$(echo "$partitioner" | awk '{print $2}')
-HOME_DATA=$(echo "$partitioner" | awk '{print $3}')
-SWAP=$(echo "$partitioner" | awk '{print $4}')
+IFS=","
+SETTINGS=($SETTINGS)
+IFS=$GLOBAL_IFS
+ROOT=${SETINGS[0]}
+EFI=${SETTINGS[1]}
+HOME_DATA=${SETTINGS[2]}
+SWAP=${SETTINGS[3]}
+LANG_SET=${SETTINGS[4]}
+TIME_ZONE=${SETTINGS[5]}
+USERNAME=${SETTINGS[6]}
+COMP_NAME=${SETTINGS[7]}
+PASS=${SETTINGS[8]}
+EXTRAS=${SETTINGS[9]}
+UPDATES=${SETTINGS[10]}
+LOGIN=${SETTINGS[11]}
+MODEL=${SETTINGS[12]}
+LAYOUT=${SETTINGS[13]}
+VARIENT=${SETTINGS[14]}
 #STEP 1: Partion and format the drive
 # Don't worry about this right now. Taken care of earlier.
 #if [ "$partitioner" == "auto" ]; then
@@ -187,7 +191,7 @@ fi
 #mount --rbind /dev dev/
 #mount --rbind /sys sys/
 #mount -t proc proc proc/
-arch-chroot /mnt '/MASTER.sh' "$LANG_SET" "$TIME_ZONE" "$USERNAME:$PASS" "$COMP_NAME" "$EXTRAS" "$UPDATES" "$EFI" "$ROOT" "$LOGIN" 1>&2
+arch-chroot /mnt '/MASTER.sh' "$LANG_SET,$TIME_ZONE,$USERNAME,$PASS,$COMP_NAME,$EXTRAS,$UPDATES,$EFI,$ROOT,$LOGIN,$MODEL,$LAYOUT,$VARIENT" 1>&2
 #umount dev/ || echo "Unable to unmount dev. Continuing . . ." 1>>/tmp/system-installer.log
 #umount sys/ || echo "Unable to unmount sys. Continuing . . ." 1>>/tmp/system-installer.log
 #umount proc/ || echo "Unable to unmount proc. Continuing . . ." 1>>/tmp/system-installer.log

@@ -26,6 +26,7 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk
 import re
 from subprocess import Popen, check_output
+import os
 
 def hasnumbers(inputString):
 	return any(char.isdigit() for char in inputString)
@@ -128,13 +129,24 @@ class main(Gtk.Window):
 		self.show_all()
 
 	def reset(self,button):
+		self.clear_window()
+
+		self.label = Gtk.Label()
 		self.label.set_markup(default)
+		self.label.set_justify(Gtk.Justification.LEFT)
+		self.grid.attach(self.label, 1, 1, 3, 1)
 
-		self.button3.set_label("Quick Install")
+		self.button1 = Gtk.Button.new_with_label("Okay -->")
+		self.button1.connect("clicked", self.main_menu)
+		self.grid.attach(self.button1, 3, 2, 1, 1)
+
+		self.button2 = Gtk.Button.new_with_label("Exit")
+		self.button2.connect("clicked", self.exit)
+		self.grid.attach(self.button2, 1, 2, 1, 1)
+
+		self.button3 = Gtk.Button.new_with_label("Quick Install")
 		self.button3.connect("clicked", self.quick_install_warning)
-
-		self.button1.set_label("Next -->")
-		self.button1.connect("clicked", self.onnextclicked)
+		self.grid.attach(self.button3, 2, 2, 1, 1)
 
 		self.show_all()
 
@@ -523,7 +535,7 @@ class main(Gtk.Window):
 
 		self.label.set_markup("""
 	<b>Extra Options</b>
-	The below options require a network connection.
+	The below options require a network connection, unless otherwise stated.\t
 	Please ensure you are connected before selecting any of these options.
 		""")
 		self.label.set_justify(Gtk.Justification.CENTER)
@@ -549,7 +561,7 @@ class main(Gtk.Window):
 
 		self.label2 = Gtk.Label()
 		self.label2.set_markup("""
-		Automaticly login upon boot up""")
+		Automaticly login upon boot up. Does <b>NOT</b> require internet.""")
 		self.label2.set_justify(Gtk.Justification.LEFT)
 		self.grid.attach(self.label2, 2, 6, 1, 1)
 
@@ -683,19 +695,58 @@ Time Zone""")
 		self.label.set_justify(Gtk.Justification.CENTER)
 		self.grid.attach(self.label, 1, 1, 3, 1)
 
-		self.layout_menu = Gtk.ComboBoxText.new()
-		layouts = check_output(["/usr/share/console-setup/kbdnames-maker"])
-		layouts = layouts.split("\n")
+		self.model_label = Gtk.Label()
+		self.model_label.set_markup("""Model: """)
+		self.model_label.set_justify(Gtk.Justification.CENTER)
+		self.grid.attach(self.model_label, 1, 2, 1, 1)
+
+		self.model_menu = Gtk.ComboBoxText.new()
+		PWD = os.getcwd()
+		os.chdir("/usr/share/console-setup")
+		layouts = check_output(["./kbdnames-maker"])
+		os.chdir(PWD)
+		layouts = str(layouts)
+		layouts = layouts.split("\\n")
 		layout_list = []
 		for each in layouts:
-			layouts_list.append(each.split("*"))
+			layout_list.append(each.split("*"))
 		for each in range(len(layout_list)):
 			del(layout_list[each][0])
 		model = []
-		for each in range(len(layout_list)):
-			if (layout_list[each][0] == model):
-				model.append(layout_list[each])
+		for each in range(len(layout_list) - 1):
+			if (layout_list[each][0] == "model"):
+				model.append(layout_list[each][len(layout_list[each]) - 1])
+		for each in model:
+			self.model_menu.append(each, each)
+		self.grid.attach(self.model_menu, 2, 2, 2, 1)
 
+		self.layout_label = Gtk.Label()
+		self.layout_label.set_markup("""Layout: """)
+		self.layout_label.set_justify(Gtk.Justification.CENTER)
+		self.grid.attach(self.layout_label, 1, 3, 1, 1)
+
+		self.layout_menu = Gtk.ComboBoxText.new()
+		layouts = []
+		for each in range(len(layout_list) - 1):
+			if (layout_list[each][0] == "layout"):
+				layouts.append(layout_list[each][len(layout_list[each]) - 1])
+		for each in layouts:
+			self.layout_menu.append(each, each)
+		self.grid.attach(self.layout_menu, 2, 3, 2, 1)
+
+		self.varient_label = Gtk.Label()
+		self.varient_label.set_markup("""Varient: """)
+		self.varient_label.set_justify(Gtk.Justification.CENTER)
+		self.grid.attach(self.varient_label, 1, 4, 1, 1)
+
+		self.varient_menu = Gtk.ComboBoxText.new()
+		varients = []
+		for each in range(len(layout_list) - 1):
+			if (layout_list[each][0] == "variant"):
+				varients.append(layout_list[each][len(layout_list[each]) - 1])
+		for each in varients:
+			self.varient_menu.append(each, each)
+		self.grid.attach(self.varient_menu, 2, 4, 2, 1)
 
 		self.button1 = Gtk.Button.new_with_label("Okay -->")
 		self.button1.connect("clicked", self.onnext5clicked)
@@ -705,8 +756,25 @@ Time Zone""")
 		self.button2.connect("clicked", self.exit)
 		self.grid.attach(self.button2, 1, 6, 1, 1)
 
+		self.show_all()
+
 	def onnext5clicked(self,button):
-		print("blah")
+		try:
+			self.model_setting = self.model_menu.get_active_id()
+		except:
+			self.model_setting = "Generic 105-key PC (intl.)"
+		try:
+			self.layout_setting = self.layout_menu.get_active_id()
+		except:
+			self.layout_setting = "English (US)"
+		try:
+			self.varient_setting = self.varient_menu.get_active_id()
+		except:
+			self.varient_setting = "euro"
+		global keyboard_completion
+		keyboard_completion = "COMPLETED"
+
+		self.main_menu("clicked")
 
 	def done(self,button):
 		# Check to see if each segment has been completed
@@ -726,7 +794,23 @@ Time Zone""")
 		Please complete these segments, then try again.
 		Or, exit installation.\n""")
 		else:
-			print("NOTHING TO PRINT YET!")
+			# Vars to print:
+			#	1  * self.password_setting
+			#	2  * self.username_setting
+			#	3  * self.compname_setting
+			#	4  * self.root_setting
+			#	5  * self.efi_setting
+			#	6  * self.home_setting
+			#	7  * self.swap_setting
+			#	8  * self.extras_setting
+			#	9  * self.updates_setting
+			#	10 * self.login_setting
+			#	11 * self.model_setting
+			#	12 * self.layout_setting
+			#	13 * self.lang_setting
+			#	14 * self.time_zone
+			#	15 * self.varient_setting
+			print("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s" % (self.root_setting, self.efi_setting, self.home_setting, self.swap_setting, self.lang_setting, self.time_zone, self.username_setting, self.compname_setting, self.password_setting, self.extras_setting, self.updates_setting, self.login_setting, self.model_setting, self.layout_setting,self.varient_setting))
 			exit(0)
 		self.show_all()
 
