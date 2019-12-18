@@ -25,8 +25,8 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk
 import re
-from subprocess import Popen, check_output
-import os
+from subprocess import Popen, check_output, DEVNULL
+from os import getcwd, chdir
 
 def hasnumbers(inputString):
 	return any(char.isdigit() for char in inputString)
@@ -528,7 +528,7 @@ class main(Gtk.Window):
 
 
 	def opengparted(self,button):
-		Popen("gparted")
+		Popen("gparted", stdout=DEVNULL, stderr=DEVNULL)
 
 	def options(self,button):
 		self.clear_window()
@@ -701,10 +701,10 @@ Time Zone""")
 		self.grid.attach(self.model_label, 1, 2, 1, 1)
 
 		self.model_menu = Gtk.ComboBoxText.new()
-		PWD = os.getcwd()
-		os.chdir("/usr/share/console-setup")
-		layouts = check_output(["./kbdnames-maker"])
-		os.chdir(PWD)
+		PWD = getcwd()
+		chdir("/usr/share/console-setup")
+		layouts = check_output(["./kbdnames-maker"], stderr=DEVNULL)
+		chdir(PWD)
 		layouts = str(layouts)
 		layouts = layouts.split("\\n")
 		layout_list = []
