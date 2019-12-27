@@ -26,7 +26,7 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from sys import argv
 SETTINGS = argv[1]
-SETTINGS = SETTINGS.split(",")
+SETTINGS = SETTINGS.split(" , ")
 
 # Partitioning settings
 ROOT = SETTINGS[0]

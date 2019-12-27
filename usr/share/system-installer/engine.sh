@@ -74,7 +74,7 @@ fi
 #	main.py has some important info the user will need while installing. Such as warnings and instructions.
 set -Ee
 # WITH SYSTEM-INSTALLER 0.5.4-ALPHA6, MAIN.PY OBTAINS ALL USER SETTINGS
-continue=$(/usr/share/system-installer/UI/main.py 2>&1)
+continue=$(/usr/share/system-installer/UI/main.py)
 if [ "$continue" == "1" ]; then
 	exit 0
 elif [ -f "$continue" ]; then

@@ -810,7 +810,7 @@ Time Zone""")
 			#	13 * self.lang_setting
 			#	14 * self.time_zone
 			#	15 * self.varient_setting
-			print("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s" % (self.root_setting, self.efi_setting, self.home_setting, self.swap_setting, self.lang_setting, self.time_zone, self.username_setting, self.compname_setting, self.password_setting, self.extras_setting, self.updates_setting, self.login_setting, self.model_setting, self.layout_setting,self.varient_setting))
+			print("%s , %s , %s , %s , %s , %s , %s , %s , %s , %s , %s , %s , %s , %s , %s" % (self.root_setting, self.efi_setting, self.home_setting, self.swap_setting, self.lang_setting, self.time_zone, self.username_setting, self.compname_setting, self.password_setting, self.extras_setting, self.updates_setting, self.login_setting, self.model_setting, self.layout_setting,self.varient_setting))
 			exit(0)
 		self.show_all()
 
