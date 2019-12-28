@@ -84,26 +84,30 @@ options_completion = "TO DO"
 
 class main(Gtk.Window):
 	def __init__(self):
+		# Initialize the Window
 		Gtk.Window.__init__(self, title="System Installer")
 		self.grid=Gtk.Grid(orientation=Gtk.Orientation.VERTICAL)
 		self.add(self.grid)
 
-		self.label = Gtk.Label()
-		self.label.set_markup(default)
-		self.label.set_justify(Gtk.Justification.LEFT)
-		self.grid.attach(self.label, 1, 1, 3, 1)
+		# Initialize setting values
+		self.root_setting = ""
+		self.efi_setting = ""
+		self.home_setting = ""
+		self.swap_setting = ""
+		self.lang_setting = ""
+		self.time_zone = ""
+		self.username_setting = ""
+		self.compname_setting = ""
+		self.password_setting = ""
+		self.extras_setting = ""
+		self.updates_setting = ""
+		self.login_setting = ""
+		self.model_setting = ""
+		self.layout_setting = ""
+		self.varient_setting = ""
 
-		self.button1 = Gtk.Button.new_with_label("Okay -->")
-		self.button1.connect("clicked", self.main_menu)
-		self.grid.attach(self.button1, 3, 2, 1, 1)
-
-		self.button2 = Gtk.Button.new_with_label("Exit")
-		self.button2.connect("clicked", self.exit)
-		self.grid.attach(self.button2, 1, 2, 1, 1)
-
-		self.button3 = Gtk.Button.new_with_label("Quick Install")
-		self.button3.connect("clicked", self.quick_install_warning)
-		self.grid.attach(self.button3, 2, 2, 1, 1)
+		# Open initial window
+		self.reset("clicked")
 
 	def quick_install_warning(self,button):
 		self.label.set_markup("""
@@ -254,6 +258,7 @@ class main(Gtk.Window):
 		self.grid.attach(self.label1, 1, 3, 1, 1)
 
 		self.username = Gtk.Entry()
+		self.username.set_text(self.username_setting)
 		self.grid.attach(self.username, 2, 3, 1, 1)
 
 		self.label2 = Gtk.Label()
@@ -262,6 +267,7 @@ class main(Gtk.Window):
 		self.grid.attach(self.label2, 1, 4, 1, 1)
 
 		self.compname = Gtk.Entry()
+		self.compname.set_text(self.compname_setting)
 		self.grid.attach(self.compname, 2, 4, 1, 1)
 
 		self.label3 = Gtk.Label()
@@ -271,6 +277,7 @@ class main(Gtk.Window):
 
 		self.password = Gtk.Entry()
 		self.password.set_visibility(False)
+		self.password.set_text(self.password_setting)
 		self.grid.attach(self.password, 2, 5, 1, 1)
 
 		self.label4 = Gtk.Label()
@@ -280,6 +287,7 @@ class main(Gtk.Window):
 
 		self.passconf = Gtk.Entry()
 		self.passconf.set_visibility(False)
+		self.passconf.set_text(self.password_setting)
 		self.grid.attach(self.passconf, 2, 6, 1, 1)
 
 		self.button1 = Gtk.Button.new_with_label("Okay -->")
@@ -439,6 +447,7 @@ class main(Gtk.Window):
 		self.grid.attach(self.label2, 1, 2, 1, 1)
 
 		self.root = Gtk.Entry()
+		self.root.set_text(self.root_setting)
 		self.grid.attach(self.root, 2, 2, 1, 1)
 
 		self.label3 = Gtk.Label()
@@ -447,6 +456,7 @@ class main(Gtk.Window):
 		self.grid.attach(self.label3, 1, 3, 1, 1)
 
 		self.efi = Gtk.Entry()
+		self.efi.set_text(self.efi_setting)
 		self.grid.attach(self.efi, 2, 3, 1, 1)
 
 		self.label5 = Gtk.Label()
@@ -460,6 +470,7 @@ class main(Gtk.Window):
 		self.grid.attach(self.label4, 1, 4, 1, 1)
 
 		self.home = Gtk.Entry()
+		self.home.set_text(self.home_setting)
 		self.grid.attach(self.home, 2, 4, 1, 1)
 
 		self.label4 = Gtk.Label()
@@ -468,6 +479,7 @@ class main(Gtk.Window):
 		self.grid.attach(self.label4, 1, 5, 1, 1)
 
 		self.swap = Gtk.Entry()
+		self.swap.set_text(self.swap_setting)
 		self.grid.attach(self.swap, 2, 5, 1, 1)
 
 		self.label5 = Gtk.Label()
@@ -548,6 +560,8 @@ class main(Gtk.Window):
 		self.grid.attach(self.label1, 2, 2, 1, 1)
 
 		self.extras = Gtk.CheckButton.new_with_label("Install Restricted Extras")
+		if (self.extras_setting == 1):
+			self.extras.set_active(True)
 		self.grid.attach(self.extras, 1, 3, 2, 1)
 
 		self.label2 = Gtk.Label()
@@ -557,6 +571,8 @@ class main(Gtk.Window):
 		self.grid.attach(self.label2, 2, 4, 1, 1)
 
 		self.updates = Gtk.CheckButton.new_with_label("Update before reboot")
+		if (self.updates_setting == 1):
+			self.updates.set_active(True)
 		self.grid.attach(self.updates, 1, 5, 2, 1)
 
 		self.label2 = Gtk.Label()
@@ -566,6 +582,8 @@ class main(Gtk.Window):
 		self.grid.attach(self.label2, 2, 6, 1, 1)
 
 		self.login = Gtk.CheckButton.new_with_label("Enable Auto-Login")
+		if (self.login_setting == 1):
+			self.login.set_active(True)
 		self.grid.attach(self.login, 1, 7, 2, 1)
 
 		self.button1 = Gtk.Button.new_with_label("Okay -->")
@@ -621,6 +639,8 @@ Langauge""")
 		self.lang_menu.append("korean", "Korean")
 		self.lang_menu.append("russian", "Russian")
 		self.lang_menu.append("other", "Other, User will need to set up manually.")
+		if (self.lang_setting != ""):
+			self.lang_menu.set_active_id(self.lang_setting)
 		self.grid.attach(self.lang_menu, 1, 3, 1, 1)
 
 		self.label2 = Gtk.Label()
@@ -658,6 +678,8 @@ Time Zone""")
 		self.time_menu.append("AGT", "Argentina Standard Time")
 		self.time_menu.append("PRT", "Puerto Rico and US Virgin Islands Time")
 		self.time_menu.append("IET", "Indiana Eastern Standard Time")
+		if (self.time_zone != ""):
+			self.time_menu.set_active_id(self.time_zone)
 		self.grid.attach(self.time_menu, 1, 5, 1, 1)
 
 		self.button1 = Gtk.Button.new_with_label("Okay -->")
@@ -718,6 +740,8 @@ Time Zone""")
 				model.append(layout_list[each][len(layout_list[each]) - 1])
 		for each in model:
 			self.model_menu.append(each, each)
+		if (self.model_setting != ""):
+			self.model_menu.set_active_id(self.model_setting)
 		self.grid.attach(self.model_menu, 2, 2, 2, 1)
 
 		self.layout_label = Gtk.Label()
@@ -732,6 +756,8 @@ Time Zone""")
 				layouts.append(layout_list[each][len(layout_list[each]) - 1])
 		for each in layouts:
 			self.layout_menu.append(each, each)
+		if (self.layout_setting != ""):
+			self.layout_menu.set_active_id(self.layout_setting)
 		self.grid.attach(self.layout_menu, 2, 3, 2, 1)
 
 		self.varient_label = Gtk.Label()
@@ -746,6 +772,8 @@ Time Zone""")
 				varients.append(layout_list[each][len(layout_list[each]) - 1])
 		for each in varients:
 			self.varient_menu.append(each, each)
+		if (self.varient_setting != ""):
+			self.varient_menu.set_active_id(self.varient_setting)
 		self.grid.attach(self.varient_menu, 2, 4, 2, 1)
 
 		self.button1 = Gtk.Button.new_with_label("Okay -->")
