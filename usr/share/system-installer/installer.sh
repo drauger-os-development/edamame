@@ -26,11 +26,22 @@ echo "	###	$0 STARTED	###	" 1>&2
 echo "1"
 #set -e
 set -o pipefail
-GLOBAL_IFS=$IFS
+SETTINGS="$1"
+GLOBAL_IFS="$IFS"
 echo "3"
 IFS=","
 SETTINGS=($SETTINGS)
-IFS=$GLOBAL_IFS
+# Echo settings to log file for debugging
+{
+	echo "### SETTINGS RECEIVED AND PARSED ###"
+	counter=0
+	for each in ${SETTINGS[@]}; do
+		echo "INDEX: $counter - VALUE: $each"
+		(( counter+=1 ))
+	done
+	echo "### END DEBUG SETTINGS DUMP ###"
+} 1>&2
+IFS="$GLOBAL_IFS"
 ROOT=${SETINGS[0]}
 EFI=${SETTINGS[1]}
 HOME_DATA=${SETTINGS[2]}
