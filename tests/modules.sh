@@ -21,3 +21,13 @@
 #  MA 02110-1301, USA.
 #  
 #
+R='\033[0;31m'
+G='\033[0;32m'
+Y='\033[1;33m'
+NC='\033[0m'
+cd ../usr/share/system-installer/modules
+MOD_LIST=$(ls | grep ".sh$" )
+for each in $MOD_LIST; do
+	echo -e "- $Y \bSHELLCHECK: $each $NC"
+	shellcheck --shell=bash --severity=warning "$each" --color=never 2>&1
+done

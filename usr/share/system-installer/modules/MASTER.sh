@@ -27,10 +27,7 @@ echo "37"
 #set -e
 set -o pipefail
 SETTINGS="$1"
-GLOBAL_IFS=$IFS
-IFS=","
-SETTINGS=($SETTINGS)
-IFS=$GLOBAL_IFS
+echo "$SETTINGS" | sed 's/ , /:/g' | mapfile -d ":" SETTINGS
 LANG_SET=${SETTINGS[0]}
 TIME_ZONE=${SETTINGS[1]}
 USERNAME=${SETTINGS[2]}
@@ -149,7 +146,7 @@ udevadm trigger --subsystem-match=input --action=change
 #STEP 12: Bootloader
 {
 
-	mkinitramfs -o /boot/initrd.img-$(uname --release)
+	mkinitramfs -o /boot/initrd.img-"$(uname --release)"
 	if [ "$EFI" != "NULL" ]; then
 		#systemd-boot
 		if [ -d /sys/firmware/efi/efivars ]; then
@@ -162,10 +159,10 @@ udevadm trigger --subsystem-match=input --action=change
 			#set up kernel version hook
 			. /systemd-boot-config.sh "$ROOT"
 			#Update the initramfs? At this point we get dropped at an initramfs prompt so it's something wrong there.
-			mkinitramfs -o /boot/initrd.img-$(uname --release)
+			mkinitramfs -o /boot/initrd.img-"$(uname --release)"
 			#copy over the kernel and initramfs
-			cp /boot/vmlinuz-$(uname --release) /boot/efi/vmlinuz
-			cp /boot/initrd.img-$(uname --release) /boot/efi/initrd.img
+			cp /boot/vmlinuz-"$(uname --release)" /boot/efi/vmlinuz
+			cp /boot/initrd.img-"$(uname --release)" /boot/efi/initrd.img
 
 		else
 			echo "### WARNING: CANNOT INSTALL systemd-boot. USER MUST MANUALLY INSTALL BOOTLOADER. ###"
@@ -176,8 +173,8 @@ udevadm trigger --subsystem-match=input --action=change
 		grub-mkconfig -o /boot/grub/grub.cfg
 	fi
 	sleep 1s
-	ln /boot/initrd.img-$(uname --release) /boot/initrd.img
-	ln /boot/vmlinuz-$(uname --release) /boot/vmlinuz
+	ln /boot/initrd.img-"$(uname --release)" /boot/initrd.img
+	ln /boot/vmlinuz-"$(uname --release)" /boot/vmlinuz
 } 1>&2
 echo "88"
 echo "	###	$0 CLOSED	###	" 1>&2

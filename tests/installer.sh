@@ -21,3 +21,15 @@
 #  MA 02110-1301, USA.
 #  
 #
+R='\033[0;31m'
+G='\033[0;32m'
+Y='\033[1;33m'
+NC='\033[0m'
+echo -e "$Y \bSHELLCHECK: installer.sh $NC"
+{
+	shellcheck --shell=bash --severity=warning ../usr/share/system-installer/installer.sh --color=never 2>&1
+} && {
+	echo -e "-$G INSTALLER.SH: GOOD"
+} || {
+	echo -e "-$R INSTALLER.SH: NEEDS CORRECTIONS"
+}

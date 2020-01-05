@@ -25,12 +25,8 @@
 echo "	###	$0 STARTED	###	" 1>&2
 echo "1"
 SETTINGS="$1"
-GLOBAL_IFS="$IFS" 
 echo "3"
-SETTINGS=$(echo "$SETTINGS" | sed 's/ , /:/g')
-IFS=":"
-SETTINGS=($SETTINGS)
-IFS="$GLOBAL_IFS"
+echo "$SETTINGS" | sed 's/ , /:/g' | mapfile -d ":" SETTINGS
 ROOT=${SETTINGS[0]}
 EFI=${SETTINGS[1]}
 HOME_DATA=${SETTINGS[2]}
@@ -192,7 +188,7 @@ fi
 #mount --rbind /dev dev/
 #mount --rbind /sys sys/
 #mount -t proc proc proc/
-arch-chroot /mnt '/MASTER.sh' "$LANG_SET,$TIME_ZONE,$USERNAME,$PASS,$COMP_NAME,$EXTRAS,$UPDATES,$EFI,$ROOT,$LOGIN,$MODEL,$LAYOUT,$VARIENT" 1>&2
+arch-chroot /mnt '/MASTER.sh' "$LANG_SET , $TIME_ZONE , $USERNAME , $PASS , $COMP_NAME , $EXTRAS , $UPDATES , $EFI , $ROOT , $LOGIN , $MODEL , $LAYOUT , $VARIENT" 1>&2
 #umount dev/ || echo "Unable to unmount dev. Continuing . . ." 1>>/tmp/system-installer.log
 #umount sys/ || echo "Unable to unmount sys. Continuing . . ." 1>>/tmp/system-installer.log
 #umount proc/ || echo "Unable to unmount proc. Continuing . . ." 1>>/tmp/system-installer.log

@@ -19,3 +19,8 @@ System Installer for Drauger OS.
  * Quick-install config file support
  * One of the *fastest* installation utilities in Linux today (2-to-3 minutes (ish) on a quad-core CPU with 4 GB of RAM and decent, reliable internet)
  
+ 
+ Development
+ ---
+ 
+ Interested in helping out with development? Great! Check out the notes on how to get started with development [here](https://github.com/drauger-os-development/system-installer/blob/master/development.md).

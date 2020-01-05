@@ -22,4 +22,25 @@
 #  
 #
 #tee all output to a log
-bash -x bin.sh 2>&1 | tee bin_test.log | grep '^- '
+R='\033[0;31m'
+G='\033[0;32m'
+Y='\033[1;33m'
+NC='\033[0m'
+FILE_LIST=$(ls | grep -v 'test-all.sh' | grep '.sh$')
+echo -e "$R ### REMOVING OLD LOGS ### $NC"
+rm $(ls | grep '.log$')
+for each in $FILE_LIST; do
+	echo -e "$Y \bTEST: $each $NC"
+	if [ "$each" == "bin.sh" ]; then
+		bash -x "$each" 2>&1 | tee "$each"_test.log | grep '^- '
+	else
+		bash -x "$each" 2>&1 | tee "$each"_test.log | grep -v '^+' 
+	fi
+done
+touch tests.log
+for each in $FILE_LIST; do
+	echo -e " ### $each test.log ### " >> tests.log
+	cat "$each"_test.log >> tests.log
+	rm "$each"_test.log
+done
+echo -e "$R ### tests.log created ### $NC"
