@@ -116,8 +116,7 @@ fi
 	else
 		7z x kernel.7z
 		apt purge -y linux-headers-drauger linux-image-drauger
-		apt autoremove -y
-		apt purge $(dpkg -l | grep '^rc' | awk '{print $2}')
+		apt autoremove -y --purge
 		#dpkg installs packages whether it's already installed or not. So we don't need some sort of --reinstall flag
 		#that's an apt thing, I'd assume. For security and stability.
 		dpkg -R --install -y kernel/
@@ -152,7 +151,6 @@ udevadm trigger --subsystem-match=input --action=change
 
 	mkinitramfs -o /boot/initrd.img-$(uname --release)
 	if [ "$EFI" != "NULL" ]; then
-		#grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id="Drauger OS" "$(echo $EFI | sed 's/[0-9]//')"
 		#systemd-boot
 		if [ -d /sys/firmware/efi/efivars ]; then
 			mkdir -p /boot/efi/loader/entries /boot/efi/Drauger_OS

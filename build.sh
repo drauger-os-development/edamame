@@ -32,6 +32,8 @@ for each in $list; do
 		rm -rf kernel/$each/$each2
 	done
 done
+# delete empty folders
+find . -type d -empty -print -delete
 7z a -t7z kernel.7z kernel
 rm -rf kernel
 cd ../../../..

@@ -24,25 +24,14 @@
 #this file handles most of the installation process OUTSIDE the chroot
 echo "	###	$0 STARTED	###	" 1>&2
 echo "1"
-#set -e
-set -o pipefail
 SETTINGS="$1"
-GLOBAL_IFS="$IFS"
+GLOBAL_IFS="$IFS" 
 echo "3"
-IFS=","
+SETTINGS=$(echo "$SETTINGS" | sed 's/ , /:/g')
+IFS=":"
 SETTINGS=($SETTINGS)
-# Echo settings to log file for debugging
-{
-	echo "### SETTINGS RECEIVED AND PARSED ###"
-	counter=0
-	for each in ${SETTINGS[@]}; do
-		echo "INDEX: $counter - VALUE: $each"
-		(( counter+=1 ))
-	done
-	echo "### END DEBUG SETTINGS DUMP ###"
-} 1>&2
 IFS="$GLOBAL_IFS"
-ROOT=${SETINGS[0]}
+ROOT=${SETTINGS[0]}
 EFI=${SETTINGS[1]}
 HOME_DATA=${SETTINGS[2]}
 SWAP=${SETTINGS[3]}
@@ -67,6 +56,7 @@ VARIENT=${SETTINGS[14]}
 	#MOUNT=$(/usr/share/system-installer/modules/manual-partitoner.sh "$EFI" "$partitioner" "$TYPE")
 #fi
 set -Ee
+set -o pipefail
 echo "12"
 #STEP 2: Mount the new partitions
 mount "$ROOT" /mnt
