@@ -29,11 +29,9 @@ EFI="$2"
 if $(echo "$INSTALL_DISK" | grep -q "nvme"); then
 	PART1="$INSTALL_DISK"p1
 	PART2="$INSTALL_DISK"p2
-	PART3="$INSTALL_DISK"p3
 else
 	PART1="$INSTALL_DISK"1
 	PART2="$INSTALL_DISK"2
-	PART3="$INSTALL_DISK"3
 fi
 if [ "$EFI" == "True" ]; then
 	fdisk "$INSTALL_DISK" << EOF

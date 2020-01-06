@@ -29,7 +29,7 @@ set -o pipefail
 SETTINGS="$1"
 SETTINGS=$(echo "$SETTINGS" | sed 's/ , /:/g')
 IFS=":"
-SETTINGS=($SETTINGS)
+SETTINGS=("$SETTINGS")
 IFS="$GLOBAL_IFS"
 LANG_SET=${SETTINGS[0]}
 TIME_ZONE=${SETTINGS[1]}
