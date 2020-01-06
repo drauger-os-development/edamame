@@ -23,26 +23,20 @@
 #
 echo "	###	auto-partioner.sh STARTED	###	" 1>&2
 set -e
-EFI="$1"
-disks=$(lsblk -o name,type,label | grep "disk" | grep -v "Drauger OS" | awk '{print $1}')
-if $(echo "$disks" | grep -q "nvme0n*"); then
-	DISK="nvme0n1"
-	DISK1="nvme0n1p1"
-	DISK2="nvme0n1p2"
-elif $(echo "$disks" | grep -q "sd"); then
-	disks=$(echo "$disks" | grep "sd")
-	set -- $disks
-	disks="$1"
-	DISK="$disks"
-	DISK1="$disks"1
-	DISK2="$disks"2
+set -o pipefail
+INSTALL_DISK="$1"
+EFI="$2"
+if $(echo "$INSTALL_DISK" | grep -q "nvme"); then
+	PART1="$INSTALL_DISK"p1
+	PART2="$INSTALL_DISK"p2
+	PART3="$INSTALL_DISK"p3
 else
-	echo "No partitonable disks detected" 1>&2
-	/usr/share/system-installer/UI/error.py "No partitionable disks detected" 2
-	exit 2
+	PART1="$INSTALL_DISK"1
+	PART2="$INSTALL_DISK"2
+	PART3="$INSTALL_DISK"3
 fi
-if [ "$EFI" == "200" ]; then
-	fdisk "/dev/$DISK" << EOF
+if [ "$EFI" == "True" ]; then
+	fdisk "$INSTALL_DISK" << EOF
 o
 n
 p
@@ -60,10 +54,10 @@ p
 w
 q
 EOF
-	mkfs.fat -F 32 -l "UEFI" /dev/"$DISK1"
-	mkfs.ext4 -L "ROOT" /dev/"$DISK2"
+	mkfs.fat -F 32 -l "UEFI" "$PART1"
+	mkfs.ext4 -L "ROOT" "$PART2"
 else
-	fdisk "/dev/$DISK" << EOF
+	fdisk "$INSTALL_DISK" << EOF
 o
 n
 p
@@ -76,7 +70,6 @@ p
 w
 q
 EOF
-	mkfs.ext4 -L "ROOT" /dev/"$DISK1"
+	mkfs.ext4 -L "ROOT" "$PART1"
 fi
-echo "/dev/$DISK"
 echo "	###	auto-partioner.sh CLOSED	###	" 1>&2

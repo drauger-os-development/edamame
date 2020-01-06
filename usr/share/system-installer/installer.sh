@@ -25,8 +25,12 @@
 echo "	###	$0 STARTED	###	" 1>&2
 echo "1"
 SETTINGS="$1"
+GLOBAL_IFS="$IFS" 
 echo "3"
-echo "$SETTINGS" | sed 's/ , /:/g' | mapfile -d ":" SETTINGS
+SETTINGS=$(echo "$SETTINGS" | sed 's/ , /:/g')
+IFS=":"
+SETTINGS=($SETTINGS)
+IFS="$GLOBAL_IFS"
 ROOT=${SETTINGS[0]}
 EFI=${SETTINGS[1]}
 HOME_DATA=${SETTINGS[2]}

@@ -27,7 +27,10 @@ echo "37"
 #set -e
 set -o pipefail
 SETTINGS="$1"
-echo "$SETTINGS" | sed 's/ , /:/g' | mapfile -d ":" SETTINGS
+SETTINGS=$(echo "$SETTINGS" | sed 's/ , /:/g')
+IFS=":"
+SETTINGS=($SETTINGS)
+IFS="$GLOBAL_IFS"
 LANG_SET=${SETTINGS[0]}
 TIME_ZONE=${SETTINGS[1]}
 USERNAME=${SETTINGS[2]}
