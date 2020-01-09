@@ -29,29 +29,30 @@ SETTINGS = argv[1]
 SETTINGS = SETTINGS.split(" , ")
 
 # Partitioning settings
-ROOT = SETTINGS[0]
-EFI = SETTINGS[1]
-HOME = SETTINGS[2]
-SWAP = SETTINGS[3]
+AUTO_PART = SETTINGS[0]
+ROOT = SETTINGS[1]
+EFI = SETTINGS[2]
+HOME = SETTINGS[3]
+SWAP = SETTINGS[4]
 
 # Locale settings
-LANG = SETTINGS[4]
-TIME_ZONE = SETTINGS[5]
+LANG = SETTINGS[5]
+TIME_ZONE = SETTINGS[6]
 
 # User settings
-USERNAME = SETTINGS[6]
-PASS = SETTINGS[8]
-COMPNAME = SETTINGS[7]
+USERNAME = SETTINGS[7]
+COMPNAME = SETTINGS[8]
+PASS = SETTINGS[9]
 
 # Options settings
-EXTRAS = SETTINGS[9]
-UPDATES = SETTINGS[10]
-LOGIN = SETTINGS[11]
+EXTRAS = SETTINGS[10]
+UPDATES = SETTINGS[11]
+LOGIN = SETTINGS[12]
 
 #Keyboard Settings
-MODEL = SETTINGS[12]
-LAYOUT = SETTINGS[13]
-VARIENT = SETTINGS[14]
+MODEL = SETTINGS[13]
+LAYOUT = SETTINGS[14]
+VARIENT = SETTINGS[15]
 if EXTRAS != "0" and EXTRAS != None:
 	EXTRAS = "Yes"
 else:
@@ -94,10 +95,16 @@ class main(Gtk.Window):
 		self.grid.attach(self.label4, 1, 4, 1, 1)
 
 		self.label5 = Gtk.Label()
-		self.label5.set_markup("""ROOT: %s
+
+		if (AUTO_PART == "True"):
+			self.label5.set_markup("""AUTO PARTITIONING ENABLED\t
+INSTALLATION DRIVE: %s""" % (ROOT))
+		else:
+			self.label5.set_markup("""ROOT: %s
 EFI: %s
 HOME: %s
 SWAP: %s""" % (ROOT,EFI,HOME,SWAP))
+
 		self.label5.set_justify(Gtk.Justification.LEFT)
 		self.grid.attach(self.label5, 3, 4, 1, 1)
 

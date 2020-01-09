@@ -26,7 +26,7 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk
 import re
 from subprocess import Popen, check_output, DEVNULL
-from os import getcwd, chdir
+from os import getcwd, chdir, path
 
 def hasnumbers(inputString):
 	return any(char.isdigit() for char in inputString)
@@ -94,6 +94,7 @@ class main(Gtk.Window):
 		self.efi_setting = ""
 		self.home_setting = ""
 		self.swap_setting = ""
+		self.auto_part_setting = ""
 		self.lang_setting = ""
 		self.time_zone = ""
 		self.username_setting = ""
@@ -390,37 +391,22 @@ class main(Gtk.Window):
 
 		self.label = Gtk.Label()
 		self.label.set_markup("""
-	<b> PLEASE READ </b>
+	Would you like to let Drauger OS automaticly partition a drive for installation?\t
+	Or, would you like to manually partition space for it?\t
 
-	When you are ready, click the "Open Gparted" button to open Gparted and partiton your drive how you wish it to be.
-	This is done while bugs are worked out of the partioning system inside the Drauger OS installer.
-
-	Please make note of the mount point for the partions you wish to install to. Individual partions are supported for:
-		* /
-		* /boot/efi
-		* /home
-		* Swap
-
-	Furthermore, please ensure you apply the changes to the partiton table when you are done.
-
-	Finally, please make sure to mark the approptiate partition as bootable under "flags".
-
-	If you are not familiar with partitioning drives or the above was gibberish to you, please exit this installer NOW.
-	Partioning drives risks a loss in data if you are inexperienced.
-
-	The user assumes fault and all liability for all loss of data which may occur due to repartioning any drive.
-
-	Once you are done with your changes, please click "Okay -->".
+	<b>NOTE</b>
+	Auto partitioning takes up an entire drive. If you are uncomfortable with this,\t
+	please either manually partition your drive, or abort installation now.\t
 	""")
 		self.label.set_justify(Gtk.Justification.LEFT)
 		self.grid.attach(self.label, 1, 1, 5, 1)
 
-		self.link = Gtk.Button.new_with_label("Open Gparted")
+		self.link = Gtk.Button.new_with_label("Manual Partitioning")
 		self.link.connect("clicked", self.opengparted)
 		self.grid.attach(self.link, 3, 5, 1, 1)
 
-		self.button1 = Gtk.Button.new_with_label("Okay -->")
-		self.button1.connect("clicked", self.input_part)
+		self.button1 = Gtk.Button.new_with_label("Automatic Partitioning")
+		self.button1.connect("clicked", self.auto_partition)
 		self.grid.attach(self.button1, 5, 5, 1, 1)
 
 		self.button2 = Gtk.Button.new_with_label("Exit")
@@ -428,6 +414,89 @@ class main(Gtk.Window):
 		self.grid.attach(self.button2, 1, 5, 1, 1)
 
 		self.show_all()
+
+	def auto_partition(self,button):
+		self.clear_window()
+		self.auto_part_setting = True
+
+		# Get a list of disks and their capacity
+		DEVICES = str(check_output(["lsblk","-n","-i","-o","NAME,SIZE,TYPE"]))
+		DEVICES = list(DEVICES)
+		del(DEVICES[1])
+		del(DEVICES[0])
+		del(DEVICES[len(DEVICES) - 1])
+		DEVICES = "".join(DEVICES)
+		DEVICES = DEVICES.split("\\n")
+		DEV = []
+		for each in range(len(DEVICES)):
+			if ("loop" in DEVICES[each]):
+				continue
+			elif ("part" in DEVICES[each]):
+				continue
+			else:
+				DEV.append(DEVICES[each])
+		DEVICES = []
+		for each in DEV:
+			DEVICES.append(each.split())
+		DEVICES = [x for x in DEVICES if x != []]
+		for each in range(len(DEVICES)):
+			DEVICES[each].remove(DEVICES[each][2])
+		for each in range(len(DEVICES)):
+			DEVICES[each][0] = "/dev/%s" % (DEVICES[each][0])
+
+		# Jesus Christ that's a lot of parsing and formatting.
+		# At least it's done.
+		# Now we have to make a GUI using them . . .
+
+		self.label = Gtk.Label()
+		self.label.set_markup("""
+	Which drive would you like to install to?\t
+	""")
+		self.label.set_justify(Gtk.Justification.LEFT)
+		self.grid.attach(self.label, 1, 1, 3, 1)
+
+		self.disks = Gtk.ComboBoxText.new()
+		for each in range(len(DEVICES)):
+			self.disks.append("%s" % (DEVICES[each][0]), "%s	Size: %s" % (DEVICES[each][0], DEVICES[each][1]))
+		if (self.root_setting != ""):
+			self.disks.set_active_id(self.root_setting)
+		self.grid.attach(self.disks, 1, 2, 2, 1)
+
+		self.button1 = Gtk.Button.new_with_label("Okay -->")
+		self.button1.connect("clicked", self.onnext6clicked)
+		self.grid.attach(self.button1, 3, 3, 1, 1)
+
+		self.button2 = Gtk.Button.new_with_label("Exit")
+		self.button2.connect("clicked", self.exit)
+		self.grid.attach(self.button2, 2, 3, 1, 1)
+
+		self.button3 = Gtk.Button.new_with_label("<-- Back")
+		self.button3.connect("clicked", self.partitioning)
+		self.grid.attach(self.button3, 1, 3, 1, 1)
+
+		self.show_all()
+
+	def onnext6clicked(self,button):
+		if path.isdir("/sys/firmware/efi"):
+			self.efi_setting = True
+		else:
+			self.efi_setting = False
+		self.home_setting = "NULL"
+		self.swap_setting = "FILE"
+		if (self.disks.get_active_id() == None):
+			self.label.set_markup("""
+	Which drive would you like to install to?\t
+
+	<b>You must pick a drive to install to or abort installation.</b>\t
+	""")
+			self.show_all()
+		else:
+			self.root_setting = self.disks.get_active_id()
+			global part_completion
+			part_completion = "COMPLETED"
+			self.main_menu("clicked")
+
+
 
 	def input_part(self,button):
 		self.clear_window()
@@ -541,6 +610,8 @@ class main(Gtk.Window):
 
 	def opengparted(self,button):
 		Popen("gparted", stdout=DEVNULL, stderr=DEVNULL)
+		self.auto_part_setting = False
+		self.input_part("clicked")
 
 	def options(self,button):
 		self.clear_window()
@@ -823,22 +894,23 @@ Time Zone""")
 		Or, exit installation.\n""")
 		else:
 			# Vars to print:
-			#	1  * self.password_setting
-			#	2  * self.username_setting
-			#	3  * self.compname_setting
-			#	4  * self.root_setting
-			#	5  * self.efi_setting
-			#	6  * self.home_setting
-			#	7  * self.swap_setting
-			#	8  * self.extras_setting
-			#	9  * self.updates_setting
-			#	10 * self.login_setting
-			#	11 * self.model_setting
-			#	12 * self.layout_setting
-			#	13 * self.lang_setting
-			#	14 * self.time_zone
-			#	15 * self.varient_setting
-			print("%s , %s , %s , %s , %s , %s , %s , %s , %s , %s , %s , %s , %s , %s , %s" % (self.root_setting, self.efi_setting, self.home_setting, self.swap_setting, self.lang_setting, self.time_zone, self.username_setting, self.compname_setting, self.password_setting, self.extras_setting, self.updates_setting, self.login_setting, self.model_setting, self.layout_setting,self.varient_setting))
+			#	1  * self.auto_part_setting
+			#	2  * self.password_setting
+			#	3  * self.username_setting
+			#	4  * self.compname_setting
+			#	5  * self.root_setting
+			#	6  * self.efi_setting
+			#	7  * self.home_setting
+			#	8  * self.swap_setting
+			#	9  * self.extras_setting
+			#	10  * self.updates_setting
+			#	11 * self.login_setting
+			#	12 * self.model_setting
+			#	13 * self.layout_setting
+			#	14 * self.lang_setting
+			#	15 * self.time_zone
+			#	16 * self.varient_setting
+			print("%s , %s , %s , %s , %s , %s , %s , %s , %s , %s , %s , %s , %s , %s , %s , %s" % (self.auto_part_setting, self.root_setting, self.efi_setting, self.home_setting, self.swap_setting, self.lang_setting, self.time_zone, self.username_setting, self.compname_setting, self.password_setting, self.extras_setting, self.updates_setting, self.login_setting, self.model_setting, self.layout_setting,self.varient_setting))
 			exit(0)
 		self.show_all()
 

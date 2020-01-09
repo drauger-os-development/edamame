@@ -31,30 +31,28 @@ SETTINGS=$(echo "$SETTINGS" | sed 's/ , /:/g')
 IFS=":"
 SETTINGS=("$SETTINGS")
 IFS="$GLOBAL_IFS"
-ROOT=${SETTINGS[0]}
-EFI=${SETTINGS[1]}
-HOME_DATA=${SETTINGS[2]}
-SWAP=${SETTINGS[3]}
-LANG_SET=${SETTINGS[4]}
-TIME_ZONE=${SETTINGS[5]}
-USERNAME=${SETTINGS[6]}
-COMP_NAME=${SETTINGS[7]}
-PASS=${SETTINGS[8]}
-EXTRAS=${SETTINGS[9]}
-UPDATES=${SETTINGS[10]}
-LOGIN=${SETTINGS[11]}
-MODEL=${SETTINGS[12]}
-LAYOUT=${SETTINGS[13]}
-VARIENT=${SETTINGS[14]}
+AUTO_PART=${SETTINGS[0]}
+ROOT=${SETTINGS[1]}
+EFI=${SETTINGS[2]}
+HOME_DATA=${SETTINGS[3]}
+SWAP=${SETTINGS[4]}
+LANG_SET=${SETTINGS[5]}
+TIME_ZONE=${SETTINGS[6]}
+USERNAME=${SETTINGS[7]}
+COMP_NAME=${SETTINGS[8]}
+PASS=${SETTINGS[9]}
+EXTRAS=${SETTINGS[10]}
+UPDATES=${SETTINGS[11]}
+LOGIN=${SETTINGS[12]}
+MODEL=${SETTINGS[13]}
+LAYOUT=${SETTINGS[14]}
+VARIENT=${SETTINGS[15]}
 #STEP 1: Partion and format the drive
-# Don't worry about this right now. Taken care of earlier.
-#if [ "$partitioner" == "auto" ]; then
-	##use the autopartioner
-	#MOUNT=$(/usr/share/system-installer/modules/auto-partitoner.sh "$EFI")
-#else
-	##use the config the user asked for to partion the drive
-	#MOUNT=$(/usr/share/system-installer/modules/manual-partitoner.sh "$EFI" "$partitioner" "$TYPE")
-#fi
+if [ "$AUTO_PART" == "True" ]; then
+	PARTITIONING=$(/usr/share/system-installer/modules/auto-partitioner.sh "$ROOT" "$EFI")
+	ROOT=$(echo "$PARTITIONING" | awk '{print $2}' | sed 's/:/ /g' | awk '{print $2}')
+	EFI=$(echo "$PARTITIONING" | awk '{print $1}' | sed 's/:/ /g' | awk '{print $2}')
+fi
 set -Ee
 set -o pipefail
 echo "12"
@@ -64,9 +62,10 @@ if [ "$EFI" != "NULL" ]; then
 	mkdir -p /mnt/boot/efi
 	mount "$EFI" /mnt/boot/efi
 fi
-echo "$HOME_DATA" | grep -q "NULL" 1>/dev/null 2>/dev/null
-TEST="$?"
-if [ "$TEST" != "0" ]; then
+# echo "$HOME_DATA" | grep -q "NULL" 1>/dev/null 2>/dev/null
+# TEST="$?"
+# if [ "$TEST" != "0" ]; then
+if [ "$HOME_DATA" != "NULL" ]; then
 	mkdir -p /mnt/home
 	mount "$HOME_DATA" /mnt/home
 fi
