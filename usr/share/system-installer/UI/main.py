@@ -439,6 +439,9 @@ class main(Gtk.Window):
 		for each in DEV:
 			DEVICES.append(each.split())
 		DEVICES = [x for x in DEVICES if x != []]
+		for each in DEVICES:
+			if (each[0] == "sr0"):
+				DEVICES.remove(each)
 		for each in range(len(DEVICES)):
 			DEVICES[each].remove(DEVICES[each][2])
 		for each in range(len(DEVICES)):

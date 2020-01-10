@@ -43,16 +43,12 @@ class main(Gtk.Window):
 		self.grid.attach(self.button1, 3, 6, 1, 1)
 
 		self.button2 = Gtk.Button.new_with_label("Exit")
-		self.button2.connect("clicked", self.onexitclicked)
+		self.button2.connect("clicked", self.exit)
 		self.grid.attach(self.button2, 1, 6, 1, 1)
 
 		self.button2 = Gtk.Button.new_with_label("Advanced")
 		self.button2.connect("clicked", self.onadvclicked)
 		self.grid.attach(self.button2, 2, 6, 1, 1)
-
-	def onexitclicked(self,button):
-		print("EXIT")
-		exit(1)
 
 	def onnextclicked(self,button):
 		system("poweroff")
@@ -79,14 +75,10 @@ class main(Gtk.Window):
 		self.grid.attach(self.button3, 2, 6, 1, 1)
 
 		self.button4 = Gtk.Button.new_with_label("Exit")
-		self.button4.connect("clicked", self.onexitclicked)
+		self.button4.connect("clicked", self.exit)
 		self.grid.attach(self.button4, 2, 7, 1, 1)
 
 		self.show_all()
-
-	def onexitclicked(self,button):
-		print("EXIT")
-		exit(1)
 
 	def ondeletewarn(self,button):
 		self.clear_window()
@@ -100,7 +92,7 @@ class main(Gtk.Window):
 		self.grid.attach(self.button5,2, 2, 1, 1)
 
 		self.button4 = Gtk.Button.new_with_label("Exit")
-		self.button4.connect("clicked", self.onexitclicked)
+		self.button4.connect("clicked", self.exit)
 		self.grid.attach(self.button4, 3, 2, 1, 1)
 
 		self.button5 = Gtk.Button.new_with_label("<-- Back")
@@ -172,8 +164,7 @@ class main(Gtk.Window):
 
 	def exit(self,button):
 		Gtk.main_quit("delete-event")
-		print(1)
-		exit(1)
+		exit(0)
 
 	def clear_window(self):
 		children = self.grid.get_children()

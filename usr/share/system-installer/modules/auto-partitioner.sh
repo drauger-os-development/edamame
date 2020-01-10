@@ -26,9 +26,9 @@ set -e
 set -o pipefail
 INSTALL_DISK="$1"
 EFI="$2"
-SIZE=$(lsblk | grep $(echo "$INSTALL_DISK" | sed 's:/dev/::g') | grep 'disk' | awk '{print $4}' | sed 's/G/GiB/g')
-echo " ### WARNING: DD-ING DRIVE. NO DATA WILL BE RECOVERABLE. ### "
-dd if=/dev/zero of="$INSTALL_DISK" count=1 bs=512
+SIZE=$(lsblk | grep $(echo "$INSTALL_DISK" | sed 's:/dev/::g') | grep 'disk' | awk '{print $4}')
+echo " ### WARNING: DD-ING DRIVE. NO DATA WILL BE RECOVERABLE. ### " 1>&2
+dd if=/dev/zero of="$INSTALL_DISK" count=1 bs=512 1>&2
 if $(echo "$INSTALL_DISK" | grep -q "nvme"); then
 	PART1="$INSTALL_DISK"p1
 	PART2="$INSTALL_DISK"p2
@@ -37,13 +37,13 @@ else
 	PART2="$INSTALL_DISK"2
 fi
 if [ "$EFI" == "True" ]; then
-	parted --script "$INSTALL_DISK" mktable gpt mkpart primary fat32 1MiB 201MiB mkpart primary ext4 201MiB "$SIZE"
-	mkfs.fat -F 32 "$PART1"
-	mkfs.ext4 "$PART2"
+	parted --script "$INSTALL_DISK" mktable gpt mkpart primary fat32 1M 201M mkpart primary ext4 201M "$SIZE" 1>&2
+	mkfs.fat -F 32 "$PART1" 1>&2
+	mkfs.ext4 "$PART2" 1>&2
 	echo "EFI:$PART1 ROOT:$PART2"
 else
-	parted --script "$INSTALL_DISK" mktabel gpt mkpart primary ext4 1MiB "$SIZE"
-	mkfs.ext4 "$PART1"
+	parted --script "$INSTALL_DISK" mktabel gpt mkpart primary ext4 1M "$SIZE" 1>&2
+	mkfs.ext4 "$PART1" 1>&2
 	echo "EFI:NULL ROOT:$PART1"
 fi
 partprobe
