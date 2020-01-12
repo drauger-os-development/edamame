@@ -74,27 +74,6 @@ if [ "$SWAP" != "FILE" ]; then
 else
 	echo "SWAP FILE NOT CREATED YET" 1>&2
 fi
-#if [ "$EFI" == "200" ]; then
-	#if $(echo "$MOUNT" | grep -q "nvme"); then
-		#mount "$MOUNT"p2 /mnt
-		#if [ ! -d /mnt/boot/efi ]; then
-			#mkdir /mnt/boot/efi
-		#fi
-		#mount "$MOUNT"p1 /mnt/boot/efi
-	#else
-		#mount "$MOUNT"2 /mnt
-		#if [ ! -d /mnt/boot/efi ]; then
-			#mkdir /mnt/boot/efi
-		#fi
-		#mount "$MOUNT"1 /mnt/boot/efi
-	#fi
-#else
-	#if $(echo "$MOUNT" | grep -q "nvme"); then
-		#mount "$MOUNT"p1 /mnt
-	#else
-		#mount "$MOUNT"1 /mnt
-	#fi
-#fi
 echo "14"
 #STEP 3: Unsquash the sqaushfs and get the files where they need to go
 SQUASHFS=$(cat /etc/system-installer/default.config | sed 's/squashfs_Location=//')
@@ -146,7 +125,7 @@ genfstab -U /mnt > /mnt/etc/fstab
 echo "34"
 #STEP 5: copy scripts into chroot
 LIST=$(ls /usr/share/system-installer/modules)
-LIST=$(echo "$LIST" | grep -v "partitoner")
+LIST=$(echo "$LIST" | grep -v "partitioner")
 for each in $LIST; do
 	cp "/usr/share/system-installer/modules/$each" "/mnt/$each"
 done
@@ -187,14 +166,7 @@ if [ "$UPDATES" == "" ]; then
 	UPDATES=false
 fi
 # we don't check EFI or ROOT cause if they weren't set the script would have failed.
-#cd /mnt
-#mount --rbind /dev dev/
-#mount --rbind /sys sys/
-#mount -t proc proc proc/
 arch-chroot /mnt '/MASTER.sh' "$LANG_SET , $TIME_ZONE , $USERNAME , $PASS , $COMP_NAME , $EXTRAS , $UPDATES , $EFI , $ROOT , $LOGIN , $MODEL , $LAYOUT , $VARIENT" 1>&2
-#umount dev/ || echo "Unable to unmount dev. Continuing . . ." 1>>/tmp/system-installer.log
-#umount sys/ || echo "Unable to unmount sys. Continuing . . ." 1>>/tmp/system-installer.log
-#umount proc/ || echo "Unable to unmount proc. Continuing . . ." 1>>/tmp/system-installer.log
 #STEP 7: Clean up
 #I know this isn't the best way of doing this, but it is easier than changing each of the file name in $LIST
 echo "Removing installation scripts and resetting resolv.conf" 1>&2
