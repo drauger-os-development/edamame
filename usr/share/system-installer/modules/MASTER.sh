@@ -179,6 +179,16 @@ udevadm trigger --subsystem-match=input --action=change
 	ln /boot/initrd.img-"$(uname --release)" /boot/initrd.img
 	ln /boot/vmlinuz-"$(uname --release)" /boot/vmlinuz
 } 1>&2
+#STEP 13: remove launcher icon
+list=$(ls /home/$USERNAME/.config/xfce4/panel | grep 'launcher-')
+for each in $list; do
+	list2=$(ls /home/$USERNAME/.config/xfce4/panel/$each)
+	for each1 in $list2; do
+		if $(grep -q "Install Drauger OS" /home/$USERNAME/.config/xfce4/panel/$each/$each1); then
+			rm "/home/$USERNAME/.config/xfce4/panel/$each/$each1"
+		fi
+	done
+done
 echo "88"
 echo "	###	$0 CLOSED	###	" 1>&2
 

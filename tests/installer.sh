@@ -27,7 +27,7 @@ Y='\033[1;33m'
 NC='\033[0m'
 echo -e "$Y \bSHELLCHECK: installer.sh $NC"
 {
-	shellcheck --shell=bash --severity=warning ../usr/share/system-installer/installer.sh --color=never 2>&1
+	shellcheck --exclude=SC2206 --shell=bash --severity=warning ../usr/share/system-installer/installer.sh --color=never 2>&1
 } && {
 	echo -e "-$G INSTALLER.SH: GOOD"
 } || {

@@ -29,5 +29,5 @@ cd ../usr/share/system-installer/modules
 MOD_LIST=$(ls | grep ".sh$" )
 for each in $MOD_LIST; do
 	echo -e "- $Y \bSHELLCHECK: $each $NC"
-	shellcheck --shell=bash --severity=warning "$each" --color=never 2>&1
+	shellcheck --exclude=SC2206 --shell=bash --severity=warning "$each" --color=never 2>&1
 done
