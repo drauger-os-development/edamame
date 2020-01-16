@@ -111,8 +111,19 @@ if [ "$EFI" != "NULL" ]; then
 fi
 {
 	if [ "$internet" == "0" ]; then
-		install=$(apt-cache depends linux-headers-drauger linux-image-drauger | grep '[ |]Depends: [^<]' | cut -d: -f2 | tr -d ' ')
-		apt install -y --reinstall linux-headers-drauger linux-image-drauger $install
+		# if the online method fails, attempt the offline method
+		{
+			install=$(apt-cache depends linux-headers-drauger linux-image-drauger | grep '[ |]Depends: [^<]' | cut -d: -f2 | tr -d ' ')
+			apt install -y --reinstall linux-headers-drauger linux-image-drauger $install
+		} || {
+			7z x kernel.7z
+			apt purge -y linux-headers-drauger linux-image-drauger
+			apt autoremove -y --purge
+			#dpkg installs packages whether it's already installed or not. So we don't need some sort of --reinstall flag
+			#that's an apt thing, I'd assume. For security and stability.
+			dpkg -R --install -y kernel/
+			rm -rf kernel
+		}
 	else
 		7z x kernel.7z
 		apt purge -y linux-headers-drauger linux-image-drauger
