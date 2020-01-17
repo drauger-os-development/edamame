@@ -18,3 +18,6 @@ The following are not required but may help out
  * `squashfs-tools`
  
  You can find a number of tests to make sure your programs work correctly in the `tests` directory. These are currently tailored to how these programs are written, i.e. they work on BASH scripts and the one Python script ran in the back end. None of the UI is tested yet.
+ 
+ 
+ Any and all shell scripts will eventually be converted to Python 3 or C/C++, preferably performing the same operations in as multi-threaded a fashion as possible, in order to accelerate installation.
