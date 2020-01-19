@@ -582,6 +582,20 @@ class main(Gtk.Window):
 			self.grid.attach(self.label, 1, 1, 2, 1)
 
 			self.show_all()
+
+		elif ((self.efi.get_text() == "") and path.isdir("/sys/firmware/efi")):
+			self.label.set_markup("""
+	What are the mount points for the partions you wish to be used?
+	Leave empty the partions you don't want.
+	<b> / MUST BE USED </b>
+
+	You are using EFI, therefore an EFI partition
+	must be set.
+	""")
+			self.label.set_justify(Gtk.Justification.LEFT)
+			self.grid.attach(self.label, 1, 1, 2, 1)
+
+			self.show_all()
 		else:
 			self.label.set_markup("""
 	What are the mount points for the partions you wish to be used?

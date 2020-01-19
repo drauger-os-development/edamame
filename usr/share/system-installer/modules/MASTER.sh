@@ -197,7 +197,7 @@ for each in $list; do
 	list2=$(ls /home/$USERNAME/.config/xfce4/panel/$each)
 	for each1 in $list2; do
 		if $(grep -q "Install Drauger OS" /home/$USERNAME/.config/xfce4/panel/$each/$each1); then
-			rm "/home/$USERNAME/.config/xfce4/panel/$each/$each1"
+			rm -rf "/home/$USERNAME/.config/xfce4/panel/$each"
 		fi
 	done
 done

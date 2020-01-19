@@ -22,9 +22,10 @@
 #
 #
 echo "	###	install_extras.sh STARTED	###	" 1>&2
-set -e
 set -o pipefail
+set -e
 apt update 1>&2
+set +e
 toinstall=""
 toremove=""
 if $(lspci | grep -iq "nvidia"); then
@@ -34,18 +35,28 @@ if $(lspci | grep -iq "nvidia"); then
 fi
 echo "76"
 if $(lspci | grep -iq "broadcom"); then
-	if [ "$toinstall" == "" ]; then
-		toinstall="broadcom-sta"
+	if $(lspci |  grep -i "broadcom" | grep -iqE 'BCM43142|BCM4331|BCM4360|BCM4352')
+		if [ "$toinstall" == "" ]; then
+			toinstall="broadcom-sta-dkms dkms wireless-tools"
+		else
+			toinstall="$toinstall broadcom-sta-dkms dkms wireless-tools"
+		fi
+	elif $(lspci |  grep -i "broadcom" | grep -iqE 'BCM4311|BCM4312|BCM4313|BCM4321|BCM4322|BCM43224|43225|BCM43227|BCM43228')
+		if [ "$toinstall" == "" ]; then
+			toinstall="bcmwl-kernel-source"
+		else
+			toinstall="$toinstall bcmwl-kernel-source"
+		fi
 	else
-		toinstall="$toinstall broadcom-sta"
+		echo "# BROADCOM DEVICE DETECTED BUT NO WIFI DRIVER IS FOUND FOR IT #" 1>&2
 	fi
 fi
 echo "80"
 if [ "$toinstall" == "" ]; then
-	toinstall="ubuntu-restricted-extras"
+	toinstall="ubuntu-restricted-extras ubuntu-restricted-addons"
 	toremove="gstreamer1.0-fluendo-mp3"
 else
-	toinstall="$toinstall ubuntu-restricted-extras"
+	toinstall="$toinstall ubuntu-restricted-extras ubuntu-restricted-addons"
 	toremove="gstreamer1.0-fluendo-mp3"
 fi
 echo "82"

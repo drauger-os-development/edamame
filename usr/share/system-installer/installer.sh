@@ -177,9 +177,17 @@ echo "89"
 rm -v /mnt/etc/resolv.conf
 mv -v /mnt/etc/resolv.conf.save /mnt/etc/resolv.conf
 echo "98"
+#make sure a kernel got installed
+check=$(ls /mnt/boot | grep 'vmlinuz')
+if [ "$check" != ""  ]; then
+	echo "	### KERNEL NOT INSTALLED. CORRECTING . . .	###	" 1>&2
+	cp /usr/share/system-installer/modules/kernel.7z /mnt/
+	arch-chroot /mnt '7z x kernel.7z; dpkg -R --install kernel/' 1>&2
+	rm -rf /mnt/kernel /mnt/kernel.7z
+fi
 #check to make sure systemd-boot got configured
 contents=$(ls /mnt/boot/efi/loader/entries)
-if [ "$contents" == "" ]; then
+if [ "$contents" == "" ] || [ "$EFI" != "NULL" ]; then
 	echo "	### SYSTEMD-BOOT NOT CONFIGURED. CORRECTING . . .	###	" 1>&2
 	cp /usr/share/system-installer/modules/systemd-boot-config.sh /mnt
 	arch-chroot /mnt '/systemd-boot-config.sh' "$ROOT" 1>&2

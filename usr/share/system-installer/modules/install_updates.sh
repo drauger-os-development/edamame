@@ -31,5 +31,6 @@ echo "70"
 apt -y autoremove 2>/dev/null 1>>/tmp/system-installer.log
 echo "72"
 apt clean 2>/dev/null 1>>/tmp/system-installer.log
+set +e
 echo "74"
 echo "	###	install_updates.sh CLOSED	###	" 1>&2
