@@ -51,7 +51,7 @@ class main(Gtk.Window):
 		self.grid.attach(self.button2, 2, 6, 1, 1)
 
 	def onnextclicked(self,button):
-		system("poweroff")
+		Popen("poweroff")
 		exit(0)
 
 	def onadvclicked(self,button):

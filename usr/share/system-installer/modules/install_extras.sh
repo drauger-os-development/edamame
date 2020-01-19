@@ -52,18 +52,8 @@ if $(lspci | grep -iq "broadcom"); then
 	fi
 fi
 echo "80"
-if [ "$toinstall" == "" ]; then
-	toinstall="ubuntu-restricted-extras ubuntu-restricted-addons"
-	toremove="gstreamer1.0-fluendo-mp3"
-else
-	toinstall="$toinstall ubuntu-restricted-extras ubuntu-restricted-addons"
-	toremove="gstreamer1.0-fluendo-mp3"
-fi
 echo "82"
-apt install -y $toinstall 1>&2
+apt install -y ubuntu-restricted-extras ubuntu-restricted-addons $toinstall 1>&2
 echo "83"
-if [ "$toremove" != "" ]; then
-	apt purge -y $toremove 1>&2 || echo "Package Not Found? Maybe? Double check cause gstreamer1.0-fluendo-mp3 threw an error during removal" 1>&2
-	
-fi
+apt purge -y gstreamer1.0-fluendo-mp3 1>&2 || echo "Package Not Found? Maybe? Double check cause gstreamer1.0-fluendo-mp3 threw an error during removal" 1>&2
 echo "	###	install_extras.sh CLOSED	###	" 1>&2
