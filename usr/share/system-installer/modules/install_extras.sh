@@ -35,13 +35,13 @@ if $(lspci | grep -iq "nvidia"); then
 fi
 echo "76"
 if $(lspci | grep -iq "broadcom"); then
-	if $(lspci |  grep -i "broadcom" | grep -iqE 'BCM43142|BCM4331|BCM4360|BCM4352')
+	if $(lspci |  grep -i "broadcom" | grep -iqE 'BCM43142|BCM4331|BCM4360|BCM4352'); then
 		if [ "$toinstall" == "" ]; then
 			toinstall="broadcom-sta-dkms dkms wireless-tools"
 		else
 			toinstall="$toinstall broadcom-sta-dkms dkms wireless-tools"
 		fi
-	elif $(lspci |  grep -i "broadcom" | grep -iqE 'BCM4311|BCM4312|BCM4313|BCM4321|BCM4322|BCM43224|43225|BCM43227|BCM43228')
+	elif $(lspci |  grep -i "broadcom" | grep -iqE 'BCM4311|BCM4312|BCM4313|BCM4321|BCM4322|BCM43224|43225|BCM43227|BCM43228'); then
 		if [ "$toinstall" == "" ]; then
 			toinstall="bcmwl-kernel-source"
 		else

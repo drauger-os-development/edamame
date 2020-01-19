@@ -192,7 +192,7 @@ udevadm trigger --subsystem-match=input --action=change
 	ln /boot/vmlinuz-"$(uname --release)" /boot/vmlinuz
 } 1>&2
 #STEP 13: remove launcher icon
-list=$(ls /home/$USERNAME/.config/xfce4/panel | grep 'launcher-')
+list=$(ls /home/$USERNAME/.config/xfce4/panel/launcher-*)
 for each in $list; do
 	list2=$(ls /home/$USERNAME/.config/xfce4/panel/$each)
 	for each1 in $list2; do

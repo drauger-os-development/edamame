@@ -178,7 +178,7 @@ rm -v /mnt/etc/resolv.conf
 mv -v /mnt/etc/resolv.conf.save /mnt/etc/resolv.conf
 echo "98"
 #make sure a kernel got installed
-check=$(ls /mnt/boot | grep 'vmlinuz')
+check=$(ls /mnt/boot/vmlinuz*)
 if [ "$check" != ""  ]; then
 	echo "	### KERNEL NOT INSTALLED. CORRECTING . . .	###	" 1>&2
 	cp /usr/share/system-installer/modules/kernel.7z /mnt/

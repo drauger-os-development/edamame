@@ -76,7 +76,7 @@ EOF
 elif [ "$TYPE" == "sd" ]; then
 	LIST=$(lsblk -o name,type,label,size | grep "disk" | grep -v "Drauger OS")
 	count=0
-	for each in $LIST; do
+	for _ in $LIST; do
 		(( count+=1 ))
 	done
 	if [[ $count -gt 1 ]]; then
@@ -86,7 +86,7 @@ elif [ "$TYPE" == "sd" ]; then
 		LIST_SIZES=$(echo "${LIST_SIZES[*]}" | sort -nr | head -n1)
 		LIST=$(lsblk -o name,type,label,size | grep "disk" | grep -v "Drauger OS" | grep "$LIST_SIZES" | awk '{print $1}')
 		count=0
-		for each in $LIST; do
+		for _ in $LIST; do
 			(( count+=1 ))
 		done
 		if [[ $count -gt 1 ]]; then
