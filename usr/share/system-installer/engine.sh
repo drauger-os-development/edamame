@@ -136,4 +136,5 @@ Or, submit an issue on our GitHub at:
 <a href=\"https://github.com/drauger-os-development/system-installer\" target=\"_blank\">https://github.com/drauger-os-development/system-installer</a>"
 }
 echo "	###	$0 CLOSED	###	" 1>&2
+cp /tmp/system-installer.log /mnt/var/log/system-installer.log
 exit "$test"

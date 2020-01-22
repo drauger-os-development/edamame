@@ -40,7 +40,8 @@ UUID=\"$(blkid -s PARTUUID -o value $ROOT)\"
 #VOLUME=\"CHANGEME\"
 
 # Any rootflags you wish to set.
-ROOTFLAGS=\"quiet splash init=/lib/systemd/systemd\"
+ROOTFLAGS=\"quiet splash\"
+RECOVERY_FLAGS=\"ro recovery nomodeset\"
 
 
 
@@ -78,6 +79,12 @@ linux   /Drauger_OS/vmlinuz
 initrd  /Drauger_OS/initrd.img
 options root=PARTUUID=\$UUID \${ROOTFLAGS}
 EOF
+	cat << EOF > /boot/efi/loader/entries/Drauger_OS_Recovery.conf
+title   Drauger OS Recovery
+linux   /Drauger_OS/vmlinuz
+initrd  /Drauger_OS/initrd.img
+options root=PARTUUID=\$UUID \${RECOVERY_FLAGS}
+EOF
 done
 
 
@@ -95,6 +102,12 @@ title   Drauger OS \${VERSION}
 linux   /Drauger_OS/vmlinuz\${VERSION}
 initrd  /Drauger_OS/initrd.img\${VERSION}
 options root=PARTUUID=\$UUID \${ROOTFLAGS}
+EOF
+			cat << EOF > /boot/efi/loader/entries/Drauger_OS_Recovery.conf
+title   Drauger OS \${VERSION} Recovery
+linux   /Drauger_OS/vmlinuz\${VERSION}
+initrd  /Drauger_OS/initrd.img\${VERSION}
+options root=PARTUUID=\$UUID \${RECOVERY_FLAGS}
 EOF
 	    done
 	done
