@@ -17,7 +17,7 @@ System Installer for Drauger OS.
  * Add PPAs inside the installer, post installation
  * `chroot` access to the installed system, from within the installer
  * Quick-install config file support
- * One of the *fastest* installation utilities in Linux today (2-to-3 minutes (ish) on a quad-core CPU with 4 GB of RAM and decent, reliable internet)
+ * One of the *fastest* installation utilities in Linux today (2-to-3 minutes (ish)) on a quad-core CPU with 4 GB of RAM and decent, reliable internet)
  
  
  Development
