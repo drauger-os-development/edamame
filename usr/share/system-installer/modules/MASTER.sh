@@ -183,8 +183,8 @@ udevadm trigger --subsystem-match=input --action=change
 			echo "### WARNING: CANNOT INSTALL systemd-boot. USER MUST MANUALLY INSTALL BOOTLOADER. ###"
 		fi
 	else
-		grub-mkdevicemap
-		grub-install --force --target=i386-pc "$ROOT"
+		grub-mkdevicemap --verbose
+		grub-install --verbose --force --core-compress=xz --target=i386-pc "$ROOT"
 		grub-mkconfig -o /boot/grub/grub.cfg
 	fi
 	sleep 1s

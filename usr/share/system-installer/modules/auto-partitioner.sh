@@ -42,7 +42,7 @@ if [ "$EFI" == "True" ]; then
 	mkfs.ext4 "$PART2" 1>&2
 	echo "EFI:$PART1 ROOT:$PART2"
 else
-	parted --script "$INSTALL_DISK" mktabel gpt mkpart primary ext4 1M "$SIZE" 1>&2
+	parted --script "$INSTALL_DISK" mktabel msdos mkpart primary ext4 1M "$SIZE" 1>&2
 	mkfs.ext4 "$PART1" 1>&2
 	echo "EFI:NULL ROOT:$PART1"
 fi
