@@ -5,3 +5,6 @@ List of known bugs
 - Consistent false positives
 - `chroot` is not opening when user requests access to it post-install
 - `GRUB` is not cooperating, thus we cannot install in BIOS
+- systems with 16+ drives in them cannot have root on the 16th drive during installation
+	- This is due to a parsing issue when installing to the correct NVMe drive
+	- See Step 12 during GRUB installation in MASTER.sh for what is causing this issue

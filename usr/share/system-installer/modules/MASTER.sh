@@ -183,8 +183,10 @@ udevadm trigger --subsystem-match=input --action=change
 			echo "### WARNING: CANNOT INSTALL systemd-boot. USER MUST MANUALLY INSTALL BOOTLOADER. ###"
 		fi
 	else
+		ROOT=$(echo "$ROOT" | sed 's/[0-9]$//')
+		ROOT=$(echo "$ROOT" | sed 's/p$//') #This WILL cause bugs in systems with more than 16 drives if ROOT is on the 16th drives
 		grub-mkdevicemap --verbose
-		grub-install --verbose --force --core-compress=xz --target=i386-pc "$ROOT"
+		grub-install --verbose --force --target=i386-pc "$ROOT"
 		grub-mkconfig -o /boot/grub/grub.cfg
 	fi
 	sleep 1s
