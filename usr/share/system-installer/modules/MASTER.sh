@@ -103,8 +103,8 @@ if [ "$LOGIN" == "0" ]; then
 fi
 #STEP 10: Kernel, Plymouth, Initramfs
 echo "DOING SOME QUICK CLEAN UP BEFORE SETTING UP INITRAMFS AND GRUB" 1>&2
-update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth /usr/share/plymouth/themes/drauger-theme/drauger-theme.plymouth 100 --slave /usr/share/plymouth/themes/default.grub default.plymouth.grub /usr/share/plymouth/themes/drauger-theme/drauger-theme.grub
-echo -e "2\n" | update-alternatives --config default.plymouth
+update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth /usr/share/plymouth/themes/drauger-theme/drauger-theme.plymouth 100 --slave /usr/share/plymouth/themes/default.grub default.plymouth.grub /usr/share/plymouth/themes/drauger-theme/drauger-theme.grub 1>&2
+echo -e "2\n" | update-alternatives --config default.plymouth 1>&2
 echo "86"
 if [ "$EFI" != "NULL" ]; then
 	remove="grub-efi grub-pc-bin grub-efi-amd64 grub-efi-amd64-bin"
@@ -143,7 +143,7 @@ echo "87"
 # God fucking damn it humanity. Why are there so many keyboard layouts?
 # I hope I only REALLY need to support one of these for each major language
 KEYBOARD_CONFIG_DATA=$(</usr/share/X11/xkb/rules/base.lst)
-rm /etc/default/keyboard
+rm /etc/default/keyboard 1>&2
 XKBMODEL=$(echo "$KEYBOARD_CONFIG_DATA" | grep "$MODEL" | awk '{print $1}')
 XKBLAYOUT=$(echo "$KEYBOARD_CONFIG_DATA" | grep "$LAYOUT" | awk '{print $1}')
 XKBVARIENT=$(echo "$KEYBOARD_CONFIG_DATA" | grep "$VARIENT" | awk '{print $1}')
@@ -156,7 +156,7 @@ BACKSPACE=\"guess\"
 " > /etc/default/keyboard
 
 # This is the final step to get shit to be seen by X, not really necessary, but imma do it just in case
-udevadm trigger --subsystem-match=input --action=change
+udevadm trigger --subsystem-match=input --action=change 1>&2
 # And lets hope to god all that worked
 #STEP 12: Bootloader
 {
@@ -165,19 +165,19 @@ udevadm trigger --subsystem-match=input --action=change
 	if [ "$EFI" != "NULL" ]; then
 		#systemd-boot
 		if [ -d /sys/firmware/efi/efivars ]; then
-			mkdir -p /boot/efi/loader/entries /boot/efi/Drauger_OS
+			mkdir -p /boot/efi/loader/entries /boot/efi/Drauger_OS 1>&2
 			export SYSTEMD_RELAX_ESP_CHECKS=1
 			echo "export SYSTEMD_RELAX_ESP_CHECKS=1" >> /etc/environment
-			bootctl --path=/boot/efi install
+			bootctl --path=/boot/efi install 1>&2
 			echo -e "default Drauger_OS\ntimeout 5\neditor 1" > /boot/efi/loader/loader.conf
 			chattr -i /boot/efi/loader/loader.conf
 			#set up kernel version hook
 			. /systemd-boot-config.sh "$ROOT"
 			#Update the initramfs? At this point we get dropped at an initramfs prompt so it's something wrong there.
-			mkinitramfs -o /boot/initrd.img-"$(uname --release)"
+			mkinitramfs -o /boot/initrd.img-"$(uname --release)" 1>&2
 			#copy over the kernel and initramfs
-			cp /boot/vmlinuz-"$(uname --release)" /boot/efi/vmlinuz
-			cp /boot/initrd.img-"$(uname --release)" /boot/efi/initrd.img
+			cp /boot/vmlinuz-"$(uname --release)" /boot/efi/vmlinuz 1>&2
+			cp /boot/initrd.img-"$(uname --release)" /boot/efi/initrd.img 1>&2
 
 		else
 			echo "### WARNING: CANNOT INSTALL systemd-boot. USER MUST MANUALLY INSTALL BOOTLOADER. ###"
@@ -185,13 +185,13 @@ udevadm trigger --subsystem-match=input --action=change
 	else
 		ROOT=$(echo "$ROOT" | sed 's/[0-9]$//')
 		ROOT=$(echo "$ROOT" | sed 's/p$//') #This WILL cause bugs in systems with more than 16 drives if ROOT is on the 16th drives
-		grub-mkdevicemap --verbose
-		grub-install --verbose --force --target=i386-pc "$ROOT"
-		grub-mkconfig -o /boot/grub/grub.cfg
+		grub-mkdevicemap --verbose 1>&2
+		grub-install --verbose --force --target=i386-pc "$ROOT" 1>&2
+		grub-mkconfig -o /boot/grub/grub.cfg 1>&2
 	fi
 	sleep 1s
-	ln /boot/initrd.img-"$(uname --release)" /boot/initrd.img
-	ln /boot/vmlinuz-"$(uname --release)" /boot/vmlinuz
+	ln /boot/initrd.img-"$(uname --release)" /boot/initrd.img 1>&2
+	ln /boot/vmlinuz-"$(uname --release)" /boot/vmlinuz 1>&2
 } 1>&2
 #STEP 13: remove launcher icon
 list=$(ls /home/$USERNAME/.config/xfce4/panel/launcher-* | grep ':$' | sed 's/://g')
@@ -199,7 +199,7 @@ for each in $list; do
 	list2=$(ls /home/$USERNAME/.config/xfce4/panel/$each)
 	for each1 in $list2; do
 		if $(grep -q "Install Drauger OS" /home/$USERNAME/.config/xfce4/panel/$each/$each1); then
-			rm -rf "/home/$USERNAME/.config/xfce4/panel/$each"
+			rm -rf "/home/$USERNAME/.config/xfce4/panel/$each" 1>&2
 		fi
 	done
 done

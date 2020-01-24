@@ -182,7 +182,7 @@ check=$(ls /mnt/boot/vmlinuz*)
 if [ "$check" == ""  ]; then
 	echo "	### KERNEL NOT INSTALLED. CORRECTING . . .	###	" 1>&2
 	cp /usr/share/system-installer/modules/kernel.7z /mnt/
-	arch-chroot /mnt "bash -c '7z x /kernel.7z; dpkg -R --install /kernel/'" 1>&2
+	arch-chroot /mnt "bash -c '7z x /kernel.7z; dpkg -R --install /kernel/'"
 	rm -rf /mnt/kernel /mnt/kernel.7z
 fi
 #check to make sure systemd-boot got configured

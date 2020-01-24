@@ -37,13 +37,18 @@ else
 	PART2="$INSTALL_DISK"2
 fi
 if [ "$EFI" == "True" ]; then
-	parted --script "$INSTALL_DISK" mktable gpt mkpart primary fat32 1M 201M mkpart primary ext4 201M "$SIZE" 1>&2
-	mkfs.fat -F 32 "$PART1" 1>&2
-	mkfs.ext4 "$PART2" 1>&2
+	# we need 2 partitions: /boot/efi and /
+	# we make /boot/efi first, then /
+	parted --script "$INSTALL_DISK" mktable gpt mkpart primary fat32 0% 200M set 1 boot on 1>&2
+	parted --script "$INSTALL_DISK" mkpart primary ext4 201M 100% set 1 root on 1>&2
+	#apply FS on both, use "builtin echo -e "y\n"" piped into mkfs.fat and mkfs.ext4 to force it to make the FS
+	builtin echo -e "y\n" | mkfs.fat -F 32 "$PART1" 1>&2
+	builtin echo -e "y\n" | mkfs.ext4 "$PART2" 1>&2
 	echo "EFI:$PART1 ROOT:$PART2"
 else
-	parted --script "$INSTALL_DISK" mktabel msdos mkpart primary ext4 1M "$SIZE" 1>&2
-	mkfs.ext4 "$PART1" 1>&2
+	#only need one partition cause we are using BIOS
+	parted --script "$INSTALL_DISK" mktabel msdos mkpart primary ext4 0% 100% set 1 legacy_boot on set 1 root on 1>&2
+	builtin echo -e "y\n" | mkfs.ext4 "$PART1" 1>&2
 	echo "EFI:NULL ROOT:$PART1"
 fi
 partprobe
