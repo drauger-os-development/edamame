@@ -89,9 +89,9 @@ cd /mnt
 	#cleaning the long way in order to handle some bugs
 	list=$(ls -A)
 	for each in $list; do
-		if [ "$each" != "boot" ]; then
+		if [ "$each" != "boot" ] || [ "$each" != "home" ]; then
 			rm -rf "$each"
-		else
+		elif [ "$each" == "boot" ]; then
 			cd boot
 			list2=$(ls -A)
 			for each2 in $list2; do
@@ -102,6 +102,8 @@ cd /mnt
 				fi
 			done
 			cd ..
+		elif [ "$each" == "home" ]; then
+			echo "EXEMPTING CLEANING OF /home"
 		fi
 	done
 } 1>&2

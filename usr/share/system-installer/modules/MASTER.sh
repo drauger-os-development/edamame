@@ -45,6 +45,22 @@ MODEL=${SETTINGS[10]}
 LAYOUT=${SETTINGS[11]}
 VARIENT=${SETTINGS[12]}
 echo "39"
+#STEP 0: Export global variables
+# this will be useful as system-installer becomes more modular
+export LANG_SET="$LANG_SET"
+export TIME_ZONE="$TIME_ZONE"
+export USERNAME="$USERNAME"
+# I would love to encrypt this somehow, but the program would have to auto-decrypt this for any hackers so we kinda screwed for  now
+export PASSWORD="$PASSWORD"
+export COMP_NAME="$COMP_NAME"
+export EXTRAS="$EXTRAS"
+export UPDATES="$UPDATES"
+export EFI="$EFI"
+export ROOT="$ROOT"
+export LOGIN="$LOGIN"
+export MODEL="$MODEL"
+export LAYOUT="$LAYOUT"
+export VARIENT="$VARIENT"
 #STEP 1: Check for internet
 function check_internet ()
 {
