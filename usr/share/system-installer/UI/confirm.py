@@ -21,12 +21,16 @@
 #  MA 02110-1301, USA.
 #
 #
+from __future__ import print_function
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from sys import argv
 SETTINGS = argv[1]
 SETTINGS = SETTINGS.split(" , ")
+
+def eprint(*args, **kwargs):
+	print(*args, file=sys.stderr, **kwargs)
 
 # Partitioning settings
 AUTO_PART = SETTINGS[0]
