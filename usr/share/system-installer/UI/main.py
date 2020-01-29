@@ -21,12 +21,16 @@
 #  MA 02110-1301, USA.
 #
 #
+from __future__ import print_function
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk
 import re
 from subprocess import Popen, check_output, DEVNULL
-from os import getcwd, chdir, path
+from os import getcwd, chdir, path, listdir
+
+def eprint(*args, **kwargs):
+	print(*args, file=sys.stderr, **kwargs)
 
 def hasnumbers(inputString):
 	return any(char.isdigit() for char in inputString)
@@ -57,15 +61,49 @@ def hasspace(inputString):
 	else:
 		return False
 
+config_dir = listdir("/etc/system-installer")
+for each in range(len(config_dir)):
+	if (config_dir[each] == "quick-install-template.config"):
+		del(config_dir[each])
+		if (len(config_dir) == 1):
+			break
+		else:
+			for each1 in range(len(config_dir)):
+				if (config_dir[each1] == "default.config"):
+					del(config_dir[each])
+					if (len(config_dir) != 1):
+						eprint("More than one custom config file in /etc/system-installer is not supported.")
+						eprint("Please remove all but one and try again.")
+						eprint("'default.config' and 'quick-install-template.config' may remain though.")
+						exit(2)
+					else:
+						break
+			break
+
+with open("/etc/system-installer/%s" % (config_dir[0])) as config_file:
+	config = config_file.read()
+
+config = config.split("\n")
+while("" in config) :
+    config.remove("")
+for each in range(len(config)):
+	config[each] = config[each].split("=")
+for each in config:
+	if ((each[0] == "distro") or (each[0] == "Distro") or (each[0] == "DISTRO")):
+		DISTRO = each[1]
+
+DISTRO = DISTRO.split("_")
+DISTRO = " ".join(DISTRO)
+
 
 default = """
-	Welcome to the Drauger OS System Installer!
+	Welcome to the %s System Installer!
 
 	A few things before we get started:
 
 	<b>PARTITIONING</b>
 
-	The Drauger OS System Installer places all partitons at the beginning of the drive\t
+	The %s System Installer places all partitons at the beginning of the drive\t
 	when doing manual partitoning.
 	It is advised to account for this if installing next to another OS.
 	If using automatic partitoning, it uses all of the drives in your system
@@ -73,9 +111,10 @@ default = """
 
 	<b>ALPHA WARNING</b>
 
-	The Drauger OS System Installer is currently in alpha.
+	The %s System Installer is currently in alpha.
 	Expect bugs.
-	"""
+	""" % (DISTRO, DISTRO, DISTRO)
+
 keyboard_completion = "TO DO"
 user_completion = "TO DO"
 part_completion = "TO DO"
@@ -391,13 +430,13 @@ class main(Gtk.Window):
 
 		self.label = Gtk.Label()
 		self.label.set_markup("""
-	Would you like to let Drauger OS automaticly partition a drive for installation?\t
+	Would you like to let %s automaticly partition a drive for installation?\t
 	Or, would you like to manually partition space for it?\t
 
 	<b>NOTE</b>
 	Auto partitioning takes up an entire drive. If you are uncomfortable with this,\t
 	please either manually partition your drive, or abort installation now.\t
-	""")
+	""" % (DISTRO))
 		self.label.set_justify(Gtk.Justification.LEFT)
 		self.grid.attach(self.label, 1, 1, 5, 1)
 

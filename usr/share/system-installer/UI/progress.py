@@ -54,11 +54,6 @@ class main(Gtk.Window):
 		self.text.set_cursor_visible(False)
 		self.text.set_monospace(True)
 
-		#self.file = open("/home/batcastle/Documents/.running-time.log")
-		#self.file.read()
-		#self.file.close()
-		self.grid.attach(self.text, 1, 3, 1, 1)
-
 
 	def pulse(self):
 		print("pulse")

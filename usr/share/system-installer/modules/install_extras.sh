@@ -27,7 +27,6 @@ set -e
 apt update 1>&2
 set +e
 toinstall=""
-toremove=""
 if $(lspci | grep -iq "nvidia"); then
 	list=$(apt search nvidia-driver 2>/dev/null | grep '^nvidia-driver-*' | sed 's/nvidia-driver-//g' | sed 's/\// /g' | awk '{print $1}')
 	greatest=$(echo "${list[*]}" | sort -nr | head -n1)

@@ -22,8 +22,6 @@
 #
 #
 echo "	###	make_user.sh STARTED	###	" 1>&2
-USERNAME="$1"
-PASS="$2"
 echo "49"
 #change live user to $USERNAME
 usermod -l "$USERNAME" live 1>&2
@@ -47,7 +45,7 @@ echo "54"
 new_contents=$(cat /etc/lightdm/lightdm.conf | grep -v 'autologin')
 echo "$new_contents" > /etc/lightdm/lightdm.conf
 #change password
-echo "$USERNAME:$PASS" | chpasswd
+echo "$USERNAME:$PASSWORD" | chpasswd
 echo "55"
 echo "	###	make_user.sh CLOSED	###	" 1>&2
 

@@ -24,7 +24,6 @@
 echo "	###	set_locale.sh STARTED	###	" 1>&2
 #set -e
 #set -o pipefail
-set_LANG="$1"
 setlocale ()
 {
 	sed -i 's/# $1.UTF-8 UTF-8/$1.UTF-8 UTF-8/g' /etc/locale.gen
@@ -35,25 +34,25 @@ setlocale ()
 	echo "43"
 }
 echo "40"
-if [ "$set_LANG" == "english" ]; then
+if [ "$LANG_SET" == "english" ]; then
 	setlocale "en_US"
-elif [ "$set_LANG" == "chinese" ]; then
+elif [ "$LANG_SET" == "chinese" ]; then
 	setlocale "zh_CN"
-elif [ "$set_LANG" == "japanese" ]; then
+elif [ "$LANG_SET" == "japanese" ]; then
 	setlocale "ja_JP"
-elif [ "$set_LANG" == "spanish" ]; then
+elif [ "$LANG_SET" == "spanish" ]; then
 	setlocale "es_ES"
-elif [ "$set_LANG" == "hindi" ]; then
+elif [ "$LANG_SET" == "hindi" ]; then
 	setlocale "hi_IN"
-elif [ "$set_LANG" == "german" ]; then
+elif [ "$LANG_SET" == "german" ]; then
 	setlocale "de_DE"
-elif [ "$set_LANG" == "french" ]; then
+elif [ "$LANG_SET" == "french" ]; then
 	setlocale "fr_CA"
-elif [ "$set_LANG" == "italian" ]; then
+elif [ "$LANG_SET" == "italian" ]; then
 	setlocale "it_IT"
-elif [ "$set_LANG" == "korean" ]; then
+elif [ "$LANG_SET" == "korean" ]; then
 	setlocale "ko_KR"
-elif [ "$set_LANG" == "russian" ]; then
+elif [ "$LANG_SET" == "russian" ]; then
 	setlocale "ru_RU"
 else
 	echo "No locale set. Defaulting to en_US.UTF-8" 1>&2

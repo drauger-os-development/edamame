@@ -21,7 +21,6 @@
 #  MA 02110-1301, USA.
 #
 #
-ROOT="$1"
 echo "	###	systemd-boot-config.sh STARTED	###	" 1>&2
 mkdir -p /etc/kernel/postinst.d /etc/kernel/postrm.d
 echo "#!/bin/bash

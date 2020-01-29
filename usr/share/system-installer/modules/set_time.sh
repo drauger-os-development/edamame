@@ -26,7 +26,6 @@ settime () {
 	ln -sf /usr/share/zoneinfo/Etc/"$1" /etc/localtime
 }
 echo "40"
-TIME_ZONE="$1"
 if [ "$TIME_ZONE" == "GMT" ]; then
 	settime "GMT"
 elif [ "$TIME_ZONE" == "ECT" ]; then
