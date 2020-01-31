@@ -87,25 +87,30 @@ cd /mnt
 {
 	echo "CLEANING INSTALLATION DIRECTORY."
 	#cleaning the long way in order to handle some bugs
-	list=$(ls -A)
-	for each in $list; do
-		if [ "$each" != "boot" ] || [ "$each" != "home" ]; then
-			rm -rf "$each"
-		elif [ "$each" == "boot" ]; then
-			cd boot
-			list2=$(ls -A)
-			for each2 in $list2; do
-				if [ "$each2" != "efi" ]; then
-					rm -rf "$each2"
-				else
-					rm -rf efi/*
-				fi
-			done
-			cd ..
-		elif [ "$each" == "home" ]; then
-			echo "EXEMPTING CLEANING OF /home"
-		fi
-	done
+#	list=$(ls -A)
+#	for each in $list; do
+#		if [ "$each" != "boot" ] || [ "$each" != "home" ]; then
+#			rm -rf "$each"
+#		elif [ "$each" == "boot" ]; then
+#			cd boot
+#			list2=$(ls -A)
+#			for each2 in $list2; do
+#				if [ "$each2" != "efi" ]; then
+#					rm -rf "$each2"
+#				else
+#					rm -rf efi/*
+#				fi
+#			done
+#			cd ..
+#		elif [ "$each" == "home" ]; then
+#			echo "EXEMPTING CLEANING OF /home"
+#		fi
+#	done
+	# This should be a much faster and more robust way of performing this action
+	rm -vrf !("boot"|"home") # it has been tested that this WILL NOT delete the contents of "home", rest assured, your data is safe.
+	cd boot
+	rm -vrf !("efi")
+	cd ..
 } 1>&2
 echo "EXTRACTING SQUASHFS" 1>&2
 unsquashfs "$SQUASHFS" 1>/dev/null
