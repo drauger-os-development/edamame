@@ -7,3 +7,4 @@ List of known bugs
 - systems with 16+ drives in them cannot have root on the 16th drive during installation
 	- This is due to a parsing issue when installing to the correct NVMe drive
 	- See Step 12 during GRUB installation in MASTER.sh for what is causing this issue
+- installer.sh only supports default.config for now

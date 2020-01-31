@@ -3,7 +3,7 @@
 #
 #  system-installer
 #
-#  Copyright 2019 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2020 Thomas Castleman <contact@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 #
 from sys import argv
 argc = len(argv)
-VERSION = "0.7.1-alpha8"
+VERSION = "0.7.2-alpha8"
 HELP = "\nsystem-installer, Version %s\n\n\t-h, --help\tprint this help dialoge.\n\t-v, --version\tprint current version.\n\nPass nothing to start installer.\n"
 if (argc > 1):
 	if (argv[1] == "-v" or argv[1] == "--version"):

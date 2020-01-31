@@ -3,7 +3,7 @@
 #
 #  installer.sh
 #
-#  Copyright 2019 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2020 Thomas Castleman <contact@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -76,7 +76,7 @@ else
 fi
 echo "14"
 #STEP 3: Unsquash the sqaushfs and get the files where they need to go
-SQUASHFS=$(cat /etc/system-installer/default.config | sed 's/squashfs_Location=//')
+SQUASHFS=$(grep 'squashfs_Location=' /etc/system-installer/default.config | sed 's/squashfs_Location=//')
 if [ "$SQUASHFS" == "" ] || [ ! -f "$SQUASHFS" ]; then
 	echo "SQUASHFS FILE DOES NOT EXIST" 1>&2
 	/usr/share/system-installer/UI/error.py "SQUASHFS FILE DOES NOT EXIST"
