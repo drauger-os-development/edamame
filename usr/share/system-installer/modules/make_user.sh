@@ -3,7 +3,7 @@
 #
 #  make_user.sh
 #
-#  Copyright 2019 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2020 Thomas Castleman <contact@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ echo "Fixing refrences to old home . . ." 1>&2
 list=$(grep -IRFl /home/live 2>/dev/null)
 for each in $list; do
 	echo "$each" 1>&2
-	sed -i "s/\/home\/live/\/home\/$USERNAME/g" "$each"
+	sed -i "s:/home/live:/home/$USERNAME:g" "$each"
 done
 cd /
 echo "51"

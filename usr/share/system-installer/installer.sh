@@ -107,9 +107,9 @@ cd /mnt
 #		fi
 #	done
 	# This should be a much faster and more robust way of performing this action
-	rm -vrf !("boot"|"home") # it has been tested that this WILL NOT delete the contents of "home", rest assured, your data is safe.
+	rm -vrf --one-file-system $(ls -A | grep -vE "boot|home"
 	cd boot
-	rm -vrf !("efi")
+	rm -vrf --one-file-system $(ls -A | grep -v "efi")
 	cd ..
 } 1>&2
 echo "EXTRACTING SQUASHFS" 1>&2
