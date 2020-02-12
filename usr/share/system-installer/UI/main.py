@@ -3,7 +3,7 @@
 #
 #  main.py
 #
-#  Copyright 2019 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2020 Thomas Castleman <contact@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -28,9 +28,10 @@ from gi.repository import Gtk, Gdk
 import re
 from subprocess import Popen, check_output, DEVNULL
 from os import getcwd, chdir, path, listdir
+from sys import stderr
 
 def eprint(*args, **kwargs):
-	print(*args, file=sys.stderr, **kwargs)
+	print(*args, file=stderr, **kwargs)
 
 def hasnumbers(inputString):
 	return any(char.isdigit() for char in inputString)
@@ -61,39 +62,45 @@ def hasspace(inputString):
 	else:
 		return False
 
-config_dir = listdir("/etc/system-installer")
-for each in range(len(config_dir)):
-	if (config_dir[each] == "quick-install-template.config"):
-		del(config_dir[each])
-		if (len(config_dir) == 1):
-			break
-		else:
-			for each1 in range(len(config_dir)):
-				if (config_dir[each1] == "default.config"):
-					del(config_dir[each])
-					if (len(config_dir) != 1):
-						eprint("More than one custom config file in /etc/system-installer is not supported.")
-						eprint("Please remove all but one and try again.")
-						eprint("'default.config' and 'quick-install-template.config' may remain though.")
-						exit(2)
-					else:
-						break
-			break
 
-with open("/etc/system-installer/%s" % (config_dir[0])) as config_file:
-	config = config_file.read()
+try:
+	config_dir = listdir("/etc/system-installer")
+	for each in range(len(config_dir)):
+		if (config_dir[each] == "quick-install-template.config"):
+			del(config_dir[each])
+			if (len(config_dir) == 1):
+				break
+			else:
+				for each1 in range(len(config_dir)):
+					if (config_dir[each1] == "default.config"):
+						del(config_dir[each])
+						if (len(config_dir) != 1):
+							eprint("More than one custom config file in /etc/system-installer is not supported.")
+							eprint("Please remove all but one and try again.")
+							eprint("'default.config' and 'quick-install-template.config' may remain though.")
+							exit(2)
+						else:
+							break
+				break
+	with open("/etc/system-installer/%s" % (config_dir[0])) as config_file:
+		config = config_file.read()
 
-config = config.split("\n")
-while("" in config) :
-    config.remove("")
-for each in range(len(config)):
-	config[each] = config[each].split("=")
-for each in config:
-	if ((each[0] == "distro") or (each[0] == "Distro") or (each[0] == "DISTRO")):
-		DISTRO = each[1]
+	config = config.split("\n")
+	while("" in config) :
+		config.remove("")
+	for each in range(len(config)):
+		config[each] = config[each].split("=")
+	for each in config:
+		if ((each[0] == "distro") or (each[0] == "Distro") or (each[0] == "DISTRO")):
+			DISTRO = each[1]
 
-DISTRO = DISTRO.split("_")
-DISTRO = " ".join(DISTRO)
+	DISTRO = DISTRO.split("_")
+	DISTRO = " ".join(DISTRO)
+except:
+	eprint("/etc/system-installer does not exist. In testing?")
+	DISTRO = "Drauger OS"
+
+
 
 
 default = """
@@ -459,21 +466,21 @@ class main(Gtk.Window):
 		self.auto_part_setting = True
 
 		# Get a list of disks and their capacity
-		DEVICES = str(check_output(["lsblk","-n","-i","-o","NAME,SIZE,TYPE"]))
-		DEVICES = list(DEVICES)
-		del(DEVICES[1])
-		del(DEVICES[0])
-		del(DEVICES[len(DEVICES) - 1])
-		DEVICES = "".join(DEVICES)
-		DEVICES = DEVICES.split("\\n")
+		self.DEVICES = str(check_output(["lsblk","-n","-i","-o","NAME,SIZE,TYPE"]))
+		self.DEVICES = list(self.DEVICES)
+		del(self.DEVICES[1])
+		del(self.DEVICES[0])
+		del(self.DEVICES[len(self.DEVICES) - 1])
+		self.DEVICES = "".join(self.DEVICES)
+		self.DEVICES = self.DEVICES.split("\\n")
 		DEV = []
-		for each in range(len(DEVICES)):
-			if ("loop" in DEVICES[each]):
+		for each in range(len(self.DEVICES)):
+			if ("loop" in self.DEVICES[each]):
 				continue
-			elif ("part" in DEVICES[each]):
+			elif ("part" in self.DEVICES[each]):
 				continue
 			else:
-				DEV.append(DEVICES[each])
+				DEV.append(self.DEVICES[each])
 		DEVICES = []
 		for each in DEV:
 			DEVICES.append(each.split())
@@ -504,17 +511,76 @@ class main(Gtk.Window):
 			self.disks.set_active_id(self.root_setting)
 		self.grid.attach(self.disks, 1, 2, 2, 1)
 
+		self.home_part = Gtk.CheckButton.new_with_label("Seperate home partition")
+		if ((self.home_setting != "") and (self.home_setting != "NULL")):
+			self.home_part.set_active(True)
+		self.home_part.connect("toggled",self.auto_home_setup)
+		self.grid.attach(self.home_part, 1, 3, 2, 1)
+
 		self.button1 = Gtk.Button.new_with_label("Okay -->")
 		self.button1.connect("clicked", self.onnext6clicked)
-		self.grid.attach(self.button1, 3, 3, 1, 1)
+		self.grid.attach(self.button1, 3, 6, 1, 1)
 
 		self.button2 = Gtk.Button.new_with_label("Exit")
 		self.button2.connect("clicked", self.exit)
-		self.grid.attach(self.button2, 2, 3, 1, 1)
+		self.grid.attach(self.button2, 2, 6, 1, 1)
 
 		self.button3 = Gtk.Button.new_with_label("<-- Back")
 		self.button3.connect("clicked", self.partitioning)
-		self.grid.attach(self.button3, 1, 3, 1, 1)
+		self.grid.attach(self.button3, 1, 6, 1, 1)
+
+		self.show_all()
+
+	def auto_home_setup(self,widget):
+		if (self.home_part.get_active() == 1):
+			self.pre_exist = Gtk.CheckButton.new_with_label("Pre-existing")
+			self.pre_exist.connect("toggled",self.auto_home_setup2)
+			self.grid.attach(self.pre_exist, 1, 4, 2, 1)
+
+			self.home_setting = "MAKE"
+		else:
+			self.grid.remove(self.pre_exist)
+			self.home_setting = ""
+
+		self.show_all()
+
+	def auto_home_setup2(self,widget):
+
+		if (self.pre_exist.get_active() == 1):
+			DEV = []
+			for each in range(len(self.DEVICES)):
+				if ("loop" in self.DEVICES[each]):
+					continue
+				elif ("disk" in self.DEVICES[each]):
+					continue
+				else:
+					DEV.append(self.DEVICES[each])
+			DEVICES = []
+			for each in DEV:
+				DEVICES.append(each.split())
+			DEVICES = [x for x in DEVICES if x != []]
+			for each in DEVICES:
+				if (each[0] == "sr0"):
+					DEVICES.remove(each)
+			for each in range(len(DEVICES)):
+				DEVICES[each].remove(DEVICES[each][2])
+			for each in range(len(DEVICES)):
+				DEVICES[each][0] = list(DEVICES[each][0])
+				del(DEVICES[each][0][0])
+				del(DEVICES[each][0][0])
+				DEVICES[each][0] = "".join(DEVICES[each][0])
+			for each in range(len(DEVICES)):
+				DEVICES[each][0] = "/dev/%s" % (DEVICES[each][0])
+
+			self.parts = Gtk.ComboBoxText.new()
+			for each in range(len(DEVICES)):
+				self.parts.append("%s" % (DEVICES[each][0]), "%s	Size: %s" % (DEVICES[each][0], DEVICES[each][1]))
+			if (self.home_setting != ""):
+				self.parts.set_active_id(self.home_setting)
+			self.grid.attach(self.parts, 1, 5, 2, 1)
+		else:
+			self.grid.remove(self.parts)
+			self.home_setting ="MAKE"
 
 		self.show_all()
 

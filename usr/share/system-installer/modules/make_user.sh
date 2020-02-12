@@ -27,23 +27,25 @@ echo "49"
 usermod -l "$USERNAME" live 1>&2
 groupmod -n "$USERNAME" live 1>&2
 echo "50"
-#change refrences from old home to new
-cd /home
-echo "Fixing refrences to old home . . ." 1>&2
-list=$(grep -IRFl /home/live 2>/dev/null)
-for each in $list; do
-	echo "$each" 1>&2
-	sed -i "s:/home/live:/home/$USERNAME:g" "$each"
-done
-cd /
+if $(ls /home | grep -q "$USERNAME");
+	#check to see if the user has a home folder already. 
+	echo "Original home folder found. Substituting it in . . ." 1>&2
+	rm -rfv /home/live 1>&2
+else
+	#change refrences from old home to new
+	echo "Fixing refrences to old home . . ." 1>&2
+	list=$(grep -IRFl /home/live 2>/dev/null)
+	for each in $list; do
+		echo "$each" 1>&2
+		sed -i "s:/home/live:/home/$USERNAME:g" "$each"
+	done
+	cd /
+	#rename home directory
+	mv /home/live /home/"$USERNAME"
+fi
 echo "51"
-#rename home directory
-mv /home/live /home/"$USERNAME"
 sed -i "s/live/$USERNAME/g" /etc/passwd
 echo "54"
-#Disable autologin
-new_contents=$(cat /etc/lightdm/lightdm.conf | grep -v 'autologin')
-echo "$new_contents" > /etc/lightdm/lightdm.conf
 #change password
 echo "$USERNAME:$PASSWORD" | chpasswd
 echo "55"

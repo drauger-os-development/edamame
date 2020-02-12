@@ -3,7 +3,7 @@
 #
 #  auto-partioner.sh
 #
-#  Copyright 2019 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2020 Thomas Castleman <contact@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -26,30 +26,45 @@ set -e
 set -o pipefail
 INSTALL_DISK="$1"
 EFI="$2"
+HOME_DATA="$3"
 SIZE=$(lsblk | grep $(echo "$INSTALL_DISK" | sed 's:/dev/::g') | grep 'disk' | awk '{print $4}')
 echo " ### WARNING: DD-ING DRIVE. NO DATA WILL BE RECOVERABLE. ### " 1>&2
 dd if=/dev/zero of="$INSTALL_DISK" count=1 bs=512 1>&2
 if $(echo "$INSTALL_DISK" | grep -q "nvme"); then
 	PART1="$INSTALL_DISK"p1
 	PART2="$INSTALL_DISK"p2
+	PART3="$INSTALL_DISK"p3
 else
 	PART1="$INSTALL_DISK"1
 	PART2="$INSTALL_DISK"2
+	PART3="$INSTALL_DISK"3
 fi
 if [ "$EFI" == "True" ]; then
 	# we need 2 partitions: /boot/efi and /
 	# we make /boot/efi first, then /
 	parted --script "$INSTALL_DISK" mktable gpt mkpart primary fat32 0% 200M set 1 boot on 1>&2
 	parted --script "$INSTALL_DISK" mkpart primary ext4 201M 100% set 1 root on 1>&2
+	if [[ "$HOME_DATA" == "MAKE" ]]; then
+		#Make home partition
+	else
+		#don't make one. Reset $PART3
+		PART3="$HOME_DATA"
+	fi
 	#apply FS on both, use "builtin echo -e "y\n"" piped into mkfs.fat and mkfs.ext4 to force it to make the FS
 	builtin echo -e "y\n" | mkfs.fat -F 32 "$PART1" 1>&2
 	builtin echo -e "y\n" | mkfs.ext4 "$PART2" 1>&2
-	echo "EFI:$PART1 ROOT:$PART2"
+	echo "EFI:$PART1 ROOT:$PART2 HOME:$PART3"
 else
 	#only need one partition cause we are using BIOS
 	parted --script "$INSTALL_DISK" mktabel msdos mkpart primary ext4 0% 100% set 1 legacy_boot on set 1 root on 1>&2
+	if [[ "$HOME_DATA" == "MAKE" ]]; then
+		#Make home partition
+	else
+		#don't make one. Reset $PART3
+		PART3="$HOME_DATA"
+	fi
 	builtin echo -e "y\n" | mkfs.ext4 "$PART1" 1>&2
-	echo "EFI:NULL ROOT:$PART1"
+	echo "EFI:NULL ROOT:$PART1 HOME:$PART3"
 fi
 partprobe
 echo "	###	auto-partioner.sh CLOSED	###	" 1>&2

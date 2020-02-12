@@ -49,9 +49,10 @@ LAYOUT=${SETTINGS[14]}
 VARIENT=${SETTINGS[15]}
 #STEP 1: Partion and format the drive
 if [ "$AUTO_PART" == "True" ]; then
-	PARTITIONING=$(/usr/share/system-installer/modules/auto-partitioner.sh "$ROOT" "$EFI")
+	PARTITIONING=$(/usr/share/system-installer/modules/auto-partitioner.sh "$ROOT" "$EFI" "$HOME_DATA")
 	ROOT=$(echo "$PARTITIONING" | awk '{print $2}' | sed 's/:/ /g' | awk '{print $2}')
 	EFI=$(echo "$PARTITIONING" | awk '{print $1}' | sed 's/:/ /g' | awk '{print $2}')
+	HOME_DATA=$(echo "$PARTITIONING" | awk '{print $3}' | sed 's/:/ /g' | awk '{print $2}')
 fi
 set -Ee
 set -o pipefail
