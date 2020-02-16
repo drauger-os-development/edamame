@@ -8,6 +8,8 @@ System Installer for Drauger OS.
 
 [Click here to view the list of planned features](https://github.com/drauger-os-development/system-installer/blob/master/planned-features.md)
 
+[Click here for notes on hacking on `system-installer`](https://github.com/drauger-os-development/system-installer/blob/master/hacking.md)
+
 `system-installer` currently works only on Drauger OS, but may be adapted to work on other Debian-based OSs later. 
 
 
