@@ -108,7 +108,7 @@ cd /mnt
 #		fi
 #	done
 	# This should be a much faster and more robust way of performing this action
-	rm -vrf --one-file-system $(ls -A | grep -vE "boot|home"
+	rm -vrf --one-file-system $(ls -A | grep -vE "boot|home")
 	cd boot
 	rm -vrf --one-file-system $(ls -A | grep -v "efi")
 	cd ..
