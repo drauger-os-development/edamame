@@ -27,7 +27,7 @@ echo "49"
 usermod -l "$USERNAME" live 1>&2
 groupmod -n "$USERNAME" live 1>&2
 echo "50"
-if $(ls /home | grep -q "$USERNAME");
+if $(ls /home | grep -q "$USERNAME"); then
 	#check to see if the user has a home folder already. 
 	echo "Original home folder found. Substituting it in . . ." 1>&2
 	rm -rfv /home/live 1>&2
