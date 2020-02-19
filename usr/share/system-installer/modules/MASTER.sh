@@ -220,6 +220,9 @@ for each in $list; do
 	done
 done
 echo "88"
+#STEP 14: Fix common problems post-install
+. /verify_install.sh
+echo "90"
 echo "	###	$0 CLOSED	###	" 1>&2
 
 
