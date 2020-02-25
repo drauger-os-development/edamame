@@ -33,13 +33,12 @@ if $(ls /home | grep -q "$USERNAME"); then
 	rm -rfv /home/live 1>&2
 else
 	#change refrences from old home to new
-	echo "Fixing refrences to old home . . ." 1>&2
-	list=$(grep -IRFl /home/live 2>/dev/null)
-	for each in $list; do
-		echo "$each" 1>&2
-		sed -i "s:/home/live:/home/$USERNAME:g" "$each"
-	done
-	cd /
+	# echo "Fixing refrences to old home . . ." 1>&2
+	# list=$(grep -IRFl /home/live 2>/dev/null)
+	# for each in $list; do
+	# 	echo "$each" 1>&2
+	# 	sed -i "s:/home/live:/home/$USERNAME:g" "$each"
+	# done
 	#rename home directory
 	mv /home/live /home/"$USERNAME"
 fi

@@ -71,6 +71,7 @@ for each in $list; do
 		echo -e "\n- $Y \bTESTING INSTALLATION MODE$NC"
 		output=$(python3 -I ../usr/bin/$each)
 		stdin="localuser:root being added to access control list
+RUNNING LOG LOCATED AT /tmp/system-installer.log
 localuser:root being removed from access control list"
 		if [ "$output" == "$stdin" ]; then
 			echo -e "\n- $G \bINSTALL MODE STDOUT: GOOD$NC"
@@ -91,4 +92,8 @@ localuser:root being removed from access control list"
 			echo -e "\n- $R \bATTEMPTED TO CALL engine.sh: FALSE$NC"
 		fi
 	fi
+done
+for each in $list; do
+	echo -e "- $Y \bPYCODESTYLE: $each $NC"
+	pycodestyle --ignore=W191 ../usr/bin/"$each"
 done
