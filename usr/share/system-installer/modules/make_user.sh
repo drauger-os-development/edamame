@@ -39,6 +39,7 @@ else
 	# 	echo "$each" 1>&2
 	# 	sed -i "s:/home/live:/home/$USERNAME:g" "$each"
 	# done
+	sed -i "s:/home/live:/home/$USERNAME:g" /home/live/.config/gtk-3.0/bookmarks
 	#rename home directory
 	mv /home/live /home/"$USERNAME"
 fi
