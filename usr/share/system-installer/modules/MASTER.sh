@@ -89,7 +89,7 @@ echo "56"
 #STEP 5: Make swap file
 if [ "$SWAP" == "FILE" ]; then
 	{
-		. /make-swap.py
+		. /make_swap.py
 		echo "/.swapfile	swap	swap	defaults	0	0" >> /etc/fstab
 	} || {
 		echo "Adding swap failed. Must manually add later" 1>&2
