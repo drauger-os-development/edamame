@@ -21,6 +21,8 @@
 #  MA 02110-1301, USA.
 #  
 #
-new_conf=$(cat /etc/lightdm/lightdm.conf | grep -v '^autologin-user')
-rm /etc/lightdm/lightdm.conf
-echo "$new_conf" > /etc/lightdm/lightdm.conf
+{
+	new_conf=$(cat /etc/lightdm/lightdm.conf | grep -v '^autologin-user')
+	rm /etc/lightdm/lightdm.conf
+	builtin echo "$new_conf" > /etc/lightdm/lightdm.conf
+} 1>&2
