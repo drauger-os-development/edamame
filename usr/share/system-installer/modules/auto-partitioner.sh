@@ -42,6 +42,16 @@
 		PART2="$INSTALL_DISK"2
 		PART3="$INSTALL_DISK"3
 	fi
+	if $(sfdisk -l "$INSTALL_DISK" | grep -q "^Disklabel type:"); then
+		builtin echo "DRIVE HAS PARTITION TABLE. NO NEED TO RE-MAKE."
+	else
+		builtin echo "MAKING NEW PARTITION TABLE."
+		if [ "$EFI" == "True" ]; then
+			parted --script "$INSTALL_DISK" mktable gpt
+		else
+			parted --script "$INSTALL_DISK" mktable msdos
+		fi
+	fi
 	if [ "$EFI" == "True" ]; then
 		# we need 2 partitions: /boot/efi and /
 		# we make /boot/efi first, then /
