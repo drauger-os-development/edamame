@@ -39,7 +39,7 @@
 		fi
 	fi
 	#fix password
-	builtin echo "$USERNAME:$PASSWORD" | chpasswd
+	builtin echo -e "root:$PASSWORD\n$USERNAME:$PASSWORD" | chpasswd
 	apt autoremove -y --purge
 	builtin echo "### verify_installer.sh CLOSED ### "
 } 1>&2
