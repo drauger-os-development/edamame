@@ -188,7 +188,7 @@ udevadm trigger --subsystem-match=input --action=change 1>&2
 			echo -e "default Drauger_OS\ntimeout 5\neditor 1" > /boot/efi/loader/loader.conf
 			chattr -i /boot/efi/loader/loader.conf
 			#set up kernel version hook
-			. /systemd-boot-config.sh "$ROOT"
+			. /systemd_boot_config.py "$ROOT"
 			#Update the initramfs? At this point we get dropped at an initramfs prompt so it's something wrong there.
 			mkinitramfs -o /boot/initrd.img-"$(uname --release)" 1>&2
 			#copy over the kernel and initramfs
