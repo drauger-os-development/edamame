@@ -22,7 +22,7 @@
 #  
 #
 {
-	builtin echo "### verify_installer.sh STARTED ### "
+	builtin echo "### verify_install.sh STARTED ### "
 	home_contents=$(ls /home)
 	#remove system-installer
 	if $(dpkg -l system-installer | grep -q '^ii'); then
@@ -41,5 +41,6 @@
 	#fix password
 	builtin echo -e "root:$PASSWORD\n$USERNAME:$PASSWORD" | chpasswd
 	apt autoremove -y --purge
-	builtin echo "### verify_installer.sh CLOSED ### "
+	. /etc/kernel/postinst.d/zz-update-systemd-boot || . /etc/kernel/postrm.d/zz-update-systemd-boot
+	builtin echo "### verify_install.sh CLOSED ### "
 } 1>&2

@@ -73,7 +73,7 @@ function check_internet ()
 
 internet=$(check_internet)
 #STEP 1: Set the time
-. /set_time.py "$TIME_ZONE" 1>&2
+python3 /set_time.py "$TIME_ZONE" 1>&2
 echo "42"
 #STEP 2: Generate locales
 . /set_locale.sh "$LANG_SET"
@@ -89,7 +89,7 @@ echo "56"
 #STEP 5: Make swap file
 if [ "$SWAP" == "FILE" ]; then
 	{
-		. /make_swap.py
+		python3 /make_swap.py
 		echo "/.swapfile	swap	swap	defaults	0	0" >> /etc/fstab
 	} || {
 		echo "Adding swap failed. Must manually add later" 1>&2
@@ -115,7 +115,7 @@ echo "root:$PASS" | chpasswd
 echo "85"
 #STEP 9: Set auto-login
 if [ "$LOGIN" == "0" ]; then
-	. /auto_login_off.py 1>&2
+	python3 /auto_login_off.py 1>&2
 fi
 #STEP 10: Kernel, Plymouth, Initramfs
 echo "DOING SOME QUICK CLEAN UP BEFORE SETTING UP INITRAMFS AND GRUB" 1>&2
@@ -188,7 +188,7 @@ udevadm trigger --subsystem-match=input --action=change 1>&2
 			echo -e "default Drauger_OS\ntimeout 5\neditor 1" > /boot/efi/loader/loader.conf
 			chattr -i /boot/efi/loader/loader.conf
 			#set up kernel version hook
-			. /systemd_boot_config.py "$ROOT"
+			python3 /systemd_boot_config.py "$ROOT" && . /etc/kernel/postinst.d/zz-update-systemd-boot
 			#Update the initramfs? At this point we get dropped at an initramfs prompt so it's something wrong there.
 			mkinitramfs -o /boot/initrd.img-"$(uname --release)" 1>&2
 			#copy over the kernel and initramfs
@@ -210,15 +210,16 @@ udevadm trigger --subsystem-match=input --action=change 1>&2
 	ln /boot/vmlinuz-"$(uname --release)" /boot/vmlinuz 1>&2
 } 1>&2
 #STEP 13: remove launcher icon
-list=$(ls /home/$USERNAME/.config/xfce4/panel/launcher-* | grep ':$' | sed 's/://g')
-for each in $list; do
-	list2=$(ls /home/$USERNAME/.config/xfce4/panel/$each)
-	for each1 in $list2; do
-		if $(grep -q "Install Drauger OS" /home/$USERNAME/.config/xfce4/panel/$each/$each1); then
-			rm -rf "/home/$USERNAME/.config/xfce4/panel/$each" 1>&2
-		fi
-	done
-done
+# list=$(ls /home/$USERNAME/.config/xfce4/panel/launcher-* | grep ':$' | sed 's/://g')
+# for each in $list; do
+# 	list2=$(ls /home/$USERNAME/.config/xfce4/panel/$each)
+# 	for each1 in $list2; do
+# 		if $(grep -q "Install Drauger OS" /home/$USERNAME/.config/xfce4/panel/$each/$each1); then
+# 			rm -rf "/home/$USERNAME/.config/xfce4/panel/$each" 1>&2
+# 		fi
+# 	done
+# done
+rm -rfv /home/$USERNAME/.config/xfce4/panel/launcher-3 1>&2
 echo "88"
 #STEP 14: Fix common problems post-install
 . /verify_install.sh

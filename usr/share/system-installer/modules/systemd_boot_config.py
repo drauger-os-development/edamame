@@ -23,7 +23,7 @@
 #
 from os import mkdir, chown, chmod
 from sys import stderr, argv
-from subprocess import check_output, check_call, CalledProcessError
+from subprocess import check_output
 
 
 def eprint(*args, **kwargs):
@@ -31,7 +31,7 @@ def eprint(*args, **kwargs):
 
 
 def systemd_boot_config(ROOT):
-	eprint("	###	systemd-boot-config.sh STARTED	###	")
+	eprint("	###	systemd-boot-config.py STARTED	###	")
 	try:
 		mkdir("/etc/kernel/postinst.d")
 	except FileExistsError:
@@ -142,11 +142,7 @@ exit 0""" % (UUID)
 	chown("/etc/kernel/postrm.d/zz-update-systemd-boot", 0, 0)
 	chmod("/etc/kernel/postinst.d/zz-update-systemd-boot", 0o755)
 	chmod("/etc/kernel/postrm.d/zz-update-systemd-boot", 0o755)
-	try:
-		check_call("/etc/kernel/postinst.d/zz-update-systemd-boot")
-	except CalledProcessError:
-		check_call("/etc/kernel/postrm.d/zz-update-systemd-boot")
-	eprint("	###	systemd-boot-config.sh CLOSED	###	")
+	eprint("	###	systemd-boot-config.py CLOSED	###	")
 	return 0
 
 

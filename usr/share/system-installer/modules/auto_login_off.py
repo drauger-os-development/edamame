@@ -25,11 +25,14 @@ from __future__ import print_function
 from sys import stderr
 from os import remove
 
+
 # Make it easier for us to print to stderr
 def eprint(*args, **kwargs):
 	print(*args, file=stderr, **kwargs)
 
+
 def auto_login_off():
+	eprint("	###	auto_login_off.py started	###	")
 	new_conf = ""
 	with open("/etc/lightdm/lightdm.conf", "r") as conf:
 		new_conf = conf.read()
@@ -53,6 +56,7 @@ def auto_login_off():
 		for each in new_conf:
 			file.write(each)
 			file.write('\n')
+	eprint("	###	auto_login_off.py closed	###	")
 
 if __name__ == '__main__':
 	auto_login_off()

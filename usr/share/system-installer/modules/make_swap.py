@@ -35,7 +35,7 @@ def eprint(*args, **kwargs):
 
 
 def make_swap():
-	eprint("	###	make_swap.sh STARTED	###	")
+	eprint("	###	make_swap.py STARTED	###	")
 	mem = virtual_memory()
 	# get data we need to get total system memory
 	SWAP = mem.total
@@ -61,7 +61,7 @@ def make_swap():
 	sleep(0.1)
 	print("64")
 	Popen(["swapon", "/.swapfile"])
-	eprint("	###	make_swap.sh CLOSED	###	")
+	eprint("	###	make_swap.py CLOSED	###	")
 
 if __name__ == '__main__':
 	make_swap()

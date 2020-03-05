@@ -21,7 +21,8 @@
 #  MA 02110-1301, USA.
 #
 #
-from os import symlink, system, stderr, argv
+from os import symlink, system, argv
+from sys import stderr
 
 
 def eprint(*args, **kwargs):
@@ -33,7 +34,7 @@ def _link(location):
 
 
 def set_time(TIME_ZONE):
-	eprint("	###	set_time.sh STARTED	###	")
+	eprint("	###	set_time.py STARTED	###	")
 	if (TIME_ZONE == "GMT"):
 		_link("GMT")
 	elif (TIME_ZONE == "ECT"):
@@ -85,7 +86,7 @@ def set_time(TIME_ZONE):
 	else:
 		_link("GMT")
 	system(["hwclock", "--systohc"])
-	eprint("	###	set_time.sh CLOSED	###	")
+	eprint("	###	set_time.py CLOSED	###	")
 
 
 if __name__ == '__main__':
