@@ -27,6 +27,6 @@ However, there are some limitations:
 /usr/share/system-installer/modules/MASTER.sh
 /usr/share/system-installer/modules/install_extras.sh
 /usr/share/system-installer/modules/manual-partitioner.sh
-/usr/share/system-installer/modules/systemd-boot-config.sh
+/usr/share/system-installer/modules/systemd_boot_config.py
 
 ```
