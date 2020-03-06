@@ -41,6 +41,13 @@ def systemd_boot_config(ROOT):
 	except FileExistsError:
 		eprint("postrm.d already exists")
 	UUID = check_output(["blkid", "-s", "PARTUUID", "-o", "value", ROOT])
+	# Parse out all the stuff we don't need
+	UUID = list(str(UUID))
+	del(UUID[0])
+	del(UUID[0])
+	for each in range(0,3):
+		del(UUID[len(UUID) - 1])
+	UUID = "".join(UUID)
 	contents = """#!/bin/bash
 #
 # This is a simple kernel hook to populate the systemd-boot entries
@@ -86,11 +93,11 @@ mkdir /boot/efi/Drauger_OS
 
 # Copy the latest kernel files to a consistent place so we can keep
 # using the same loader configuration.
-LATEST="$(echo $KERNELS | sed 's/\/boot\/vmlinuz//g' | sed 's/ /\n/g' | sed 's/.old//g' | sed '/^[[:space:]]*$/d' | sort -nr | head -n1)"
+LATEST="$(echo $KERNELS | sed 's/\/boot\/vmlinuz//g' | sed 's/ /\\n/g' | sed 's/.old//g' | sed '/^[[:space:]]*$/d' | sort -nr | head -n1)"
 echo -e "\e[2msystemd-boot\e[0m\e[1;32m${LATEST}\e[0m"
 for FILE in config initrd.img System.map vmlinuz; do
-    cp "/boot/${FILE}${LATEST}" "/boot/efi/Drauger_OS/${FILE}"
-    cat << EOF > /boot/efi/loader/entries/Drauger_OS.conf
+	cp "/boot/${FILE}${LATEST}" "/boot/efi/Drauger_OS/${FILE}"
+	cat << EOF > /boot/efi/loader/entries/Drauger_OS.conf
 title   Drauger OS
 linux   /Drauger_OS/vmlinuz
 initrd  /Drauger_OS/initrd.img
@@ -109,7 +116,7 @@ done
 # Copy any legacy kernels over too, but maintain their version-based
 # names to avoid collisions.
 if [ ${#KERNELS[@]} -gt 1 ]; then
-	LEGACY="$(echo $KERNELS | sed 's/\/boot\/vmlinuz//g' | sed 's/ /\n/g' | sed 's/.old//g' | sed '/^[[:space:]]*$/d' | sort -nr | sed s/$LATEST//g)"
+	LEGACY="$(echo $KERNELS | sed 's/\/boot\/vmlinuz//g' | sed 's/ /\\n/g' | sed 's/.old//g' | sed '/^[[:space:]]*$/d' | sort -nr | sed s/$LATEST//g)"
 	for VERSION in ${LEGACY[@]}; do
 	    echo -e "\e[2msystemd-boot\e[0m\e[1;32m${VERSION}\e[0m"
 	    for FILE in config initrd.img System.map vmlinuz; do
