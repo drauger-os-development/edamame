@@ -21,8 +21,8 @@
 #  MA 02110-1301, USA.
 #
 #
-from os import symlink, system, argv
-from sys import stderr
+from os import symlink, system
+from sys import stderr, argv
 
 
 def eprint(*args, **kwargs):
