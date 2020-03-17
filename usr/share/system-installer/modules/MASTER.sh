@@ -34,7 +34,7 @@ IFS="$GLOBAL_IFS"
 LANG_SET=${SETTINGS[0]}
 TIME_ZONE=${SETTINGS[1]}
 USERNAME=${SETTINGS[2]}
-PASS=${SETTINGS[3]}
+PASSWORD=${SETTINGS[3]}
 COMP_NAME=${SETTINGS[4]}
 EXTRAS=${SETTINGS[5]}
 UPDATES=${SETTINGS[6]}
@@ -84,7 +84,7 @@ echo "$COMP_NAME" > /etc/hostname
 echo "127.0.1.1	$COMP_NAME" >> /etc/hosts
 echo "48"
 #STEP 4: Make user account
-. /make_user.sh "$USERNAME" "$PASS"
+. /make_user.sh
 echo "56"
 #STEP 5: Make swap file
 if [ "$SWAP" == "FILE" ]; then
@@ -111,7 +111,7 @@ elif [ "$internet" == "1" ]; then
 fi
 echo "84"
 #STEP 8: Set new root password
-echo "root:$PASS" | chpasswd
+echo "root:$PASSWORD" | chpasswd
 echo "85"
 #STEP 9: Set auto-login
 if [ "$LOGIN" == "0" ]; then
@@ -188,9 +188,7 @@ udevadm trigger --subsystem-match=input --action=change 1>&2
 			echo -e "default Drauger_OS\ntimeout 5\neditor 1" > /boot/efi/loader/loader.conf
 			chattr -i /boot/efi/loader/loader.conf
 			#set up kernel version hook
-			set +Ee
 			python3 /systemd_boot_config.py "$ROOT" && . /etc/kernel/postinst.d/zz-update-systemd-boot
-			set -Ee
 			#Update the initramfs? At this point we get dropped at an initramfs prompt so it's something wrong there.
 			mkinitramfs -o /boot/initrd.img-"$(uname --release)" 1>&2
 			#copy over the kernel and initramfs

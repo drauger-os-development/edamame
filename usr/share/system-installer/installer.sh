@@ -141,7 +141,7 @@ echo "35"
 #STEP 6: Run Master script inside chroot
 #don't run it as a background process so we know when it gets done
 mv /mnt/etc/resolv.conf /mnt/etc/resolv.conf.save
-cp /etc/resolv.conf /mnt/etc/resolv.conf
+cp -v /etc/resolv.conf /mnt/etc/resolv.conf 1>&2
 echo "36"
 #Check to make sure all these vars are set
 #if not, set them to some defaults
@@ -174,7 +174,7 @@ if [ "$UPDATES" == "" ]; then
 	UPDATES=false
 fi
 # we don't check EFI or ROOT cause if they weren't set the script would have failed.
-arch-chroot /mnt '/MASTER.sh' "$LANG_SET , $TIME_ZONE , $USERNAME , $PASS , $COMP_NAME , $EXTRAS , $UPDATES , $EFI , $ROOT , $LOGIN , $MODEL , $LAYOUT , $VARIENT" 1>&2
+arch-chroot /mnt '/MASTER.sh' "$LANG_SET , $TIME_ZONE , $USERNAME , $PASS , $COMP_NAME , $EXTRAS , $UPDATES , $EFI , $ROOT , $LOGIN , $MODEL , $LAYOUT , $VARIENT"
 #STEP 7: Clean up
 #I know this isn't the best way of doing this, but it is easier than changing each of the file name in $LIST
 echo "Removing installation scripts and resetting resolv.conf" 1>&2
@@ -197,10 +197,11 @@ fi
 contents=$(ls /mnt/boot/efi/loader/entries)
 if [ "$contents" == "" ] && [ "$EFI" != "NULL" ]; then
 	echo "	### SYSTEMD-BOOT NOT CONFIGURED. CORRECTING . . .	###	" 1>&2
-	cp /usr/share/system-installer/modules/systemd-boot-config.sh /mnt
-	arch-chroot /mnt '/systemd-boot-config.sh' "$ROOT"
-	rm /mnt/systemd-boot-config.sh
+	cp /usr/share/system-installer/modules/systemd_boot_config.py /mnt
+	arch-chroot /mnt 'python3' '/systemd_boot_config.py' "$ROOT"
+	arch-chroot /mnt "/etc/kernel/postinst.d/zz-update-systemd-boot"
+	rm /mnt/systemd_boot_config.py
 fi
-rm -rf /mnt/home/$USERNAME/.config/xfce4/panel/launcher-20
+rm -rf /mnt/home/$USERNAME/.config/xfce4/panel/launcher-3
 echo "100"
 echo "	###	$0 CLOSED	###	" 1>&2
