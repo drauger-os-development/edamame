@@ -21,7 +21,7 @@
 #  MA 02110-1301, USA.
 #
 #
-from os import symlink, system
+from os import symlink, system, remove
 from sys import stderr, argv
 
 
@@ -30,6 +30,7 @@ def eprint(*args, **kwargs):
 
 
 def _link(location):
+	remove("/etc/localtime")
 	symlink("/usr/share/zoneinfo/Etc/%s" % (location), "/etc/localtime")
 
 
@@ -85,7 +86,7 @@ def set_time(TIME_ZONE):
 		_link("GMT-1")
 	else:
 		_link("GMT")
-	system(["hwclock", "--systohc"])
+	system("hwclock --systohc")
 	eprint("	###	set_time.py CLOSED	###	")
 
 

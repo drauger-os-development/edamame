@@ -198,7 +198,7 @@ contents=$(ls /mnt/boot/efi/loader/entries)
 if [ "$contents" == "" ] && [ "$EFI" != "NULL" ]; then
 	echo "	### SYSTEMD-BOOT NOT CONFIGURED. CORRECTING . . .	###	" 1>&2
 	cp /usr/share/system-installer/modules/systemd-boot-config.sh /mnt
-	arch-chroot /mnt '/systemd-boot-config.sh' "$ROOT" 1>&2
+	arch-chroot /mnt '/systemd-boot-config.sh' "$ROOT"
 	rm /mnt/systemd-boot-config.sh
 fi
 rm -rf /mnt/home/$USERNAME/.config/xfce4/panel/launcher-20

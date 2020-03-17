@@ -94,6 +94,7 @@ mkdir /boot/efi/Drauger_OS
 # Copy the latest kernel files to a consistent place so we can keep
 # using the same loader configuration.
 LATEST="$(echo $KERNELS | sed 's/\/boot\/vmlinuz//g' | sed 's/ /\\n/g' | sed 's/.old//g' | sed '/^[[:space:]]*$/d' | sort -nr | head -n1)"
+LATEST="$(echo $LATEST | sed 's/vmlinuz//')"
 echo -e "\e[2msystemd-boot\e[0m\e[1;32m${LATEST}\e[0m"
 for FILE in config initrd.img System.map vmlinuz; do
 	cp "/boot/${FILE}${LATEST}" "/boot/efi/Drauger_OS/${FILE}"
