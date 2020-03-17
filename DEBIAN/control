@@ -1,5 +1,5 @@
 Package: system-installer
-Version: 0.8.8-alpha9
+Version: 0.8.9-alpha9
 Maintainer: Thomas Castleman <contact@draugeros.org>
 Section: admin
 Architecture: all

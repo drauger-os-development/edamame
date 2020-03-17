@@ -122,8 +122,9 @@ echo "DOING SOME QUICK CLEAN UP BEFORE SETTING UP INITRAMFS AND GRUB" 1>&2
 update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth /usr/share/plymouth/themes/drauger-theme/drauger-theme.plymouth 100 --slave /usr/share/plymouth/themes/default.grub default.plymouth.grub /usr/share/plymouth/themes/drauger-theme/drauger-theme.grub 1>&2
 echo -e "2\n" | update-alternatives --config default.plymouth 1>&2
 echo "86"
+remove=""
 if [ "$EFI" != "NULL" ]; then
-	remove="grub*"
+	remove=$(dpkg -l grub* | grep '^ii' | awk '{print $2}')
 fi
 {
 	if [ "$internet" == "0" ]; then
@@ -150,11 +151,22 @@ fi
 		dpkg -R --install kernel/
 		rm -rf kernel
 	fi
-	apt purge -y system-installer $remove
+	# I am not happy about the way this works, but in order to work around some security changes in apt version 1.9.10, we have to do this
+	# purge system-installer itself
+	apt purge -y system-installer
+	# check to see if we need to remove GRUB.
+	# The list of packages we need to remove was set earlier
+	if [ "$remove" != "" ]; then
+		# iterate over $remove and remove each package.
+		# This is WAY more verbose than I like but it should work
+		for each in $remove; do
+			apt purge -y $each
+		done
+	fi
 	apt autoremove -y --purge
 	apt clean
 } 1>&2
-echo "87"
+echo "89"
 #STEP 11: KEYBOARD
 # God fucking damn it humanity. Why are there so many keyboard layouts?
 # I hope I only REALLY need to support one of these for each major language
@@ -170,7 +182,7 @@ XKBOPTIONS=\"\"
 
 BACKSPACE=\"guess\"
 " > /etc/default/keyboard
-
+echo "90"
 # This is the final step to get shit to be seen by X, not really necessary, but imma do it just in case
 udevadm trigger --subsystem-match=input --action=change 1>&2
 # And lets hope to god all that worked
@@ -211,10 +223,10 @@ udevadm trigger --subsystem-match=input --action=change 1>&2
 } 1>&2
 #STEP 13: remove launcher icon
 rm -rfv /home/$USERNAME/.config/xfce4/panel/launcher-3 1>&2
-echo "88"
+echo "93"
 #STEP 14: Fix common problems post-install
 . /verify_install.sh
-echo "90"
+echo "95"
 echo "	###	$0 CLOSED	###	" 1>&2
 
 
