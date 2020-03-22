@@ -192,24 +192,19 @@ udevadm trigger --subsystem-match=input --action=change 1>&2
 	mkinitramfs -o /boot/initrd.img-"$(uname --release)"
 	if [ "$EFI" != "NULL" ]; then
 		#systemd-boot
-		if [ -d /sys/firmware/efi/efivars ]; then
-			mkdir -p /boot/efi/loader/entries /boot/efi/Drauger_OS 1>&2
-			export SYSTEMD_RELAX_ESP_CHECKS=1
-			echo "export SYSTEMD_RELAX_ESP_CHECKS=1" >> /etc/environment
-			bootctl --path=/boot/efi install 1>&2
-			echo -e "default Drauger_OS\ntimeout 5\neditor 1" > /boot/efi/loader/loader.conf
-			chattr -i /boot/efi/loader/loader.conf
-			#set up kernel version hook
-			python3 /systemd_boot_config.py "$ROOT" && . /etc/kernel/postinst.d/zz-update-systemd-boot
-			#Update the initramfs? At this point we get dropped at an initramfs prompt so it's something wrong there.
-			mkinitramfs -o /boot/initrd.img-"$(uname --release)" 1>&2
-			#copy over the kernel and initramfs
-			cp /boot/vmlinuz-"$(uname --release)" /boot/efi/vmlinuz 1>&2
-			cp /boot/initrd.img-"$(uname --release)" /boot/efi/initrd.img 1>&2
-
-		else
-			echo "### WARNING: CANNOT INSTALL systemd-boot. USER MUST MANUALLY INSTALL BOOTLOADER. ###"
-		fi
+		mkdir -p /boot/efi/loader/entries /boot/efi/Drauger_OS 1>&2
+		export SYSTEMD_RELAX_ESP_CHECKS=1
+		echo "export SYSTEMD_RELAX_ESP_CHECKS=1" >> /etc/environment
+		bootctl --path=/boot/efi install 1>&2
+		echo -e "default Drauger_OS\ntimeout 5\neditor 1" > /boot/efi/loader/loader.conf
+		chattr -i /boot/efi/loader/loader.conf
+		#set up kernel version hook
+		python3 /systemd_boot_config.py "$ROOT" && . /etc/kernel/postinst.d/zz-update-systemd-boot
+		#Update the initramfs? At this point we get dropped at an initramfs prompt so it's something wrong there.
+		mkinitramfs -o /boot/initrd.img-"$(uname --release)" 1>&2
+		#copy over the kernel and initramfs
+		cp /boot/vmlinuz-"$(uname --release)" /boot/efi/vmlinuz 1>&2
+		cp /boot/initrd.img-"$(uname --release)" /boot/efi/initrd.img 1>&2
 	else
 		ROOT=$(echo "$ROOT" | sed 's/[0-9]$//')
 		ROOT=$(echo "$ROOT" | sed 's/p$//') #This WILL cause bugs in systems with more than 16 drives if ROOT is on the 16th drives
