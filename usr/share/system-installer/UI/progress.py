@@ -34,6 +34,7 @@ class main(Gtk.Window):
 		Gtk.Window.__init__(self, title="System Installer")
 		self.grid=Gtk.Grid(orientation=Gtk.Orientation.VERTICAL)
 		self.add(self.grid)
+		self.set_icon_from_file("/usr/share/icons/Drauger/720x720/Menus/install-drauger.png")
 
 		self.label = Gtk.Label()
 		self.label.set_markup("""	Installing Drauger OS to your internal hard drive.\nThis may take some time. If you have an error, please send\nthe log file (located at /tmp/system-installer.log) to: contact@draugeros.org	""")

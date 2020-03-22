@@ -32,6 +32,7 @@ class main(Gtk.Window):
 		Gtk.Window.__init__(self, title="System Installer")
 		self.grid=Gtk.Grid(orientation=Gtk.Orientation.VERTICAL)
 		self.add(self.grid)
+		self.set_icon_from_file("/usr/share/icons/Drauger/720x720/Menus/install-drauger.png")
 
 		self.label = Gtk.Label()
 		self.label.set_markup("""\n	Drauger OS has been successfully installed to your designated partitions!	\n""")

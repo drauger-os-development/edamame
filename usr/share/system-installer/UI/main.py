@@ -110,11 +110,11 @@ default = """
 
 	<b>PARTITIONING</b>
 
-	The %s System Installer places all partitons at the beginning of the drive\t
-	when doing manual partitoning.
+	The %s System Installer uses Gparted to allow the user to set up their partitions
 	It is advised to account for this if installing next to another OS.
-	If using automatic partitoning, it uses all of the drives in your system
-	(up to 2 drives will be used, favoring NVMe drives).
+	If using automatic partitoning, it will take up the entirety of the drive told to use.
+	Loss of data from usage of this tool is entirely at the fault of the user.
+	You have been warned.
 
 	<b>ALPHA WARNING</b>
 
@@ -134,6 +134,7 @@ class main(Gtk.Window):
 		Gtk.Window.__init__(self, title="System Installer")
 		self.grid=Gtk.Grid(orientation=Gtk.Orientation.VERTICAL)
 		self.add(self.grid)
+		self.set_icon_from_file("/usr/share/icons/Drauger/720x720/Menus/install-drauger.png")
 
 		# Initialize setting values
 		self.root_setting = ""

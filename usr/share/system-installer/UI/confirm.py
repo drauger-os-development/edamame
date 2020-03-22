@@ -3,7 +3,7 @@
 #
 #  user.py
 #
-#  Copyright 2019 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2020 Thomas Castleman <contact@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -76,6 +76,7 @@ class main(Gtk.Window):
 		Gtk.Window.__init__(self, title="System Installer")
 		self.grid=Gtk.Grid(orientation=Gtk.Orientation.VERTICAL)
 		self.add(self.grid)
+		self.set_icon_from_file("/usr/share/icons/Drauger/720x720/Menus/install-drauger.png")
 
 		self.label = Gtk.Label()
 		self.label.set_markup("""
