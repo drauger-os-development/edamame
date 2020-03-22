@@ -22,6 +22,8 @@
 #
 #
 #this file handles most of the installation process OUTSIDE the chroot
+set -Ee
+set -o pipefail
 echo "	###	$0 STARTED	###	" 1>&2
 echo "1"
 SETTINGS="$1"
@@ -54,8 +56,6 @@ if [ "$AUTO_PART" == "True" ]; then
 	EFI=$(echo "$PARTITIONING" | awk '{print $1}' | sed 's/:/ /g' | awk '{print $2}')
 	HOME_DATA=$(echo "$PARTITIONING" | awk '{print $3}' | sed 's/:/ /g' | awk '{print $2}')
 fi
-set -Ee
-set -o pipefail
 echo "12"
 #STEP 2: Mount the new partitions
 mount "$ROOT" /mnt

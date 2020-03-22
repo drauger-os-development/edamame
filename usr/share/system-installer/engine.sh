@@ -110,11 +110,13 @@ elif [ -f "$continue" ]; then
 	set +Ee
 	## INSTALL THE SYSTEM
 	/usr/share/system-installer/installer.sh "$partitoner" $LANG_SET $TIME_ZONE $USERNAME $COMPNAME $PASS $EXTRAS $UPDATES $LOGIN | zenity --progress --text="Installing Drauger OS to your internal hard drive.\nThis may take 	some time. If you have an error, please send\nthe log file (located at /tmp/system-installer.log) to: contact@draugeros.org" --time-remaining --no-cancel --auto-close || /usr/share/system-installer/UI/error.py  "Error detected. Error Code: $?\nPlease see /tmp/system-installer.log for details."
-	test="$?"
-	if [ "$test" == "0" ]; then
+	if $(grep -qi "installer.sh closed" /tmp/system-installer.log); then
 		/usr/share/system-installer/UI/success.py
 	else
-		/usr/share/system-installer/UI/error.py "Installation has failed. Please send the log file at /tmp/system-installer.log to contact@draugeros.org along with a discription of the issue you experienced. Or, submit an issue on our GitHub at https://github.com/drauger-os-development/system-installer"
+		/usr/share/system-installer/UI/error.py "Installation has failed.
+Please send the log file at /tmp/system-installer.log to contact@draugeros.org along with a discription of the issue you experienced.
+Or, submit an issue on our GitHub at:
+<a href=\"https://github.com/drauger-os-development/system-installer\"> https://github.com/drauger-os-development/system-installer </a>"
 	fi
 	echo "	###	$0 CLOSED	###	" 1>&2
 	exit "$test"
@@ -125,15 +127,14 @@ fi
 /usr/share/system-installer/UI/confirm.py "$continue"
 set +Ee
 ## STEP 9: INSTALL THE SYSTEM
-{
-	/usr/share/system-installer/installer.sh "$continue" | zenity --progress --text="Installing Drauger OS to your internal hard drive.\nThis may take some time. If you have an error, please send\nthe log file (located at /tmp/system-installer.log) to: contact@draugeros.org" --no-cancel --auto-close || /usr/share/system-installer/UI/error.py  "Error detected. Error Code: $?\nPlease see /tmp/system-installer.log for details."
-} && {
+/usr/share/system-installer/installer.sh "$continue" | zenity --progress --text="Installing Drauger OS to your internal hard drive.\nThis may take some time. If you have an error, please send\nthe log file (located at /tmp/system-installer.log) to: contact@draugeros.org" --no-cancel --auto-close || /usr/share/system-installer/UI/error.py  "Error detected. Error Code: $?\nPlease see /tmp/system-installer.log for details."
+if $(grep -qi "installer.sh closed" /tmp/system-installer.log); then
 	/usr/share/system-installer/UI/success.py
-} || {
+else
 	/usr/share/system-installer/UI/error.py "Installation has failed.
 Please send the log file at /tmp/system-installer.log to contact@draugeros.org along with a discription of the issue you experienced.
 Or, submit an issue on our GitHub at:
-<a href=\"https://github.com/drauger-os-development/system-installer\" target=\"_blank\">https://github.com/drauger-os-development/system-installer</a>"
-}
+<a href=\"https://github.com/drauger-os-development/system-installer\"> https://github.com/drauger-os-development/system-installer </a>"
+fi
 echo "	###	$0 CLOSED	###	" 1>&2
 cp /tmp/system-installer.log /mnt/var/log/system-installer.log
