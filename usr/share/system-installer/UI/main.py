@@ -33,15 +33,6 @@ from sys import stderr
 def eprint(*args, **kwargs):
 	print(*args, file=stderr, **kwargs)
 
-def hasnumbers(inputString):
-	return any(char.isdigit() for char in inputString)
-
-def hasletters(inputString):
-	if re.search('[a-zA-Z]', inputString):
-		return True
-	else:
-		return False
-
 def hasSC(inputString):
 	regex = re.compile('[@_!#$%^&*()<>?/\|}{~:]')
 	if regex.search(inputString) == None:
@@ -361,20 +352,6 @@ class main(Gtk.Window):
 				self.grid.remove(self.label5)
 			self.label5 = Gtk.Label()
 			self.label5.set_markup("Passwords do not match")
-			self.label5.set_justify(Gtk.Justification.CENTER)
-			self.grid.attach(self.label5, 1, 7, 2, 1)
-		elif hasnumbers(self.password_setting) != True:
-			if self.label5 != None:
-				self.grid.remove(self.label5)
-			self.label5 = Gtk.Label()
-			self.label5.set_markup("Password contains no numbers")
-			self.label5.set_justify(Gtk.Justification.CENTER)
-			self.grid.attach(self.label5, 1, 7, 2, 1)
-		elif hasletters(self.password_setting) != True:
-			if self.label5 != None:
-				self.grid.remove(self.label5)
-			self.label5 = Gtk.Label()
-			self.label5.set_markup("Password contains no letters")
 			self.label5.set_justify(Gtk.Justification.CENTER)
 			self.grid.attach(self.label5, 1, 7, 2, 1)
 		elif len(self.password_setting) < 4:
