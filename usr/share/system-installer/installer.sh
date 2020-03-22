@@ -109,9 +109,8 @@ cd /mnt
 #	done
 	# This should be a much faster and more robust way of performing this action
 	rm -vrf --one-file-system $(ls -A | grep -vE "boot|home")
-	cd boot
-	rm -vrf --one-file-system $(ls -A | grep -v "efi")
-	cd ..
+	cd boot && rm -vrf --one-file-system $(ls -A | grep -v "efi") || echo "BOOT DOES NOT EXIST. FRESH PARTITION?"
+	cd /mnt
 } 1>&2
 echo "EXTRACTING SQUASHFS" 1>&2
 unsquashfs "$SQUASHFS" 1>/dev/null
