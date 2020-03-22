@@ -91,7 +91,7 @@
 		set +e
 		sfdisk --reorder "$INSTALL_DISK"
 		builtin echo "PARTITION NUMBERING MODIFIED. CHECK FSTAB OF OTHER INSTALLED OSs TO ENSURE THEY WILL STILL WORK."
-		parted --script "$INSTALL_DISK" set 1 legacy_boot on
+		parted --script "$INSTALL_DISK" set 1 boot on
 		builtin echo -e "y\n" | mkfs.ext4 "$PART1"
 	fi
 	partprobe
