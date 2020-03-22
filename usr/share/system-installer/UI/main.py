@@ -929,6 +929,7 @@ Time Zone""")
 			self.layout_menu.append(each, each)
 		if (self.layout_setting != ""):
 			self.layout_menu.set_active_id(self.layout_setting)
+		self.layout_menu.connect("changed",self.varient_narrower)
 		self.grid.attach(self.layout_menu, 2, 3, 2, 1)
 
 		self.varient_label = Gtk.Label()
@@ -937,11 +938,11 @@ Time Zone""")
 		self.grid.attach(self.varient_label, 1, 4, 1, 1)
 
 		self.varient_menu = Gtk.ComboBoxText.new()
-		varients = []
+		self.varients = []
 		for each in range(len(layout_list) - 1):
 			if (layout_list[each][0] == "variant"):
-				varients.append(layout_list[each][len(layout_list[each]) - 1])
-		for each in varients:
+				self.varients.append(layout_list[each][len(layout_list[each]) - 1])
+		for each in self.varients:
 			self.varient_menu.append(each, each)
 		if (self.varient_setting != ""):
 			self.varient_menu.set_active_id(self.varient_setting)
@@ -956,6 +957,29 @@ Time Zone""")
 		self.grid.attach(self.button2, 1, 6, 1, 1)
 
 		self.show_all()
+
+	def varient_narrower(self,widget):
+
+		term = self.layout_menu.get_active_id()
+		length = len(term)
+		self.varient_menu.remove_all()
+
+		varient_len = len(self.varients) - 1
+		local_varients = []
+		for each in self.varients:
+			local_varients.append(each)
+		while (varient_len >= 0):
+			if (not term in self.varients[varient_len]):
+				del(local_varients[varient_len])
+			varient_len = varient_len - 1
+
+		for each in local_varients:
+			self.varient_menu.append(each, each)
+		if (self.varient_setting != ""):
+			self.varient_menu.set_active_id(self.varient_setting)
+
+		self.show_all()
+
 
 	def onnext5clicked(self,button):
 		try:
