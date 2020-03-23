@@ -23,6 +23,20 @@
 #
 echo "	###	make_user.sh STARTED	###	" 1>&2
 echo "49"
+
+function fix_home () 
+{
+	{
+		USERNAME="$1"
+		if [ -f /home/home/live ]; then
+			mv -v /home/home/live /home/"$USERNAME"
+			rm -vrf /home/home
+		else
+			echo "An error occured setting home directory. Hopefully the user's own files are there?"
+		fi
+	} 1>&2
+}
+
 #change live user to $USERNAME
 usermod -l "$USERNAME" live 1>&2
 groupmod -n "$USERNAME" live 1>&2
@@ -41,7 +55,7 @@ else
 	# done
 	sed -i "s:/home/live:/home/$USERNAME:g" /home/live/.config/gtk-3.0/bookmarks
 	#rename home directory
-	mv -v /home/live /home/"$USERNAME"
+	mv -v /home/live /home/"$USERNAME" || fix_home "$USERNAME"
 fi
 echo "51"
 sed -i "s/live/$USERNAME/g" /etc/passwd
