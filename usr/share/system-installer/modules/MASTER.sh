@@ -217,7 +217,7 @@ udevadm trigger --subsystem-match=input --action=change 1>&2
 	ln /boot/vmlinuz-"$(uname --release)" /boot/vmlinuz 1>&2
 } 1>&2
 #STEP 13: remove launcher icon
-rm -rfv /home/$USERNAME/.config/xfce4/panel/launcher-3 1>&2 || rm -v /home/$USERNAME/Desktop/system-installer.desktop 1>&2
+rm -v /home/$USERNAME/Desktop/system-installer.desktop 1>&2 || rm -rfv /home/$USERNAME/.config/xfce4/panel/launcher-3 1>&2
 echo "93"
 #STEP 14: Fix common problems post-install
 . /verify_install.sh
