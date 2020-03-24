@@ -122,10 +122,6 @@ echo "DOING SOME QUICK CLEAN UP BEFORE SETTING UP INITRAMFS AND GRUB" 1>&2
 update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth /usr/share/plymouth/themes/drauger-theme/drauger-theme.plymouth 100 --slave /usr/share/plymouth/themes/default.grub default.plymouth.grub /usr/share/plymouth/themes/drauger-theme/drauger-theme.grub 1>&2
 echo -e "2\n" | update-alternatives --config default.plymouth 1>&2
 echo "86"
-remove=""
-if [ "$EFI" != "NULL" ]; then
-	remove=$(dpkg -l grub* | grep '^ii' | awk '{print $2}')
-fi
 {
 	if [ "$internet" == "0" ]; then
 		# if the online method fails, attempt the offline method
@@ -156,12 +152,9 @@ fi
 	apt purge -y system-installer
 	# check to see if we need to remove GRUB.
 	# The list of packages we need to remove was set earlier
-	if [ "$remove" != "" ]; then
-		# iterate over $remove and remove each package.
-		# This is WAY more verbose than I like but it should work
-		for each in $remove; do
-			apt purge -y $each
-		done
+	if [ "$EFI" != "NULL" ]; then
+		# I feel stupid. I can just to process subsitution. *facepalm*
+		apt purge -y $(dpkg -l *grub* | grep '^ii' | awk '{print $2}')
 	fi
 	apt autoremove -y --purge
 	apt clean

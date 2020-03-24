@@ -44,7 +44,7 @@
 	. /etc/kernel/postinst.d/zz-update-systemd-boot || . /etc/kernel/postrm.d/zz-update-systemd-boot
 	rm -v /home/$USERNAME/Desktop/system-installer.desktop 1>&2 || rm -rfv /home/$USERNAME/.config/xfce4/panel/launcher-3 1>&2
 	if [-f /etc/kernel/postinst.d/zz-update-systemd-boot ]; then
-		apt purge -y grub*
+		apt purge -y $(dpkg -l *grub* | grep '^ii' | awk '{print $2}')
 	fi
 	builtin echo "### verify_install.sh CLOSED ### "
 } 1>&2
