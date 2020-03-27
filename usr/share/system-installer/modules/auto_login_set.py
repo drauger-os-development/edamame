@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-#  auto-login-off.py
+#  auto_login_set.py
 #
 #  Copyright 2020 Thomas Castleman <contact@draugeros.org>
 #
@@ -22,7 +22,7 @@
 #
 #
 from __future__ import print_function
-from sys import stderr
+from sys import stderr, argv
 from os import remove
 
 
@@ -31,7 +31,7 @@ def eprint(*args, **kwargs):
 	print(*args, file=stderr, **kwargs)
 
 
-def auto_login_off():
+def auto_login_set(LOGIN, USERNAME):
 	eprint("	###	auto_login_off.py started	###	")
 	new_conf = ""
 	with open("/etc/lightdm/lightdm.conf", "r") as conf:
@@ -46,7 +46,10 @@ def auto_login_off():
 		if (each == 0):
 			continue
 		if (new_conf[each][0] == "autologin-user"):
-			del(new_conf[each])
+			if ( (LOGIN == "0") or ( LOGIN == 0) or (LOGIN == False) ):
+				del(new_conf[each])
+			else:
+				new_conf[each][1] = USERNAME
 			break
 	for each in range(len(new_conf)):
 		if (each == 0):
@@ -59,5 +62,5 @@ def auto_login_off():
 	eprint("	###	auto_login_off.py closed	###	")
 
 if __name__ == '__main__':
-	auto_login_off()
+	auto_login_off(argv[1], argv[2])
 

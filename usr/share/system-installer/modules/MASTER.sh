@@ -114,9 +114,7 @@ echo "84"
 echo "root:$PASSWORD" | chpasswd
 echo "85"
 #STEP 9: Set auto-login
-if [ "$LOGIN" == "0" ]; then
-	python3 /auto_login_off.py 1>&2
-fi
+python3 /auto_login_set.py $LOGIN $USERNAME 1>&2
 #STEP 10: Kernel, Plymouth, Initramfs
 echo "DOING SOME QUICK CLEAN UP BEFORE SETTING UP INITRAMFS AND GRUB" 1>&2
 update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth /usr/share/plymouth/themes/drauger-theme/drauger-theme.plymouth 100 --slave /usr/share/plymouth/themes/default.grub default.plymouth.grub /usr/share/plymouth/themes/drauger-theme/drauger-theme.grub 1>&2
