@@ -289,53 +289,57 @@ class main(Gtk.Window):
 	<b>Set Up Main User</b>
 		""")
 		self.label.set_justify(Gtk.Justification.CENTER)
-		self.grid.attach(self.label, 1, 1, 2, 1)
+		self.grid.attach(self.label, 1, 1, 3, 1)
 
 		self.label1 = Gtk.Label()
 		self.label1.set_markup("	Username:	")
-		self.label1.set_justify(Gtk.Justification.LEFT)
-		self.grid.attach(self.label1, 1, 3, 1, 1)
+		self.label1.set_justify(Gtk.Justification.RIGHT)
+		self.grid.attach(self.label1, 1, 3, 2, 1)
 
 		self.username = Gtk.Entry()
 		self.username.set_text(self.username_setting)
-		self.grid.attach(self.username, 2, 3, 1, 1)
+		self.grid.attach(self.username, 3, 3, 1, 1)
 
 		self.label2 = Gtk.Label()
 		self.label2.set_markup("	Computer\'s Name:	")
-		self.label2.set_justify(Gtk.Justification.LEFT)
-		self.grid.attach(self.label2, 1, 4, 1, 1)
+		self.label2.set_justify(Gtk.Justification.RIGHT)
+		self.grid.attach(self.label2, 1, 4, 2, 1)
 
 		self.compname = Gtk.Entry()
 		self.compname.set_text(self.compname_setting)
-		self.grid.attach(self.compname, 2, 4, 1, 1)
+		self.grid.attach(self.compname, 3, 4, 1, 1)
 
 		self.label3 = Gtk.Label()
 		self.label3.set_markup("	Password:	")
-		self.label3.set_justify(Gtk.Justification.LEFT)
-		self.grid.attach(self.label3, 1, 5, 1, 1)
+		self.label3.set_justify(Gtk.Justification.RIGHT)
+		self.grid.attach(self.label3, 1, 5, 2, 1)
 
 		self.password = Gtk.Entry()
 		self.password.set_visibility(False)
 		self.password.set_text(self.password_setting)
-		self.grid.attach(self.password, 2, 5, 1, 1)
+		self.grid.attach(self.password, 3, 5, 1, 1)
 
 		self.label4 = Gtk.Label()
 		self.label4.set_markup("	Confirm Pasword:	")
-		self.label4.set_justify(Gtk.Justification.LEFT)
-		self.grid.attach(self.label4, 1, 6, 1, 1)
+		self.label4.set_justify(Gtk.Justification.RIGHT)
+		self.grid.attach(self.label4, 1, 6, 2, 1)
 
 		self.passconf = Gtk.Entry()
 		self.passconf.set_visibility(False)
 		self.passconf.set_text(self.password_setting)
-		self.grid.attach(self.passconf, 2, 6, 1, 1)
+		self.grid.attach(self.passconf, 3, 6, 1, 1)
 
 		self.button1 = Gtk.Button.new_with_label("Okay -->")
 		self.button1.connect("clicked", self.onnext2clicked)
-		self.grid.attach(self.button1, 2, 8, 1, 1)
+		self.grid.attach(self.button1, 3, 8, 1, 1)
 
 		self.button2 = Gtk.Button.new_with_label("Exit")
 		self.button2.connect("clicked", self.exit)
-		self.grid.attach(self.button2, 1, 8, 1, 1)
+		self.grid.attach(self.button2, 2, 8, 1, 1)
+
+		self.button1 = Gtk.Button.new_with_label("<-- Back")
+		self.button1.connect("clicked", self.main_menu)
+		self.grid.attach(self.button1, 1, 8, 1, 1)
 
 		self.label5 = None
 
@@ -423,19 +427,23 @@ class main(Gtk.Window):
 	please either manually partition your drive, or abort installation now.\t
 	""" % (DISTRO))
 		self.label.set_justify(Gtk.Justification.LEFT)
-		self.grid.attach(self.label, 1, 1, 5, 1)
+		self.grid.attach(self.label, 1, 1, 7, 1)
 
 		self.link = Gtk.Button.new_with_label("Manual Partitioning")
 		self.link.connect("clicked", self.opengparted)
-		self.grid.attach(self.link, 3, 5, 1, 1)
+		self.grid.attach(self.link, 5, 5, 1, 1)
 
 		self.button1 = Gtk.Button.new_with_label("Automatic Partitioning")
 		self.button1.connect("clicked", self.auto_partition)
-		self.grid.attach(self.button1, 5, 5, 1, 1)
+		self.grid.attach(self.button1, 7, 5, 1, 1)
 
 		self.button2 = Gtk.Button.new_with_label("Exit")
 		self.button2.connect("clicked", self.exit)
-		self.grid.attach(self.button2, 1, 5, 1, 1)
+		self.grid.attach(self.button2, 3, 5, 1, 1)
+
+		self.button1 = Gtk.Button.new_with_label("<-- Back")
+		self.button1.connect("clicked", self.main_menu)
+		self.grid.attach(self.button1, 1, 5, 1, 1)
 
 		self.show_all()
 
@@ -648,7 +656,11 @@ class main(Gtk.Window):
 
 		self.button2 = Gtk.Button.new_with_label("Exit")
 		self.button2.connect("clicked", self.exit)
-		self.grid.attach(self.button2, 1, 6, 1, 1)
+		self.grid.attach(self.button2, 2, 6, 1, 1)
+
+		self.button1 = Gtk.Button.new_with_label("<-- Back")
+		self.button1.connect("clicked", self.partitioning)
+		self.grid.attach(self.button1, 1, 6, 1, 1)
 
 		self.show_all()
 
@@ -761,7 +773,9 @@ class main(Gtk.Window):
 		self.button1.connect("clicked", self.options_next)
 		self.grid.attach(self.button1, 2, 8, 1, 1)
 
-		self.grid.attach(self.button2, 1, 8, 1, 1)
+		self.button1 = Gtk.Button.new_with_label("<-- Back")
+		self.button1.connect("clicked", self.main_menu)
+		self.grid.attach(self.button1, 1, 8, 1, 1)
 
 		self.show_all()
 
@@ -796,7 +810,7 @@ class main(Gtk.Window):
 
 Langauge""")
 		self.label2.set_justify(Gtk.Justification.LEFT)
-		self.grid.attach(self.label2, 1, 2, 1, 1)
+		self.grid.attach(self.label2, 2, 2, 1, 1)
 
 		self.lang_menu = Gtk.ComboBoxText.new()
 		self.lang_menu.append("english", "English")
@@ -812,14 +826,14 @@ Langauge""")
 		self.lang_menu.append("other", "Other, User will need to set up manually.")
 		if (self.lang_setting != ""):
 			self.lang_menu.set_active_id(self.lang_setting)
-		self.grid.attach(self.lang_menu, 1, 3, 1, 1)
+		self.grid.attach(self.lang_menu, 2, 3, 1, 1)
 
 		self.label2 = Gtk.Label()
 		self.label2.set_markup("""
 
 Time Zone""")
 		self.label2.set_justify(Gtk.Justification.LEFT)
-		self.grid.attach(self.label2, 1, 4, 1, 1)
+		self.grid.attach(self.label2, 2, 4, 1, 1)
 
 		self.time_menu = Gtk.ComboBoxText.new()
 		self.time_menu.append("EST", "Eastern Standard Time")
@@ -851,7 +865,7 @@ Time Zone""")
 		self.time_menu.append("IET", "Indiana Eastern Standard Time")
 		if (self.time_zone != ""):
 			self.time_menu.set_active_id(self.time_zone)
-		self.grid.attach(self.time_menu, 1, 5, 1, 1)
+		self.grid.attach(self.time_menu, 2, 5, 1, 1)
 
 		self.button1 = Gtk.Button.new_with_label("Okay -->")
 		self.button1.connect("clicked", self.onnext3clicked)
@@ -860,6 +874,10 @@ Time Zone""")
 		self.button2 = Gtk.Button.new_with_label("Exit")
 		self.button2.connect("clicked", self.exit)
 		self.grid.attach(self.button2, 2, 6, 1, 1)
+
+		self.button1 = Gtk.Button.new_with_label("<-- Back")
+		self.button1.connect("clicked", self.main_menu)
+		self.grid.attach(self.button1, 1, 6, 1, 1)
 
 		self.show_all()
 
@@ -886,7 +904,7 @@ Time Zone""")
 	<b>Choose your Keyboard layout</b>\t
 	""")
 		self.label.set_justify(Gtk.Justification.CENTER)
-		self.grid.attach(self.label, 1, 1, 3, 1)
+		self.grid.attach(self.label, 1, 1, 4, 1)
 
 		self.model_label = Gtk.Label()
 		self.model_label.set_markup("""Model: """)
@@ -913,7 +931,7 @@ Time Zone""")
 			self.model_menu.append(each, each)
 		if (self.model_setting != ""):
 			self.model_menu.set_active_id(self.model_setting)
-		self.grid.attach(self.model_menu, 2, 2, 2, 1)
+		self.grid.attach(self.model_menu, 2, 2, 3, 1)
 
 		self.layout_label = Gtk.Label()
 		self.layout_label.set_markup("""Layout: """)
@@ -930,7 +948,7 @@ Time Zone""")
 		if (self.layout_setting != ""):
 			self.layout_menu.set_active_id(self.layout_setting)
 		self.layout_menu.connect("changed",self.varient_narrower)
-		self.grid.attach(self.layout_menu, 2, 3, 2, 1)
+		self.grid.attach(self.layout_menu, 2, 3, 3, 1)
 
 		self.varient_label = Gtk.Label()
 		self.varient_label.set_markup("""Varient: """)
@@ -946,15 +964,19 @@ Time Zone""")
 			self.varient_menu.append(each, each)
 		if (self.varient_setting != ""):
 			self.varient_menu.set_active_id(self.varient_setting)
-		self.grid.attach(self.varient_menu, 2, 4, 2, 1)
+		self.grid.attach(self.varient_menu, 2, 4, 3, 1)
 
 		self.button1 = Gtk.Button.new_with_label("Okay -->")
 		self.button1.connect("clicked", self.onnext5clicked)
-		self.grid.attach(self.button1, 3, 6, 1, 1)
+		self.grid.attach(self.button1, 4, 6, 1, 1)
 
 		self.button2 = Gtk.Button.new_with_label("Exit")
 		self.button2.connect("clicked", self.exit)
-		self.grid.attach(self.button2, 1, 6, 1, 1)
+		self.grid.attach(self.button2, 3, 6, 1, 1)
+
+		self.button1 = Gtk.Button.new_with_label("<-- Back")
+		self.button1.connect("clicked", self.main_menu)
+		self.grid.attach(self.button1, 1, 6, 1, 1)
 
 		self.show_all()
 
