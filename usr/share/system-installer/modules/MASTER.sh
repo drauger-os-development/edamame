@@ -191,11 +191,6 @@ udevadm trigger --subsystem-match=input --action=change 1>&2
 		chattr -i /boot/efi/loader/loader.conf
 		#set up kernel version hook
 		python3 /systemd_boot_config.py "$ROOT" && . /etc/kernel/postinst.d/zz-update-systemd-boot
-		#Update the initramfs? At this point we get dropped at an initramfs prompt so it's something wrong there.
-		mkinitramfs -o /boot/initrd.img-"$(uname --release)" 1>&2
-		#copy over the kernel and initramfs
-		cp /boot/vmlinuz-"$(uname --release)" /boot/efi/vmlinuz 1>&2
-		cp /boot/initrd.img-"$(uname --release)" /boot/efi/initrd.img 1>&2
 	else
 		ROOT=$(echo "$ROOT" | sed 's/[0-9]$//')
 		ROOT=$(echo "$ROOT" | sed 's/p$//') #This WILL cause bugs in systems with more than 16 drives if ROOT is on the 16th drives
