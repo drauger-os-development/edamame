@@ -22,7 +22,7 @@
 #  
 #
 {
-	builtin echo "### verify_install.sh STARTED ### "
+	builtin echo "	### verify_install.sh STARTED ###	"
 	home_contents=$(ls /home)
 	#remove system-installer
 	if $(dpkg -l system-installer | grep -q '^ii'); then
@@ -44,7 +44,8 @@
 	. /etc/kernel/postinst.d/zz-update-systemd-boot || . /etc/kernel/postrm.d/zz-update-systemd-boot
 	rm -v /home/$USERNAME/Desktop/system-installer.desktop 1>&2 || rm -rfv /home/$USERNAME/.config/xfce4/panel/launcher-3 1>&2
 	if [-f /etc/kernel/postinst.d/zz-update-systemd-boot ]; then
+	if [ -f /etc/kernel/postinst.d/zz-update-systemd-boot ]; then
 		apt purge -y $(dpkg -l *grub* | grep '^ii' | awk '{print $2}')
 	fi
-	builtin echo "### verify_install.sh CLOSED ### "
+	builtin echo "	### verify_install.sh CLOSED ###	"
 } 1>&2
