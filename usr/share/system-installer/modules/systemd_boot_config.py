@@ -140,8 +140,7 @@ fi
 
 
 
-# Success!
-exit 0""" % (UUID)
+# Success!""" % (UUID)
 	with open("/etc/kernel/postinst.d/zz-update-systemd-boot", "w+") as postinst:
 		postinst.write(contents)
 	with open("/etc/kernel/postrm.d/zz-update-systemd-boot", "w+") as postrm:
