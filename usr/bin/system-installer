@@ -23,7 +23,7 @@
 #
 from sys import argv, stderr
 argc = len(argv)
-VERSION = "0.9.4-alpha10"
+VERSION = "0.9.5-alpha10"
 HELP = "\nsystem-installer, Version %s\n\n\t-h, --help\tprint this help dialoge.\n\t-v, --version\tprint current version.\n\nPass nothing to start installer.\n"
 R = "\033[0;31m"
 G = "\033[0;32m"

@@ -61,7 +61,7 @@ echo "51"
 sed -i "s/live/$USERNAME/g" /etc/passwd  1>&2
 echo "54"
 #change password
-chpasswd "$USERNAME:$PASSWORD" 1>&2
+echo "$USERNAME:$PASSWORD" | chpasswd
 echo "55"
 echo "	###	make_user.sh CLOSED	###	" 1>&2
 
