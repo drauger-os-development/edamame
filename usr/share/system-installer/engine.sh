@@ -114,7 +114,8 @@ elif [ -f "$continue" ]; then
 		/usr/share/system-installer/UI/success.py
 	else
 		/usr/share/system-installer/UI/error.py "Installation has failed.
-Please send the log file at /tmp/system-installer.log to contact@draugeros.org along with a discription of the issue you experienced.
+Please send the log file at /tmp/system-installer.log to contact@draugeros.org
+along with a discription of the issue you experienced.
 Or, submit an issue on our GitHub at:
 <a href=\"https://github.com/drauger-os-development/system-installer\"> https://github.com/drauger-os-development/system-installer </a>"
 	fi
@@ -132,7 +133,8 @@ if $(grep -qi "installer.sh closed" /tmp/system-installer.log); then
 	/usr/share/system-installer/UI/success.py
 else
 	/usr/share/system-installer/UI/error.py "Installation has failed.
-Please send the log file at /tmp/system-installer.log to contact@draugeros.org along with a discription of the issue you experienced.
+Please send the log file at /tmp/system-installer.log to contact@draugeros.org
+along with a discription of the issue you experienced.
 Or, submit an issue on our GitHub at:
 <a href=\"https://github.com/drauger-os-development/system-installer\"> https://github.com/drauger-os-development/system-installer </a>"
 fi

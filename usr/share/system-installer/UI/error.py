@@ -26,25 +26,28 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from sys import argv
 
+display = str(argv[1])
+
 class main(Gtk.Window):
 	def __init__(self):
-			Gtk.Window.__init__(self, title="System Installer")
-			self.grid=Gtk.Grid(orientation=Gtk.Orientation.VERTICAL)
-			self.add(self.grid)
-			self.set_icon_from_file("/usr/share/icons/Drauger/720x720/Menus/install-drauger.png")
+		global display
+		Gtk.Window.__init__(self, title="System Installer")
+		self.grid=Gtk.Grid(orientation=Gtk.Orientation.VERTICAL)
+		self.add(self.grid)
+		self.set_icon_from_file("/usr/share/icons/Drauger/720x720/Menus/install-drauger.png")
 
-			self.label = Gtk.Label()
-			self.label.set_markup(argv[1])
-			self.label.set_justify(Gtk.Justification.LEFT)
-			self.grid.attach(self.label, 1, 1, 3, 1)
+		self.label = Gtk.Label()
+		self.label.set_markup(display)
+		self.label.set_justify(Gtk.Justification.CENTER)
+		self.grid.attach(self.label, 1, 1, 3, 1)
 
 
-			self.button2 = Gtk.Button.new_with_label("Exit")
-			self.button2.connect("clicked", self.onexitclicked)
-			self.grid.attach(self.button2, 1, 2, 1, 1)
+		self.button2 = Gtk.Button.new_with_label("Exit")
+		self.button2.connect("clicked", self.onexitclicked)
+		self.grid.attach(self.button2, 1, 2, 1, 1)
 
 	def onexitclicked(self,button):
-			exit(0)
+		exit(0)
 
 def show_main():
 	window = main()
