@@ -53,12 +53,12 @@ else
 	# 	echo "$each" 1>&2
 	# 	sed -i "s:/home/live:/home/$USERNAME:g" "$each"
 	# done
-	sed -i "s:/home/live:/home/$USERNAME:g" /home/live/.config/gtk-3.0/bookmarks
+	sed -i "s:/home/live:/home/$USERNAME:g" /home/live/.config/gtk-3.0/bookmarks 1>&2
 	#rename home directory
-	mv -v /home/live /home/"$USERNAME" || fix_home "$USERNAME"
+	mv -v /home/live /home/"$USERNAME" 1>&2 || fix_home "$USERNAME"
 fi
 echo "51"
-sed -i "s/live/$USERNAME/g" /etc/passwd
+sed -i "s/live/$USERNAME/g" /etc/passwd  1>&2
 echo "54"
 #change password
 chpasswd "$USERNAME:$PASSWORD" 1>&2
