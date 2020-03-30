@@ -42,8 +42,9 @@
 	echo -e "root:$PASSWORD\n$USERNAME:$PASSWORD" | chpasswd
 	apt autoremove -y --purge
 	. /etc/kernel/postinst.d/zz-update-systemd-boot || . /etc/kernel/postrm.d/zz-update-systemd-boot
-	rm -v /home/$USERNAME/Desktop/system-installer.desktop 1>&2 || rm -rfv /home/$USERNAME/.config/xfce4/panel/launcher-3 1>&2
-	if [-f /etc/kernel/postinst.d/zz-update-systemd-boot ]; then
+	if [ -f /home/$USERNAME/Desktop/system-installer.desktop ] || [ -d /home/$USERNAME/.config/xfce4/panel/launcher-3 ]; then
+		rm -v /home/$USERNAME/Desktop/system-installer.desktop 1>&2 || rm -rfv /home/$USERNAME/.config/xfce4/panel/launcher-3 1>&2
+	fi
 	if [ -f /etc/kernel/postinst.d/zz-update-systemd-boot ]; then
 		apt purge -y $(dpkg -l *grub* | grep '^ii' | awk '{print $2}')
 	fi
