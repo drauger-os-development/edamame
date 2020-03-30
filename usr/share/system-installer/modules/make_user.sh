@@ -45,6 +45,8 @@ if $(ls /home | grep -q "$USERNAME"); then
 	#check to see if the user has a home folder already. 
 	echo "Original home folder found. Substituting it in . . ." 1>&2
 	rm -rfv /home/live 1>&2
+elif [ -f /home/home/live ]; then
+	fix_home "$USERNAME"
 else
 	#change refrences from old home to new
 	# echo "Fixing refrences to old home . . ." 1>&2
