@@ -47,28 +47,48 @@ class main(Gtk.Window):
 		self.progress.set_show_text(True)
 		self.progress.set_text("0 %")
 		self.source_id = GLib.timeout_add(1000, self.pulse)
-		self.grid.attach(self.progress, 1, 2, 1, 1)
+		self.grid.attach(self.progress, 1, 3, 1, 1)
 
 		self.file_contents = Gtk.TextBuffer()
 		self.text = Gtk.TextView.new_with_buffer(self.file_contents)
 		self.text.set_editable(False)
 		self.text.set_cursor_visible(False)
 		self.text.set_monospace(True)
+		self.grid.attach(self.text, 1, 5, 1, 1)
+
+		self.read_file()
+
+	def read_file(self):
+		text = ""
+		with open("/home/batcastle/Dropbox/GitHub/system-installer/usr/share/system-installer/UI/test.txt", "r") as read_file:
+			text = read_file.read()
+		self.file_contents.set_text(text, len(text))
+
+		self.show_all()
 
 
 	def pulse(self):
+		self.read_file()
 		print("pulse")
 		i, o, e = select.select( [sys.stdin], [], [], 1 )
 		fraction=sys.stdin.readline().strip()
 		if (not i):
 			print("got nothing")
+			self.read_file()
 			return True
 		fraction_bar=int(fraction) / 100
 		self.progress.set_fraction(fraction_bar)
-		self.progress.set_text("%s \%" % (fraction))
+		self.progress.set_text(fraction + " %")
 		if (fraction == 100):
-			exit(0)
-		return True
+			self.exit("clicked")
+
+		self.show_all()
+		self.read_file()
+
+	def exit(self,button):
+		Gtk.main_quit("delete-event")
+		print(1)
+		exit(1)
 
 
 def exit_button(x,y):
@@ -79,8 +99,9 @@ def show_main():
 	window = main()
 	window.set_decorated(True)
 	window.set_resizable(False)
+	window.set_deletable(False)
 	window.set_position(Gtk.WindowPosition.CENTER)
-	window.connect("delete-event",exit_button)
+	window.connect("delete-event",main.exit)
 	window.show_all()
 	Gtk.main()
 
