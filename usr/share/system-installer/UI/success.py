@@ -39,7 +39,7 @@ class main(Gtk.Window):
 		self.label.set_justify(Gtk.Justification.CENTER)
 		self.grid.attach(self.label, 1, 1, 3, 1)
 
-		self.button1 = Gtk.Button.new_with_label("Shut Down System")
+		self.button1 = Gtk.Button.new_with_label("Restart System")
 		self.button1.connect("clicked", self.onnextclicked)
 		self.grid.attach(self.button1, 3, 6, 1, 1)
 
@@ -52,7 +52,7 @@ class main(Gtk.Window):
 		self.grid.attach(self.button2, 2, 6, 1, 1)
 
 	def onnextclicked(self,button):
-		Popen("poweroff")
+		Popen(["systemctl", "reboot", "now"])
 		exit(0)
 
 	def onadvclicked(self,button):
