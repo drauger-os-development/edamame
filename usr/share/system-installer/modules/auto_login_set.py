@@ -62,5 +62,5 @@ def auto_login_set(LOGIN, USERNAME):
 	eprint("	###	auto_login_off.py closed	###	")
 
 if __name__ == '__main__':
-	auto_login_off(argv[1], argv[2])
+	auto_login_set(argv[1], argv[2])
 
