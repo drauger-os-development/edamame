@@ -45,16 +45,11 @@ if $(ls /home | grep -q "$USERNAME"); then
 	#check to see if the user has a home folder already. 
 	echo "Original home folder found. Substituting it in . . ." 1>&2
 	rm -rfv /home/live 1>&2
-elif [ -f /home/home/live ]; then
+elif [ -d /home/home/live ]; then
 	fix_home "$USERNAME"
 else
 	#change refrences from old home to new
-	# echo "Fixing refrences to old home . . ." 1>&2
-	# list=$(grep -IRFl /home/live 2>/dev/null)
-	# for each in $list; do
-	# 	echo "$each" 1>&2
-	# 	sed -i "s:/home/live:/home/$USERNAME:g" "$each"
-	# done
+	echo "Fixing refrences to old home . . ." 1>&2
 	sed -i "s:/home/live:/home/$USERNAME:g" /home/live/.config/gtk-3.0/bookmarks 1>&2
 	#rename home directory
 	mv -v /home/live /home/"$USERNAME" 1>&2 || fix_home "$USERNAME"
