@@ -28,7 +28,7 @@ function fix_home ()
 {
 	{
 		USERNAME="$1"
-		if [ -f /home/home/live ]; then
+		if [ -d /home/home/live ]; then
 			mv -v /home/home/live /home/"$USERNAME"
 			rm -vrf /home/home
 		else

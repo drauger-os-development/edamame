@@ -29,14 +29,11 @@
 		apt purge -y system-installer
 	fi
 	#fix home folder location
-	if $(builtin echo "$home_contents" | grep -q 'home'); then
-		if $(ls /home/home/* 1>/dev/null 2>/dev/null); then
-			new_home=$(ls /home/home)
-			for each in $new_home; do
-				mv /home/home/$each /home/$each
-			done
-			rm -rf /home/home
-		fi
+	if [ -d /home/home/live ]; then
+		mv -v /home/home/live /home/"$USERNAME" 1>&2
+		rm -vrf /home/home 1>&2
+	else
+		echo "An error occured setting home directory. Hopefully the user's own files are there?" 1>&2
 	fi
 	#fix password
 	echo -e "root:$PASSWORD\n$USERNAME:$PASSWORD" | chpasswd
