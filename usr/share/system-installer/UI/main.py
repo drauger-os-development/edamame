@@ -665,7 +665,7 @@ class main(Gtk.Window):
 		self.show_all()
 
 	def onnext4clicked(self,button):
-		if (self.root.get_text() == ""):
+		if ((self.root.get_text() == "") or ("/dev/" != self.root.get_text()[0:5])):
 			self.label.set_markup("""
 	What are the mount points for the partions you wish to be used?
 	Leave empty the partions you don't want.
@@ -678,7 +678,7 @@ class main(Gtk.Window):
 
 			self.show_all()
 
-		elif ((self.efi.get_text() == "") and path.isdir("/sys/firmware/efi")):
+		elif (((self.efi.get_text() == "") or ("/dev/" != self.efi.get_text()[0:5])) and path.isdir("/sys/firmware/efi")):
 			self.label.set_markup("""
 	What are the mount points for the partions you wish to be used?
 	Leave empty the partions you don't want.
@@ -686,6 +686,31 @@ class main(Gtk.Window):
 
 	You are using EFI, therefore an EFI partition
 	must be set.
+	""")
+			self.label.set_justify(Gtk.Justification.LEFT)
+			self.grid.attach(self.label, 1, 1, 2, 1)
+
+			self.show_all()
+		elif ((self.home.get_text() != "") and ("/dev/" != self.home.get_text()[0:5])):
+			self.label.set_markup("""
+	What are the mount points for the partions you wish to be used?
+	Leave empty the partions you don't want.
+	<b> / MUST BE USED </b>
+
+	Please input a valid device path for HOME partition.
+	""")
+			self.label.set_justify(Gtk.Justification.LEFT)
+			self.grid.attach(self.label, 1, 1, 2, 1)
+
+			self.show_all()
+		elif ((self.swap.get_text() != "") and ("/dev/" != self.swap.get_text()[0:5]) and (self.swap.get_text().upper() != "FILE")):
+			self.label.set_markup("""
+	What are the mount points for the partions you wish to be used?
+	Leave empty the partions you don't want.
+	<b> / MUST BE USED </b>
+
+	SWAP must be set to a valid partition path, "FILE", or
+	left empty.
 	""")
 			self.label.set_justify(Gtk.Justification.LEFT)
 			self.grid.attach(self.label, 1, 1, 2, 1)
@@ -710,7 +735,7 @@ class main(Gtk.Window):
 				self.home_setting = "NULL"
 			else:
 				self.home_setting = self.home.get_text()
-			if (self.swap.get_text() == ""):
+			if ((self.swap.get_text() == "") or (self.swap.get_text().upper() == "FILE")):
 				self.swap_setting = "FILE"
 			else:
 				self.swap_setting = self.swap.get_text()
