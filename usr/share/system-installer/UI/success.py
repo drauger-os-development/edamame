@@ -110,7 +110,7 @@ class main(Gtk.Window):
 
 
 	def chrootclicked(self,button):
-		Popen(["gnome-terminal","-e","\"bash","-c","\\\"echo","When","done,","run","exit;","arch-chroot","/mnt\\\"\""])
+		Popen(["gnome-terminal", "--", "arch-chroot", "/mnt"])
 		exit(0)
 
 	def addPPA(self,button):
