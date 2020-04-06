@@ -26,6 +26,8 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from subprocess import Popen
+from os import rmtree, remove, listdir
+
 class main(Gtk.Window):
 
 	def __init__(self):
@@ -104,8 +106,12 @@ class main(Gtk.Window):
 
 	def delete_install(self,button):
 		# This code is dangerous. Be wary
-		Popen(["rm", "-rf", "/mnt/*"])
-		Popen(["notify-send","Deleting installed system. Check /mnt to make sure eveything was deleted."])
+		delete = listdir("/mnt")
+		for each in delete:
+			try:
+				remove("/mnt/" + each)
+			except IsADirectoryError:
+				rmtree("/mnt/" + each)
 		self.exit("clicked")
 
 
