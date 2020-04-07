@@ -856,53 +856,74 @@ Langauge""")
 		self.label2 = Gtk.Label()
 		self.label2.set_markup("""
 
-Time Zone""")
+Region""")
 		self.label2.set_justify(Gtk.Justification.LEFT)
 		self.grid.attach(self.label2, 2, 4, 1, 1)
 
 		self.time_menu = Gtk.ComboBoxText.new()
-		self.time_menu.append("EST", "Eastern Standard Time")
-		self.time_menu.append("CST", "Central Standard Time")
-		self.time_menu.append("MST", "Mountain Standard Time")
-		self.time_menu.append("PST", "Pacific Standard Time")
-		self.time_menu.append("AST", "Alaska Standard Time")
-		self.time_menu.append("HST", "Hawaii Standard Time")
-		self.time_menu.append("MIT", "Midway Islands Time")
-		self.time_menu.append("NST", "New Zealand Standard Time")
-		self.time_menu.append("SST", "Soloman Standard Time")
-		self.time_menu.append("AET", "Austrailia Eastern Time")
-		self.time_menu.append("ACT", "Austrailia Central Time")
-		self.time_menu.append("JST", "Japan Standard Time")
-		self.time_menu.append("CTT", "China Taiwan Time")
-		self.time_menu.append("VST", "Vietnam Standard Time")
-		self.time_menu.append("BST", "Bangladesh Standard Time")
-		self.time_menu.append("PLT", "Pakistan Lahore Time")
-		self.time_menu.append("NET", "Near East Time")
-		self.time_menu.append("EAT", "East Africa Time")
-		self.time_menu.append("ART", "(Arabic) Egypt Standard Time")
-		self.time_menu.append("EET", "Eastern European Time")
-		self.time_menu.append("ECT", "European Central Time")
-		self.time_menu.append("GMT", "Greenwich Mean Time")
-		self.time_menu.append("CAT", "Central African Time")
-		self.time_menu.append("BET", "Brazil Eastern Time")
-		self.time_menu.append("AGT", "Argentina Standard Time")
-		self.time_menu.append("PRT", "Puerto Rico and US Virgin Islands Time")
-		self.time_menu.append("IET", "Indiana Eastern Standard Time")
+		zones = ["Africa", "America", "Antarctica", "Arctic", "Asia", "Atlantic", "Austrailia", "Brazil", "Canada", "Chile", "Europe", "Indian", "Mexico", "Pacific", "US"]
+		for each in zones:
+			self.time_menu.append(each, each)
+		# self.time_menu.append("EST", "Eastern Standard Time")
+		# self.time_menu.append("CST", "Central Standard Time")
+		# self.time_menu.append("MST", "Mountain Standard Time")
+		# self.time_menu.append("PST", "Pacific Standard Time")
+		# self.time_menu.append("AST", "Alaska Standard Time")
+		# self.time_menu.append("HST", "Hawaii Standard Time")
+		# self.time_menu.append("MIT", "Midway Islands Time")
+		# self.time_menu.append("NST", "New Zealand Standard Time")
+		# self.time_menu.append("SST", "Soloman Standard Time")
+		# self.time_menu.append("AET", "Austrailia Eastern Time")
+		# self.time_menu.append("ACT", "Austrailia Central Time")
+		# self.time_menu.append("JST", "Japan Standard Time")
+		# self.time_menu.append("CTT", "China Taiwan Time")
+		# self.time_menu.append("VST", "Vietnam Standard Time")
+		# self.time_menu.append("BST", "Bangladesh Standard Time")
+		# self.time_menu.append("PLT", "Pakistan Lahore Time")
+		# self.time_menu.append("NET", "Near East Time")
+		# self.time_menu.append("EAT", "East Africa Time")
+		# self.time_menu.append("ART", "(Arabic) Egypt Standard Time")
+		# self.time_menu.append("EET", "Eastern European Time")
+		# self.time_menu.append("ECT", "European Central Time")
+		# self.time_menu.append("GMT", "Greenwich Mean Time")
+		# self.time_menu.append("CAT", "Central African Time")
+		# self.time_menu.append("BET", "Brazil Eastern Time")
+		# self.time_menu.append("AGT", "Argentina Standard Time")
+		# self.time_menu.append("PRT", "Puerto Rico and US Virgin Islands Time")
+		# self.time_menu.append("IET", "Indiana Eastern Standard Time")
 		if (self.time_zone != ""):
 			self.time_menu.set_active_id(self.time_zone)
+		self.time_menu.connect("changed", self.update_subregion)
 		self.grid.attach(self.time_menu, 2, 5, 1, 1)
+
+		self.label2 = Gtk.Label()
+		self.label2.set_markup("""
+
+Sub-Region""")
+		self.label2.set_justify(Gtk.Justification.LEFT)
+		self.grid.attach(self.label2, 2, 6, 1, 1)
+
+		self.sub_region  = Gtk.ComboBoxText.new()
+		self.grid.attach(self.sub_region, 2, 7, 1, 1)
 
 		self.button1 = Gtk.Button.new_with_label("Okay -->")
 		self.button1.connect("clicked", self.onnext3clicked)
-		self.grid.attach(self.button1, 3, 6, 1, 1)
+		self.grid.attach(self.button1, 4, 8, 1, 1)
 
 		self.button2 = Gtk.Button.new_with_label("Exit")
 		self.button2.connect("clicked", self.exit)
-		self.grid.attach(self.button2, 2, 6, 1, 1)
+		self.grid.attach(self.button2, 2, 8, 1, 1)
 
 		self.button1 = Gtk.Button.new_with_label("<-- Back")
 		self.button1.connect("clicked", self.main_menu)
-		self.grid.attach(self.button1, 1, 6, 1, 1)
+		self.grid.attach(self.button1, 1, 8, 1, 1)
+
+		self.show_all()
+
+	def update_subregion(self, widget):
+		zones = sorted(listdir("/usr/share/zoneinfo/" + self.time_menu.get_active_id()))
+		for each in zones:
+			self.sub_region.append(each, each)
 
 		self.show_all()
 
@@ -913,9 +934,9 @@ Time Zone""")
 			self.lang_setting = "english"
 
 		try:
-			self.time_zone = self.time_menu.get_active_id()
+			self.time_zone = self.time_menu.get_active_id() + "/" + self.sub_region.get_active_id()
 		except:
-			self.time_zone = "EST"
+			self.time_zone = "America/New_York"
 
 		global locale_completion
 		locale_completion = "COMPLETED"
@@ -952,6 +973,7 @@ Time Zone""")
 		for each in range(len(layout_list) - 1):
 			if (layout_list[each][0] == "model"):
 				model.append(layout_list[each][len(layout_list[each]) - 1])
+		model = sorted(model)
 		for each in model:
 			self.model_menu.append(each, each)
 		if (self.model_setting != ""):
@@ -968,6 +990,7 @@ Time Zone""")
 		for each in range(len(layout_list) - 1):
 			if (layout_list[each][0] == "layout"):
 				layouts.append(layout_list[each][len(layout_list[each]) - 1])
+		layouts = sorted(layouts)
 		for each in layouts:
 			self.layout_menu.append(each, each)
 		if (self.layout_setting != ""):

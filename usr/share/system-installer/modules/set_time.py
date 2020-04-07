@@ -31,61 +31,62 @@ def eprint(*args, **kwargs):
 
 def _link(location):
 	remove("/etc/localtime")
-	symlink("/usr/share/zoneinfo/Etc/%s" % (location), "/etc/localtime")
+	symlink("/usr/share/zoneinfo/%s" % (location), "/etc/localtime")
 
 
 def set_time(TIME_ZONE):
 	eprint("	###	set_time.py STARTED	###	")
-	if (TIME_ZONE == "GMT"):
-		_link("GMT")
-	elif (TIME_ZONE == "ECT"):
-		_link("GMT+1")
-	elif ((TIME_ZONE == "EET") or (TIME_ZONE == "ART")):
-		_link("GMT+2")
-	elif (TIME_ZONE == "EAT"):
-		_link("GMT+3")
-	elif (TIME_ZONE == "NET"):
-		_link("GMT+4")
-	elif (TIME_ZONE == "PLT"):
-		_link("GMT+5")
-	elif (TIME_ZONE == "BST"):
-		_link("GMT+6")
-	elif (TIME_ZONE == "VST"):
-		_link("GMT+7")
-	elif (TIME_ZONE == "CTT"):
-		_link("GMT+8")
-	elif (TIME_ZONE == "JST"):
-		_link("GMT+9")
-	elif (TIME_ZONE == "ACT"):
-		symlink("/usr/share/zoneinfo/Australia/ACT", "/etc/localtime")
-	elif (TIME_ZONE == "AET"):
-		_link("GMT+10")
-	elif (TIME_ZONE == "SST"):
-		_link("GMT+11")
-	elif (TIME_ZONE == "NST"):
-		_link("GMT+12")
-	elif (TIME_ZONE == "MIT"):
-		_link("GMT-11")
-	elif (TIME_ZONE == "HST"):
-		_link("GMT-10")
-	elif (TIME_ZONE == "AST"):
-		_link("GMT-9")
-	elif (TIME_ZONE == "PST"):
-		_link("GMT-8")
-	elif (TIME_ZONE == "MST"):
-		_link("GMT-7")
-	elif (TIME_ZONE == "CST"):
-		_link("GMT-6")
-	elif ((TIME_ZONE == "EST") or (TIME_ZONE == "IET")):
-		_link("GMT-5")
-	elif (TIME_ZONE == "PRT"):
-		_link("GMT-4")
-	elif ((TIME_ZONE == "AGT") or (TIME_ZONE == "BET")):
-		_link("GMT-3")
-	elif (TIME_ZONE == "CAT"):
-		_link("GMT-1")
-	else:
-		_link("GMT")
+	# if (TIME_ZONE == "GMT"):
+		# _link("GMT")
+	# elif (TIME_ZONE == "ECT"):
+		# _link("GMT+1")
+	# elif ((TIME_ZONE == "EET") or (TIME_ZONE == "ART")):
+		# _link("GMT+2")
+	# elif (TIME_ZONE == "EAT"):
+		# _link("GMT+3")
+	# elif (TIME_ZONE == "NET"):
+		# _link("GMT+4")
+	# elif (TIME_ZONE == "PLT"):
+		# _link("GMT+5")
+	# elif (TIME_ZONE == "BST"):
+		# _link("GMT+6")
+	# elif (TIME_ZONE == "VST"):
+		# _link("GMT+7")
+	# elif (TIME_ZONE == "CTT"):
+		# _link("GMT+8")
+	# elif (TIME_ZONE == "JST"):
+		# _link("GMT+9")
+	# elif (TIME_ZONE == "ACT"):
+		# symlink("/usr/share/zoneinfo/Australia/ACT", "/etc/localtime")
+	# elif (TIME_ZONE == "AET"):
+		# _link("GMT+10")
+	# elif (TIME_ZONE == "SST"):
+		# _link("GMT+11")
+	# elif (TIME_ZONE == "NST"):
+		# _link("GMT+12")
+	# elif (TIME_ZONE == "MIT"):
+		# _link("GMT-11")
+	# elif (TIME_ZONE == "HST"):
+		# _link("GMT-10")
+	# elif (TIME_ZONE == "AST"):
+		# _link("GMT-9")
+	# elif (TIME_ZONE == "PST"):
+		# _link("GMT-8")
+	# elif (TIME_ZONE == "MST"):
+		# _link("GMT-7")
+	# elif (TIME_ZONE == "CST"):
+		# _link("GMT-6")
+	# elif ((TIME_ZONE == "EST") or (TIME_ZONE == "IET")):
+		# _link("GMT-5")
+	# elif (TIME_ZONE == "PRT"):
+		# _link("GMT-4")
+	# elif ((TIME_ZONE == "AGT") or (TIME_ZONE == "BET")):
+		# _link("GMT-3")
+	# elif (TIME_ZONE == "CAT"):
+		# _link("GMT-1")
+	# else:
+		# _link("GMT")
+	_link(TIME_ZONE)
 	system("hwclock --systohc")
 	eprint("	###	set_time.py CLOSED	###	")
 
