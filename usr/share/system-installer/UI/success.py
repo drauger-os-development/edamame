@@ -26,7 +26,8 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from subprocess import Popen
-from os import rmtree, remove, listdir
+from os import remove, listdir
+from shutil import rmtree
 
 class main(Gtk.Window):
 
