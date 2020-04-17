@@ -256,7 +256,7 @@ class main(Gtk.Window):
 			#self.scrolled_window.add_with_viewport(self.grid)
 			self.scrolled_window.add(self.grid)
 
-		self.text_buffer = Gtk.TextBuffer()
+		# self.text_buffer = Gtk.TextBuffer()
 
 		# self.text_buffer.set_text(text, len(text))
 		# self.custom_message = Gtk.TextView.new_with_buffer(self.text_buffer)
@@ -281,6 +281,8 @@ class main(Gtk.Window):
 			self.path = "/var/mail/installation_report.txt"
 			with open(self.path, "w+") as message:
 				message.write("Subject: Installation Report " + datetime.now().strftime("%c") + "\n\n")
+				message.write("system-installer Version: ")
+				message.write(check_output(["system-installer", "-v"]))
 				message.write("\nCPU INFO:\n")
 				if (self.cpu.get_active()):
 					message.write(cpu_info() + "\n")
