@@ -258,9 +258,11 @@ class main(Gtk.Window):
 
 		self.text_buffer = Gtk.TextBuffer()
 
-		self.text_buffer.set_text(text, len(text))
-		self.custom_message = Gtk.TextView.new_with_buffer(self.text_buffer)
-		self.custom_message.set_editable(False)
+		# self.text_buffer.set_text(text, len(text))
+		# self.custom_message = Gtk.TextView.new_with_buffer(self.text_buffer)
+		# self.custom_message.set_editable(False)
+		self.custom_message = Gtk.Label()
+		self.custom_message.set_text(text)
 		self.grid.attach(self.custom_message, 1, 1, 4, 4)
 
 		self.button1 = Gtk.Button.new_with_label("Send Report")
