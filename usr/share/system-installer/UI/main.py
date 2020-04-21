@@ -861,7 +861,7 @@ Region""")
 		self.grid.attach(self.label2, 2, 4, 1, 1)
 
 		self.time_menu = Gtk.ComboBoxText.new()
-		zones = ["Africa", "America", "Antarctica", "Arctic", "Asia", "Atlantic", "Austrailia", "Brazil", "Canada", "Chile", "Europe", "Indian", "Mexico", "Pacific", "US"]
+		zones = ["Africa", "America", "Antarctica", "Arctic", "Asia", "Atlantic", "Australia", "Brazil", "Canada", "Chile", "Europe", "Indian", "Mexico", "Pacific", "US"]
 		for each in zones:
 			self.time_menu.append(each, each)
 		# self.time_menu.append("EST", "Eastern Standard Time")
@@ -921,6 +921,7 @@ Sub-Region""")
 		self.show_all()
 
 	def update_subregion(self, widget):
+		self.sub_region.remove_all()
 		zones = sorted(listdir("/usr/share/zoneinfo/" + self.time_menu.get_active_id()))
 		for each in zones:
 			self.sub_region.append(each, each)
