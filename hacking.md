@@ -18,6 +18,21 @@ However, there are some limitations:
  * A file, `kernel.7z`, is created upon creation of the *.deb package. This file is necessary as it provides a fall-back kernel for installation when the internet is inaccessible.
  
  
+ Installation Procedure
+ ---
+  1. Obtain user settings - Partition the drive if needed
+   
+  2. Mount the partitions in the places they will be in the finished system, this includes swap if it is already present.
+  
+  3. Extract the squashfs, the path to which is defined in `/etc/system-installer/default.config`
+  
+  4. Move the files extracted from the squashfs to the installation directory - this is to circumvent a bug with `unsquashfs` where it won't actually place the files where they are supposed to go. It will instead make a folder named `squashfs-root`, and extract the squashfs there.
+  
+  5. use `arch-chroot` to `chroot` into the newly created OS and configure the installation
+  
+  6. 
+ 
+ 
  Notable files for hacking
  ---
  

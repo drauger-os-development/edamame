@@ -231,10 +231,14 @@ class main(Gtk.Window):
 		self.preview_message("clicked")
 
 	def send_report(self, widget):
-		with open(self.path, "r") as mail:
-			send = mail.read()
-		process = Popen(["sendmail", "-froot", "installation-reports@draugeros.org"], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
-		process.communicate(input=bytes(send, 'utf-8'))
+		try:
+			with open(self.path, "r") as mail:
+				send = mail.read()
+			process = Popen(["sendmail", "-froot", "installation-reports@draugeros.org"], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+			process.communicate(input=bytes(send, 'utf-8'))
+			Popen(["notify-send", "--icon=/usr/share/icons/Drauger/720x720/Menus/install-drauger.png", r"--app-name='System Installer'", r"Installation Report Sent Successfully!"])
+		except:
+			Popen(["notify-send", "--icon=/usr/share/icons/Drauger/720x720/Menus/install-drauger.png", r"--app-name='System Installer'", r"Installation Report Failed to Send"])
 		self.main_menu("clicked")
 
 	def preview_message(self, widget):
