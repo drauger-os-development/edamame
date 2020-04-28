@@ -232,6 +232,14 @@ class main(Gtk.Window):
 		self.preview_message("clicked")
 
 	def send_report(self, widget):
+		self.clear_window()
+
+		self.label = Gtk.Label()
+		self.label.set_markup("\n\n\t\tSending Report. Please Wait . . .\t\t\n\n")
+		self.grid.attach(self.label, 1, 1, 1, 1)
+
+		self.show_all()
+
 		try:
 			with open(self.path, "r") as mail:
 				send = mail.read()
