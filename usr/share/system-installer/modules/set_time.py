@@ -23,6 +23,7 @@
 #
 from os import symlink, system, remove
 from sys import stderr, argv
+from subprocess import Popen
 
 
 def eprint(*args, **kwargs):
@@ -35,6 +36,7 @@ def _link(location):
 	remove("/etc/timezone")
 	with open("/etc/timezone", "w+") as timezone:
 		timezone.write(location)
+	Popen(["timedatectl", "set-ntp", "true"])
 
 
 
