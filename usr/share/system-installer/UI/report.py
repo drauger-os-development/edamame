@@ -27,6 +27,7 @@ from gi.repository import Gtk
 from subprocess import Popen, check_output, PIPE, STDOUT
 from os import remove, listdir, getenv
 from datetime import datetime
+from shutil import copyfile
 
 class main(Gtk.Window):
 
@@ -239,6 +240,7 @@ class main(Gtk.Window):
 			Popen(["notify-send", "--icon=/usr/share/icons/Drauger/720x720/Menus/install-drauger.png", r"--app-name='System Installer'", r"Installation Report Sent Successfully!"])
 		except:
 			Popen(["notify-send", "--icon=/usr/share/icons/Drauger/720x720/Menus/install-drauger.png", r"--app-name='System Installer'", r"Installation Report Failed to Send"])
+		copyfile(self.path, "/mnt/var/mail/installation_report.txt")
 		self.main_menu("clicked")
 
 	def preview_message(self, widget):
