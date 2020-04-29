@@ -30,80 +30,76 @@ import sys, select
 
 class main(Gtk.Window):
 
-	def __init__(self):
-		Gtk.Window.__init__(self, title="System Installer")
-		self.grid=Gtk.Grid(orientation=Gtk.Orientation.VERTICAL)
-		self.add(self.grid)
-		self.set_icon_from_file("/usr/share/icons/Drauger/720x720/Menus/install-drauger.png")
+    def __init__(self):
+        Gtk.Window.__init__(self, title="System Installer")
+        self.grid=Gtk.Grid(orientation=Gtk.Orientation.VERTICAL)
+        self.add(self.grid)
+        self.set_icon_from_file("/usr/share/icons/Drauger/720x720/Menus/install-drauger.png")
 
-		self.label = Gtk.Label()
-		self.label.set_markup("""	Installing Drauger OS to your internal hard drive.\nThis may take some time. If you have an error, please send\nthe log file (located at /tmp/system-installer.log) to: contact@draugeros.org	""")
-		self.label.set_justify(Gtk.Justification.CENTER)
-		self.grid.attach(self.label, 1, 1, 1, 1)
-
-
-		self.progress = Gtk.ProgressBar()
-		self.progress.set_fraction(0)
-		self.progress.set_show_text(True)
-		self.progress.set_text("0 %")
-		self.source_id = GLib.timeout_add(1000, self.pulse)
-		self.grid.attach(self.progress, 1, 3, 1, 1)
-
-		self.file_contents = Gtk.TextBuffer()
-		self.text = Gtk.TextView.new_with_buffer(self.file_contents)
-		self.text.set_editable(False)
-		self.text.set_cursor_visible(False)
-		self.text.set_monospace(True)
-		self.grid.attach(self.text, 1, 5, 1, 1)
-
-		self.read_file()
-
-	def read_file(self):
-		text = ""
-		with open("/home/batcastle/Dropbox/GitHub/system-installer/usr/share/system-installer/UI/test.txt", "r") as read_file:
-			text = read_file.read()
-		self.file_contents.set_text(text, len(text))
-
-		self.show_all()
+        self.label = Gtk.Label()
+        self.label.set_markup("""   Installing Drauger OS to your internal hard drive.\nThis may take some time. If you have an error, please send\nthe log file (located at /tmp/system-installer.log) to: contact@draugeros.org   """)
+        self.label.set_justify(Gtk.Justification.CENTER)
+        self.grid.attach(self.label, 1, 1, 1, 1)
 
 
-	def pulse(self):
-		self.read_file()
-		print("pulse")
-		i, o, e = select.select( [sys.stdin], [], [], 1 )
-		fraction=sys.stdin.readline().strip()
-		if (not i):
-			print("got nothing")
-			self.read_file()
-			return True
-		fraction_bar=int(fraction) / 100
-		self.progress.set_fraction(fraction_bar)
-		self.progress.set_text(fraction + " %")
-		if (fraction == 100):
-			self.exit("clicked")
+        self.progress = Gtk.ProgressBar()
+        self.progress.set_fraction(0)
+        self.progress.set_show_text(True)
+        self.progress.set_text("0 %")
+        self.source_id = GLib.timeout_add(1000, self.pulse)
+        self.grid.attach(self.progress, 1, 3, 1, 1)
 
-		self.show_all()
-		self.read_file()
+        self.file_contents = Gtk.TextBuffer()
+        self.text = Gtk.TextView.new_with_buffer(self.file_contents)
+        self.text.set_editable(False)
+        self.text.set_cursor_visible(False)
+        self.text.set_monospace(True)
+        self.grid.attach(self.text, 1, 5, 1, 1)
 
-	def exit(self,button):
-		Gtk.main_quit("delete-event")
-		print(1)
-		exit(1)
+        self.read_file()
+
+    def read_file(self):
+        text = ""
+        with open("/home/batcastle/Dropbox/GitHub/system-installer/usr/share/system-installer/UI/test.txt", "r") as read_file:
+            text = read_file.read()
+        self.file_contents.set_text(text, len(text))
+
+        self.show_all()
 
 
-def exit_button(x,y):
-	Gtk.main_quit("delete-event")
-	exit(1)
+    def pulse(self):
+        self.read_file()
+        print("pulse")
+        i, o, e = select.select( [sys.stdin], [], [], 1 )
+        fraction=sys.stdin.readline().strip()
+        if (not i):
+            print("got nothing")
+            self.read_file()
+            return True
+        fraction_bar=int(fraction) / 100
+        self.progress.set_fraction(fraction_bar)
+        self.progress.set_text(fraction + " %")
+        if (fraction == 100):
+            self.exit("clicked")
+
+        self.show_all()
+        self.read_file()
+
+    def exit(self,button):
+        Gtk.main_quit("delete-event")
+        self.destroy()
+        print(1)
+        return(1)
 
 def show_main():
-	window = main()
-	window.set_decorated(True)
-	window.set_resizable(False)
-	window.set_deletable(False)
-	window.set_position(Gtk.WindowPosition.CENTER)
-	window.connect("delete-event",main.exit)
-	window.show_all()
-	Gtk.main()
+    window = main()
+    window.set_decorated(True)
+    window.set_resizable(False)
+    window.set_deletable(False)
+    window.set_position(Gtk.WindowPosition.CENTER)
+    window.connect("delete-event",main.exit)
+    window.show_all()
+    Gtk.main()
 
-
-show_main()
+if __name__ == '__main__':
+    show_main()

@@ -28,67 +28,66 @@ from sys import argv
 from subprocess import Popen, check_output, PIPE, STDOUT
 from os import remove, listdir, getenv
 from datetime import datetime
-import report
-
-display = str(argv[1])
+import UI.report as report
 
 class main(Gtk.Window):
-	def __init__(self):
-		global display
-		Gtk.Window.__init__(self, title="System Installer")
-		self.grid=Gtk.Grid(orientation=Gtk.Orientation.VERTICAL)
-		self.add(self.grid)
-		self.set_icon_from_file("/usr/share/icons/Drauger/720x720/Menus/install-drauger.png")
-		self.scrolling = False
-		self.opt_setting = False
-		self.cpu_setting = False
-		self.gpu_setting = False
-		self.ram_setting = False
-		self.disk_setting = False
-		self.log_setting = False
-		self.custom_setting = False
-		self.main_menu("clicked")
+    def __init__(self):
+        global display
+        Gtk.Window.__init__(self, title="System Installer")
+        self.grid=Gtk.Grid(orientation=Gtk.Orientation.VERTICAL)
+        self.add(self.grid)
+        self.set_icon_from_file("/usr/share/icons/Drauger/720x720/Menus/install-drauger.png")
+        self.scrolling = False
+        self.opt_setting = False
+        self.cpu_setting = False
+        self.gpu_setting = False
+        self.ram_setting = False
+        self.disk_setting = False
+        self.log_setting = False
+        self.custom_setting = False
+        self.main_menu("clicked")
 
-	def main_menu(self, widget):
-		self.clear_window()
+    def main_menu(self, widget):
+        self.clear_window()
 
-		self.label = Gtk.Label()
-		self.label.set_markup("<b>" + display  + "</b>")
-		self.label.set_justify(Gtk.Justification.CENTER)
-		self.grid.attach(self.label, 1, 1, 3, 1)
+        self.label = Gtk.Label()
+        self.label.set_markup("<b>" + display  + "</b>")
+        self.label.set_justify(Gtk.Justification.CENTER)
+        self.grid.attach(self.label, 1, 1, 3, 1)
 
-		self.label2 = Gtk.Label()
-		self.label2.set_markup("""
-	If you wish to notify the developers of this failed installation,\t\t
-	you can send an installation report below.
-	""")
-		self.label2.set_justify(Gtk.Justification.CENTER)
-		self.grid.attach(self.label2, 1, 2, 3, 1)
+        self.label2 = Gtk.Label()
+        self.label2.set_markup("""
+    If you wish to notify the developers of this failed installation,\t\t
+    you can send an installation report below.
+    """)
+        self.label2.set_justify(Gtk.Justification.CENTER)
+        self.grid.attach(self.label2, 1, 2, 3, 1)
 
-		self.button2 = Gtk.Button.new_with_label("Exit")
-		self.button2.connect("clicked", self.exit)
-		self.grid.attach(self.button2, 1, 3, 1, 1)
+        self.button2 = Gtk.Button.new_with_label("Exit")
+        self.button2.connect("clicked", self.exit)
+        self.grid.attach(self.button2, 1, 3, 1, 1)
 
-		self.button = Gtk.Button.new_with_label("Send Installation report")
-		self.button.connect("clicked", self.main)
-		self.grid.attach(self.button, 3, 3, 1, 1)
+        self.button = Gtk.Button.new_with_label("Send Installation report")
+        self.button.connect("clicked", self.main)
+        self.grid.attach(self.button, 3, 3, 1, 1)
 
-		self.show_all()
+        self.show_all()
 
-	def clear_window(self):
-		children = self.grid.get_children()
-		for each in children:
-			self.grid.remove(each)
-		if (self.scrolling):
-			self.scrolled_window.remove(self.grid)
-			self.remove(self.scrolled_window)
-			self.add(self.grid)
-			self.scrolling = False
-			self.set_default_size(-1, -1)
+    def clear_window(self):
+        children = self.grid.get_children()
+        for each in children:
+            self.grid.remove(each)
+        if (self.scrolling):
+            self.scrolled_window.remove(self.grid)
+            self.remove(self.scrolled_window)
+            self.add(self.grid)
+            self.scrolling = False
+            self.set_default_size(-1, -1)
 
-	def exit(self,button):
-		Gtk.main_quit("delete-event")
-		exit(0)
+    def exit(self,button):
+        Gtk.main_quit("delete-event")
+        self.destroy()
+        return(0)
 
 main.main = report.main.main
 main.toggle_UI = report.main.toggle_UI
@@ -112,13 +111,14 @@ main.toggle_UI = report.main.toggle_UI
 main.main = report.main.main
 
 def show_main():
-	window = main()
-	window.set_decorated(True)
-	window.set_resizable(False)
-	window.set_position(Gtk.WindowPosition.CENTER)
-	window.connect("delete-event", Gtk.main_quit)
-	window.show_all()
-	Gtk.main()
+    window = main()
+    window.set_decorated(True)
+    window.set_resizable(False)
+    window.set_position(Gtk.WindowPosition.CENTER)
+    window.connect("delete-event", Gtk.main_quit)
+    window.show_all()
+    Gtk.main()
 
-
-show_main()
+if __name__ == '__main__':
+    display = str(argv[1])
+    show_main()
