@@ -23,7 +23,8 @@
 #
 echo "	###	make_user.sh STARTED	###	" 1>&2
 echo "49"
-
+USERNAME="$1"
+PASSWORD="$2"
 function fix_home () 
 {
 	{
