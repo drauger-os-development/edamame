@@ -173,7 +173,7 @@ if [ "$UPDATES" == "" ]; then
 	UPDATES=false
 fi
 # we don't check EFI or ROOT cause if they weren't set the script would have failed.
-arch-chroot /mnt '/MASTER.sh' "$LANG_SET , $TIME_ZONE , $USERNAME , $PASS , $COMP_NAME , $EXTRAS , $UPDATES , $EFI , $ROOT , $LOGIN , $MODEL , $LAYOUT , $VARIENT"
+arch-chroot /mnt "python3" "/master.py" "$LANG_SET" "$TIME_ZONE" "$USERNAME" "$PASS" "$COMP_NAME" "$EXTRAS" "$UPDATES" "$EFI" "$ROOT" "$LOGIN" "$MODEL" "$LAYOUT" "$VARIENT" "$SWAP"
 #STEP 7: Clean up
 #I know this isn't the best way of doing this, but it is easier than changing each of the file name in $LIST
 echo "Removing installation scripts and resetting resolv.conf" 1>&2
