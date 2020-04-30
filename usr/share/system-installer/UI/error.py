@@ -31,8 +31,8 @@ from datetime import datetime
 import UI.report as report
 
 class main(Gtk.Window):
-    def __init__(self):
-        global display
+    def __init__(self, display):
+        self.display = display
         Gtk.Window.__init__(self, title="System Installer")
         self.grid=Gtk.Grid(orientation=Gtk.Orientation.VERTICAL)
         self.add(self.grid)
@@ -51,7 +51,7 @@ class main(Gtk.Window):
         self.clear_window()
 
         self.label = Gtk.Label()
-        self.label.set_markup("<b>" + display  + "</b>")
+        self.label.set_markup("<b>" + self.display  + "</b>")
         self.label.set_justify(Gtk.Justification.CENTER)
         self.grid.attach(self.label, 1, 1, 3, 1)
 
@@ -111,7 +111,7 @@ main.toggle_UI = report.main.toggle_UI
 main.main = report.main.main
 
 def show_main():
-    window = main()
+    window = main(display)
     window.set_decorated(True)
     window.set_resizable(False)
     window.set_position(Gtk.WindowPosition.CENTER)

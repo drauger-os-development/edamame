@@ -32,7 +32,7 @@ def eprint(*args, **kwargs):
 
 class main(Gtk.Window):
 
-    def __init__(self):
+    def __init__(self, AUTO_PART, ROOT, EFI, HOME, SWAP, LANG, TIME_ZONE, USERNAME, PASS, COMPNAME, EXTRAS, UPDATES, LOGIN, MODEL, LAYOUT, VARIENT):
         Gtk.Window.__init__(self, title="System Installer")
         self.grid=Gtk.Grid(orientation=Gtk.Orientation.VERTICAL)
         self.add(self.grid)
@@ -143,7 +143,7 @@ SWAP: %s""" % (ROOT,EFI,HOME,SWAP))
         self.grid.attach(self.label23, 1, 12, 1, 1)
 
         self.label24 = Gtk.Label()
-        self.label24.set_markup(LOGIN)
+        self.label24.set_markup(str(LOGIN))
         self.label24.set_justify(Gtk.Justification.CENTER)
         self.grid.attach(self.label24, 3, 12, 1, 1)
 
@@ -160,7 +160,7 @@ SWAP: %s""" % (ROOT,EFI,HOME,SWAP))
         self.grid.attach(self.label19, 1, 14, 1, 1)
 
         self.label20 = Gtk.Label()
-        self.label20.set_markup(EXTRAS)
+        self.label20.set_markup(str(EXTRAS))
         self.label20.set_justify(Gtk.Justification.CENTER)
         self.grid.attach(self.label20, 3, 14, 1, 1)
 
@@ -170,7 +170,7 @@ SWAP: %s""" % (ROOT,EFI,HOME,SWAP))
         self.grid.attach(self.label21, 1, 15, 1, 1)
 
         self.label22 = Gtk.Label()
-        self.label22.set_markup(UPDATES)
+        self.label22.set_markup(str(UPDATES))
         self.label22.set_justify(Gtk.Justification.CENTER)
         self.grid.attach(self.label22, 3, 15, 1, 1)
 
@@ -209,24 +209,37 @@ SWAP: %s""" % (ROOT,EFI,HOME,SWAP))
         self.grid.attach(self.button1, 3, 19, 1, 1)
 
         self.button2 = Gtk.Button.new_with_label("Exit")
-        self.button2.connect("clicked", self.onexitclicked)
+        self.button2.connect("clicked", self.exit)
         self.grid.attach(self.button2, 1, 19, 1, 1)
 
     def onnextclicked(self,button):
-            return(0)
+        self.install = True
+        self.exit("clicked")
 
     def onexitclicked(self,button):
-            return(1)
+        self.install = False
+        self.exit("clicked")
 
+    def exit(self, button):
+        Gtk.main_quit("delete-event")
+        self.destroy()
+        print(1)
+        return(1)
 
-def show_main():
-    window = main()
-    window.set_decorated(False)
+    def return_install(self):
+        return self.install
+
+def show_confirm(auto_part, root, efi, home, swap, lang, time_zone, username, password, comp_name, extras, updates, login, model, layout, varient):
+    window = main(auto_part, root, efi, home, swap, lang, time_zone, username, password, comp_name, extras, updates, login, model, layout, varient)
+    window.set_decorated(True)
     window.set_resizable(False)
     window.set_position(Gtk.WindowPosition.CENTER)
-    window.connect("delete-event", Gtk.main_quit)
+    window.connect("delete-event", main.exit)
     window.show_all()
     Gtk.main()
+    data = window.return_install()
+    window.exit("clicked")
+    return data
 
 if __name__ == '__main__':
     SETTINGS = argv[1]
@@ -270,4 +283,5 @@ if __name__ == '__main__':
     else:
         LOGIN = "No"
 
-    show_main()
+    show_confirm(AUTO_PART, ROOT, EFI, HOME, SWAP, LANG, TIME_ZONE, USERNAME,
+        PASS, COMPNAME, EXTRAS, UPDATES, LOGIN, MODEL, LAYOUT, VARIENT)

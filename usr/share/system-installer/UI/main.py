@@ -1088,7 +1088,13 @@ Sub-Region""")
         Please complete these segments, then try again.
         Or, exit installation.\n""")
         else:
-            # Vars to print:
+            self.complete()
+        self.show_all()
+
+    def complete(self):
+        Gtk.main_quit("delete-event")
+        self.destroy()
+        # Vars to return:
             #   1  * self.auto_part_setting
             #   2  * self.password_setting
             #   3  * self.username_setting
@@ -1105,9 +1111,11 @@ Sub-Region""")
             #   14 * self.lang_setting
             #   15 * self.time_zone
             #   16 * self.varient_setting
-            print("%s , %s , %s , %s , %s , %s , %s , %s , %s , %s , %s , %s , %s , %s , %s , %s" % (self.auto_part_setting, self.root_setting, self.efi_setting, self.home_setting, self.swap_setting, self.lang_setting, self.time_zone, self.username_setting, self.compname_setting, self.password_setting, self.extras_setting, self.updates_setting, self.login_setting, self.model_setting, self.layout_setting,self.varient_setting))
-            exit(0)
-        self.show_all()
+        if ((self.root_setting == "") or (self.efi_setting == "") or (self.home_setting == "") or (self.swap_setting == "") or (self.auto_part_setting == "") or (self.lang_setting == "") or (self.time_zone == "") or (self.username_setting == "") or (self.compname_setting == "") or (self.password_setting == "") or (self.extras_setting == "") or (self.updates_setting == "") or (self.login_setting == "") or (self.model_setting == "") or (self.layout_setting == "") or (self.varient_setting == "")):
+            self.data = 1
+        else:
+            self.data = [self.auto_part_setting, self.root_setting, self.efi_setting, self.home_setting, self.swap_setting, self.lang_setting, self.time_zone, self.username_setting, self.password_setting, self.compname_setting, bool(self.extras_setting), bool(self.updates_setting), bool(self.login_setting), self.model_setting, self.layout_setting, self.varient_setting]
+
 
     def exit(self,button):
         Gtk.main_quit("delete-event")
@@ -1120,6 +1128,9 @@ Sub-Region""")
         for each in children:
             self.grid.remove(each)
 
+    def return_data(self):
+        return self.data
+
 
 def show_main():
     window = main()
@@ -1129,6 +1140,9 @@ def show_main():
     window.connect("delete-event", main.exit)
     window.show_all()
     Gtk.main()
+    data = window.return_data()
+    window.exit("clicked")
+    return data
 
 if __name__ == '__main__':
     show_main()
