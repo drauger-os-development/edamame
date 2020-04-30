@@ -110,7 +110,7 @@ main.ram_toggle = report.main.ram_toggle
 main.toggle_UI = report.main.toggle_UI
 main.main = report.main.main
 
-def show_main():
+def show_error(display):
     window = main(display)
     window.set_decorated(True)
     window.set_resizable(False)
@@ -121,4 +121,4 @@ def show_main():
 
 if __name__ == '__main__':
     display = str(argv[1])
-    show_main()
+    show_error(display)

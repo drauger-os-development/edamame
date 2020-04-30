@@ -91,7 +91,7 @@ class main(Gtk.Window):
         print(1)
         return(1)
 
-def show_main():
+def show_progress():
     window = main()
     window.set_decorated(True)
     window.set_resizable(False)
@@ -102,4 +102,4 @@ def show_main():
     Gtk.main()
 
 if __name__ == '__main__':
-    show_main()
+    show_progress()

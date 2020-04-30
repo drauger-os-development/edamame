@@ -234,7 +234,7 @@ main.ram_toggle = report.main.ram_toggle
 main.toggle_UI = report.main.toggle_UI
 main.main = report.main.main
 
-def show_main():
+def show_success():
     window = main()
     window.set_decorated(True)
     window.set_resizable(False)
@@ -244,4 +244,4 @@ def show_main():
     Gtk.main()
 
 if __name__ == '__main__':
-    show_main()
+    show_success()
