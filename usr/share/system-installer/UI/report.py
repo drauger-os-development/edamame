@@ -327,8 +327,11 @@ class main(Gtk.Window):
                 message.write("\n")
                 message.write("INSTALLATION LOG:\n")
                 if (self.log.get_active()):
-                    with open("/tmp/system-installer.log", "r") as log:
-                        message.write(log.read())
+                    try:
+                        with open("/tmp/system-installer.log", "r") as log:
+                            message.write(log.read())
+                    except FileNotFoundError:
+                        message.write("Log does not exist.")
                 else:
                     message.write("OPT OUT\n")
                 message.write("\n")
