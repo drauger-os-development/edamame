@@ -60,23 +60,24 @@ class main(Gtk.Window):
 
     def read_file(self):
         text = ""
-        with open("/home/batcastle/Dropbox/GitHub/system-installer/usr/share/system-installer/UI/test.txt", "r") as read_file:
-            text = read_file.read()
-        self.file_contents.set_text(text, len(text))
+        try:
+            with open("/tmp/system-installer.log", "r") as read_file:
+                text = read_file.read()
+            self.file_contents.set_text(text, len(text))
+        except:
+            self.file_contents.set_text("", len(""))
 
         self.show_all()
 
 
     def pulse(self):
         self.read_file()
-        print("pulse")
-        i, o, e = select.select( [sys.stdin], [], [], 1 )
-        fraction=sys.stdin.readline().strip()
-        if (not i):
-            print("got nothing")
-            self.read_file()
-            return True
-        fraction_bar=int(fraction) / 100
+        fraction = ""
+        try:
+            with open("/tmp/.system-installer-progress.log", "r") as prog_file:
+                fraction = prog_file.read()
+        except:
+            fraction = "0"
         self.progress.set_fraction(fraction_bar)
         self.progress.set_text(fraction + " %")
         if (fraction == 100):

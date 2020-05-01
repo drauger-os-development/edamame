@@ -1114,7 +1114,17 @@ Sub-Region""")
         if ((self.root_setting == "") or (self.efi_setting == "") or (self.home_setting == "") or (self.swap_setting == "") or (self.auto_part_setting == "") or (self.lang_setting == "") or (self.time_zone == "") or (self.username_setting == "") or (self.compname_setting == "") or (self.password_setting == "") or (self.extras_setting == "") or (self.updates_setting == "") or (self.login_setting == "") or (self.model_setting == "") or (self.layout_setting == "") or (self.varient_setting == "")):
             self.data = 1
         else:
-            self.data = [self.auto_part_setting, self.root_setting, self.efi_setting, self.home_setting, self.swap_setting, self.lang_setting, self.time_zone, self.username_setting, self.password_setting, self.compname_setting, bool(self.extras_setting), bool(self.updates_setting), bool(self.login_setting), self.model_setting, self.layout_setting, self.varient_setting]
+            self.data = {"AUTO_PART":bool(self.auto_part_setting),
+                "ROOT":self.root_setting, "EFI":self.efi_setting,
+                "HOME":self.home_setting, "SWAP":self.swap_setting,
+                "LANG":self.lang_setting, "TIME_ZONE":self.time_zone,
+                "USERNAME":self.username_setting,
+                "PASSWORD":self.password_setting,
+                "COMPUTER_NAME":self.compname_setting,
+                "EXTRAS":bool(self.extras_setting),
+                "UPDATES":bool(self.updates_setting),
+                "LOGIN":bool(self.login_setting), "MODEL":self.model_setting,
+                "LAYOUT":self.layout_setting, "VARIENT":self.varient_setting}
 
 
     def exit(self,button):
