@@ -98,7 +98,7 @@
 	echo "	###	auto-partioner.sh CLOSED	###	"
 } 1>&2
 if [ "$EFI" == "True" ]; then
-	echo "EFI:$PART1 ROOT:$PART2 HOME:$PART3"
+	echo "{\"EFI\":\"$PART1\", \"ROOT\":\"$PART2\", \"HOME\":\"$PART3\"}"
 else
-	echo "EFI:NULL ROOT:$PART1 HOME:$PART3"
+	echo "{\"EFI\":\"NULL\", \"ROOT\":\"$PART1\", \"HOME\":\"$PART3\"}"
 fi

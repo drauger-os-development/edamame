@@ -26,8 +26,10 @@ from sys import argv, stderr
 from subprocess import Popen, PIPE, check_output
 from psutil import virtual_memory
 from os import path
+import multiprocessing
 import json
 import UI
+import installer
 
 # Make it easier for us to print to stderr
 def eprint(*args, **kwargs):
@@ -60,14 +62,22 @@ try:
         exit(2)
 except TypeError:
     pass
-install = UI.confirm.show_confirm(settings[0], settings[1], settings[2], settings[3], settings[4], settings[5], settings[6], settings[7], settings[8], settings[9], settings[10], settings[11], settings[12], settings[13], settings[14], settings[15])
+install = UI.confirm.show_confirm(settings["AUTO_PART"], settings["ROOT"],
+    settings["EFI"], settings["HOME"], settings["SWAP"], settings["LANG"],
+    settings["TIME_ZONE"], settings["USERNAME"], settings["PASSWORD"],
+    settings["COMPUTER_NAME"], settings["EXTRAS"], settings["UPDATES"],
+    settings["LOGIN"], settings["MODEL"], settings["LAYOUT"],
+    settings["VARIENBT"])
 if install:
     settings = list(str(settings))
     del settings[0]
     del settings[len(settings) - 1]
     settings = "".join(settings)
     try:
-        Popen(["./installer.sh", settings])
+        progress = Process(target=UI.progress.show_progress())
+        progress.start()
+        installer.install(settings)
+        progress.join()
     except:
         UI.error.show_error("\n\tError detected.\t\n\tPlease see /tmp/system-installer.log for details.\t\n")
 else:

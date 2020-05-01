@@ -1,0 +1,26 @@
+{
+	"DATA":{
+		"LANG":"english",
+		"TIME_ZONE":"America/New_York",
+		"AUTO_PART":false,
+		"ROOT":"/dev/sda2",
+		"EFI":"/dev/sda1",
+		"HOME":null,
+		"SWAP":"/dev/sda3",
+		"USERBNAME":"admin",
+		"PASSWORD":"toor",
+		"COMPUTER_NAME":"computer-name",
+		"EXTRAS":true,
+		"UPDATES":false,
+		"LOGIN":true,
+		"MODEL":"Acer laptop",
+		"LAYOUT":"English(US)",
+		"VARIENT":"English(US) - English(US, euro on 5)"
+	},
+	"COMMENTS":["Any comments, put in this 'comment' field,
+	"Everything must follow JSON syntax still but you can write a comment at least.",
+	"It doesn't matter what your file name is, as long as it is in JSON format.",
+	"Maybe add functionality to export settings as JSON post-install in the future?"
+	]
+}
+
