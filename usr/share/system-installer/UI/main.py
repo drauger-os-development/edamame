@@ -22,13 +22,16 @@
 #
 #
 from __future__ import print_function
-import gi
-gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, Gdk
-import re
 from subprocess import Popen, check_output, DEVNULL
 from os import getcwd, chdir, path, listdir
 from sys import stderr
+import re
+import gi
+import json
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+
+
 
 def eprint(*args, **kwargs):
     print(*args, file=stderr, **kwargs)
