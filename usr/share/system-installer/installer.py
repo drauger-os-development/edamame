@@ -24,7 +24,7 @@
 from __future__ import print_function
 from sys import stderr
 from subprocess import Popen, check_output, check_call
-from os import mkdir, path, chdir, listdir, remove
+from os import mkdir, path, chdir, listdir, remove, symlink
 from shutil import rmtree, move
 import json
 import UI
@@ -99,7 +99,7 @@ def install(settings):
         __mount__(settings["HOME"], "/mnt/home")
     if settings["SWAP"] != "FILE":
         # This can happen in the background. No biggie.
-        Popen(["swapon", settings["SWAP"])
+        Popen(["swapon", settings["SWAP"]])
     else:
         eprint("SWAPFILE NOT CREATED YET")
     __update__(14)
@@ -139,6 +139,9 @@ def install(settings):
     file_list = list_dir("/boot")
     for each in file_list:
         copyfile("/boot/" + each, "/mnt/boot/" + each)
+    copyfile("/tmp/.system-installer-progress.log", "/mnt/tmp/.system-installer-progress.log")
+    remove("/tmp/.system-installer-progress.log")
+    symlink("/mnt/tmp/.system-installer-progress.log","/tmp/.system-installer-progress.log")
     __update__(32)
     # STEP 4: Update fstab
     remove("/mnt/etc/fstab")
@@ -216,5 +219,7 @@ def install(settings):
     except FileNotFoundError:
         pass
     __update__(100)
+    remove("/tmp/.system-installer-progress.log")
+    remove("/mnt/tmp/.system-installer-progress.log")
     eprint("\t###\tinstaller.py CLOSED\t###\t")
 
