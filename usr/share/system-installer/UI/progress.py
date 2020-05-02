@@ -80,7 +80,7 @@ class main(Gtk.Window):
             fraction = "0"
         self.progress.set_fraction(fraction_bar)
         self.progress.set_text(fraction + " %")
-        if (fraction == 100):
+        if (fraction == "100"):
             self.exit("clicked")
 
         self.show_all()
@@ -89,7 +89,6 @@ class main(Gtk.Window):
     def exit(self,button):
         Gtk.main_quit("delete-event")
         self.destroy()
-        print(1)
         return(1)
 
 def show_progress():
