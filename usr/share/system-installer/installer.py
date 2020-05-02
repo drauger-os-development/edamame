@@ -189,7 +189,11 @@ def install(settings):
         settings["UPDATES"] = False
     # ues check_call(["arch-chroot", "python3", "/master.py", ...]) because it
     # jumps through a lot of hoops for us.
-    check_call(["arch-chroot", "python3", "/master.py", settings], stdout=stderr.buffer)
+    # check_call(["arch-chroot", "python3", "/master.py", settings], stdout=stderr.buffer)
+    internet = master.check_internet()
+    real_root = chroot.chroot("/mnt")
+    master.install(settings, internet)
+    chroot.de_chroot(real_root, "/mnt")
     eprint("Removing installation scripts and resetting resolv.conf")
     for each in file_list:
         remove("/mnt/" + each)
