@@ -74,11 +74,11 @@ class main(Gtk.Window):
         self.read_file()
         fraction = ""
         try:
-            with open("/tmp/.system-installer-progress.log", "r") as prog_file:
+            with open("/tmp/system-installer-progress.log", "r") as prog_file:
                 fraction = prog_file.read()
         except:
             fraction = "0"
-        self.progress.set_fraction(fraction_bar)
+        self.progress.set_fraction(int(fraction))
         self.progress.set_text(fraction + " %")
         if (fraction == "100"):
             self.exit("clicked")

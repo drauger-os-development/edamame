@@ -24,7 +24,7 @@
 from __future__ import print_function
 from sys import stderr
 from subprocess import Popen, check_output, check_call
-from os import mkdir, path, chdir, listdir, remove, symlink
+from os import mkdir, path, chdir, listdir, remove, symlink, chmod
 from shutil import rmtree, move
 import json
 import UI
@@ -39,11 +39,20 @@ def __mount__(device, path):
     But, that keeps throwing an 'Invalid Argument' error.
     Calling Mount with check_call is the safer option.
     """
-    return check_call(["mount", device, path])
+    try:
+        check_call(["mount", device, path])
+    except:
+        pass
 
 def __update__(percentage):
-    with open("/tmp/.system-installer-progress.log", "w+") as progress:
-        progress.write(percentage)
+    try:
+        with open("/tmp/system-installer-progress.log", "w+") as progress:
+            progress.write(str(percentage))
+    except PermissionError:
+        chmod("/tmp/system-installer-progress.log", 0o666)
+        with open("/tmp/system-installer-progress.log", "w+") as progress:
+            progress.write(str(percentage))
+
 
 def install(settings):
     eprint("\t###\tinstaller.py STARTED\t###\t")
@@ -79,7 +88,7 @@ def install(settings):
         settings["HOME"] = partitioning["HOME"]
     __update__(12)
     # STEP 2: Mount the new partitions
-    Popen(["mount", settings["ROOT"], "/mnt"])
+    __mount__(settings["ROOT"], "/mnt")
     if settings["EFI"] != "NULL":
         try:
             mkdir("/mnt/boot")
@@ -106,7 +115,7 @@ def install(settings):
     # STEP 3: Unsquash the sqaushfs and get the files where they need to go
     squashfs = ""
     with open("/etc/system-installer/default.json", "r") as config:
-        squashfs = json.loads(config.read())["squashfs_location"]
+        squashfs = json.loads(config.read())["squashfs_Location"]
     if not path.exists(squashfs):
         eprint("\n\tSQUASHFS FILE DOES NOT EXIST\t\n")
         UI.error.show_error("\n\tSQUASHFS FILE DOES NOT EXIST\t\n")
@@ -127,7 +136,7 @@ def install(settings):
                 remove(each)
     chdir("/mnt")
     check_call(["unsquashfs", squashfs])
-    file_list = list_dir("/mnt/squashfs-root")
+    file_list = listdir("/mnt/squashfs-root")
     for each in file_list:
         eprint("/mnt/squashfs-root/" + each + "--> /mnt/" + each)
         move("/mnt/squashfs-root/" + each, "/mnt/" + each)
@@ -136,12 +145,12 @@ def install(settings):
         mkdir("/mnt/boot")
     except FileExistsError:
         eprint("/mnt/boot already created")
-    file_list = list_dir("/boot")
+    file_list = listdir("/boot")
     for each in file_list:
         copyfile("/boot/" + each, "/mnt/boot/" + each)
-    copyfile("/tmp/.system-installer-progress.log", "/mnt/tmp/.system-installer-progress.log")
-    remove("/tmp/.system-installer-progress.log")
-    symlink("/mnt/tmp/.system-installer-progress.log","/tmp/.system-installer-progress.log")
+    copyfile("/tmp/system-installer-progress.log", "/mnt/tmp/system-installer-progress.log")
+    remove("/tmp/system-installer-progress.log")
+    symlink("/mnt/tmp/system-installer-progress.log","/tmp/system-installer-progress.log")
     __update__(32)
     # STEP 4: Update fstab
     remove("/mnt/etc/fstab")
@@ -150,7 +159,7 @@ def install(settings):
         fstab.write(fstab_contents + "\n")
     __update__(34)
     # STEP 5: copy scripts into chroot
-    file_list = list_dir("/usr/share/system-installer/modules")
+    file_list = listdir("/usr/share/system-installer/modules")
     for each in range(len(file_list) - 1, -1, -1):
         if "partitioner" in file_list[each]:
             del file_list[each]
@@ -223,7 +232,7 @@ def install(settings):
     except FileNotFoundError:
         pass
     __update__(100)
-    remove("/tmp/.system-installer-progress.log")
-    remove("/mnt/tmp/.system-installer-progress.log")
+    remove("/tmp/system-installer-progress.log")
+    remove("/mnt/tmp/system-installer-progress.log")
     eprint("\t###\tinstaller.py CLOSED\t###\t")
 

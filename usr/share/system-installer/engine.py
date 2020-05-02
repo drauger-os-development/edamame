@@ -67,14 +67,10 @@ install = UI.confirm.show_confirm(settings["AUTO_PART"], settings["ROOT"],
     settings["TIME_ZONE"], settings["USERNAME"], settings["PASSWORD"],
     settings["COMPUTER_NAME"], settings["EXTRAS"], settings["UPDATES"],
     settings["LOGIN"], settings["MODEL"], settings["LAYOUT"],
-    settings["VARIENBT"])
+    settings["VARIENT"])
 if install:
-    settings = list(str(settings))
-    del settings[0]
-    del settings[len(settings) - 1]
-    settings = "".join(settings)
     try:
-        progress = Process(target=UI.progress.show_progress())
+        progress = multiprocessing.Process(target=UI.progress.show_progress)
         progress.start()
         installer.install(settings)
         progress.join()

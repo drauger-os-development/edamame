@@ -28,7 +28,7 @@ from __future__ import print_function
 from sys import argv, stderr
 from subprocess import Popen, PIPE, check_output
 import multiprocessing
-from os import remove, mkdir, environ, symlink
+from os import remove, mkdir, environ, symlink, chmod
 from shutil import rmtree
 import urllib3
 import json
@@ -59,9 +59,15 @@ def check_internet():
         return False
 
 def __update__(percentage):
-    with open("/tmp/.system-installer-progress.log", "rw+") as progress:
-        if int(progress.read()) < int(percentage):
-            progress.write(percentage)
+    try:
+        with open("/tmp/system-installer-progress.log", "rw+") as progress:
+            if int(percentage) > int(progress.read()):
+                progress.write(str(percentage))
+    except PermissionError:
+        chmod("/tmp/system-installer-progress.log", 0o666)
+        with open("/tmp/system-installer-progress.log", "rw+") as progress:
+            if int(percentage) > int(progress.read()):
+                progress.write(str(percentage))
 
 class MainInstallation():
     """Main Installation Procedure, minus low-level stuff"""
