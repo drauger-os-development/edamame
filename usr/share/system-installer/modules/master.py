@@ -31,6 +31,7 @@ import multiprocessing
 from os import remove, mkdir, environ, symlink
 from shutil import rmtree
 import urllib3
+import json
 
 # import our own programs
 import auto_login_set
@@ -57,46 +58,25 @@ def check_internet():
     except urllib3.exceptions.HTTPError:
         return False
 
-# get length of argv
-ARGC = len(argv)
-# set vars
-# for security reasons, these are no longer environmental variables
-LANG_SET = argv[1]
-TIME_ZONE = argv[2]
-USERNAME = argv[3]
-PASSWORD = argv[4]
-COMP_NAME = argv[5]
-EXTRAS = bool(int(argv[6]))
-UPDATES = bool(int(argv[7]))
-EFI = argv[8]
-ROOT = argv[9]
-LOGIN = argv[10]
-MODEL = argv[11]
-LAYOUT = argv[12]
-VARIENT = argv[13]
-if ARGC == 15:
-    SWAP = argv[14]
-else:
-    SWAP = None
-INTERNET = check_internet()
-
-print(39)
-
+def __update__(percentage):
+    with open("/tmp/.system-installer-progress.log", "rw+") as progress:
+        if int(progress.read()) < int(percentage):
+            progress.write(percentage)
 
 class MainInstallation():
     """Main Installation Procedure, minus low-level stuff"""
-    def __init__(self, processes_to_do, tz, lang, comp_name, swap, updates, internet, extras, password, login, username, keyboard):
-        self.time_zone = tz
-        self.lang = lang
-        self.comp_name = comp_name
-        self.swap = swap
-        self.updates = updates
+    def __init__(self, processes_to_do, settings, internet):
+        self.time_zone = settings["TIME_ZONE"]
+        self.lang = settings["LANG"]
+        self.comp_name = settings["COMPUTER_NAME"]
+        self.swap = settings["SWAP"]
+        self.updates = settings["UPDATE"]
         self.internet = internet
-        self.extras = extras
-        self.password = password
-        self.login = login
-        self.username = username
-        self.keyboard = keyboard
+        self.extras = settings["EXTRAS"]
+        self.password = settings["PASSWORD"]
+        self.login = settings["LOGIN"]
+        self.username = settings["USERNAME"]
+        self.keyboard = [settings["MODEL"], settings["LAYOUT"], settings["VARIENT"]]
         for each1 in processes_to_do:
             process_new = "MainInstallation." + each1
             globals()[each1] = multiprocessing.Process(target=process_new)
@@ -127,7 +107,7 @@ class MainInstallation():
             pass
         with open("/etc/hosts", "w+") as hosts:
             hosts.write("127.0.0.1 %s" % (self.comp_name))
-        print(48)
+        __update__(48)
 
     def make_user(self):
         """Set up main user"""
@@ -143,7 +123,7 @@ class MainInstallation():
                     fstab.write("/.swapfile swap    swap    defaults    0   0")
             except IOError:
                 eprint("Adding swap failed. Must manually add later")
-        print(66)
+        __update__(66)
 
     def install_updates(self):
         """Install updates"""
@@ -161,10 +141,10 @@ class MainInstallation():
 
     def set_passwd(self):
         """Set Root password"""
-        print(84)
+        __update__(84)
         process = Popen("chpasswd", stdout=stderr.buffer, stdin=PIPE, stderr=PIPE)
         process.communicate(input=bytes(r"root:%s" % (self.password), "utf-8"))
-        print(85)
+        __update__(85)
 
     def lightdm_config(self):
         """Set autologin setting for lightdm"""
@@ -199,7 +179,7 @@ XKBOPTIONS=\"\"
 
 BACKSPACE=\"guess\"
 """ % (xkbm, xkbl, xkbv))
-        print(90)
+        __update__(90)
         Popen(["udevadm", "trigger", "--subsystem-match=input", "--action=change"], stdout=stderr.buffer)
 
     def remove_launcher(self):
@@ -222,7 +202,7 @@ def set_plymouth_theme():
     process = Popen(["update-alternatives", "--config",
                    "default.plymouth"], stdout=stderr.buffer, stdin=PIPE, stderr=PIPE)
     process.communicate(input=bytes("2\n", "utf-8"))
-    print(86)
+    __update__(86)
 
 def install_kernel():
     """Install kernel from kernel.7z"""
@@ -296,12 +276,40 @@ def verify_install():
     """Fix possible bugs post-installation"""
     Popen(["/verify_install.sh"], stdout=stderr.buffer)
 
-PROCESSES_TO_DO = dir(MainInstallation)
-for each in range(len(PROCESSES_TO_DO) - 1, -1, -1):
-    if PROCESSES_TO_DO[each][0] == "_":
-        del PROCESSES_TO_DO[each]
+def install(settings, internet):
+    """Entry point for installation procedure"""
+    __update__(39)
+    PROCESSES_TO_DO = dir(MainInstallation)
+    for each in range(len(PROCESSES_TO_DO) - 1, -1, -1):
+        if PROCESSES_TO_DO[each][0] == "_":
+            del PROCESSES_TO_DO[each]
 
-MainInstallation(PROCESSES_TO_DO, TIME_ZONE, LANG_SET,
-             COMP_NAME, SWAP, UPDATES,
-             INTERNET, EXTRAS, PASSWORD, LOGIN, USERNAME, [MODEL, LAYOUT, VARIENT])
-setup_lowlevel(EFI, ROOT)
+    MainInstallation(PROCESSES_TO_DO, settings, internet)
+    setup_lowlevel(settings["EFI"], settings["ROOT"])
+
+if __name__ == "__main__":
+    # get length of argv
+    ARGC = len(argv)
+    # set vars
+    # for security reasons, these are no longer environmental variables
+    settings = json.loads(argv[1])
+    # settings["LANG"] = argv[1]
+    # settings["TIME_ZONE"] = argv[2]
+    # settings["USERNAME"] = argv[3]
+    # settings["PASSWORD"] = argv[4]
+    # settings["COMPUTER_NAME"] = argv[5]
+    # settings["EXTRAS"] = bool(int(argv[6]))
+    # settings["UPDATES"] = bool(int(argv[7]))
+    # settings["EFI"] = argv[8]
+    # settings["ROOT"] = argv[9]
+    # settings["LOGIN"] = bool(int(argv[10]))
+    # settings["MODEL"] = argv[11]
+    # settings["LAYOUT"] = argv[12]
+    # settings["VARIENT"] = argv[13]
+    # if ARGC == 15:
+        # settings["SWAP"] = argv[14]
+    # else:
+        # settings["SWAP"] = None
+    INTERNET = check_internet()
+
+    install(settings, INTERNET)
