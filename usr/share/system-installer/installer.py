@@ -25,7 +25,7 @@ from __future__ import print_function
 from sys import stderr
 from subprocess import Popen, check_output, check_call
 from os import mkdir, path, chdir, listdir, remove, symlink, chmod
-from shutil import rmtree, move
+from shutil import rmtree, move, copyfile
 import json
 import UI
 
@@ -138,7 +138,7 @@ def install(settings):
     check_call(["unsquashfs", squashfs])
     file_list = listdir("/mnt/squashfs-root")
     for each in file_list:
-        eprint("/mnt/squashfs-root/" + each + "--> /mnt/" + each)
+        eprint("/mnt/squashfs-root/" + each + " --> /mnt/" + each)
         move("/mnt/squashfs-root/" + each, "/mnt/" + each)
     rmtree("/mnt/squashfs-root")
     try:
