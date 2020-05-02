@@ -41,29 +41,22 @@ def hasSC(inputString):
         return True
 
 def hasspace(inputString):
-    x=0
     for a in inputString:
-        if (a.isspace()) == True:
-            x=1
-            break
-        else:
-            x=0
-    if x == 1:
-        return True
-    else:
-        return False
+        if a.isspace() == True:
+            return True
+    return False
 
 
 try:
     config_dir = listdir("/etc/system-installer")
-    for each in range(len(config_dir)):
-        if (config_dir[each] == "quick-install-template.config"):
-            del(config_dir[each])
+    for each in enumerate(config_dir):
+        if (config_dir[each] == "quick-install-template.json"):
+            del config_dir[each]
             if (len(config_dir) == 1):
                 break
             else:
-                for each1 in range(len(config_dir)):
-                    if (config_dir[each1] == "default.config"):
+                for each1 in enumerate(config_dir):
+                    if (config_dir[each1] == "default.json"):
                         del(config_dir[each])
                         if (len(config_dir) != 1):
                             eprint("More than one custom config file in /etc/system-installer is not supported.")
@@ -74,19 +67,9 @@ try:
                             break
                 break
     with open("/etc/system-installer/%s" % (config_dir[0])) as config_file:
-        config = config_file.read()
+        DISTRO = json.loads(config_file.read())["distro"]
 
-    config = config.split("\n")
-    while("" in config) :
-        config.remove("")
-    for each in range(len(config)):
-        config[each] = config[each].split("=")
-    for each in config:
-        if ((each[0] == "distro") or (each[0] == "Distro") or (each[0] == "DISTRO")):
-            DISTRO = each[1]
 
-    DISTRO = DISTRO.split("_")
-    DISTRO = " ".join(DISTRO)
 except:
     eprint("/etc/system-installer does not exist. In testing?")
     DISTRO = "Drauger OS"
