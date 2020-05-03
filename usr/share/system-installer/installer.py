@@ -165,12 +165,12 @@ def install(settings):
         if "partitioner" in file_list[each]:
             del file_list[each]
     for each in file_list:
-        copy("/usr/share/system-installer/modules/" + each, "/mnt/" + each)
+        copyfile("/usr/share/system-installer/modules/" + each, "/mnt/" + each)
     __update__(35)
     # STEP 6: Run Master script inside chroot
     # don't run it as a background process so we know when it gets done
     move("/mnt/etc/resolv.conf", "/mnt/etc/resolv.conf.save")
-    copy("/etc/resolv.conf", "/mnt/etc/resolv.conf")
+    copyfile("/etc/resolv.conf", "/mnt/etc/resolv.conf")
     __update__(36)
     # Check to make sure all these vars are set
     # if not, set them to some defaults
@@ -200,9 +200,9 @@ def install(settings):
     # ues check_call(["arch-chroot", "python3", "/master.py", ...]) because it
     # jumps through a lot of hoops for us.
     # check_call(["arch-chroot", "python3", "/master.py", settings], stdout=stderr.buffer)
-    internet = master.check_internet()
+    internet = modules.master.check_internet()
     real_root = chroot.chroot("/mnt")
-    master.install(settings, internet)
+    modules.master.install(settings, internet)
     chroot.de_chroot(real_root, "/mnt")
     eprint("Removing installation scripts and resetting resolv.conf")
     for each in file_list:
