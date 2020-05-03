@@ -174,13 +174,14 @@ class main(Gtk.Window):
         self.button2.connect("clicked", self.exit)
         self.grid.attach(self.button2, 1, 2, 1, 1)
 
-        #self.button3 = Gtk.Button.new_with_label("Quick Install")
-        #self.button3.connect("clicked", self.quick_install_warning)
-        #self.grid.attach(self.button3, 2, 2, 1, 1)
+        self.button3 = Gtk.Button.new_with_label("Quick Install")
+        self.button3.connect("clicked", self.quick_install_warning)
+        self.grid.attach(self.button3, 2, 2, 1, 1)
 
         self.show_all()
 
     def select_config(self,widget):
+        eprint("\t###\tQUICK INSTALL MODE ACTIVATED\t###\t")
         dialog = Gtk.FileChooserDialog("System Installer", self,
             Gtk.FileChooserAction.OPEN,
             (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,

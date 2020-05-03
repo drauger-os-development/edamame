@@ -56,10 +56,11 @@ try:
     if settings == 1:
         exit(1)
     elif path.exists(settings):
-        print("That's odd. Returned settings shouldn't be a file.")
-        print("That setting has been disabled.")
-        eprint("Exiting not to prevent any bugs")
-        exit(2)
+        with open(settings, "r") as quick_install_file:
+            try:
+                settings = json.loads(quick_install_file.read())["DATA"]
+            except KeyError:
+                settings = json.loads(quick_install_file.read())
 except TypeError:
     pass
 install = UI.confirm.show_confirm(settings["AUTO_PART"], settings["ROOT"],
