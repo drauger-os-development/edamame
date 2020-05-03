@@ -34,11 +34,11 @@ import urllib3
 import json
 
 # import our own programs
-import auto_login_set
-import make_swap
-import set_time
-import systemd_boot_config
-import set_locale
+import modules.auto_login_set
+import modules.make_swap
+import modules.set_time
+import modules.systemd_boot_config
+import modules.set_locale
 
 def eprint(*args, **kwargs):
     """Make it easier for us to print to stderr"""
