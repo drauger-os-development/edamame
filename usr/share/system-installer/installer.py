@@ -29,6 +29,7 @@ from shutil import rmtree, move, copyfile, copytree
 import json
 import UI
 import modules
+import chroot
 
 # Make it easier for us to print to stderr
 def eprint(*args, **kwargs):
@@ -170,12 +171,14 @@ def install(settings):
         if "partitioner" in file_list[each]:
             del file_list[each]
     for each in file_list:
+        if each == "__pycache__":
+            continue
         eprint("/usr/share/system-installer/modules/" + each + " --> " + "/mnt/" + each)
         copyfile("/usr/share/system-installer/modules/" + each, "/mnt/" + each)
     __update__(35)
     # STEP 6: Run Master script inside chroot
     # don't run it as a background process so we know when it gets done
-    eprint("/mnt/etc/resolv.conf" + each + " --> " + "/mnt/etc/resolv.conf.save")
+    eprint("/mnt/etc/resolv.conf" + " --> " + "/mnt/etc/resolv.conf.save")
     move("/mnt/etc/resolv.conf", "/mnt/etc/resolv.conf.save")
     copyfile("/etc/resolv.conf", "/mnt/etc/resolv.conf")
     __update__(36)
@@ -208,7 +211,7 @@ def install(settings):
     # jumps through a lot of hoops for us.
     # check_call(["arch-chroot", "python3", "/master.py", settings], stdout=stderr.buffer)
     internet = modules.master.check_internet()
-    real_root = chroot.chroot("/mnt")
+    real_root = chroot.arch_chroot("/mnt")
     modules.master.install(settings, internet)
     chroot.de_chroot(real_root, "/mnt")
     eprint("Removing installation scripts and resetting resolv.conf")
