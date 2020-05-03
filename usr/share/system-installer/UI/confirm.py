@@ -34,6 +34,7 @@ class main(Gtk.Window):
 
     def __init__(self, AUTO_PART, ROOT, EFI, HOME, SWAP, LANG, TIME_ZONE, USERNAME, PASS, COMPNAME, EXTRAS, UPDATES, LOGIN, MODEL, LAYOUT, VARIENT):
         Gtk.Window.__init__(self, title="System Installer")
+        self.install = False
         self.grid=Gtk.Grid(orientation=Gtk.Orientation.VERTICAL)
         self.add(self.grid)
         self.set_icon_from_file("/usr/share/icons/Drauger/720x720/Menus/install-drauger.png")

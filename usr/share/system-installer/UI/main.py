@@ -190,17 +190,17 @@ class main(Gtk.Window):
 
         response = dialog.run()
         if response == Gtk.ResponseType.OK:
-            print(dialog.get_filename())
-            exit(0)
+            self.data = dialog.get_filename()
         elif response == Gtk.ResponseType.CANCEL:
-            exit(2)
+            self.data = 1
 
         dialog.destroy()
+        self.exit("clicked")
 
     def add_filters(self, dialog):
         filter_text = Gtk.FileFilter()
-        filter_text.set_name("Test")
-        filter_text.add_mime_type("text/plain")
+        filter_text.set_name("JSON")
+        filter_text.add_mime_type("application/json")
         dialog.add_filter(filter_text)
 
         filter_any = Gtk.FileFilter()
