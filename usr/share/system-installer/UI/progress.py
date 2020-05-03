@@ -27,6 +27,7 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk,GLib
 from os import system
 import sys, select
+from time import sleep
 
 class main(Gtk.Window):
 
@@ -46,7 +47,7 @@ class main(Gtk.Window):
         self.progress.set_fraction(0)
         self.progress.set_show_text(True)
         self.progress.set_text("0 %")
-        self.source_id = GLib.timeout_add(1000, self.pulse)
+        #self.source_id = GLib.timeout_add(1000, self.pulse)
         self.grid.attach(self.progress, 1, 3, 1, 1)
 
         self.file_contents = Gtk.TextBuffer()
@@ -56,7 +57,12 @@ class main(Gtk.Window):
         self.text.set_monospace(True)
         self.grid.attach(self.text, 1, 5, 1, 1)
 
-        self.read_file()
+        #self.read_file()
+        status = True
+        while status:
+            status = self.pulse()
+            sleep(0.05)
+
 
     def read_file(self):
         text = ""
@@ -81,15 +87,15 @@ class main(Gtk.Window):
         self.progress.set_fraction(int(fraction))
         self.progress.set_text(fraction + " %")
         if (fraction == "100"):
-            self.exit("clicked")
+            return self.exit("clicked")
 
         self.show_all()
-        self.read_file()
+        return True
 
     def exit(self,button):
         Gtk.main_quit("delete-event")
         self.destroy()
-        return(1)
+        return False
 
 def show_progress():
     window = main()
