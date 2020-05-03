@@ -1,5 +1,6 @@
 {
 	"DATA":{
+		"AUTO_PART":false,
 		"LANG":"english",
 		"TIME_ZONE":"America/New_York",
 		"AUTO_PART":false,
@@ -8,7 +9,7 @@
 		"HOME":null,
 		"SWAP":"/dev/sda3",
 		"USERBNAME":"admin",
-		"PASSWORD":"toor",
+		"PASSWORD":"password123",
 		"COMPUTER_NAME":"computer-name",
 		"EXTRAS":true,
 		"UPDATES":false,
@@ -17,10 +18,9 @@
 		"LAYOUT":"English(US)",
 		"VARIENT":"English(US) - English(US, euro on 5)"
 	},
-	"COMMENTS":["Any comments, put in this 'comment' field,
+	"COMMENTS":["Any comments, put in this 'comment' field",
 	"Everything must follow JSON syntax still but you can write a comment at least.",
 	"It doesn't matter what your file name is, as long as it is in JSON format.",
-	"Maybe add functionality to export settings as JSON post-install in the future?"
-	]
+	"Maybe add functionality to export settings as JSON post-install in the future?"]
 }
 
