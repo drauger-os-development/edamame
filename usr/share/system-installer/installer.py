@@ -148,7 +148,11 @@ def install(settings):
         eprint("/mnt/boot already created")
     file_list = listdir("/boot")
     for each in file_list:
-        copyfile("/boot/" + each, "/mnt/boot/" + each)
+        try:
+            eprint("/boot/" + each + " --> /mnt/boot/" + each)
+            copyfile("/boot/" + each, "/mnt/boot/" + each)
+        except IsADirectoryError:
+            copytree("/boot/" + each, "/mnt/boot/" + each)
     copyfile("/tmp/system-installer-progress.log", "/mnt/tmp/system-installer-progress.log")
     remove("/tmp/system-installer-progress.log")
     symlink("/mnt/tmp/system-installer-progress.log","/tmp/system-installer-progress.log")

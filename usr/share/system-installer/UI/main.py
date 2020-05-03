@@ -130,6 +130,7 @@ class main(Gtk.Window):
         self.model_setting = ""
         self.layout_setting = ""
         self.varient_setting = ""
+        self.data = {}
 
         # Open initial window
         self.reset("clicked")
