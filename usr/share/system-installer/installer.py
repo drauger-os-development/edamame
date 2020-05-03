@@ -158,6 +158,7 @@ def install(settings):
     symlink("/mnt/tmp/system-installer-progress.log","/tmp/system-installer-progress.log")
     __update__(32)
     # STEP 4: Update fstab
+    eprint("\t###\tUpdating FSTAB\t###\t")
     remove("/mnt/etc/fstab")
     fstab_contents = check_output(["genfstab", "-U", "/mnt"]).decode()
     with open("/mnt/etc/fstab", "w+") as fstab:
@@ -169,10 +170,12 @@ def install(settings):
         if "partitioner" in file_list[each]:
             del file_list[each]
     for each in file_list:
+        eprint("/usr/share/system-installer/modules/" + each + " --> " + "/mnt/" + each)
         copyfile("/usr/share/system-installer/modules/" + each, "/mnt/" + each)
     __update__(35)
     # STEP 6: Run Master script inside chroot
     # don't run it as a background process so we know when it gets done
+    eprint("/mnt/etc/resolv.conf" + each + " --> " + "/mnt/etc/resolv.conf.save")
     move("/mnt/etc/resolv.conf", "/mnt/etc/resolv.conf.save")
     copyfile("/etc/resolv.conf", "/mnt/etc/resolv.conf")
     __update__(36)
@@ -210,6 +213,7 @@ def install(settings):
     chroot.de_chroot(real_root, "/mnt")
     eprint("Removing installation scripts and resetting resolv.conf")
     for each in file_list:
+        eprint("Removing /mnt/" + each)
         remove("/mnt/" + each)
     __update__(89)
     remove("/mnt/etc/resolv.conf")
