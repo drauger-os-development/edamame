@@ -25,9 +25,10 @@ from __future__ import print_function
 from sys import stderr
 from subprocess import Popen, check_output, check_call
 from os import mkdir, path, chdir, listdir, remove, symlink, chmod
-from shutil import rmtree, move, copyfile
+from shutil import rmtree, move, copyfile, copytree
 import json
 import UI
+import modules
 
 # Make it easier for us to print to stderr
 def eprint(*args, **kwargs):
