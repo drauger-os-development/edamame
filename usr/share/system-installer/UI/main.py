@@ -144,7 +144,7 @@ class main(Gtk.Window):
     This mode allows users to provide the system installation utility with
     a config file containing their prefrences for installation and set up.
 
-    An example of one of these can be found at /etc/system-installer/quick-install-template.conf\t
+    An example of one of these can be found at /etc/system-installer/quick-install-template.json\t
     """)
 
         self.grid.remove(self.button1)

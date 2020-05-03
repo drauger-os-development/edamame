@@ -21,9 +21,9 @@
 #  MA 02110-1301, USA.
 #
 #
-from modules.master as master
-from modules.make_swap as make_swap
-from modules.auto_login_set as auto_login_set
-from modules.set_locale as set_locale
-from modules.set_time as set_time
-from modules.systemd_boot_config as systemd_boot_config
+import modules.master as master
+import modules.make_swap as make_swap
+import modules.auto_login_set as auto_login_set
+import modules.set_locale as set_locale
+import modules.set_time as set_time
+import modules.systemd_boot_config as systemd_boot_config

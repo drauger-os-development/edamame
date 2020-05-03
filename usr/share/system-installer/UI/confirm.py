@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-#  user.py
+#  confirm.py
 #
 #  Copyright 2020 Thomas Castleman <contact@draugeros.org>
 #
