@@ -84,7 +84,10 @@ class main(Gtk.Window):
                 fraction = prog_file.read()
         except:
             fraction = "0"
-        self.progress.set_fraction(int(fraction))
+        try:
+            self.progress.set_fraction(int(fraction))
+        except ValueError:
+            self.progress.set_fraction(0)
         self.progress.set_text(fraction + " %")
         if (fraction == "100"):
             return self.exit("clicked")
