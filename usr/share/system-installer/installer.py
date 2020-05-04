@@ -88,6 +88,8 @@ def install(settings):
         settings["ROOT"] = partitioning["ROOT"]
         settings["EFI"] = partitioning["EFI"]
         settings["HOME"] = partitioning["HOME"]
+    if path.exists("/tmp/system-installer-progress.log"):
+        remove("/tmp/system-installer-progress.log")
     __update__(12)
     # STEP 2: Mount the new partitions
     __mount__(settings["ROOT"], "/mnt")
@@ -137,7 +139,9 @@ def install(settings):
             except NotADirectoryError:
                 remove(each)
     chdir("/mnt")
+    eprint("\t###\tEXTRACTING SQUASHFS\t###\t")
     check_call(["unsquashfs", squashfs])
+    eprint("\t###\tEXTRACTION COMPLETE\t###\t")
     file_list = listdir("/mnt/squashfs-root")
     for each in file_list:
         eprint("/mnt/squashfs-root/" + each + " --> /mnt/" + each)
