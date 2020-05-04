@@ -52,9 +52,9 @@ def arch_chroot(path_dir):
     if path_dir[len(path_dir) - 1] == "/":
         path_dir = path_dir[0:len(path_dir) - 2]
     __mount__("proc", path_dir + "/proc", "proc", "nosuid,noexec,nodev")
-    __mount__("sys", path_dir + "/sys", "sysfs", "nosuid,noexec,nodev, ro")
+    __mount__("sys", path_dir + "/sys", "sysfs", "nosuid,noexec,nodev,ro")
     if path.exists(path_dir + "/sys/firmware/efi/efivars"):
-        __mount__("efivars", path_dir + "/sys/firmware/efi/efivars", "efivars", "nosuid,noexec,nodev")
+        __mount__("efivars", path_dir + "/sys/firmware/efi/efivars", "efivarfs", "nosuid,noexec,nodev")
     __mount__("udev", path_dir + "/dev", "devtmpfs", "mode=0755,nosuid")
     __mount__("devpts", path_dir + "/dev/pts", "devpts", "mode=0620,gid=5,nosuid,noexec")
     __mount__("shm", path_dir + "/dev/shm", "tmpfs", "nosuid,noexec,nodev")
@@ -74,7 +74,7 @@ def de_chroot(real_root, path_dir):
     __unmount__(path_dir + "/dev/pts")
     __unmount__(path_dir + "/dev/shm")
     __unmount__(path_dir + "/run")
-    __mount__(path_dir + "/tmp")
+    __unmount__(path_dir + "/tmp")
     fchdir(real_root)
     chroot(".")
     close(real_root)
