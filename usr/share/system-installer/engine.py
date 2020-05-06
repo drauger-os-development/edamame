@@ -26,7 +26,7 @@ from sys import argv, stderr
 from subprocess import Popen, PIPE, check_output
 from psutil import virtual_memory
 from os import path
-import multiprocessing
+import threading
 import json
 import UI
 import installer
@@ -74,7 +74,7 @@ install = UI.confirm.show_confirm(settings["AUTO_PART"], settings["ROOT"],
     settings["VARIENT"])
 if install:
     try:
-        progress = multiprocessing.Process(target=UI.progress.show_progress)
+        progress = threading.Thread(target=UI.progress.show_progress)
         progress.start()
         installer.install(settings)
         progress.join()
