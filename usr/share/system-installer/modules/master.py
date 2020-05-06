@@ -30,6 +30,7 @@ from subprocess import Popen, PIPE, check_output
 import multiprocessing
 from os import remove, mkdir, environ, symlink, chmod
 from shutil import rmtree
+from inspect import getfullargspec
 import urllib3
 import json
 
@@ -79,58 +80,51 @@ def __update__(percentage):
 
 class MainInstallation():
     """Main Installation Procedure, minus low-level stuff"""
-    def __init__(self, processes_to_do, settings, internet):
-        self.time_zone = settings["TIME_ZONE"]
-        self.lang = settings["LANG"]
-        self.comp_name = settings["COMPUTER_NAME"]
-        self.swap = settings["SWAP"]
-        self.updates = settings["UPDATE"]
-        self.internet = internet
-        self.extras = settings["EXTRAS"]
-        self.password = settings["PASSWORD"]
-        self.login = settings["LOGIN"]
-        self.username = settings["USERNAME"]
-        self.keyboard = [settings["MODEL"], settings["LAYOUT"], settings["VARIENT"]]
+    def __init__(self, processes_to_do, settings):
         for each1 in processes_to_do:
-            process_new = "MainInstallation." + each1
-            globals()[each1] = multiprocessing.Process(target=process_new)
+            process_new = getattr(MainInstallation, each1, self)
+            args_list = getfullargspec(process_new)[0]
+            args = []
+            for each in args_list:
+                args.append(settings[each])
+            globals()[each1] = multiprocessing.Process(target=process_new, args=args)
             globals()[each1].start()
         for each1 in processes_to_do:
             globals()[each1].join()
 
-    def time_set(self):
+    def time_set(TIME_ZONE):
         """Set system time"""
-        set_time.set_time(self.time_zone)
+        set_time.set_time(TIME_ZONE)
 
-    def locale_set(self):
+    def locale_set(LANG):
         """Set system locale"""
-        set_locale.set_locale(self.lang)
+        set_locale.set_locale(LANG)
 
-    def set_networking(self):
+    def set_networking(COMPUTER_NAME):
         """Set system hostname"""
-        eprint("Setting hostname to %s" % (self.comp_name))
+        eprint("Setting hostname to %s" % (COMPUTER_NAME))
         try:
             remove("/etc/hostname")
         except FileNotFoundError:
             pass
         with open("/etc/hostname", "w+") as hostname:
-            hostname.write(self.comp_name)
+            hostname.write(COMPUTER_NAME)
         try:
             remove("/etc/hosts")
         except FileNotFoundError:
             pass
         with open("/etc/hosts", "w+") as hosts:
-            hosts.write("127.0.0.1 %s" % (self.comp_name))
+            hosts.write("127.0.0.1 %s" % (COMPUTER_NAME))
         __update__(48)
 
-    def make_user(self):
+    def make_user(USERNAME, PASSWORD):
         """Set up main user"""
         # This needs to be set up in Python. Leave it in shell for now
-        Popen(["/make_user.sh", self.username, self.password])
+        Popen(["/make_user.sh", USERNAME, PASSWORD])
 
-    def mk_swap(self):
+    def mk_swap(SWAP):
         """Make swap file"""
-        if self.swap == "FILE":
+        if SWAP == "FILE":
             try:
                 make_swap.make_swap()
                 with open("/etc/fstab", "a") as fstab:
@@ -139,32 +133,36 @@ class MainInstallation():
                 eprint("Adding swap failed. Must manually add later")
         __update__(66)
 
-    def install_updates(self):
+    def __install_updates__(UPDATES, INTERNET):
         """Install updates"""
-        if ((self.updates) and (self.internet)):
-            Popen("/install_updates.sh")
-        elif not self.internet:
+        if ((UPDATES) and (INTERNET)):
+            check_call("/install_updates.sh")
+        elif not INTERNET:
             eprint("Cannot install updates. No internet.")
 
-    def install_extras(self):
+    def __install_extras__(EXTRAS, INTERNET):
         """Install Restricted Extras and Drivers"""
-        if ((self.extras) and (self.internet)):
-            Popen("/install_extras.sh")
-        elif not self.internet:
+        if ((EXTRAS) and (INTERNET)):
+            check_call("/install_extras.sh")
+        elif not INTERNET:
             eprint("Cannot install extras. No internet.")
 
-    def set_passwd(self):
+    def apt(UPDATES, EXTRAS, INTERNET):
+        self.__install_updates__(UPDATES, INTERNET)
+        self.__install_extras__(EXTRAS, INTERNET)
+
+    def set_passwd(PASSWORD):
         """Set Root password"""
         __update__(84)
         process = Popen("chpasswd", stdout=stderr.buffer, stdin=PIPE, stderr=PIPE)
-        process.communicate(input=bytes(r"root:%s" % (self.password), "utf-8"))
+        process.communicate(input=bytes(r"root:%s" % (PASSWORD), "utf-8"))
         __update__(85)
 
-    def lightdm_config(self):
+    def lightdm_config(LOGIN, USERNAME):
         """Set autologin setting for lightdm"""
-        auto_login_set.auto_login_set(self.login, self.username)
+        auto_login_set.auto_login_set(LOGIN, USERNAME)
 
-    def set_keyboard(self):
+    def set_keyboard(MODEL, LAYOUT, VARIENT):
         """Set keyboard model, layout, and varient"""
         with open("/usr/share/X11/xkb/rules/base.lst", "r") as xkb_conf:
             kcd = xkb_conf.read()
@@ -179,11 +177,11 @@ class MainInstallation():
         xkbl = ""
         xkbv = ""
         for each1 in kcd:
-            if " ".join(each1[1:]) == self.keyboard[0]:
+            if " ".join(each1[1:]) == MODEL:
                 xkbm = each1[0]
-            elif " ".join(each1[1:]) == self.keyboard[1]:
+            elif " ".join(each1[1:]) == LAYOUT:
                 xkbl = each1[0]
-            elif " ".join(each1[1:]) == self.keyboard[2]:
+            elif " ".join(each1[1:]) == VARIENT:
                 xkbv = each1[0]
         with open("/etc/default/keyboard", "w+") as xkb_default:
             xkb_default.write("""XKBMODEL=\"%s\"
@@ -196,13 +194,13 @@ BACKSPACE=\"guess\"
         __update__(90)
         Popen(["udevadm", "trigger", "--subsystem-match=input", "--action=change"], stdout=stderr.buffer)
 
-    def remove_launcher(self):
+    def remove_launcher(USERNAME):
         """Remove system installer desktop launcher"""
         try:
-            remove("/home/%s/Desktop/system-installer.desktop" % (self.username))
+            remove("/home/%s/Desktop/system-installer.desktop" % (USERNAME))
         except FileNotFoundError:
             try:
-                rmtree("/home/%sE/.config/xfce4/panel/launcher-3" % (self.username))
+                rmtree("/home/%sE/.config/xfce4/panel/launcher-3" % (USERNAME))
             except FileNotFoundError:
                 eprint("Cannot find launcher for system-installer. User will need to remove manually.")
 
@@ -297,8 +295,8 @@ def install(settings, internet):
     for each in range(len(PROCESSES_TO_DO) - 1, -1, -1):
         if PROCESSES_TO_DO[each][0] == "_":
             del PROCESSES_TO_DO[each]
-
-    MainInstallation(PROCESSES_TO_DO, settings, internet)
+    settings["INTERNET"] = internet
+    MainInstallation(PROCESSES_TO_DO, settings)
     setup_lowlevel(settings["EFI"], settings["ROOT"])
 
 if __name__ == "__main__":
