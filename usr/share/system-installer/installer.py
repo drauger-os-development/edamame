@@ -197,14 +197,14 @@ def install(settings):
     if settings["USERNAME"] == "":
         eprint("$USERNAME is not set. No default. Prompting user . . .")
         settings["USERNAME"] = check_output(["zenity", "--entry", r"--text=\"We're sorry. We lost your username somewhere in the chain. What was it again?\""]).decode()
-        settings["USERNAME"] = settings["USERNAME"][0:len(settings["USERNAME"]) - 1]
+        settings["USERNAME"] = settings["USERNAME"][0:-1]
     if settings["COMPUTER_NAME"] == "":
         eprint("$COMP_NAME is not set. Defaulting to drauger-system-installed")
         settings["COMPUTER_NAME"] = "drauger-system-installed"
     if settings["PASSWORD"] == "":
         eprint("$PASSWORD is not set. No default. Prompting user . . .")
         settings["PASSWORD"] = check_output(["zenity", "--entry", "--hide-text", r"--text=\"We're sorry. We lost your password somewhere in the chain. What was it again?\""]).decode()
-        settings["PASSWORD"] = settings["PASSWORD"][0:len(settings["PASSWORD"]) - 1]
+        settings["PASSWORD"] = settings["PASSWORD"][0:-1]
     if settings["EXTRAS"] == "":
         eprint("$EXTRAS is not set. Defaulting to false.")
         settings["EXTRAS"] = False

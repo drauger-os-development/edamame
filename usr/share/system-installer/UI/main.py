@@ -444,7 +444,7 @@ class main(Gtk.Window):
         self.DEVICES = list(self.DEVICES)
         del(self.DEVICES[1])
         del(self.DEVICES[0])
-        del(self.DEVICES[len(self.DEVICES) - 1])
+        del(self.DEVICES[-1)
         self.DEVICES = "".join(self.DEVICES)
         self.DEVICES = self.DEVICES.split("\\n")
         DEV = []
@@ -961,7 +961,7 @@ Sub-Region""")
         model = []
         for each in range(len(layout_list) - 1):
             if (layout_list[each][0] == "model"):
-                model.append(layout_list[each][len(layout_list[each]) - 1])
+                model.append(layout_list[each][-1])
         model = sorted(model)
         for each in model:
             self.model_menu.append(each, each)
@@ -978,7 +978,7 @@ Sub-Region""")
         layouts = []
         for each in range(len(layout_list) - 1):
             if (layout_list[each][0] == "layout"):
-                layouts.append(layout_list[each][len(layout_list[each]) - 1])
+                layouts.append(layout_list[each][-1])
         layouts = sorted(layouts)
         for each in layouts:
             self.layout_menu.append(each, each)
@@ -996,7 +996,7 @@ Sub-Region""")
         self.varients = []
         for each in range(len(layout_list) - 1):
             if (layout_list[each][0] == "variant"):
-                self.varients.append(layout_list[each][len(layout_list[each]) - 1])
+                self.varients.append(layout_list[each][-1])
         for each in self.varients:
             self.varient_menu.append(each, each)
         if (self.varient_setting != ""):

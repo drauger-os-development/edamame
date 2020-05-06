@@ -245,8 +245,8 @@ def _install_grub(root):
             del root[each1]
         except ValueError:
             break
-    if root[len(root) - 1] == "p":
-        del root[len(root) - 1]
+    if root[-1] == "p":
+        del root[-1]
     root = "".join(root)
     Popen(["grub-mkdevicemap", "--verbose"], stdout=stderr.buffer)
     Popen(["grub-install", "--verbose", "--force", "--target=i386-pc", root], stdout=stderr.buffer)
@@ -279,7 +279,7 @@ def setup_lowlevel(efi, root):
     install_bootloader(efi, root)
     release = list(str(check_output(["uname", "--release"])))
     del release[0:2]
-    del release[len(release) - 3:]
+    del release[-3:]
     release = "".join(release)
     symlink("/boot/initrd.img-" + release, "/boot/initrd.img")
     symlink("/boot/vmlinuz-" + release, "/boot/vmlinuz")
