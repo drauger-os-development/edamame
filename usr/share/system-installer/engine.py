@@ -48,9 +48,12 @@ disk = json.loads(check_output(["lsblk", "--json"]))
 for each in range(len(disk["blockdevices"]) - 1, -1, -1):
     if disk["blockdevices"][each]["type"] == "loop":
         del disk["blockdevices"][each]
-for each in disk["blockdevices"]:
-    if float(each["size"][0:len(each["size"]) - 1]) < 16:
-        UI.error.show_error("\n\tNo Drives Larger than 16 GB detected\t\n")
+for each in range(len(disk["blockdevices"]) - 1, -1, -1):
+    if float(disk["blockdevices"][each]["size"][0:len(disk["blockdevices"][each]["size"]) - 1]) < 16:
+        del disk["blockdevices"][each]
+if len(disk["blockdevices"]) < 1:
+    UI.error.show_error("\n\tNo Drives Larger than 16 GB detected\t\n")
+    exit(2)
 settings = UI.main.show_main()
 try:
     if settings == 1:

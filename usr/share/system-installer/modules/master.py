@@ -73,6 +73,9 @@ def __update__(percentage):
         if int(percentage) > value:
             with open("/tmp/system-installer-progress.log", "w+") as progress:
                 progress.write(str(percentage))
+    except FileNotFoundError:
+        with open("/tmp/system-installer-progress.log", "w+") as progress:
+            progress.write(str(percentage))
 
 class MainInstallation():
     """Main Installation Procedure, minus low-level stuff"""
