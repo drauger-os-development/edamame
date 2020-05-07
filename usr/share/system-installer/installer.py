@@ -129,6 +129,7 @@ def install(settings):
     death_row = listdir()
     for each in death_row:
         if ((each != "boot") and (each !="home")):
+            eprint("Removing " + each)
             rmtree(each)
     chdir("/mnt/boot")
     death_row = listdir()
