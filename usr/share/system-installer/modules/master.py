@@ -26,7 +26,7 @@ Configure newly installed system from within a chroot
 """
 from __future__ import print_function
 from sys import argv, stderr
-from subprocess import Popen, PIPE, check_output
+from subprocess import Popen, PIPE, check_output, check_call
 import multiprocessing
 from os import remove, mkdir, environ, symlink, chmod
 from shutil import rmtree

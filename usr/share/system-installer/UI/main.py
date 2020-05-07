@@ -444,7 +444,7 @@ class main(Gtk.Window):
         self.DEVICES = list(self.DEVICES)
         del(self.DEVICES[1])
         del(self.DEVICES[0])
-        del(self.DEVICES[-1)
+        del(self.DEVICES[-1])
         self.DEVICES = "".join(self.DEVICES)
         self.DEVICES = self.DEVICES.split("\\n")
         DEV = []
