@@ -120,7 +120,11 @@ class MainInstallation():
     def make_user(USERNAME, PASSWORD):
         """Set up main user"""
         # This needs to be set up in Python. Leave it in shell for now
-        Popen(["/make_user.sh", USERNAME, PASSWORD])
+        try:
+            Popen(["/make_user.sh", USERNAME, PASSWORD])
+        except PermissionError:
+            chmod("/make_user.sh", 0o777)
+            Popen(["/make_user.sh", USERNAME, PASSWORD])
 
     def mk_swap(SWAP):
         """Make swap file"""
@@ -136,14 +140,22 @@ class MainInstallation():
     def __install_updates__(UPDATES, INTERNET):
         """Install updates"""
         if ((UPDATES) and (INTERNET)):
-            check_call("/install_updates.sh")
+            try:
+                check_call("/install_updates.sh")
+            except PermissionError:
+                chmod("/install_updates.sh", 0o777)
+                check_call("/install_updates.sh")
         elif not INTERNET:
             eprint("Cannot install updates. No internet.")
 
     def __install_extras__(EXTRAS, INTERNET):
         """Install Restricted Extras and Drivers"""
         if ((EXTRAS) and (INTERNET)):
-            check_call("/install_extras.sh")
+            try:
+                check_call("/install_extras.sh")
+            except PermissionError:
+                chmod("/install_extras.sh", 0o777)
+                check_call("/install_extras.sh")
         elif not INTERNET:
             eprint("Cannot install extras. No internet.")
 
