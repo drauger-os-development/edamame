@@ -160,8 +160,8 @@ class MainInstallation():
             eprint("Cannot install extras. No internet.")
 
     def apt(UPDATES, EXTRAS, INTERNET):
-        self.__install_updates__(UPDATES, INTERNET)
-        self.__install_extras__(EXTRAS, INTERNET)
+        MainInstallation.__install_updates__(UPDATES, INTERNET)
+        MainInstallation.__install_extras__(EXTRAS, INTERNET)
 
     def set_passwd(PASSWORD):
         """Set Root password"""
