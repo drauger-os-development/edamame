@@ -89,8 +89,11 @@ class MainInstallation():
                 args.append(settings[each])
             globals()[each1] = multiprocessing.Process(target=process_new, args=args)
             globals()[each1].start()
-        for each1 in processes_to_do:
-            globals()[each1].join()
+        while len(processes_to_do) > 0:
+            for each in range(len(processes_to_do) - 1, -1, -1):
+                if not globals()[processes_to_do[each]].is_alive():
+                    globals()[processes_to_do[each]].join()
+                    del processes_to_do[each]
 
     def time_set(TIME_ZONE):
         """Set system time"""
