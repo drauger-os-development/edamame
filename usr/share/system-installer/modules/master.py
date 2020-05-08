@@ -183,7 +183,7 @@ class MainInstallation():
             kcd = xkb_conf.read()
         kcd = kcd.split("\n")
         for each1 in enumerate(kcd):
-            kcd[each1] = kcd[each1].split()
+            kcd[each1[0]] = kcd[each1[0]].split()
         try:
             remove("/etc/default/keyboard")
         except FileNotFoundError:
