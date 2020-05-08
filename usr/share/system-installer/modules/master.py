@@ -235,10 +235,10 @@ def install_kernel():
     """Install kernel from kernel.7z"""
     # we are going to do offline kernel installation from now on.
     # it's just easier and more reliable
-    Popen(["7z", "x", "/kernel.7z"], stdout=stderr.buffer)
-    Popen(["apt", "purge", "-y", "linux-headers-drauger", "linux-image-drauger"], stdout=stderr.buffer)
-    Popen(["apt", "autoremove", "-y", "--purge"], stdout=stderr.buffer)
-    Popen(["dpkg", "-R", "--install", "kernel/"], stdout=stderr.buffer)
+    check_call(["7z", "x", "/kernel.7z"], stdout=stderr.buffer)
+    check_call(["apt", "purge", "-y", "linux-headers-drauger", "linux-image-drauger"], stdout=stderr.buffer)
+    check_call(["apt", "autoremove", "-y", "--purge"], stdout=stderr.buffer)
+    check_call(["dpkg", "-R", "--install", "kernel/"], stdout=stderr.buffer)
     rmtree("/kernel")
 
 
@@ -263,9 +263,9 @@ def _install_grub(root):
     if root[-1] == "p":
         del root[-1]
     root = "".join(root)
-    Popen(["grub-mkdevicemap", "--verbose"], stdout=stderr.buffer)
-    Popen(["grub-install", "--verbose", "--force", "--target=i386-pc", root], stdout=stderr.buffer)
-    Popen(["grub-mkconfig", "-o", "/boot/grub/grub.cfg"], stdout=stderr.buffer)
+    check_call(["grub-mkdevicemap", "--verbose"], stdout=stderr.buffer)
+    check_call(["grub-install", "--verbose", "--force", "--target=i386-pc", root], stdout=stderr.buffer)
+    check_call(["grub-mkconfig", "-o", "/boot/grub/grub.cfg"], stdout=stderr.buffer)
 
 def _install_systemd_boot(root):
     """set up and install systemd-boot"""
@@ -279,12 +279,12 @@ def _install_systemd_boot(root):
     environ["SYSTEMD_RELAX_ESP_CHECKS"] = "1"
     with open("/etc/environment", "a") as envi:
         envi.write("export SYSTEMD_RELAX_ESP_CHECKS=1")
-    Popen(["bootctl", "--path=/boot/efi", "install"], stdout=stderr.buffer)
+    check_call(["bootctl", "--path=/boot/efi", "install"], stdout=stderr.buffer)
     with open("/boot/efi/loader/loader.conf", "w+") as loader_conf:
         loader_conf.write("default Drauger_OS\ntimeout 5\neditor 1")
-    Popen(["chattr", "-i", "/boot/efi/loader/loader.conf"], stdout=stderr.buffer)
+    check_call(["chattr", "-i", "/boot/efi/loader/loader.conf"], stdout=stderr.buffer)
     systemd_boot_config.systemd_boot_config(root)
-    Popen("/etc/kernel/postinst.d/zz-update-systemd-boot", stdout=stderr.buffer)
+    check_call("/etc/kernel/postinst.d/zz-update-systemd-boot", stdout=stderr.buffer)
 
 
 def setup_lowlevel(efi, root):
@@ -301,7 +301,7 @@ def setup_lowlevel(efi, root):
 
 def verify_install():
     """Fix possible bugs post-installation"""
-    Popen(["/verify_install.sh"], stdout=stderr.buffer)
+    check_call(["/verify_install.sh"], stdout=stderr.buffer)
 
 def install(settings, internet):
     """Entry point for installation procedure"""
@@ -313,6 +313,7 @@ def install(settings, internet):
     settings["INTERNET"] = internet
     MainInstallation(PROCESSES_TO_DO, settings)
     setup_lowlevel(settings["EFI"], settings["ROOT"])
+    verify_install()
 
 if __name__ == "__main__":
     # get length of argv
