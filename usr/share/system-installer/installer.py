@@ -222,7 +222,12 @@ def install(settings):
     eprint("Removing installation scripts and resetting resolv.conf")
     for each in file_list:
         eprint("Removing /mnt/" + each)
-        remove("/mnt/" + each)
+        try:
+            remove("/mnt/" + each)
+        except FileNotFoundError:
+            pass
+        except IsADirectoryError:
+            rmtree("/mnt/" + each)
     __update__(89)
     remove("/mnt/etc/resolv.conf")
     move("/mnt/etc/resolv.conf.save", "/mnt/etc/resolv.conf")
