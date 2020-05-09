@@ -282,7 +282,11 @@ def _install_systemd_boot(root):
     check_call(["bootctl", "--path=/boot/efi", "install"], stdout=stderr.buffer)
     with open("/boot/efi/loader/loader.conf", "w+") as loader_conf:
         loader_conf.write("default Drauger_OS\ntimeout 5\neditor 1")
-    check_call(["chattr", "-i", "/boot/efi/loader/loader.conf"], stdout=stderr.buffer)
+    try:
+        check_call(["chattr", "-i", "/boot/efi/loader/loader.conf"], stdout=stderr.buffer)
+    except CalledProcessError:
+        eprint("CHATTR FAILED ON loader.conf, setting octal permissions to 444")
+        chmod("/boot/efi/loader/loader.conf", 0o444)
     systemd_boot_config.systemd_boot_config(root)
     check_call("/etc/kernel/postinst.d/zz-update-systemd-boot", stdout=stderr.buffer)
 
