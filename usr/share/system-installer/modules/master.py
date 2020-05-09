@@ -297,9 +297,13 @@ def setup_lowlevel(efi, root):
     symlink("/boot/initrd.img-" + release, "/boot/initrd.img")
     symlink("/boot/vmlinuz-" + release, "/boot/vmlinuz")
 
-def verify_install():
+def verify_install(USERNAME, PASSWORD):
     """Fix possible bugs post-installation"""
-    check_call(["/verify_install.sh"], stdout=stderr.buffer)
+    try:
+        check_call(["/verify_install.sh", USERNAME, PASSWORD], stdout=stderr.buffer)
+    except PermissionError:
+        chmod("/verify_install.sh", 0o777)
+        check_call(["/verify_install.sh", USERNAME, PASSWORD], stdout=stderr.buffer)
 
 def install(settings, internet):
     """Entry point for installation procedure"""
@@ -311,7 +315,7 @@ def install(settings, internet):
     settings["INTERNET"] = internet
     MainInstallation(PROCESSES_TO_DO, settings)
     setup_lowlevel(settings["EFI"], settings["ROOT"])
-    verify_install()
+    verify_install(settings["USERNAME"], settings["PASSWORD"])
 
 if __name__ == "__main__":
     # get length of argv
