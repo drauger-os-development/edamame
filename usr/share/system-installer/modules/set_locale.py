@@ -74,7 +74,7 @@ def _setlocale(locale):
     print(41)
     check_call(["locale-gen"], stdout=stderr.buffer)
     print(42)
-    check_call(["update-locale", "LANG=%s" % (locale), "LANGUAGE"])
+    check_call(["update-locale", "LANG=%s.UTF-8" % (locale), "LANGUAGE"])
     print(43)
 
 

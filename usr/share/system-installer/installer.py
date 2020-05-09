@@ -242,7 +242,7 @@ def install(settings):
         check_call(["arch-chroot", "/mnt", "\"bash -c '7z x /kernel.7z; dpkg -R --install /kernel/'\""])
         rmtree("/mnt/kernel")
         remove("/mnt/kernel.7z")
-    file_list = list_dir("/mnt/boot/efi/loader/entries")
+    file_list = listdir("/mnt/boot/efi/loader/entries")
     if ((len(file_list) == 0) and ((settings["EFI"] == None) or (settings["EFI"] == "") or (settings["EFI"] == "NULL"))):
         eprint("\t###\tSYSTEMD-BOOT NOT CONFIGURED. CORRECTING . . .\t###\t")
         copyfile("/usr/share/system-installer/modules/systemd_boot_config.py", "/mnt/systemd_boot_config.py")
