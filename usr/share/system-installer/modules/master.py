@@ -291,11 +291,9 @@ def setup_lowlevel(efi, root):
     """Set up kernel and bootloader"""
     install_kernel()
     set_plymouth_theme()
+    release = check_output(["uname", "--release"]))).decode()[0:-1]
+    check_call(["mkinitramfs", "-o", "/boot/initrd.img-" + release])
     install_bootloader(efi, root)
-    release = list(str(check_output(["uname", "--release"])))
-    del release[0:2]
-    del release[-3:]
-    release = "".join(release)
     symlink("/boot/initrd.img-" + release, "/boot/initrd.img")
     symlink("/boot/vmlinuz-" + release, "/boot/vmlinuz")
 
