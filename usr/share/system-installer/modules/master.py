@@ -295,7 +295,7 @@ def setup_lowlevel(efi, root):
     """Set up kernel and bootloader"""
     install_kernel()
     set_plymouth_theme()
-    release = check_output(["uname", "--release"]))).decode()[0:-1]
+    release = check_output(["uname", "--release"]).decode()[0:-1]
     eprint("\t###\tMAKING INITRAMFS\t###\t")
     check_call(["mkinitramfs", "-o", "/boot/initrd.img-" + release], stdout=stderr.buffer)
     install_bootloader(efi, root)
