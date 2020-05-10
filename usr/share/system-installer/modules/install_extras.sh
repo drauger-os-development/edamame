@@ -21,34 +21,34 @@
 #  MA 02110-1301, USA.
 #
 #
-echo "	###	install_extras.sh STARTED	###	" 1>&2
+builtin echo -e "\t###\tinstall_extras.sh STARTED\t###\t" 1>&2
 set -o pipefail
 set -e
 apt update 1>&2
 set +e
 if $(lspci | grep -iq "nvidia"); then
 	list=$(apt search nvidia-driver 2>/dev/null | grep '^nvidia-driver-*' | sed 's/nvidia-driver-//g' | sed 's/\// /g' | awk '{print $1}')
-	greatest=$(echo "${list[*]}" | sort -nr | head -n1)
+	greatest=$(builtin echo "${list[*]}" | sort -nr | head -n1)
 	NVIDIA="nvidia-driver-$greatest"
 fi
-echo "76"
+builtin echo "76"
 apt install -y ubuntu-restricted-extras ubuntu-restricted-addons $NVIDIA 1>&2
-echo "80"
+builtin echo "80"
 if $(lspci | grep -iq "broadcom"); then
 	if $(lspci |  grep -i "broadcom" | grep -iqE 'BCM43142|BCM4331|BCM4360|BCM4352'); then
 		apt install -y broadcom-sta-dkms dkms wireless-tools 1>&2
 	elif $(lspci |  grep -i "broadcom" | grep -iqE 'BCM4311|BCM4312|BCM4313|BCM4321|BCM4322|BCM43224|43225|BCM43227|BCM43228'); then
 		apt install -y bcmwl-kernel-source 1>&2
 	else
-		echo "# BROADCOM DEVICE DETECTED BUT NO WIFI DRIVER IS FOUND FOR IT #" 1>&2
+		builtin echo -e "# BROADCOM DEVICE DETECTED BUT NO WIFI DRIVER IS FOUND FOR IT #" 1>&2
 	fi
 fi
 
-echo "82"
-apt purge -y gstreamer1.0-fluendo-mp3 1>&2 || echo "Package Not Found? Maybe? Double check cause gstreamer1.0-fluendo-mp3 threw an error during removal" 1>&2
+builtin echo "82"
+apt purge -y gstreamer1.0-fluendo-mp3 1>&2 || builtin echo "Package Not Found? Maybe? Double check cause gstreamer1.0-fluendo-mp3 threw an error during removal" 1>&2
 if [ "$NVIDIA" != "" ]; then
-	echo " ### NVIDIA DRIVERS MAY HAVE BEEN INSTALLED. DISABLING NOUVEAU. ###" 1>&2
-	echo -e "blacklist nouveau\noptions nouveau modeset=0" > /etc/modprobe.d/blacklist-nvidia-nouveau.conf
+	builtin echo -e "\t###\tNVIDIA DRIVERS MAY HAVE BEEN INSTALLED. DISABLING NOUVEAU.\t###\t" 1>&2
+	builtin echo -e "blacklist nouveau\noptions nouveau modeset=0" > /etc/modprobe.d/blacklist-nvidia-nouveau.conf
 fi 
-echo "83"
-echo "	###	install_extras.sh CLOSED	###	" 1>&2
+builtin echo "83"
+builtin echo -e "\t###\tinstall_extras.sh CLOSED\t###\t" 1>&2

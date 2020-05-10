@@ -22,18 +22,18 @@
 #
 #
 {
-	echo "	###	auto-partioner.sh STARTED	###	"
+	builtin echo -e "\t###\tauto-partioner.sh STARTED\t###\t"
 	set -e
 	set -o pipefail
 	INSTALL_DISK="$1"
 	EFI="$2"
 	HOME_DATA="$3"
-	SIZE=$(lsblk | grep $(echo "$INSTALL_DISK" | sed 's:/dev/::g') | grep 'disk' | awk '{print $4}')
+	SIZE=$(lsblk | grep $(builtin echo "$INSTALL_DISK" | sed 's:/dev/::g') | grep 'disk' | awk '{print $4}')
 	if [[ "$HOME_DATA" == "MAKE" ]] || [[ "$HOME_DATA" == "NULL" ]]; then
-		echo " ### WARNING: DD-ING DRIVE. NO DATA WILL BE RECOVERABLE. ### "
+		builtin echo -e "\t###\tWARNING: DD-ING DRIVE. NO DATA WILL BE RECOVERABLE.\t###\t"
 		dd if=/dev/zero of="$INSTALL_DISK" count=1 bs=512
 	fi
-	if $(echo "$INSTALL_DISK" | grep -q "nvme"); then
+	if $(builtin echo "$INSTALL_DISK" | grep -q "nvme"); then
 		PART1="$INSTALL_DISK"p1
 		PART2="$INSTALL_DISK"p2
 		PART3="$INSTALL_DISK"p3
@@ -95,10 +95,10 @@
 		builtin echo -e "y\n" | mkfs.ext4 "$PART1"
 	fi
 	partprobe
-	echo "	###	auto-partioner.sh CLOSED	###	"
+	builtin echo -e "\t###\tauto-partioner.sh CLOSED\t###\t"
 } 1>&2
 if [ "$EFI" == "True" ]; then
-	echo "{\"EFI\":\"$PART1\", \"ROOT\":\"$PART2\", \"HOME\":\"$PART3\"}"
+	builtin echo "{\"EFI\":\"$PART1\", \"ROOT\":\"$PART2\", \"HOME\":\"$PART3\"}"
 else
-	echo "{\"EFI\":\"NULL\", \"ROOT\":\"$PART1\", \"HOME\":\"$PART3\"}"
+	builtin echo "{\"EFI\":\"NULL\", \"ROOT\":\"$PART1\", \"HOME\":\"$PART3\"}"
 fi

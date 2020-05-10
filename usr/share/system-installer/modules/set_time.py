@@ -27,25 +27,25 @@ from subprocess import Popen
 
 
 def eprint(*args, **kwargs):
-	print(*args, file=stderr, **kwargs)
+    print(*args, file=stderr, **kwargs)
 
 
 def _link(location):
-	remove("/etc/localtime")
-	symlink("/usr/share/zoneinfo/%s" % (location), "/etc/localtime")
-	remove("/etc/timezone")
-	with open("/etc/timezone", "w+") as timezone:
-		timezone.write(location)
-	Popen(["timedatectl", "set-ntp", "true"])
+    remove("/etc/localtime")
+    symlink("/usr/share/zoneinfo/%s" % (location), "/etc/localtime")
+    remove("/etc/timezone")
+    with open("/etc/timezone", "w+") as timezone:
+        timezone.write(location)
+    Popen(["timedatectl", "set-ntp", "true"])
 
 
 
 def set_time(TIME_ZONE):
-	eprint("	###	set_time.py STARTED	###	")
-	_link(TIME_ZONE)
-	system("hwclock --systohc")
-	eprint("	###	set_time.py CLOSED	###	")
+    eprint("\t###\tset_time.py STARTED\t###\t")
+    _link(TIME_ZONE)
+    system("hwclock --systohc")
+    eprint("\t###\tset_time.py CLOSED\t###\t")
 
 
 if __name__ == '__main__':
-	set_time(argv[1])
+    set_time(argv[1])

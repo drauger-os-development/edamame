@@ -24,7 +24,7 @@
 USERNAME="$1"
 PASSWORD="$2"
 {
-    builtin echo "  ### verify_install.sh STARTED ###   "
+    builtin echo -e "\t###\tverify_install.sh STARTED\t###\t"
     home_contents=$(ls /home)
     #remove system-installer
     if $(dpkg -l system-installer | grep -q '^ii'); then
@@ -35,10 +35,10 @@ PASSWORD="$2"
         mv -v /home/home/live /home/"$USERNAME" 1>&2
         rm -vrf /home/home 1>&2
     else
-        echo "An error occured setting home directory. Hopefully the user's own files are there?" 1>&2
+        builtin echo "An error occured setting home directory. Hopefully the user's own files are there?" 1>&2
     fi
     #fix password
-    echo -e "root:$PASSWORD\n$USERNAME:$PASSWORD" | chpasswd
+    builtin echo -e "root:$PASSWORD\n$USERNAME:$PASSWORD" | chpasswd
     apt autoremove -y --purge
     . /etc/kernel/postinst.d/zz-update-systemd-boot || . /etc/kernel/postrm.d/zz-update-systemd-boot
     if [ -f /home/$USERNAME/Desktop/system-installer.desktop ] || [ -d /home/$USERNAME/.config/xfce4/panel/launcher-3 ]; then
@@ -47,5 +47,5 @@ PASSWORD="$2"
     if [ -f /etc/kernel/postinst.d/zz-update-systemd-boot ]; then
         apt purge -y $(dpkg -l *grub* | grep '^ii' | awk '{print $2}')
     fi
-    builtin echo "  ### verify_install.sh CLOSED ###    "
+    builtin echo -e "\t###\tverify_install.sh CLOSED\t###\t"
 } 1>&2

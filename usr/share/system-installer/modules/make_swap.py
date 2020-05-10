@@ -31,39 +31,39 @@ from time import sleep
 
 
 def eprint(*args, **kwargs):
-	print(*args, file=stderr, **kwargs)
+    print(*args, file=stderr, **kwargs)
 
 
 def make_swap():
-	eprint("	###	make_swap.py STARTED	###	")
-	mem = virtual_memory()
-	# get data we need to get total system memory
-	SWAP = mem.total
-	# you would think more threads would make it use more
-	# CPU time and write faster but testing suggestes otherwise
-	# testing says once you hit the same number of threads
-	# the CPU has, there's no more you can get
-	SWAP = round((SWAP + sqrt((SWAP / 1024 ** 3)) * 1024 ** 3))
-	print(57)
-	# you would think having a larger string would help,
-	# but past a certain point it does not
-	multiplyer = 10000
-	load_balancer = 3
-	master_string = "\0" * multiplyer
-	SWAP = round(SWAP / multiplyer)
-	with open("/.swapfile", "w+") as swapfile:
-		for i in range(round(SWAP / (multiplyer * load_balancer))):
-			swapfile.write(master_string * (multiplyer * load_balancer))
-	print("60")
-	chmod("/.swapfile", 0o600)
-	print("62")
-	Popen(["mkswap", "/.swapfile"])
-	sleep(0.1)
-	print("64")
-	Popen(["swapon", "/.swapfile"])
-	eprint("	###	make_swap.py CLOSED	###	")
+    eprint("\t###\tmake_swap.py STARTED\t###\t")
+    mem = virtual_memory()
+    # get data we need to get total system memory
+    SWAP = mem.total
+    # you would think more threads would make it use more
+    # CPU time and write faster but testing suggestes otherwise
+    # testing says once you hit the same number of threads
+    # the CPU has, there's no more you can get
+    SWAP = round((SWAP + sqrt((SWAP / 1024 ** 3)) * 1024 ** 3))
+    print(57)
+    # you would think having a larger string would help,
+    # but past a certain point it does not
+    multiplyer = 10000
+    load_balancer = 3
+    master_string = "\0" * multiplyer
+    SWAP = round(SWAP / multiplyer)
+    with open("/.swapfile", "w+") as swapfile:
+        for i in range(round(SWAP / (multiplyer * load_balancer))):
+            swapfile.write(master_string * (multiplyer * load_balancer))
+    print("60")
+    chmod("/.swapfile", 0o600)
+    print("62")
+    Popen(["mkswap", "/.swapfile"])
+    sleep(0.1)
+    print("64")
+    Popen(["swapon", "/.swapfile"])
+    eprint("\t###\tmake_swap.py CLOSED\t###\t")
 
 if __name__ == '__main__':
-	make_swap()
+    make_swap()
 
 
