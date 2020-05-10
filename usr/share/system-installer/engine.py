@@ -21,65 +21,72 @@
 #  MA 02110-1301, USA.
 #
 #
+"""Main installation Engine"""
 from __future__ import print_function
-from sys import argv, stderr
-from subprocess import Popen, PIPE, check_output
-from psutil import virtual_memory
+import sys
+from subprocess import check_output
 from os import path
 import threading
 import json
+from psutil import virtual_memory
 import UI
 import installer
 
-# Make it easier for us to print to stderr
+
 def eprint(*args, **kwargs):
-    print(*args, file=stderr, **kwargs)
+    """Make it easier for us to print to stderr"""
+    print(*args, file=sys.stderr, **kwargs)
 
 
-#get length of argv
-argc = len(argv)
-eprint("\t###\t%s STARTED\t###\t" % (argv[0]))
-memcheck = virtual_memory().total
-if (memcheck / 1024 ** 2) < 1024:
+
+eprint("\t###\t%s STARTED\t###\t" % (sys.argv[0]))
+MEMCHECK = virtual_memory().total
+if (MEMCHECK / 1024 ** 2) < 1024:
     UI.error.show_error("\n\tRAM is less than 1 GB.\t\n")
-    exit(2)
+    sys.exit(2)
 
-disk = json.loads(check_output(["lsblk", "--json"]))
-for each in range(len(disk["blockdevices"]) - 1, -1, -1):
-    if disk["blockdevices"][each]["type"] == "loop":
-        del disk["blockdevices"][each]
-for each in range(len(disk["blockdevices"]) - 1, -1, -1):
-    if float(disk["blockdevices"][each]["size"][0:len(disk["blockdevices"][each]["size"]) - 1]) < 16:
-        del disk["blockdevices"][each]
-if len(disk["blockdevices"]) < 1:
+DISK = json.loads(check_output(["lsblk", "--json"]))
+for each in range(len(DISK["blockdevices"]) - 1, -1, -1):
+    if DISK["blockdevices"][each]["type"] == "loop":
+        del DISK["blockdevices"][each]
+for each in range(len(DISK["blockdevices"]) - 1, -1, -1):
+    if float(DISK["blockdevices"][each]["size"][0:len(DISK["blockdevices"]
+                                                      [each]["size"]) - 1]) < 16:
+        del DISK["blockdevices"][each]
+if len(DISK["blockdevices"]) < 1:
     UI.error.show_error("\n\tNo Drives Larger than 16 GB detected\t\n")
-    exit(2)
-settings = UI.main.show_main()
+    sys.exit(2)
+SETTINGS = UI.main.show_main()
 try:
-    if settings == 1:
-        exit(1)
-    elif path.exists(settings):
-        with open(settings, "r") as quick_install_file:
+    if SETTINGS == 1:
+        sys.exit(1)
+    elif path.exists(SETTINGS):
+        with open(SETTINGS, "r") as quick_install_file:
             try:
-                settings = json.loads(quick_install_file.read())["DATA"]
+                SETTINGS = json.loads(quick_install_file.read())["DATA"]
             except KeyError:
-                settings = json.loads(quick_install_file.read())
+                SETTINGS = json.loads(quick_install_file.read())
 except TypeError:
     pass
-install = UI.confirm.show_confirm(settings["AUTO_PART"], settings["ROOT"],
-    settings["EFI"], settings["HOME"], settings["SWAP"], settings["LANG"],
-    settings["TIME_ZONE"], settings["USERNAME"], settings["PASSWORD"],
-    settings["COMPUTER_NAME"], settings["EXTRAS"], settings["UPDATES"],
-    settings["LOGIN"], settings["MODEL"], settings["LAYOUT"],
-    settings["VARIENT"])
-if install:
+INSTALL = UI.confirm.show_confirm(SETTINGS["AUTO_PART"], SETTINGS["ROOT"],
+                                  SETTINGS["EFI"], SETTINGS["HOME"],
+                                  SETTINGS["SWAP"], SETTINGS["LANG"],
+                                  SETTINGS["TIME_ZONE"], SETTINGS["USERNAME"],
+                                  SETTINGS["PASSWORD"],
+                                  SETTINGS["COMPUTER_NAME"],
+                                  SETTINGS["EXTRAS"], SETTINGS["UPDATES"],
+                                  SETTINGS["LOGIN"], SETTINGS["MODEL"],
+                                  SETTINGS["LAYOUT"],
+                                  SETTINGS["VARIENT"])
+if INSTALL:
     try:
-        progress = threading.Thread(target=UI.progress.show_progress)
-        progress.start()
-        installer.install(settings)
-        progress.join()
+        PROGRESS = threading.Thread(target=UI.progress.show_progress)
+        PROGRESS.start()
+        installer.install(SETTINGS)
+        PROGRESS.join()
     except:
-        UI.error.show_error("\n\tError detected.\t\n\tPlease see /tmp/system-installer.log for details.\t\n")
+        UI.error.show_error("""\n\tError detected.\t
+\tPlease see /tmp/system-installer.log for details.\t\n""")
 else:
-    exit(1)
-eprint("\t###\t%s CLOSED\t###\t" % (argv[0]))
+    sys.exit(1)
+eprint("\t###\t%s CLOSED\t###\t" % (sys.argv[0]))

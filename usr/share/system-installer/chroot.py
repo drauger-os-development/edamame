@@ -22,44 +22,48 @@
 #
 #
 """Provide similar functionality to arch-chroot, in Python"""
-from os import chroot, fchdir, open, O_RDONLY, chdir, path, close
-from subprocess import check_call
+from os import chroot, fchdir, O_RDONLY, chdir, path, close
+from os import open as get
+from subprocess import check_call, CalledProcessError
 
-def __mount__(device, path, fstype="", options=""):
+def __mount__(device, path_dir, fstype="", options=""):
     """Mount necessary psudeo-filesystems"""
     if device == "/run":
         try:
-            check_call(["mount", device, path, "--bind"])
-        except:
+            check_call(["mount", device, path_dir, "--bind"])
+        except CalledProcessError:
             pass
     else:
         try:
-            check_call(["mount", device, path, "-t", fstype, "-o", options])
-        except:
+            check_call(["mount", device, path_dir, "-t", fstype, "-o", options])
+        except CalledProcessError:
             pass
 
-def __unmount__(path):
+def __unmount__(path_dir):
     """unmount psudeo-filesystems"""
     try:
-        check_call(["umount", path])
-    except:
+        check_call(["umount", path_dir])
+    except CalledProcessError:
         pass
 
 
 def arch_chroot(path_dir):
     """replicate arch-chroot functionality in Python"""
-    real_root = open("/", O_RDONLY)
+    real_root = get("/", O_RDONLY)
     if path_dir[len(path_dir) - 1] == "/":
         path_dir = path_dir[0:len(path_dir) - 2]
     __mount__("proc", path_dir + "/proc", "proc", "nosuid,noexec,nodev")
     __mount__("sys", path_dir + "/sys", "sysfs", "nosuid,noexec,nodev,ro")
     if path.exists(path_dir + "/sys/firmware/efi/efivars"):
-        __mount__("efivars", path_dir + "/sys/firmware/efi/efivars", "efivarfs", "nosuid,noexec,nodev")
+        __mount__("efivars", path_dir + "/sys/firmware/efi/efivars",
+                  "efivarfs", "nosuid,noexec,nodev")
     __mount__("udev", path_dir + "/dev", "devtmpfs", "mode=0755,nosuid")
-    __mount__("devpts", path_dir + "/dev/pts", "devpts", "mode=0620,gid=5,nosuid,noexec")
+    __mount__("devpts", path_dir + "/dev/pts",
+              "devpts", "mode=0620,gid=5,nosuid,noexec")
     __mount__("shm", path_dir + "/dev/shm", "tmpfs", "nosuid,noexec,nodev")
     __mount__("/run", path_dir + "/run")
-    __mount__("tmp", path_dir + "/tmp", "tmpfs", "mode=1777,strictatime,nodev,nosuid")
+    __mount__("tmp", path_dir + "/tmp", "tmpfs",
+              "mode=1777,strictatime,nodev,nosuid")
     chdir(path_dir)
     chroot(path_dir)
     return real_root

@@ -21,6 +21,7 @@
 #  MA 02110-1301, USA.
 #
 #
+"""UI for System Installer"""
 import UI.confirm as confirm
 import UI.error as error
 import UI.main as main

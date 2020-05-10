@@ -21,9 +21,10 @@
 #  MA 02110-1301, USA.
 #
 #
+"""Main module controling the installation process"""
 from __future__ import print_function
 from sys import stderr
-from subprocess import Popen, check_output, check_call
+from subprocess import Popen, check_output, check_call, CalledProcessError
 from os import mkdir, path, chdir, listdir, remove, symlink, chmod
 from shutil import rmtree, move, copyfile, copytree
 import json
@@ -31,22 +32,23 @@ import UI
 import modules
 import chroot
 
-# Make it easier for us to print to stderr
 def eprint(*args, **kwargs):
+    """Make it easier for us to print to stderr"""
     print(*args, file=stderr, **kwargs)
 
-def __mount__(device, path):
+def __mount__(device, path_dir):
     """Mount device at path
     It would be much lighter weight to use ctypes to do this
     But, that keeps throwing an 'Invalid Argument' error.
     Calling Mount with check_call is the safer option.
     """
     try:
-        check_call(["mount", device, path])
-    except:
+        check_call(["mount", device, path_dir])
+    except CalledProcessError:
         pass
 
 def __update__(percentage):
+    """Update progress percentage file"""
     try:
         with open("/tmp/system-installer-progress.log", "w+") as progress:
             progress.write(str(percentage))
@@ -57,7 +59,6 @@ def __update__(percentage):
 
 
 def install(settings):
-    eprint("\t###\tinstaller.py STARTED\t###\t")
     """Begin installation proceidure
 
     settings should be a dictionary with the following values:
@@ -80,11 +81,12 @@ def install(settings):
     You can read in /etc/system-installer/quick-install-template.json with
     json.loads()["DATA"] to see an example of acceptable settings
     """
+    eprint("\t###\tinstaller.py STARTED\t###\t")
     # STEP 1: Partion and format the drive ( if needed )
     if settings["AUTO_PART"]:
         partitioning = json.loads(check_output(
             ["/usr/share/system-installer/modules/auto-partitioner.sh",
-            settings["ROOT"], settings["EFI"], settings["HOME"]]))
+             settings["ROOT"], settings["EFI"], settings["HOME"]]))
         settings["ROOT"] = partitioning["ROOT"]
         settings["EFI"] = partitioning["EFI"]
         settings["HOME"] = partitioning["HOME"]
@@ -108,7 +110,6 @@ def install(settings):
             mkdir("/mnt/home")
         except FileExistsError:
             eprint("/mnt/home exists when it shouldn't. What the hell is going on???")
-            pass
         __mount__(settings["HOME"], "/mnt/home")
     if settings["SWAP"] != "FILE":
         # This can happen in the background. No biggie.
@@ -128,13 +129,13 @@ def install(settings):
     eprint("CLEANING INSTALLATION DIRECTORY")
     death_row = listdir()
     for each in death_row:
-        if ((each != "boot") and (each !="home")):
+        if each not in ("boot", "home"):
             eprint("Removing " + each)
             rmtree(each)
     chdir("/mnt/boot")
     death_row = listdir()
     for each in death_row:
-        if (each != "efi"):
+        if each != "efi":
             try:
                 rmtree(each)
             except NotADirectoryError:
@@ -159,9 +160,11 @@ def install(settings):
             copyfile("/boot/" + each, "/mnt/boot/" + each)
         except IsADirectoryError:
             copytree("/boot/" + each, "/mnt/boot/" + each)
-    copyfile("/tmp/system-installer-progress.log", "/mnt/tmp/system-installer-progress.log")
+    copyfile("/tmp/system-installer-progress.log",
+             "/mnt/tmp/system-installer-progress.log")
     remove("/tmp/system-installer-progress.log")
-    symlink("/mnt/tmp/system-installer-progress.log","/tmp/system-installer-progress.log")
+    symlink("/mnt/tmp/system-installer-progress.log",
+            "/tmp/system-installer-progress.log")
     __update__(32)
     # STEP 4: Update fstab
     eprint("\t###\tUpdating FSTAB\t###\t")
@@ -178,7 +181,8 @@ def install(settings):
     for each in file_list:
         if each == "__pycache__":
             continue
-        eprint("/usr/share/system-installer/modules/" + each + " --> " + "/mnt/" + each)
+        eprint("/usr/share/system-installer/modules/" +
+               each + " --> " + "/mnt/" + each)
         copyfile("/usr/share/system-installer/modules/" + each, "/mnt/" + each)
     __update__(35)
     # STEP 6: Run Master script inside chroot
@@ -197,14 +201,23 @@ def install(settings):
         settings["TIME_ZONE"] = "America/New_York"
     if settings["USERNAME"] == "":
         eprint("$USERNAME is not set. No default. Prompting user . . .")
-        settings["USERNAME"] = check_output(["zenity", "--entry", r"--text=\"We're sorry. We lost your username somewhere in the chain. What was it again?\""]).decode()
+        settings["USERNAME"] = check_output(["zenity", "--entry",
+                                             r"""--text=\"We're sorry.
+                                             We lost your username somewhere in the chain.
+                                             What was it again?\""""]
+                                            ).decode()
         settings["USERNAME"] = settings["USERNAME"][0:-1]
     if settings["COMPUTER_NAME"] == "":
         eprint("$COMP_NAME is not set. Defaulting to drauger-system-installed")
         settings["COMPUTER_NAME"] = "drauger-system-installed"
     if settings["PASSWORD"] == "":
         eprint("$PASSWORD is not set. No default. Prompting user . . .")
-        settings["PASSWORD"] = check_output(["zenity", "--entry", "--hide-text", r"--text=\"We're sorry. We lost your password somewhere in the chain. What was it again?\""]).decode()
+        settings["PASSWORD"] = check_output(["zenity", "--entry",
+                                             "--hide-text",
+                                             r"""--text=\"We're sorry.
+                                             We lost your password somewhere in the chain.
+                                             What was it again?\""""]
+                                            ).decode()
         settings["PASSWORD"] = settings["PASSWORD"][0:-1]
     if settings["EXTRAS"] == "":
         eprint("$EXTRAS is not set. Defaulting to false.")
@@ -238,23 +251,29 @@ def install(settings):
             del file_list[each]
     if len(file_list) == 0:
         eprint("\t###\tKERNEL NOT INSTALLED. CORRECTING . . .\t###\t")
-        copyfile("/usr/share/system-installer/modules/kernel.7z", "/mnt/kernel.7z")
-        check_call(["arch-chroot", "/mnt", "\"bash -c '7z x /kernel.7z; dpkg -R --install /kernel/'\""])
+        copyfile("/usr/share/system-installer/modules/kernel.7z",
+                 "/mnt/kernel.7z")
+        check_call(["arch-chroot", "/mnt",
+                    "\"bash -c '7z x /kernel.7z; dpkg -R --install /kernel/'\""])
         rmtree("/mnt/kernel")
         remove("/mnt/kernel.7z")
     file_list = listdir("/mnt/boot/efi/loader/entries")
-    if ((len(file_list) == 0) and ((settings["EFI"] == None) or (settings["EFI"] == "") or (settings["EFI"] == "NULL"))):
+    if ((len(file_list) == 0) and ((settings["EFI"] is None) or
+                                   (settings["EFI"] == "") or (settings["EFI"] == "NULL"))):
         eprint("\t###\tSYSTEMD-BOOT NOT CONFIGURED. CORRECTING . . .\t###\t")
-        copyfile("/usr/share/system-installer/modules/systemd_boot_config.py", "/mnt/systemd_boot_config.py")
-        check_call(["arch-chroot", "/mnt", "python3", "/systemd_boot_config.py", settings["ROOT"]])
-        check_call(["arch-chroot", "/mnt", "/etc/kernel/postinst.d/zz-update-systemd-boot"])
+        copyfile("/usr/share/system-installer/modules/systemd_boot_config.py",
+                 "/mnt/systemd_boot_config.py")
+        check_call(["arch-chroot", "/mnt", "python3",
+                    "/systemd_boot_config.py", settings["ROOT"]])
+        check_call(["arch-chroot", "/mnt",
+                    "/etc/kernel/postinst.d/zz-update-systemd-boot"])
         remove("/mnt/systemd_boot_config.py")
     try:
-        rmtree("/mnt/home/" + settings["USERNAME"] + "/.config/xfce4/panel/launcher-3")
+        rmtree("/mnt/home/" + settings["USERNAME"] +
+               "/.config/xfce4/panel/launcher-3")
     except FileNotFoundError:
         pass
     __update__(100)
     remove("/tmp/system-installer-progress.log")
     remove("/mnt/tmp/system-installer-progress.log")
     eprint("\t###\tinstaller.py CLOSED\t###\t")
-
