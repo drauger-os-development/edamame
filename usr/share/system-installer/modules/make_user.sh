@@ -21,8 +21,8 @@
 #  MA 02110-1301, USA.
 #
 #
-echo "	###	make_user.sh STARTED	###	" 1>&2
-echo "49"
+builtin echo -e "\t###\tmake_user.sh STARTED\t###\t" 1>&2
+builtin echo "49"
 USERNAME="$1"
 PASSWORD="$2"
 function fix_home () 
@@ -33,7 +33,7 @@ function fix_home ()
 			mv -v /home/home/live /home/"$USERNAME"
 			rm -vrf /home/home
 		else
-			echo "An error occured setting home directory. Hopefully the user's own files are there?"
+			builtin echo "An error occured setting home directory. Hopefully the user's own files are there?"
 		fi
 	} 1>&2
 }
@@ -41,25 +41,25 @@ function fix_home ()
 #change live user to $USERNAME
 usermod -l "$USERNAME" live 1>&2
 groupmod -n "$USERNAME" live 1>&2
-echo "50"
+builtin echo "50"
 if $(ls /home | grep -q "$USERNAME"); then
 	#check to see if the user has a home folder already. 
-	echo "Original home folder found. Substituting it in . . ." 1>&2
+	builtin echo "Original home folder found. Substituting it in . . ." 1>&2
 	rm -rfv /home/live 1>&2
 elif [ -d /home/home/live ]; then
 	fix_home "$USERNAME"
 else
 	#change refrences from old home to new
-	echo "Fixing refrences to old home . . ." 1>&2
+	builtin echo "Fixing refrences to old home . . ." 1>&2
 	sed -i "s:/home/live:/home/$USERNAME:g" /home/live/.config/gtk-3.0/bookmarks 1>&2
 	#rename home directory
 	mv -v /home/live /home/"$USERNAME" 1>&2 || fix_home "$USERNAME"
 fi
-echo "51"
+builtin echo "51"
 sed -i "s/live/$USERNAME/g" /etc/passwd  1>&2
-echo "54"
+builtin echo "54"
 #change password
-echo "$USERNAME:$PASSWORD" | chpasswd
-echo "55"
-echo "	###	make_user.sh CLOSED	###	" 1>&2
+builtin echo "$USERNAME:$PASSWORD" | chpasswd
+builtin echo "55"
+builtin echo -e "\t###\tmake_user.sh CLOSED\t###\t" 1>&2
 

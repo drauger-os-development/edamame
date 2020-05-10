@@ -3,7 +3,7 @@
 #
 #  install_updates.sh
 #
-#  Copyright 2019 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2020 Thomas Castleman <contact@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -21,16 +21,16 @@
 #  MA 02110-1301, USA.
 #
 #
-echo "	###	install_updates.sh STARTED	###	" 1>&2
+builtin echo -e "\t###\tinstall_updates.sh STARTED\t###\t" 1>&2
 set -e
 set -o pipefail
 apt update 2>/dev/null 1>>/tmp/system-installer.log
-echo "67"
+builtin echo "67"
 apt -y dist-upgrade 2>/dev/null 1>>/tmp/system-installer.log
-echo "70"
+builtin echo "70"
 apt -y autoremove 2>/dev/null 1>>/tmp/system-installer.log
-echo "72"
+builtin echo "72"
 apt clean 2>/dev/null 1>>/tmp/system-installer.log
 set +e
-echo "74"
-echo "	###	install_updates.sh CLOSED	###	" 1>&2
+builtin echo "74"
+builtin echo -e "\t###\tinstall_updates.sh CLOSED\t###\t" 1>&2

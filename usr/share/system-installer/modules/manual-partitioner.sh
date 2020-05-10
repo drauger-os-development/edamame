@@ -26,7 +26,7 @@
 # This monstrosity of code barely works. Only fuck with it if you know
 # what you are doing. If you have no idea, don't do it.
 # Thou hath been warned.
-echo "	###	manual-partitioner.sh STARTED	###	" 1>&2
+builtin echo -e "\t###\tmanual-partitioner.sh STARTED\t###\t" 1>&2
 EFI="$1"
 partitioner="$2"
 TYPE="$3"
@@ -68,11 +68,11 @@ q
 EOF
 		mkfs.ext4 -L "ROOT" /dev/nvme0n1p1
 	else
-		echo "Unknown Error: Improper EFI Detection" 1>&2
+		builtin echo "Unknown Error: Improper EFI Detection" 1>&2
 		/usr/share/system-installer/UI/error.py "Unknown Error: Improper EFI Detection"
 		exit 2
 	fi
-	echo "/dev/nvme0n1"
+	builtin echo "/dev/nvme0n1"
 elif [ "$TYPE" == "sd" ]; then
 	LIST=$(lsblk -o name,type,label,size | grep "disk" | grep -v "Drauger OS")
 	count=0
@@ -80,21 +80,21 @@ elif [ "$TYPE" == "sd" ]; then
 		(( count+=1 ))
 	done
 	if [[ $count -gt 1 ]]; then
-		coloumn=$(echo "$LIST" | awk '{print NF}')
-		coloumn=$(echo "${coloumn[*]}" | sort -nr | head -n1)
-		LIST_SIZES=$(echo "$LIST" | awk "{print \$$coloumn}" | sed 's/G//g')
-		LIST_SIZES=$(echo "${LIST_SIZES[*]}" | sort -nr | head -n1)
+		coloumn=$(builtin echo "$LIST" | awk '{print NF}')
+		coloumn=$(builtin echo "${coloumn[*]}" | sort -nr | head -n1)
+		LIST_SIZES=$(builtin echo "$LIST" | awk "{print \$$coloumn}" | sed 's/G//g')
+		LIST_SIZES=$(builtin echo "${LIST_SIZES[*]}" | sort -nr | head -n1)
 		LIST=$(lsblk -o name,type,label,size | grep "disk" | grep -v "Drauger OS" | grep "$LIST_SIZES" | awk '{print $1}')
 		count=0
 		for _ in $LIST; do
 			(( count+=1 ))
 		done
 		if [[ $count -gt 1 ]]; then
-			LIST=$(echo "$LIST" | tr '\n' '|')
+			LIST=$(builtin echo "$LIST" | tr '\n' '|')
 			LIST=$(zenity --forms --add-list="Drives:" --list-values="$LIST" --text="An error was detected. Please manually select the installation drive.")
 		fi
 	fi
-	LIST=$(echo "$LIST" | awk '{print $1}')
+	LIST=$(builtin echo "$LIST" | awk '{print $1}')
 	if [ "$EFI" == "200" ]; then
 		fdisk "/dev/$LIST" << EOF
 o
@@ -132,10 +132,10 @@ q
 EOF
 		mkfs.ext4 -L "ROOT" /dev/"$LIST"1
 	else
-		echo "Unknown Error: Improper EFI Detection" 1>&2
+		builtin echo "Unknown Error: Improper EFI Detection" 1>&2
 		/usr/share/system-installer/UI/error.py "Unknown Error: Improper EFI Detection"
 		exit 2
 	fi
-	echo "/dev/$LIST"
+	builtin echo "/dev/$LIST"
 fi
-echo "	###	manual-partitioner.sh CLOSED	###	" 1>&2
+builtin echo -e "\t###\tmanual-partitioner.sh CLOSED\t###\t" 1>&2
