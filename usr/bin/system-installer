@@ -23,7 +23,7 @@
 #
 """Command line executable for System Installer"""
 from sys import argv, stderr
-from subprocess import Popen, PIPE, check_call
+from subprocess import check_call
 ARGC = len(argv)
 VERSION = "1.1.2-beta1"
 HELP = """
@@ -56,9 +56,6 @@ if ARGC > 1:
 else:
     check_call(["/usr/bin/xhost", "+si:localuser:root"])
     print(Y + "RUNNING LOG LOCATED AT /tmp/system-installer.log" + NC)
-    with Popen(["/usr/bin/pkexec",
-                "/usr/share/system-installer/engine.py"],
-               stderr=PIPE) as process:
-        with open("/tmp/system-installer.log", "w+") as log:
-            log.write(process.stderr.read())
+    check_call(["/usr/bin/pkexec", "/usr/share/system-installer/engine.py",
+                "2>/tmp/system-installer.log"])
     check_call(["/usr/bin/xhost", "-si:localuser:root"])
