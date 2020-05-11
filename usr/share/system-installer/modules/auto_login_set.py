@@ -39,22 +39,22 @@ def auto_login_set(LOGIN, USERNAME):
     remove("/etc/lightdm/lightdm.conf")
     new_conf = new_conf.split('\n')
     for each in enumerate(new_conf):
-        if (each == 0):
+        if (each[0] == 0):
             continue
-        new_conf[each] = new_conf[each].split('=')
+        new_conf[each[0]] = new_conf[each[0]].split('=')
     for each in enumerate(new_conf):
-        if (each == 0):
+        if (each[0] == 0):
             continue
-        if (new_conf[each][0] == "autologin-user"):
+        if (new_conf[each[0]][0] == "autologin-user"):
             if ( (LOGIN == "0") or ( LOGIN == 0) or (LOGIN == False) ):
-                del(new_conf[each])
+                del(new_conf[each[0]])
             else:
-                new_conf[each][1] = USERNAME
+                new_conf[each[0]][1] = USERNAME
             break
     for each in enumerate(new_conf):
-        if (each == 0):
+        if (each[0] == 0):
             continue
-        new_conf[each] = "=".join(new_conf[each])
+        new_conf[each[0]] = "=".join(new_conf[each[0]])
     with open("/etc/lightdm/lightdm.conf", "w+") as file:
         for each in new_conf:
             file.write(each)
@@ -63,4 +63,3 @@ def auto_login_set(LOGIN, USERNAME):
 
 if __name__ == '__main__':
     auto_login_set(argv[1], argv[2])
-
