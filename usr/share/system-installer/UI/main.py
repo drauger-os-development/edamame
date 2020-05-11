@@ -57,14 +57,14 @@ def hasspace(inputString):
 try:
     config_dir = listdir("/etc/system-installer")
     for each in enumerate(config_dir):
-        if (config_dir[each] == "quick-install-template.config"):
-            del(config_dir[each])
+        if (config_dir[each[0]] == "quick-install-template.config"):
+            del(config_dir[each[0]])
             if (len(config_dir) == 1):
                 break
             else:
                 for each1 in enumerate(config_dir):
-                    if (config_dir[each1] == "default.config"):
-                        del(config_dir[each])
+                    if (config_dir[each1[0]] == "default.config"):
+                        del(config_dir[each[0]])
                         if (len(config_dir) != 1):
                             eprint("More than one custom config file in /etc/system-installer is not supported.")
                             eprint("Please remove all but one and try again.")
@@ -80,7 +80,7 @@ try:
     while("" in config) :
         config.remove("")
     for each in enumerate(config):
-        config[each] = config[each].split("=")
+        config[each[0]] = config[each[0]].split("=")
     for each in config:
         if ((each[0] == "distro") or (each[0] == "Distro") or (each[0] == "DISTRO")):
             DISTRO = each[1]
@@ -475,9 +475,9 @@ class main(Gtk.Window):
             if (each[0] == "sr0"):
                 DEVICES.remove(each)
         for each in enumerate(DEVICES):
-            DEVICES[each].remove(DEVICES[each][2])
+            DEVICES[each[0]].remove(DEVICES[each[0]][2])
         for each in enumerate(DEVICES):
-            DEVICES[each][0] = "/dev/%s" % (DEVICES[each][0])
+            DEVICES[each[0]][0] = "/dev/%s" % (DEVICES[each[0]][0])
 
         # Jesus Christ that's a lot of parsing and formatting.
         # At least it's done.
@@ -492,7 +492,7 @@ class main(Gtk.Window):
 
         self.disks = Gtk.ComboBoxText.new()
         for each in enumerate(DEVICES):
-            self.disks.append("%s" % (DEVICES[each][0]), "%s    Size: %s" % (DEVICES[each][0], DEVICES[each][1]))
+            self.disks.append("%s" % (DEVICES[each[0]][0]), "%s    Size: %s" % (DEVICES[each[0]][0], DEVICES[each[0]][1]))
         if (self.root_setting != ""):
             self.disks.set_active_id(self.root_setting)
         self.grid.attach(self.disks, 1, 2, 2, 1)
@@ -535,12 +535,12 @@ class main(Gtk.Window):
         if (self.pre_exist.get_active() == 1):
             DEV = []
             for each in enumerate(self.DEVICES):
-                if ("loop" in self.DEVICES[each]):
+                if ("loop" in self.DEVICES[each[0]]):
                     continue
-                elif ("disk" in self.DEVICES[each]):
+                elif ("disk" in self.DEVICES[each[0]]):
                     continue
                 else:
-                    DEV.append(self.DEVICES[each])
+                    DEV.append(self.DEVICES[each[0]])
             DEVICES = []
             for each in DEV:
                 DEVICES.append(each.split())
@@ -549,18 +549,18 @@ class main(Gtk.Window):
                 if (each[0] == "sr0"):
                     DEVICES.remove(each)
             for each in enumerate(DEVICES):
-                DEVICES[each].remove(DEVICES[each][2])
+                DEVICES[each[0]].remove(DEVICES[each[0]][2])
             for each in enumerate(DEVICES):
-                DEVICES[each][0] = list(DEVICES[each][0])
-                del(DEVICES[each][0][0])
-                del(DEVICES[each][0][0])
-                DEVICES[each][0] = "".join(DEVICES[each][0])
+                DEVICES[each[0]][0] = list(DEVICES[each[0]][0])
+                del(DEVICES[each[0]][0][0])
+                del(DEVICES[each[0]][0][0])
+                DEVICES[each[0]][0] = "".join(DEVICES[each[0]][0])
             for each in enumerate(DEVICES):
-                DEVICES[each][0] = "/dev/%s" % (DEVICES[each][0])
+                DEVICES[each[0]][0] = "/dev/%s" % (DEVICES[each[0]][0])
 
             self.parts = Gtk.ComboBoxText.new()
             for each in enumerate(DEVICES):
-                self.parts.append("%s" % (DEVICES[each][0]), "%s    Size: %s" % (DEVICES[each][0], DEVICES[each][1]))
+                self.parts.append("%s" % (DEVICES[each[0]][0]), "%s    Size: %s" % (DEVICES[each[0]][0], DEVICES[each[0]][1]))
             if (self.home_setting != ""):
                 self.parts.set_active_id(self.home_setting)
             self.grid.attach(self.parts, 1, 5, 2, 1)
@@ -969,11 +969,11 @@ Sub-Region""")
         for each in layouts:
             layout_list.append(each.split("*"))
         for each in enumerate(layout_list):
-            del(layout_list[each][0])
+            del(layout_list[each[0]][0])
         model = []
         for each in enumerate(layout_list):
-            if (layout_list[each][0] == "model"):
-                model.append(layout_list[each][-1])
+            if (layout_list[each[0]][0] == "model"):
+                model.append(layout_list[each[0]][-1])
         model = sorted(model)
         for each in model:
             self.model_menu.append(each, each)
@@ -989,8 +989,8 @@ Sub-Region""")
         self.layout_menu = Gtk.ComboBoxText.new()
         layouts = []
         for each in enumerate(layout_list):
-            if (layout_list[each][0] == "layout"):
-                layouts.append(layout_list[each][-1])
+            if (layout_list[each[0]][0] == "layout"):
+                layouts.append(layout_list[each[0]][-1])
         layouts = sorted(layouts)
         for each in layouts:
             self.layout_menu.append(each, each)
@@ -1007,8 +1007,8 @@ Sub-Region""")
         self.varient_menu = Gtk.ComboBoxText.new()
         self.varients = []
         for each in enumerate(layout_list):
-            if (layout_list[each][0] == "variant"):
-                self.varients.append(layout_list[each][-1])
+            if (layout_list[each[0]][0] == "variant"):
+                self.varients.append(layout_list[each[0]][-1])
         for each in self.varients:
             self.varient_menu.append(each, each)
         if (self.varient_setting != ""):
