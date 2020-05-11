@@ -24,7 +24,7 @@
 from sys import argv, stderr
 from subprocess import check_call
 argc = len(argv)
-VERSION = "1.0.6-beta0"
+VERSION = "1.0.8-beta0"
 HELP = "\nsystem-installer, Version %s\n\n\t-h, --help\tprint this help dialoge.\n\t-v, --version\tprint current version.\n\nPass nothing to start installer.\n"
 R = "\033[0;31m"
 G = "\033[0;32m"
