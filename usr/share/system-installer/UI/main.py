@@ -74,7 +74,7 @@ try:
                             break
                 break
     with open("/etc/system-installer/%s" % (CONFIG_DIR[0])) as config_file:
-        DISTRO = json.loads(CONFIG_DIR.read())["distro"]
+        DISTRO = json.loads(config_file.read())["distro"]
 
 
 except FileNotFoundError:

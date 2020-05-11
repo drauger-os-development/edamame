@@ -94,7 +94,7 @@ class Main(Gtk.Window):
         return 0
 
 Main.main = report.Main.main
-Main.toggle_UI = report.Main.toggle_UI
+Main.toggle_UI = report.Main.toggle_ui
 Main.message_accept = report.Main.message_accept
 Main.message_handler = report.Main.message_handler
 Main.generate_message = report.Main.generate_message
@@ -105,14 +105,12 @@ Main.cpu_toggle = report.Main.cpu_toggle
 Main.disk_explaination = report.Main.disk_explaination
 Main.disk_toggle = report.Main.disk_toggle
 Main.generate_message = report.Main.generate_message
-Main.gpu_explaination = report.main.gpu_explaination
+Main.gpu_explaination = report.Main.gpu_explaination
 Main.gpu_toggle = report.Main.gpu_toggle
 Main.log_explaination = report.Main.log_explaination
 Main.log_toggle = report.Main.log_toggle
 Main.ram_explaination = report.Main.ram_explaination
 Main.ram_toggle = report.Main.ram_toggle
-Main.toggle_UI = report.Main.toggle_UI
-Main.main = report.Main.main
 
 def show_error(display):
     """Show Error Dialog"""
