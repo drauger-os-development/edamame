@@ -21,16 +21,19 @@
 #  MA 02110-1301, USA.
 #
 #
+"""Configure Systemd-Boot"""
 from os import mkdir, chown, chmod
 from sys import stderr, argv
 from subprocess import check_output
 
 
 def eprint(*args, **kwargs):
+    """Make it easier for us to print to stderr"""
     print(*args, file=stderr, **kwargs)
 
 
-def systemd_boot_config(ROOT):
+def systemd_boot_config(root):
+    """Configure Systemd-Boot"""
     eprint("\t###\tsystemd-boot-config.py STARTED\t###\t")
     try:
         mkdir("/etc/kernel/postinst.d")
@@ -40,15 +43,9 @@ def systemd_boot_config(ROOT):
         mkdir("/etc/kernel/postrm.d")
     except FileExistsError:
         eprint("postrm.d already exists")
-    UUID = check_output(["blkid", "-s", "PARTUUID", "-o", "value", ROOT])
+    uuid = check_output(["blkid", "-s", "PARTUUID", "-o", "value", root]).decode()[0:-1]
     # Parse out all the stuff we don't need
-    UUID = list(str(UUID))
-    del(UUID[0])
-    del(UUID[0])
-    for each in range(0,3):
-        del(UUID[len(UUID) - 1])
-    UUID = "".join(UUID)
-    contents = """#!/bin/bash
+    contents = r"""#!/bin/bash
 #
 # This is a simple kernel hook to populate the systemd-boot entries
 # whenever kernels are added or removed.
@@ -140,7 +137,7 @@ fi
 
 
 
-# Success!""" % (UUID)
+# Success!""" % (uuid)
     with open("/etc/kernel/postinst.d/zz-update-systemd-boot", "w+") as postinst:
         postinst.write(contents)
     with open("/etc/kernel/postrm.d/zz-update-systemd-boot", "w+") as postrm:

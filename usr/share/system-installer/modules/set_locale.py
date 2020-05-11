@@ -21,37 +21,39 @@
 #  MA 02110-1301, USA.
 #
 #
+"""Set system locale for a given langauage name"""
 from __future__ import print_function
-from sys import argv, stderr, version_info
+from sys import argv, stderr
 from os import remove
 from subprocess import check_call
 
-# Make it easier for us to print to stderr
 def eprint(*args, **kwargs):
+    """Make it easier for us to print to stderr"""
     print(*args, file=stderr, **kwargs)
 
-def set_locale(LANG_SET):
+def set_locale(lang_set):
+    """Figure out locale code for a given language name"""
     eprint("\t###\tset_locale.py STARTED\t###\t")
     print(40)
-    if ( LANG_SET == "english" ):
+    if lang_set == "english":
         _setlocale("en_US")
-    elif ( LANG_SET == "chinese" ):
+    elif lang_set == "chinese":
         _setlocale("zh_CN")
-    elif ( LANG_SET == "japanese" ):
+    elif lang_set == "japanese":
         _setlocale("ja_JP")
-    elif ( LANG_SET == "spanish" ):
+    elif lang_set == "spanish":
         _setlocale("es_ES")
-    elif ( LANG_SET == "hindi" ):
+    elif lang_set == "hindi":
         _setlocale("hi_IN")
-    elif ( LANG_SET == "german" ):
+    elif lang_set == "german":
         _setlocale("de_DE")
-    elif ( LANG_SET == "french" ):
+    elif lang_set == "french":
         _setlocale("fr_CA")
-    elif ( LANG_SET == "italian" ):
+    elif lang_set == "italian":
         _setlocale("it_IT")
-    elif ( LANG_SET == "korean" ):
+    elif lang_set == "korean":
         _setlocale("ko_KR")
-    elif ( LANG_SET == "russian" ):
+    elif lang_set == "russian":
         _setlocale("ru_RU")
     else:
         eprint("No locale set. Defaulting to en_US.UTF-8")
@@ -59,13 +61,14 @@ def set_locale(LANG_SET):
     eprint("\t###\tset_locale.py STOPPED\t###\t")
 
 def _setlocale(locale):
+    """Handle setting locale for a given locale code"""
     # Edit /etc/locale.gen
     with open("/etc/locale.gen", "r") as gen_file:
         contents = gen_file.read()
     contents = contents.split("\n")
-    for each in range(len(contents)):
-        if (contents[each] == ("# " + locale + ".UTF-8 UTF-8")):
-            contents[each] = (locale + ".UTF-8 UTF-8")
+    for each in enumerate(contents):
+        if contents[each[0]] == ("# " + locale + ".UTF-8 UTF-8"):
+            contents[each[0]] = locale + ".UTF-8 UTF-8"
             break
     remove("/etc/locale.gen")
     contents = "\n".join(contents)

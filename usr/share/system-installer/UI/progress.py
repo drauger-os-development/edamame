@@ -21,24 +21,27 @@
 #  MA 02110-1301, USA.
 #
 #
-
+"""Progress Window GUI"""
+from time import sleep
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk,GLib
-from os import system
-import sys, select
-from time import sleep
+from gi.repository import Gtk
 
-class main(Gtk.Window):
-
+class Main(Gtk.Window):
+    """Progress UI Window"""
     def __init__(self):
+        """Progress UI main set-up"""
         Gtk.Window.__init__(self, title="System Installer")
-        self.grid=Gtk.Grid(orientation=Gtk.Orientation.VERTICAL)
+        self.grid = Gtk.Grid(orientation=Gtk.Orientation.VERTICAL)
         self.add(self.grid)
         self.set_icon_from_file("/usr/share/icons/Drauger/720x720/Menus/install-drauger.png")
 
         self.label = Gtk.Label()
-        self.label.set_markup("""   Installing Drauger OS to your internal hard drive.\nThis may take some time. If you have an error, please send\nthe log file (located at /tmp/system-installer.log) to: contact@draugeros.org   """)
+        self.label.set_markup("""
+\tInstalling Drauger OS to your internal hard drive.
+This may take some time. If you have an error, please send
+the log file (located at /tmp/system-installer.log)
+to: contact@draugeros.org   """)
         self.label.set_justify(Gtk.Justification.CENTER)
         self.grid.attach(self.label, 1, 1, 1, 1)
 
@@ -47,7 +50,6 @@ class main(Gtk.Window):
         self.progress.set_fraction(0)
         self.progress.set_show_text(True)
         self.progress.set_text("0 %")
-        #self.source_id = GLib.timeout_add(1000, self.pulse)
         self.grid.attach(self.progress, 1, 3, 1, 1)
 
         self.file_contents = Gtk.TextBuffer()
@@ -65,48 +67,52 @@ class main(Gtk.Window):
 
 
     def read_file(self):
+        """Read Progress log"""
         text = ""
         try:
             with open("/tmp/system-installer.log", "r") as read_file:
                 text = read_file.read()
             self.file_contents.set_text(text, len(text))
-        except:
+        except FileNotFoundError:
             self.file_contents.set_text("", len(""))
 
         self.show_all()
 
 
     def pulse(self):
+        """Update progress indicator and log output in GUI"""
         self.read_file()
         fraction = ""
         try:
             with open("/tmp/system-installer-progress.log", "r") as prog_file:
                 fraction = prog_file.read()
-        except:
+        except FileNotFoundError:
             fraction = "0"
         try:
             self.progress.set_fraction(int(fraction))
         except ValueError:
             self.progress.set_fraction(0)
         self.progress.set_text(fraction + " %")
-        if (fraction == "100"):
+        if fraction == "100":
             return self.exit("clicked")
 
         self.show_all()
         return True
 
-    def exit(self,button):
+    def exit(self, button):
+        """Exit"""
         Gtk.main_quit("delete-event")
         self.destroy()
         return False
 
 def show_progress():
-    window = main()
+    """Show Progress UI"""
+    window = Main()
     window.set_decorated(True)
     window.set_resizable(False)
     window.set_deletable(False)
     window.set_position(Gtk.WindowPosition.CENTER)
-    window.connect("delete-event",main.exit)
+    window.connect("delete-event", Main.exit)
     window.show_all()
     Gtk.main()
 

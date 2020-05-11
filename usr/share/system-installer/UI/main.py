@@ -142,7 +142,10 @@ class Main(Gtk.Window):
 
     def quick_install_warning(self, button):
         """Quick Install Mode Entry Point"""
-        self.label.set_markup("""
+        self.clear_window()
+
+        label = Gtk.Label()
+        label.set_markup("""
     <b>QUICK INSTALL MODE INITIATED</b>
 
     You have activated Quick Install mode.
@@ -152,15 +155,20 @@ class Main(Gtk.Window):
 
     An example of one of these can be found at /etc/system-installer/quick-install-template.json\t
     """)
+        label.set_justify(Gtk.Justification.LEFT)
+        self.grid.attach(label, 1, 1, 3, 1)
 
-        self.grid.remove(self.button1)
+        button4 = Gtk.Button.new_with_label("Select Config File")
+        button4.connect("clicked", self.select_config)
+        self.grid.attach(button4, 3, 2, 1, 1)
 
-        self.button4 = Gtk.Button.new_with_label("Select Config File")
-        self.button4.connect("clicked", self.select_config)
-        self.grid.attach(self.button4, 3, 2, 1, 1)
+        button3 = Gtk.Button.new_with_label("<-- Back")
+        button3.connect("clicked", self.reset)
+        self.grid.attach(button3, 2, 2, 1, 1)
 
-        self.button3.set_label("<-- Back")
-        self.button3.connect("clicked", self.reset)
+        button2 = Gtk.Button.new_with_label("Exit")
+        button2.connect("clicked", self.exit)
+        self.grid.attach(button2, 1, 2, 1, 1)
 
         self.show_all()
 
@@ -169,22 +177,22 @@ class Main(Gtk.Window):
         global DEFAULT
         self.clear_window()
 
-        self.label = Gtk.Label()
-        self.label.set_markup(DEFAULT)
-        self.label.set_justify(Gtk.Justification.LEFT)
-        self.grid.attach(self.label, 1, 1, 3, 1)
+        label = Gtk.Label()
+        label.set_markup(DEFAULT)
+        label.set_justify(Gtk.Justification.LEFT)
+        self.grid.attach(label, 1, 1, 3, 1)
 
-        self.button1 = Gtk.Button.new_with_label("Okay -->")
-        self.button1.connect("clicked", self.main_menu)
-        self.grid.attach(self.button1, 3, 2, 1, 1)
+        button1 = Gtk.Button.new_with_label("Okay -->")
+        button1.connect("clicked", self.main_menu)
+        self.grid.attach(button1, 3, 2, 1, 1)
 
-        self.button2 = Gtk.Button.new_with_label("Exit")
-        self.button2.connect("clicked", self.exit)
-        self.grid.attach(self.button2, 1, 2, 1, 1)
+        button2 = Gtk.Button.new_with_label("Exit")
+        button2.connect("clicked", self.exit)
+        self.grid.attach(button2, 1, 2, 1, 1)
 
-        self.button3 = Gtk.Button.new_with_label("Quick Install")
-        self.button3.connect("clicked", self.quick_install_warning)
-        self.grid.attach(self.button3, 2, 2, 1, 1)
+        button3 = Gtk.Button.new_with_label("Quick Install")
+        button3.connect("clicked", self.quick_install_warning)
+        self.grid.attach(button3, 2, 2, 1, 1)
 
         self.show_all()
 
@@ -243,7 +251,7 @@ class Main(Gtk.Window):
 
         button4 = Gtk.Button.new_with_label("Locale and Time")
         button4.connect("clicked", self.locale)
-        self.grid.attach(self.button4, 3, 4, 1, 1)
+        self.grid.attach(button4, 3, 4, 1, 1)
 
         label_locale = Gtk.Label()
         label_locale.set_markup(LOCALE_COMPLETION)
@@ -277,8 +285,8 @@ class Main(Gtk.Window):
         button1.connect("clicked", self.done)
         self.grid.attach(button1, 4, 8, 1, 1)
 
-        self.button2 = Gtk.Button.new_with_label("Exit")
-        self.button2.connect("clicked", self.exit)
+        button2 = Gtk.Button.new_with_label("Exit")
+        button2.connect("clicked", self.exit)
         self.grid.attach(button2, 1, 8, 1, 1)
 
         self.show_all()
@@ -287,64 +295,62 @@ class Main(Gtk.Window):
         """User setup Window"""
         self.clear_window()
 
-        self.label = Gtk.Label()
-        self.label.set_markup("""
+        label = Gtk.Label()
+        label.set_markup("""
     <b>Set Up Main User</b>
         """)
-        self.label.set_justify(Gtk.Justification.CENTER)
-        self.grid.attach(self.label, 1, 1, 3, 1)
+        label.set_justify(Gtk.Justification.CENTER)
+        self.grid.attach(label, 1, 1, 3, 1)
 
-        self.label1 = Gtk.Label()
-        self.label1.set_markup("    Username:   ")
-        self.label1.set_justify(Gtk.Justification.RIGHT)
-        self.grid.attach(self.label1, 1, 3, 2, 1)
+        label1 = Gtk.Label()
+        label1.set_markup("    Username:   ")
+        label1.set_justify(Gtk.Justification.RIGHT)
+        self.grid.attach(label1, 1, 3, 2, 1)
 
         self.username = Gtk.Entry()
         self.username.set_text(self.username_setting)
         self.grid.attach(self.username, 3, 3, 1, 1)
 
-        self.label2 = Gtk.Label()
-        self.label2.set_markup("    Computer\'s Name:   ")
-        self.label2.set_justify(Gtk.Justification.RIGHT)
-        self.grid.attach(self.label2, 1, 4, 2, 1)
+        label2 = Gtk.Label()
+        label2.set_markup("    Computer\'s Name:   ")
+        label2.set_justify(Gtk.Justification.RIGHT)
+        self.grid.attach(label2, 1, 4, 2, 1)
 
         self.compname = Gtk.Entry()
         self.compname.set_text(self.compname_setting)
         self.grid.attach(self.compname, 3, 4, 1, 1)
 
-        self.label3 = Gtk.Label()
-        self.label3.set_markup("    Password:   ")
-        self.label3.set_justify(Gtk.Justification.RIGHT)
-        self.grid.attach(self.label3, 1, 5, 2, 1)
+        label3 = Gtk.Label()
+        label3.set_markup("    Password:   ")
+        label3.set_justify(Gtk.Justification.RIGHT)
+        self.grid.attach(label3, 1, 5, 2, 1)
 
         self.password = Gtk.Entry()
         self.password.set_visibility(False)
         self.password.set_text(self.password_setting)
         self.grid.attach(self.password, 3, 5, 1, 1)
 
-        self.label4 = Gtk.Label()
-        self.label4.set_markup("    Confirm Pasword:    ")
-        self.label4.set_justify(Gtk.Justification.RIGHT)
-        self.grid.attach(self.label4, 1, 6, 2, 1)
+        label4 = Gtk.Label()
+        label4.set_markup("    Confirm Pasword:    ")
+        label4.set_justify(Gtk.Justification.RIGHT)
+        self.grid.attach(label4, 1, 6, 2, 1)
 
         self.passconf = Gtk.Entry()
         self.passconf.set_visibility(False)
         self.passconf.set_text(self.password_setting)
         self.grid.attach(self.passconf, 3, 6, 1, 1)
 
-        self.button1 = Gtk.Button.new_with_label("Okay -->")
-        self.button1.connect("clicked", self.onnext2clicked)
-        self.grid.attach(self.button1, 3, 8, 1, 1)
+        button1 = Gtk.Button.new_with_label("Okay -->")
+        button1.connect("clicked", self.onnext2clicked)
+        self.grid.attach(button1, 3, 8, 1, 1)
 
-        self.button2 = Gtk.Button.new_with_label("Exit")
-        self.button2.connect("clicked", self.exit)
-        self.grid.attach(self.button2, 2, 8, 1, 1)
+        button2 = Gtk.Button.new_with_label("Exit")
+        button2.connect("clicked", self.exit)
+        self.grid.attach(button2, 2, 8, 1, 1)
 
-        self.button1 = Gtk.Button.new_with_label("<-- Back")
-        self.button1.connect("clicked", self.main_menu)
-        self.grid.attach(self.button1, 1, 8, 1, 1)
-
-        self.label5 = None
+        button1 = Gtk.Button.new_with_label("<-- Back")
+        button1.connect("clicked", self.main_menu)
+        self.grid.attach(button1, 1, 8, 1, 1)
 
         self.show_all()
 
@@ -356,61 +362,78 @@ class Main(Gtk.Window):
         self.username_setting = self.username_setting.lower()
         self.compname_setting = self.compname.get_text()
         if self.password_setting != pass2:
-            if self.label5 is None:
-                self.grid.remove(self.label5)
-            self.label5 = Gtk.Label()
-            self.label5.set_markup("Passwords do not match")
-            self.label5.set_justify(Gtk.Justification.CENTER)
-            self.grid.attach(self.label5, 1, 7, 2, 1)
+            label5 = Gtk.Label()
+            label5.set_markup("Passwords do not match")
+            label5.set_justify(Gtk.Justification.CENTER)
+            try:
+                self.grid.remove(self.grid.get_child_at(1, 7))
+            except TypeError:
+                pass
+            self.grid.attach(label5, 1, 7, 2, 1)
         elif len(self.password_setting) < 4:
-            if self.label5 is None:
-                self.grid.remove(self.label5)
-            self.label5 = Gtk.Label()
-            self.label5.set_markup("Password is less than 4 characters")
-            self.label5.set_justify(Gtk.Justification.CENTER)
-            self.grid.attach(self.label5, 1, 7, 2, 1)
+            label5 = Gtk.Label()
+            label5.set_markup("Password is less than 4 characters")
+            self.grid.remove(label5)
+            label5.set_justify(Gtk.Justification.CENTER)
+            try:
+                self.grid.remove(self.grid.get_child_at(1, 7))
+            except TypeError:
+                pass
+            self.grid.attach(label5, 1, 7, 2, 1)
         elif has_special_character(self.username_setting):
-            if self.label5 is None:
-                self.grid.remove(self.label5)
-            self.label5 = Gtk.Label()
-            self.label5.set_markup("Username contains special characters")
-            self.label5.set_justify(Gtk.Justification.CENTER)
-            self.grid.attach(self.label5, 1, 7, 2, 1)
+            label5 = Gtk.Label()
+            label5.set_markup("Username contains special characters")
+            label5.set_justify(Gtk.Justification.CENTER)
+            try:
+                self.grid.remove(self.grid.get_child_at(1, 7))
+            except TypeError:
+                pass
+            self.grid.attach(label5, 1, 7, 2, 1)
         elif hasspace(self.username_setting):
-            if self.label5 is None:
-                self.grid.remove(self.label5)
-            self.label5 = Gtk.Label()
-            self.label5.set_markup("Username contains space")
-            self.label5.set_justify(Gtk.Justification.CENTER)
-            self.grid.attach(self.label5, 1, 7, 2, 1)
+            label5 = Gtk.Label()
+            label5.set_markup("Username contains space")
+            label5.set_justify(Gtk.Justification.CENTER)
+            try:
+                self.grid.remove(self.grid.get_child_at(1, 7))
+            except TypeError:
+                pass
+            self.grid.attach(label5, 1, 7, 2, 1)
         elif len(self.username_setting) < 1:
-            if self.label5 is None:
-                self.grid.remove(self.label5)
-            self.label5 = Gtk.Label()
-            self.label5.set_markup("Username empty")
-            self.label5.set_justify(Gtk.Justification.CENTER)
-            self.grid.attach(self.label5, 1, 7, 2, 1)
+            label5 = Gtk.Label()
+            label5.set_markup("Username empty")
+            label5.set_justify(Gtk.Justification.CENTER)
+            try:
+                self.grid.remove(self.grid.get_child_at(1, 7))
+            except TypeError:
+                pass
+            self.grid.attach(label5, 1, 7, 2, 1)
         elif has_special_character(self.compname_setting):
-            if self.label5 is None:
-                self.grid.remove(self.label5)
-            self.label5 = Gtk.Label()
-            self.label5.set_markup("Computer Name contains non-hyphen special character")
-            self.label5.set_justify(Gtk.Justification.CENTER)
-            self.grid.attach(self.label5, 1, 7, 2, 1)
+            label5 = Gtk.Label()
+            label5.set_markup("Computer Name contains non-hyphen special character")
+            label5.set_justify(Gtk.Justification.CENTER)
+            try:
+                self.grid.remove(self.grid.get_child_at(1, 7))
+            except TypeError:
+                pass
+            self.grid.attach(label5, 1, 7, 2, 1)
         elif hasspace(self.compname_setting):
-            if self.label5 is None:
-                self.grid.remove(self.label5)
-            self.label5 = Gtk.Label()
-            self.label5.set_markup("Computer Name contains space")
-            self.label5.set_justify(Gtk.Justification.CENTER)
-            self.grid.attach(self.label5, 1, 7, 2, 1)
+            label5 = Gtk.Label()
+            label5.set_markup("Computer Name contains space")
+            label5.set_justify(Gtk.Justification.CENTER)
+            try:
+                self.grid.remove(self.grid.get_child_at(1, 7))
+            except TypeError:
+                pass
+            self.grid.attach(label5, 1, 7, 2, 1)
         elif len(self.compname_setting) < 1:
-            if self.label5 is None:
-                self.grid.remove(self.label5)
-            self.label5 = Gtk.Label()
-            self.label5.set_markup("Computer Name is empty")
-            self.label5.set_justify(Gtk.Justification.CENTER)
-            self.grid.attach(self.label5, 1, 7, 2, 1)
+            label5 = Gtk.Label()
+            label5.set_markup("Computer Name is empty")
+            label5.set_justify(Gtk.Justification.CENTER)
+            try:
+                self.grid.remove(self.grid.get_child_at(1, 7))
+            except TypeError:
+                pass
+            self.grid.attach(label5, 1, 7, 2, 1)
         else:
             global USER_COMPLETION
             USER_COMPLETION = "COMPLETED"
@@ -422,8 +445,8 @@ class Main(Gtk.Window):
         """Partitioning Main Window"""
         self.clear_window()
 
-        self.label = Gtk.Label()
-        self.label.set_markup("""
+        label = Gtk.Label()
+        label.set_markup("""
     Would you like to let %s automaticly partition a drive for installation?\t
     Or, would you like to manually partition space for it?\t
 
@@ -431,24 +454,24 @@ class Main(Gtk.Window):
     Auto partitioning takes up an entire drive. If you are uncomfortable with this,\t
     please either manually partition your drive, or abort installation now.\t
     """ % (DISTRO))
-        self.label.set_justify(Gtk.Justification.LEFT)
-        self.grid.attach(self.label, 1, 1, 7, 1)
+        label.set_justify(Gtk.Justification.LEFT)
+        self.grid.attach(label, 1, 1, 7, 1)
 
-        self.link = Gtk.Button.new_with_label("Manual Partitioning")
-        self.link.connect("clicked", self.opengparted)
-        self.grid.attach(self.link, 5, 5, 1, 1)
+        link = Gtk.Button.new_with_label("Manual Partitioning")
+        link.connect("clicked", self.opengparted)
+        self.grid.attach(link, 5, 5, 1, 1)
 
-        self.button1 = Gtk.Button.new_with_label("Automatic Partitioning")
-        self.button1.connect("clicked", self.auto_partition)
-        self.grid.attach(self.button1, 7, 5, 1, 1)
+        button1 = Gtk.Button.new_with_label("Automatic Partitioning")
+        button1.connect("clicked", self.auto_partition)
+        self.grid.attach(button1, 7, 5, 1, 1)
 
-        self.button2 = Gtk.Button.new_with_label("Exit")
-        self.button2.connect("clicked", self.exit)
-        self.grid.attach(self.button2, 3, 5, 1, 1)
+        button2 = Gtk.Button.new_with_label("Exit")
+        button2.connect("clicked", self.exit)
+        self.grid.attach(button2, 3, 5, 1, 1)
 
-        self.button1 = Gtk.Button.new_with_label("<-- Back")
-        self.button1.connect("clicked", self.main_menu)
-        self.grid.attach(self.button1, 1, 5, 1, 1)
+        button1 = Gtk.Button.new_with_label("<-- Back")
+        button1.connect("clicked", self.main_menu)
+        self.grid.attach(button1, 1, 5, 1, 1)
 
         self.show_all()
 
@@ -487,12 +510,12 @@ class Main(Gtk.Window):
         # At least it's done.
         # Now we have to make a GUI using them . . .
 
-        self.label = Gtk.Label()
-        self.label.set_markup("""
+        label = Gtk.Label()
+        label.set_markup("""
     Which drive would you like to install to?\t
     """)
-        self.label.set_justify(Gtk.Justification.LEFT)
-        self.grid.attach(self.label, 1, 1, 3, 1)
+        label.set_justify(Gtk.Justification.LEFT)
+        self.grid.attach(label, 1, 1, 3, 1)
 
         self.disks = Gtk.ComboBoxText.new()
         for each4 in enumerate(devices):
@@ -503,36 +526,39 @@ class Main(Gtk.Window):
             self.disks.set_active_id(self.root_setting)
         self.grid.attach(self.disks, 1, 2, 2, 1)
 
-        self.home_part = Gtk.CheckButton.new_with_label("Seperate home partition")
+        home_part = Gtk.CheckButton.new_with_label("Seperate home partition")
         if ((self.home_setting != "") and (self.home_setting != "NULL")):
-            self.home_part.set_active(True)
-        self.home_part.connect("toggled", self.auto_home_setup)
-        self.grid.attach(self.home_part, 1, 3, 2, 1)
+            home_part.set_active(True)
+        home_part.connect("toggled", self.auto_home_setup)
+        self.grid.attach(home_part, 1, 3, 2, 1)
 
-        self.button1 = Gtk.Button.new_with_label("Okay -->")
-        self.button1.connect("clicked", self.onnext6clicked)
-        self.grid.attach(self.button1, 3, 6, 1, 1)
+        button1 = Gtk.Button.new_with_label("Okay -->")
+        button1.connect("clicked", self.onnext6clicked)
+        self.grid.attach(button1, 3, 6, 1, 1)
 
-        self.button2 = Gtk.Button.new_with_label("Exit")
-        self.button2.connect("clicked", self.exit)
-        self.grid.attach(self.button2, 2, 6, 1, 1)
+        button2 = Gtk.Button.new_with_label("Exit")
+        button2.connect("clicked", self.exit)
+        self.grid.attach(button2, 2, 6, 1, 1)
 
-        self.button3 = Gtk.Button.new_with_label("<-- Back")
-        self.button3.connect("clicked", self.partitioning)
-        self.grid.attach(self.button3, 1, 6, 1, 1)
+        button3 = Gtk.Button.new_with_label("<-- Back")
+        button3.connect("clicked", self.partitioning)
+        self.grid.attach(button3, 1, 6, 1, 1)
 
         self.show_all()
 
     def auto_home_setup(self, widget):
         """Handle preexisting vs making a new home directory"""
         if widget.get_active() == 1:
-            self.pre_exist = Gtk.CheckButton.new_with_label("Pre-existing")
-            self.pre_exist.connect("toggled", self.auto_home_setup2)
-            self.grid.attach(self.pre_exist, 1, 4, 2, 1)
+            pre_exist = Gtk.CheckButton.new_with_label("Pre-existing")
+            pre_exist.connect("toggled", self.auto_home_setup2)
+            self.grid.attach(pre_exist, 1, 4, 2, 1)
 
             self.home_setting = "MAKE"
         else:
-            self.grid.remove(self.pre_exist)
+            try:
+                self.grid.remove(self.grid.get_child_at(1, 4))
+            except TypeError:
+                pass
             self.home_setting = ""
 
         self.show_all()
@@ -591,11 +617,18 @@ class Main(Gtk.Window):
         self.home_setting = "NULL"
         self.swap_setting = "FILE"
         if self.disks.get_active_id() is None:
-            self.label.set_markup("""
+            try:
+                self.grid.remove(self.grid.get_child_at(1, 1))
+            except TypeError:
+                pass
+            label = Gtk.Label()
+            label.set_markup("""
     Which drive would you like to install to?\t
 
     <b>You must pick a drive to install to or abort installation.</b>\t
     """)
+            label.set_justify(Gtk.Justification.LEFT)
+            self.grid.attach(label, 1, 1, 3, 1)
             self.show_all()
         else:
             self.root_setting = self.disks.get_active_id()
@@ -609,72 +642,72 @@ class Main(Gtk.Window):
         """Manual Partitioning Input Window"""
         self.clear_window()
 
-        self.label = Gtk.Label()
-        self.label.set_markup("""
+        label = Gtk.Label()
+        label.set_markup("""
     What are the mount points for the partions you wish to be used?
     Leave empty the partions you don't want.
     <b> / MUST BE USED </b>
     """)
-        self.label.set_justify(Gtk.Justification.LEFT)
-        self.grid.attach(self.label, 1, 1, 3, 1)
+        label.set_justify(Gtk.Justification.LEFT)
+        self.grid.attach(label, 1, 1, 3, 1)
 
-        self.label2 = Gtk.Label()
-        self.label2.set_markup("/")
-        self.label2.set_justify(Gtk.Justification.RIGHT)
-        self.grid.attach(self.label2, 1, 2, 1, 1)
+        label2 = Gtk.Label()
+        label2.set_markup("/")
+        label2.set_justify(Gtk.Justification.RIGHT)
+        self.grid.attach(label2, 1, 2, 1, 1)
 
         self.root = Gtk.Entry()
         self.root.set_text(self.root_setting)
         self.grid.attach(self.root, 2, 2, 1, 1)
 
-        self.label3 = Gtk.Label()
-        self.label3.set_markup("/boot/efi")
-        self.label3.set_justify(Gtk.Justification.RIGHT)
-        self.grid.attach(self.label3, 1, 3, 1, 1)
+        label3 = Gtk.Label()
+        label3.set_markup("/boot/efi")
+        label3.set_justify(Gtk.Justification.RIGHT)
+        self.grid.attach(label3, 1, 3, 1, 1)
 
         self.efi = Gtk.Entry()
         self.efi.set_text(self.efi_setting)
         self.grid.attach(self.efi, 2, 3, 1, 1)
 
-        self.label5 = Gtk.Label()
-        self.label5.set_markup("Must be fat32")
-        self.label5.set_justify(Gtk.Justification.RIGHT)
-        self.grid.attach(self.label5, 3, 3, 1, 1)
+        label5 = Gtk.Label()
+        label5.set_markup("Must be fat32")
+        label5.set_justify(Gtk.Justification.RIGHT)
+        self.grid.attach(label5, 3, 3, 1, 1)
 
-        self.label4 = Gtk.Label()
-        self.label4.set_markup("/home")
-        self.label4.set_justify(Gtk.Justification.RIGHT)
-        self.grid.attach(self.label4, 1, 4, 1, 1)
+        label4 = Gtk.Label()
+        label4.set_markup("/home")
+        label4.set_justify(Gtk.Justification.RIGHT)
+        self.grid.attach(label4, 1, 4, 1, 1)
 
         self.home = Gtk.Entry()
         self.home.set_text(self.home_setting)
         self.grid.attach(self.home, 2, 4, 1, 1)
 
-        self.label4 = Gtk.Label()
-        self.label4.set_markup("SWAP")
-        self.label4.set_justify(Gtk.Justification.RIGHT)
-        self.grid.attach(self.label4, 1, 5, 1, 1)
+        label6 = Gtk.Label()
+        label6.set_markup("SWAP")
+        label6.set_justify(Gtk.Justification.RIGHT)
+        self.grid.attach(label6, 1, 5, 1, 1)
 
         self.swap = Gtk.Entry()
         self.swap.set_text(self.swap_setting)
         self.grid.attach(self.swap, 2, 5, 1, 1)
 
-        self.label5 = Gtk.Label()
-        self.label5.set_markup("Must be linux-swap or file")
-        self.label5.set_justify(Gtk.Justification.RIGHT)
-        self.grid.attach(self.label5, 3, 5, 1, 1)
+        label7 = Gtk.Label()
+        label7.set_markup("Must be linux-swap or file")
+        label7.set_justify(Gtk.Justification.RIGHT)
+        self.grid.attach(label7, 3, 5, 1, 1)
 
-        self.button1 = Gtk.Button.new_with_label("Okay -->")
-        self.button1.connect("clicked", self.onnext4clicked)
-        self.grid.attach(self.button1, 3, 6, 1, 1)
+        button1 = Gtk.Button.new_with_label("Okay -->")
+        button1.connect("clicked", self.onnext4clicked)
+        self.grid.attach(button1, 3, 6, 1, 1)
 
-        self.button2 = Gtk.Button.new_with_label("Exit")
-        self.button2.connect("clicked", self.exit)
-        self.grid.attach(self.button2, 2, 6, 1, 1)
+        button2 = Gtk.Button.new_with_label("Exit")
+        button2.connect("clicked", self.exit)
+        self.grid.attach(button2, 2, 6, 1, 1)
 
-        self.button1 = Gtk.Button.new_with_label("<-- Back")
-        self.button1.connect("clicked", self.partitioning)
-        self.grid.attach(self.button1, 1, 6, 1, 1)
+        button1 = Gtk.Button.new_with_label("<-- Back")
+        button1.connect("clicked", self.partitioning)
+        self.grid.attach(button1, 1, 6, 1, 1)
 
         self.show_all()
 
@@ -682,34 +715,45 @@ class Main(Gtk.Window):
         """Check device paths provided for manual partitioner"""
         if ((self.root.get_text() == "") or
                 (self.root.get_text()[0:5] != "/dev/")):
-            self.label.set_markup("""
+            label = Gtk.Label()
+            label.set_markup("""
     What are the mount points for the partions you wish to be used?
     Leave empty the partions you don't want.
     <b> / MUST BE USED </b>
 
     / NOT SET
     """)
-            self.label.set_justify(Gtk.Justification.LEFT)
-            self.grid.attach(self.label, 1, 1, 2, 1)
+            label.set_justify(Gtk.Justification.LEFT)
+            try:
+                self.grid.remove(self.grid.get_child_at(1, 1))
+            except TypeError:
+                pass
+            self.grid.attach(label, 1, 1, 3, 1)
 
             self.show_all()
         elif not path.exists(self.root.get_text()):
-            self.label.set_markup("""
+            label = Gtk.Label()
+            label.set_markup("""
     What are the mount points for the partions you wish to be used?
     Leave empty the partions you don't want.
     <b> / MUST BE USED </b>
 
     Not a Valid Device on /
     """)
-            self.label.set_justify(Gtk.Justification.LEFT)
-            self.grid.attach(self.label, 1, 1, 2, 1)
+            label.set_justify(Gtk.Justification.LEFT)
+            try:
+                self.grid.remove(self.grid.get_child_at(1, 1))
+            except TypeError:
+                pass
+            self.grid.attach(label, 1, 1, 3, 1)
 
             self.show_all()
 
         elif (((self.efi.get_text() == "") or
                (self.efi.get_text()[0:5] != "/dev/")) and
               path.isdir("/sys/firmware/efi")):
-            self.label.set_markup("""
+            label = Gtk.Label()
+            label.set_markup("""
     What are the mount points for the partions you wish to be used?
     Leave empty the partions you don't want.
     <b> / MUST BE USED </b>
@@ -717,54 +761,74 @@ class Main(Gtk.Window):
     You are using EFI, therefore an EFI partition
     must be set.
     """)
-            self.label.set_justify(Gtk.Justification.LEFT)
-            self.grid.attach(self.label, 1, 1, 2, 1)
+            label.set_justify(Gtk.Justification.LEFT)
+            try:
+                self.grid.remove(self.grid.get_child_at(1, 1))
+            except TypeError:
+                pass
+            self.grid.attach(label, 1, 1, 3, 1)
 
             self.show_all()
         elif (not path.exists(self.efi.get_text()) or
               ((self.efi.get_text() == "") and
                not path.isdir("/sys/firmware/efi"))):
-            self.label.set_markup("""
+            label = Gtk.Label()
+            label.set_markup("""
     What are the mount points for the partions you wish to be used?
     Leave empty the partions you don't want.
     <b> / MUST BE USED </b>
 
     Not a Valid Device on /boot/efi
     """)
-            self.label.set_justify(Gtk.Justification.LEFT)
-            self.grid.attach(self.label, 1, 1, 2, 1)
+            label.set_justify(Gtk.Justification.LEFT)
+            try:
+                self.grid.remove(self.grid.get_child_at(1, 1))
+            except TypeError:
+                pass
+            self.grid.attach(label, 1, 1, 3, 1)
 
             self.show_all()
         elif ((self.home.get_text() != "") and
               (self.home.get_text()[0:5] != "/dev/")):
-            self.label.set_markup("""
+            label = Gtk.Label()
+            label.set_markup("""
     What are the mount points for the partions you wish to be used?
     Leave empty the partions you don't want.
     <b> / MUST BE USED </b>
 
     Please input a valid device path for HOME partition.
     """)
-            self.label.set_justify(Gtk.Justification.LEFT)
-            self.grid.attach(self.label, 1, 1, 2, 1)
+            label.set_justify(Gtk.Justification.LEFT)
+            try:
+                self.grid.remove(self.grid.get_child_at(1, 1))
+            except TypeError:
+                pass
+            self.grid.attach(label, 1, 1, 3, 1)
 
             self.show_all()
         elif (not path.exists(self.home.get_text()) and
               (self.home.get_text() != "")):
-            self.label.set_markup("""
+            label = Gtk.Label()
+            label.set_markup("""
     What are the mount points for the partions you wish to be used?
     Leave empty the partions you don't want.
     <b> / MUST BE USED </b>
 
     Not a Valid Device on /home
     """)
-            self.label.set_justify(Gtk.Justification.LEFT)
-            self.grid.attach(self.label, 1, 1, 2, 1)
+            label.set_justify(Gtk.Justification.LEFT)
+            try:
+                self.grid.remove(self.grid.get_child_at(1, 1))
+            except TypeError:
+                pass
+            self.grid.attach(label, 1, 1, 3, 1)
 
             self.show_all()
         elif ((self.swap.get_text() != "") and
               (self.swap.get_text()[0:5] != "/dev/") and
               (self.swap.get_text().upper() != "FILE")):
-            self.label.set_markup("""
+            label = Gtk.Label()
+            label.set_markup("""
     What are the mount points for the partions you wish to be used?
     Leave empty the partions you don't want.
     <b> / MUST BE USED </b>
@@ -772,32 +836,46 @@ class Main(Gtk.Window):
     SWAP must be set to a valid partition path, "FILE", or
     left empty.
     """)
-            self.label.set_justify(Gtk.Justification.LEFT)
-            self.grid.attach(self.label, 1, 1, 2, 1)
+            label.set_justify(Gtk.Justification.LEFT)
+            try:
+                self.grid.remove(self.grid.get_child_at(1, 1))
+            except TypeError:
+                pass
+            self.grid.attach(label, 1, 1, 3, 1)
 
             self.show_all()
         elif (not path.exists(self.swap.get_text()) and
               (self.swap.get_text().upper() != "FILE") and
               (self.swap.get_text() != "")):
-            self.label.set_markup("""
+            label = Gtk.Label()
+            label.set_markup("""
     What are the mount points for the partions you wish to be used?
     Leave empty the partions you don't want.
     <b> / MUST BE USED </b>
 
     Not a Valid Device on SWAP
     """)
-            self.label.set_justify(Gtk.Justification.LEFT)
-            self.grid.attach(self.label, 1, 1, 2, 1)
+            label.set_justify(Gtk.Justification.LEFT)
+            try:
+                self.grid.remove(self.grid.get_child_at(1, 1))
+            except TypeError:
+                pass
+            self.grid.attach(label, 1, 1, 3, 1)
 
             self.show_all()
         else:
-            self.label.set_markup("""
+            label = Gtk.Label()
+            label.set_markup("""
     What are the mount points for the partions you wish to be used?
     Leave empty the partions you don't want.
     <b> / MUST BE USED </b>
     """)
-            self.label.set_justify(Gtk.Justification.LEFT)
-            self.grid.attach(self.label, 1, 1, 2, 1)
+            label.set_justify(Gtk.Justification.LEFT)
+            try:
+                self.grid.remove(self.grid.get_child_at(1, 1))
+            except TypeError:
+                pass
+            self.grid.attach(label, 1, 1, 3, 1)
             self.root_setting = self.root.get_text()
 
             self.show_all()
@@ -830,55 +908,56 @@ class Main(Gtk.Window):
         """Extraneous options menu"""
         self.clear_window()
 
-        self.label.set_markup("""
+        label = Gtk.Label()
+        label.set_markup("""
     <b>Extra Options</b>
     The below options require a network connection, unless otherwise stated.\t
     Please ensure you are connected before selecting any of these options.
         """)
-        self.label.set_justify(Gtk.Justification.CENTER)
-        self.grid.attach(self.label, 1, 1, 2, 1)
+        label.set_justify(Gtk.Justification.CENTER)
+        self.grid.attach(label, 1, 1, 2, 1)
 
-        self.label1 = Gtk.Label()
-        self.label1.set_markup("""
+        label1 = Gtk.Label()
+        label1.set_markup("""
         Install third-party packages such as NVIDIA drivers if necessary\t\t
 """)
-        self.label1.set_justify(Gtk.Justification.LEFT)
-        self.grid.attach(self.label1, 2, 2, 1, 1)
+        label1.set_justify(Gtk.Justification.LEFT)
+        self.grid.attach(label1, 2, 2, 1, 1)
 
         self.extras = Gtk.CheckButton.new_with_label("Install Restricted Extras")
         if self.extras_setting == 1:
             self.extras.set_active(True)
         self.grid.attach(self.extras, 1, 3, 2, 1)
 
-        self.label2 = Gtk.Label()
-        self.label2.set_markup("""
+        label2 = Gtk.Label()
+        label2.set_markup("""
         Update the system during installation""")
-        self.label2.set_justify(Gtk.Justification.LEFT)
-        self.grid.attach(self.label2, 2, 4, 1, 1)
+        label2.set_justify(Gtk.Justification.LEFT)
+        self.grid.attach(label2, 2, 4, 1, 1)
 
         self.updates = Gtk.CheckButton.new_with_label("Update before reboot")
         if self.updates_setting == 1:
             self.updates.set_active(True)
         self.grid.attach(self.updates, 1, 5, 2, 1)
 
-        self.label2 = Gtk.Label()
-        self.label2.set_markup("""
+        label2 = Gtk.Label()
+        label2.set_markup("""
         Automaticly login upon boot up. Does <b>NOT</b> require internet.""")
-        self.label2.set_justify(Gtk.Justification.LEFT)
-        self.grid.attach(self.label2, 2, 6, 1, 1)
+        label2.set_justify(Gtk.Justification.LEFT)
+        self.grid.attach(label2, 2, 6, 1, 1)
 
         self.login = Gtk.CheckButton.new_with_label("Enable Auto-Login")
         if self.login_setting == 1:
             self.login.set_active(True)
         self.grid.attach(self.login, 1, 7, 2, 1)
 
-        self.button1 = Gtk.Button.new_with_label("Okay -->")
-        self.button1.connect("clicked", self.options_next)
-        self.grid.attach(self.button1, 2, 8, 1, 1)
+        button1 = Gtk.Button.new_with_label("Okay -->")
+        button1.connect("clicked", self.options_next)
+        self.grid.attach(button1, 2, 8, 1, 1)
 
-        self.button1 = Gtk.Button.new_with_label("<-- Back")
-        self.button1.connect("clicked", self.main_menu)
-        self.grid.attach(self.button1, 1, 8, 1, 1)
+        button1 = Gtk.Button.new_with_label("<-- Back")
+        button1.connect("clicked", self.main_menu)
+        self.grid.attach(button1, 1, 8, 1, 1)
 
         self.show_all()
 
@@ -904,18 +983,18 @@ class Main(Gtk.Window):
         """Language and Time Zone settings menu"""
         self.clear_window()
 
-        self.label = Gtk.Label()
-        self.label.set_markup("""
+        label = Gtk.Label()
+        label.set_markup("""
 <b>Choose your Language and Time Zone</b>""")
-        self.label.set_justify(Gtk.Justification.CENTER)
-        self.grid.attach(self.label, 1, 1, 3, 1)
+        label.set_justify(Gtk.Justification.CENTER)
+        self.grid.attach(label, 1, 1, 3, 1)
 
-        self.label2 = Gtk.Label()
-        self.label2.set_markup("""
+        label2 = Gtk.Label()
+        label2.set_markup("""
 
 Langauge""")
-        self.label2.set_justify(Gtk.Justification.LEFT)
-        self.grid.attach(self.label2, 2, 2, 1, 1)
+        label2.set_justify(Gtk.Justification.LEFT)
+        self.grid.attach(label2, 2, 2, 1, 1)
 
         self.lang_menu = Gtk.ComboBoxText.new()
         self.lang_menu.append("english", "English")
@@ -933,13 +1012,14 @@ Langauge""")
             self.lang_menu.set_active_id(self.lang_setting)
         self.grid.attach(self.lang_menu, 2, 3, 1, 1)
 
-        self.label2 = Gtk.Label()
-        self.label2.set_markup("""
+        label3 = Gtk.Label()
+        label3.set_markup("""
 
 Region""")
-        self.label2.set_justify(Gtk.Justification.LEFT)
-        self.grid.attach(self.label2, 2, 4, 1, 1)
+        label3.set_justify(Gtk.Justification.LEFT)
+        self.grid.attach(label3, 2, 4, 1, 1)
 
+        time_zone = self.time_zone.split("/")
         self.time_menu = Gtk.ComboBoxText.new()
         zones = ["Africa", "America", "Antarctica", "Arctic", "Asia",
                  "Atlantic", "Australia", "Brazil", "Canada", "Chile",
@@ -973,32 +1053,34 @@ Region""")
         # self.time_menu.append("AGT", "Argentina Standard Time")
         # self.time_menu.append("PRT", "Puerto Rico and US Virgin Islands Time")
         # self.time_menu.append("IET", "Indiana Eastern Standard Time")
-        if self.time_zone != "":
-            self.time_menu.set_active_id(self.time_zone)
+        if len(time_zone) > 0:
+            self.time_menu.set_active_id(time_zone[0])
         self.time_menu.connect("changed", self.update_subregion)
         self.grid.attach(self.time_menu, 2, 5, 1, 1)
 
-        self.label2 = Gtk.Label()
-        self.label2.set_markup("""
+        label4 = Gtk.Label()
+        label4.set_markup("""
 
 Sub-Region""")
-        self.label2.set_justify(Gtk.Justification.LEFT)
-        self.grid.attach(self.label2, 2, 6, 1, 1)
+        label4.set_justify(Gtk.Justification.LEFT)
+        self.grid.attach(label4, 2, 6, 1, 1)
 
         self.sub_region = Gtk.ComboBoxText.new()
         self.grid.attach(self.sub_region, 2, 7, 1, 1)
 
-        self.button1 = Gtk.Button.new_with_label("Okay -->")
-        self.button1.connect("clicked", self.onnext3clicked)
-        self.grid.attach(self.button1, 4, 8, 1, 1)
+        button1 = Gtk.Button.new_with_label("Okay -->")
+        button1.connect("clicked", self.onnext3clicked)
+        self.grid.attach(button1, 4, 8, 1, 1)
 
-        self.button2 = Gtk.Button.new_with_label("Exit")
-        self.button2.connect("clicked", self.exit)
-        self.grid.attach(self.button2, 2, 8, 1, 1)
+        button2 = Gtk.Button.new_with_label("Exit")
+        button2.connect("clicked", self.exit)
+        self.grid.attach(button2, 2, 8, 1, 1)
 
-        self.button1 = Gtk.Button.new_with_label("<-- Back")
-        self.button1.connect("clicked", self.main_menu)
-        self.grid.attach(self.button1, 1, 8, 1, 1)
+        button3 = Gtk.Button.new_with_label("<-- Back")
+        button3.connect("clicked", self.main_menu)
+        self.grid.attach(button3, 1, 8, 1, 1)
+
+        self.update_subregion(self.time_menu)
 
         self.show_all()
 
@@ -1007,11 +1089,18 @@ Sub-Region""")
         It makes no sense to be in New York, China, when New York is in the
         USA
         """
-        self.sub_region.remove_all()
+        if widget.get_active_id() is None:
+            return
         zones = sorted(listdir("/usr/share/zoneinfo/" +
-                               self.time_menu.get_active_id()))
+                               widget.get_active_id()))
+        self.grid.remove(self.grid.get_child_at(2, 7))
+        self.sub_region = Gtk.ComboBoxText.new()
         for each7 in zones:
             self.sub_region.append(each7, each7)
+        time_zone = self.time_zone.split("/")
+        if len(time_zone) > 1:
+            self.sub_region.set_active_id(time_zone[1])
+        self.grid.attach(self.sub_region, 2, 7, 1, 1)
 
         self.show_all()
 
@@ -1038,17 +1127,17 @@ Sub-Region""")
         """Keyboard Settings Dialog"""
         self.clear_window()
 
-        self.label = Gtk.Label()
-        self.label.set_markup("""
+        label = Gtk.Label()
+        label.set_markup("""
     <b>Choose your Keyboard layout</b>\t
     """)
-        self.label.set_justify(Gtk.Justification.CENTER)
-        self.grid.attach(self.label, 1, 1, 4, 1)
+        label.set_justify(Gtk.Justification.CENTER)
+        self.grid.attach(label, 1, 1, 4, 1)
 
-        self.model_label = Gtk.Label()
-        self.model_label.set_markup("""Model: """)
-        self.model_label.set_justify(Gtk.Justification.CENTER)
-        self.grid.attach(self.model_label, 1, 2, 1, 1)
+        model_label = Gtk.Label()
+        model_label.set_markup("""Model: """)
+        model_label.set_justify(Gtk.Justification.CENTER)
+        self.grid.attach(model_label, 1, 2, 1, 1)
 
         self.model_menu = Gtk.ComboBoxText.new()
         pwd = getcwd()
@@ -1062,6 +1151,7 @@ Sub-Region""")
             layout_list.append(each8.split("*"))
         for each8 in enumerate(layout_list):
             del layout_list[each8[0]][0]
+        del layout_list[-1]
         model = []
         for each8 in enumerate(layout_list):
             if layout_list[each8[0]][0] == "model":
@@ -1073,10 +1163,10 @@ Sub-Region""")
             self.model_menu.set_active_id(self.model_setting)
         self.grid.attach(self.model_menu, 2, 2, 3, 1)
 
-        self.layout_label = Gtk.Label()
-        self.layout_label.set_markup("""Layout: """)
-        self.layout_label.set_justify(Gtk.Justification.CENTER)
-        self.grid.attach(self.layout_label, 1, 3, 1, 1)
+        layout_label = Gtk.Label()
+        layout_label.set_markup("""Layout: """)
+        layout_label.set_justify(Gtk.Justification.CENTER)
+        self.grid.attach(layout_label, 1, 3, 1, 1)
 
         self.layout_menu = Gtk.ComboBoxText.new()
         layouts = []
@@ -1091,10 +1181,10 @@ Sub-Region""")
         self.layout_menu.connect("changed", self.varient_narrower)
         self.grid.attach(self.layout_menu, 2, 3, 3, 1)
 
-        self.varient_label = Gtk.Label()
-        self.varient_label.set_markup("""Varient: """)
-        self.varient_label.set_justify(Gtk.Justification.CENTER)
-        self.grid.attach(self.varient_label, 1, 4, 1, 1)
+        varient_label = Gtk.Label()
+        varient_label.set_markup("""Varient: """)
+        varient_label.set_justify(Gtk.Justification.CENTER)
+        self.grid.attach(varient_label, 1, 4, 1, 1)
 
         self.varient_menu = Gtk.ComboBoxText.new()
         self.varients = []
@@ -1107,17 +1197,17 @@ Sub-Region""")
             self.varient_menu.set_active_id(self.varient_setting)
         self.grid.attach(self.varient_menu, 2, 4, 3, 1)
 
-        self.button1 = Gtk.Button.new_with_label("Okay -->")
-        self.button1.connect("clicked", self.onnext5clicked)
-        self.grid.attach(self.button1, 4, 6, 1, 1)
+        button1 = Gtk.Button.new_with_label("Okay -->")
+        button1.connect("clicked", self.onnext5clicked)
+        self.grid.attach(button1, 4, 6, 1, 1)
 
-        self.button2 = Gtk.Button.new_with_label("Exit")
-        self.button2.connect("clicked", self.exit)
-        self.grid.attach(self.button2, 3, 6, 1, 1)
+        button2 = Gtk.Button.new_with_label("Exit")
+        button2.connect("clicked", self.exit)
+        self.grid.attach(button2, 3, 6, 1, 1)
 
-        self.button1 = Gtk.Button.new_with_label("<-- Back")
-        self.button1.connect("clicked", self.main_menu)
-        self.grid.attach(self.button1, 1, 6, 1, 1)
+        button3 = Gtk.Button.new_with_label("<-- Back")
+        button3.connect("clicked", self.main_menu)
+        self.grid.attach(button3, 1, 6, 1, 1)
 
         self.show_all()
 

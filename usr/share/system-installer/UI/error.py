@@ -93,26 +93,26 @@ class Main(Gtk.Window):
         self.destroy()
         return 0
 
-Main.main = report.main.main
-Main.toggle_UI = report.main.toggle_UI
-Main.message_accept = report.main.message_accept
-Main.message_handler = report.main.message_handler
-Main.generate_message = report.main.generate_message
-Main.preview_message = report.main.preview_message
-Main.send_report = report.main.send_report
-Main.cpu_explaination = report.main.cpu_explaination
-Main.cpu_toggle = report.main.cpu_toggle
-Main.disk_explaination = report.main.disk_explaination
-Main.disk_toggle = report.main.disk_toggle
-Main.generate_message = report.main.generate_message
+Main.main = report.Main.main
+Main.toggle_UI = report.Main.toggle_UI
+Main.message_accept = report.Main.message_accept
+Main.message_handler = report.Main.message_handler
+Main.generate_message = report.Main.generate_message
+Main.preview_message = report.Main.preview_message
+Main.send_report = report.Main.send_report
+Main.cpu_explaination = report.Main.cpu_explaination
+Main.cpu_toggle = report.Main.cpu_toggle
+Main.disk_explaination = report.Main.disk_explaination
+Main.disk_toggle = report.Main.disk_toggle
+Main.generate_message = report.Main.generate_message
 Main.gpu_explaination = report.main.gpu_explaination
-Main.gpu_toggle = report.main.gpu_toggle
-Main.log_explaination = report.main.log_explaination
-Main.log_toggle = report.main.log_toggle
-Main.ram_explaination = report.main.ram_explaination
-Main.ram_toggle = report.main.ram_toggle
-Main.toggle_UI = report.main.toggle_UI
-Main.main = report.main.main
+Main.gpu_toggle = report.Main.gpu_toggle
+Main.log_explaination = report.Main.log_explaination
+Main.log_toggle = report.Main.log_toggle
+Main.ram_explaination = report.Main.ram_explaination
+Main.ram_toggle = report.Main.ram_toggle
+Main.toggle_UI = report.Main.toggle_UI
+Main.main = report.Main.main
 
 def show_error(display):
     """Show Error Dialog"""

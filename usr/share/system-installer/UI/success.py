@@ -21,21 +21,24 @@
 #  MA 02110-1301, USA.
 #
 #
-
+"""Success Reporting UI"""
+from subprocess import Popen, CalledProcessError
+from os import remove, listdir
+from shutil import rmtree
+import sys
+import json
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
-from subprocess import Popen, check_output, PIPE, STDOUT
-from os import remove, listdir, getenv
-from shutil import rmtree
-from datetime import datetime
 import UI.report as report
 
-class main(Gtk.Window):
 
-    def __init__(self):
+class Main(Gtk.Window):
+    """Success UI Class"""
+    def __init__(self, settings):
+        """Initialize data"""
         Gtk.Window.__init__(self, title="System Installer")
-        self.grid=Gtk.Grid(orientation=Gtk.Orientation.VERTICAL)
+        self.grid = Gtk.Grid(orientation=Gtk.Orientation.VERTICAL)
         self.add(self.grid)
         self.set_icon_from_file("/usr/share/icons/Drauger/720x720/Menus/install-drauger.png")
         self.scrolling = False
@@ -46,90 +49,101 @@ class main(Gtk.Window):
         self.disk_setting = False
         self.log_setting = False
         self.custom_setting = False
-        self.main_menu("clicked")
+        self.settings = settings
+        self.main_menu()
 
-    def main_menu(self, widget):
+    def main_menu(self):
+        """Main Success Window"""
         self.clear_window()
 
-        self.label = Gtk.Label()
-        self.label.set_markup("""\n\t<b>Drauger OS has been successfully installed on your computer!</b>\t
+        label = Gtk.Label()
+        label.set_markup("""
+\t<b>Drauger OS has been successfully installed on your computer!</b>\t
 
 \tPlease consider sending an installtion report to our team,
 \tusing the "Send Installation Report" button below.\t\n\n""")
-        self.label.set_justify(Gtk.Justification.CENTER)
-        self.grid.attach(self.label, 1, 1, 4, 1)
+        label.set_justify(Gtk.Justification.CENTER)
+        self.grid.attach(label, 1, 1, 4, 1)
 
-        self.button1 = Gtk.Button.new_with_label("Restart System")
-        self.button1.connect("clicked", self.onnextclicked)
-        self.grid.attach(self.button1, 2, 6, 1, 1)
+        button1 = Gtk.Button.new_with_label("Restart System")
+        button1.connect("clicked", __reboot__)
+        self.grid.attach(button1, 2, 6, 1, 1)
 
-        self.button2 = Gtk.Button.new_with_label("Exit")
-        self.button2.connect("clicked", self.exit)
-        self.grid.attach(self.button2, 1, 6, 1, 1)
+        button2 = Gtk.Button.new_with_label("Exit")
+        button2.connect("clicked", self.exit)
+        self.grid.attach(button2, 1, 6, 1, 1)
 
-        self.button2 = Gtk.Button.new_with_label("Advanced")
-        self.button2.connect("clicked", self.onadvclicked)
-        self.grid.attach(self.button2, 3, 6, 1, 1)
+        button3 = Gtk.Button.new_with_label("Advanced")
+        button3.connect("clicked", self.onadvclicked)
+        self.grid.attach(button3, 3, 6, 1, 1)
 
-        self.button4 = Gtk.Button.new_with_label("Send Installation Report")
-        self.button4.connect("clicked", self.main)
-        self.grid.attach(self.button4, 4, 6, 1, 1)
+        button4 = Gtk.Button.new_with_label("Send Installation Report")
+        button4.connect("clicked", self.main)
+        self.grid.attach(button4, 4, 6, 1, 1)
 
         self.show_all()
 
-    def onnextclicked(self,button):
-        Popen(["systemctl", "reboot", "now"])
-        exit(0)
-
-    def onadvclicked(self,button):
+    def onadvclicked(self, button):
+        """Advanced Settings and Functions"""
         self.clear_window()
 
-        self.label = Gtk.Label()
-        self.label.set_markup("""\n The below options are meant exclusivly for advanced users. <b>User discretion is advised.</b>   \n""")
-        self.label.set_justify(Gtk.Justification.CENTER)
-        self.grid.attach(self.label, 1, 1, 3, 1)
+        label = Gtk.Label()
+        label.set_markup("""
+ The below options are meant exclusivly for advanced users.
 
-        self.button1 = Gtk.Button.new_with_label("Open Chroot Terminal")
-        self.button1.connect("clicked", self.chrootclicked)
-        self.grid.attach(self.button1, 3, 6, 1, 1)
+ <b>User discretion is advised.</b>
 
-        self.button2 = Gtk.Button.new_with_label("Delete Installation")
-        self.button2.connect("clicked", self.ondeletewarn)
-        self.grid.attach(self.button2, 1, 6, 1, 1)
+ """)
+        label.set_justify(Gtk.Justification.CENTER)
+        self.grid.attach(label, 1, 1, 3, 1)
 
-        self.button3 = Gtk.Button.new_with_label("Add PPA")
-        self.button3.connect("clicked", self.addPPA)
-        self.grid.attach(self.button3, 2, 6, 1, 1)
+        button1 = Gtk.Button.new_with_label("Dump Settings to File")
+        button1.connect("clicked", self.dump_settings_dialog)
+        self.grid.attach(button1, 3, 6, 1, 1)
 
-        self.button4 = Gtk.Button.new_with_label("Exit")
-        self.button4.connect("clicked", self.exit)
-        self.grid.attach(self.button4, 2, 7, 1, 1)
+        button2 = Gtk.Button.new_with_label("Delete Installation")
+        button2.connect("clicked", self.ondeletewarn)
+        self.grid.attach(button2, 1, 6, 1, 1)
+
+        button3 = Gtk.Button.new_with_label("Add PPA")
+        button3.connect("clicked", self.add_ppa)
+        self.grid.attach(button3, 2, 6, 1, 1)
+
+        button4 = Gtk.Button.new_with_label("Exit")
+        button4.connect("clicked", self.exit)
+        self.grid.attach(button4, 2, 7, 1, 1)
 
         self.show_all()
 
-    def ondeletewarn(self,button):
+    def ondeletewarn(self, button):
+        """Warning about Deleting the installation"""
         self.clear_window()
 
-        self.label.set_markup("""\n\tAre you sure you wish to delete the new installation? No data will be recoverable.\t\n""")
-        self.label.set_justify(Gtk.Justification.CENTER)
-        self.grid.attach(self.label, 1, 1, 3, 1)
+        label = Gtk.Label()
+        label.set_markup("""
+\tAre you sure you wish to delete the new installation? No data will be recoverable.\t
+""")
+        label.set_justify(Gtk.Justification.CENTER)
+        self.grid.attach(label, 1, 1, 3, 1)
 
-        self.button5 = Gtk.Button.new_with_label("DELETE")
-        self.button5.connect("clicked", self.delete_install)
-        self.grid.attach(self.button5,2, 2, 1, 1)
+        button5 = Gtk.Button.new_with_label("DELETE")
+        button5.connect("clicked", self.delete_install)
+        self.grid.attach(button5, 2, 2, 1, 1)
 
-        self.button4 = Gtk.Button.new_with_label("Exit")
-        self.button4.connect("clicked", self.exit)
-        self.grid.attach(self.button4, 3, 2, 1, 1)
+        button4 = Gtk.Button.new_with_label("Exit")
+        button4.connect("clicked", self.exit)
+        self.grid.attach(button4, 3, 2, 1, 1)
 
-        self.button5 = Gtk.Button.new_with_label("<-- Back")
-        self.button5.connect("clicked",self.onadvclicked)
-        self.grid.attach(self.button5, 1, 2, 1, 1)
+        button5 = Gtk.Button.new_with_label("<-- Back")
+        button5.connect("clicked", self.onadvclicked)
+        self.grid.attach(button5, 1, 2, 1, 1)
 
         self.show_all()
 
-    def delete_install(self,button):
-        # This code is dangerous. Be wary
+    def delete_install(self, button):
+        """Delete Installation from Drive
+         This code is dangerous. Be wary
+        """
         delete = listdir("/mnt")
         for each in delete:
             try:
@@ -138,110 +152,133 @@ class main(Gtk.Window):
                 rmtree("/mnt/" + each)
         self.exit("clicked")
 
-
-    def chrootclicked(self,button):
-        Popen(["gnome-terminal", "--", "arch-chroot", "/mnt"])
-        exit(0)
-
-    def addPPA(self,button):
+    def add_ppa(self, button):
+        """UI to add PPA to installation"""
         self.clear_window()
 
-        self.label = Gtk.Label()
-        self.label.set_markup("""\n\tWhat PPAs would you like to add?\t\n""")
-        self.label.set_justify(Gtk.Justification.CENTER)
-        self.grid.attach(self.label, 1, 1, 3, 1)
+        label = Gtk.Label()
+        label.set_markup("""\n\tWhat PPAs would you like to add?\t\n""")
+        label.set_justify(Gtk.Justification.CENTER)
+        self.grid.attach(label, 1, 1, 3, 1)
 
-        self.label1 = Gtk.Label()
-        self.label1.set_markup("""\tPPA:""")
-        self.label1.set_justify(Gtk.Justification.RIGHT)
-        self.grid.attach(self.label1, 1, 2, 1, 1)
+        label1 = Gtk.Label()
+        label1.set_markup("""\tPPA:""")
+        label1.set_justify(Gtk.Justification.RIGHT)
+        self.grid.attach(label1, 1, 2, 1, 1)
 
-        self.PPAentry = Gtk.Entry()
-        self.PPAentry.set_visibility(True)
-        self.grid.attach(self.PPAentry, 2, 2, 1, 1)
+        self.ppa_entry = Gtk.Entry()
+        self.ppa_entry.set_visibility(True)
+        self.grid.attach(self.ppa_entry, 2, 2, 1, 1)
 
-        self.button4 = Gtk.Button.new_with_label("Add PPA")
-        self.button4.connect("clicked", self.addPPA_backend)
-        self.grid.attach(self.button4, 2, 3, 1, 1)
+        button4 = Gtk.Button.new_with_label("Add PPA")
+        button4.connect("clicked", self.add_ppa_backend)
+        self.grid.attach(button4, 2, 3, 1, 1)
 
-        self.button4 = Gtk.Button.new_with_label("Exit")
-        self.button4.connect("clicked", self.exit)
-        self.grid.attach(self.button4, 3, 3, 1, 1)
+        button4 = Gtk.Button.new_with_label("Exit")
+        button4.connect("clicked", self.exit)
+        self.grid.attach(button4, 3, 3, 1, 1)
 
-        self.button5 = Gtk.Button.new_with_label("<-- Back")
-        self.button5.connect("clicked",self.onadvclicked)
-        self.grid.attach(self.button5, 1, 3, 1, 1)
+        button5 = Gtk.Button.new_with_label("<-- Back")
+        button5.connect("clicked", self.onadvclicked)
+        self.grid.attach(button5, 1, 3, 1, 1)
 
         self.show_all()
 
-    def addPPA_backend(self,button):
-        self.grid.remove(self.label)
+    def add_ppa_backend(self, button):
+        """Unfunction to add PPAs"""
+        self.grid.remove(self.grid.get_child_at(1, 1))
         try:
-            Popen(["add-apt-repository","--yes","PPA:%s" % ((self.PPAentry.get_text()).lower())])
+            Popen(["add-apt-repository", "--yes", "PPA:%s" %
+                   ((self.ppa_entry.get_text()).lower())])
 
-            self.label = Gtk.Label()
-            self.label.set_markup("""\n\tWhat PPAs would you like to add?\t\n\t<b>%s added successfully!</b>\t\n""" % (self.PPAentry.get_text()))
-            self.label.set_justify(Gtk.Justification.CENTER)
-            self.grid.attach(self.label, 1, 1, 2, 1)
-        except:
-            self.label = Gtk.Label()
-            self.label.set_markup("""\n\tWhat PPAs would you like to add?\t\n\t<b>adding %s failed.</b>\t\n""" % (self.PPAentry.get_text()))
-            self.label.set_justify(Gtk.Justification.CENTER)
-            self.grid.attach(self.label, 1, 1, 2, 1)
+            label = Gtk.Label()
+            label.set_markup("""\n\tWhat PPAs would you like to add?\t
+\t<b>%s added successfully!</b>\t\n""" % (self.ppa_entry.get_text()))
+            label.set_justify(Gtk.Justification.CENTER)
+            self.grid.attach(label, 1, 1, 2, 1)
+        except CalledProcessError:
+            label = Gtk.Label()
+            label.set_markup("""\n\tWhat PPAs would you like to add?\t
+\t<b>adding %s failed.</b>\t\n""" % (self.ppa_entry.get_text()))
+            label.set_justify(Gtk.Justification.CENTER)
+            self.grid.attach(label, 1, 1, 2, 1)
 
-        self.PPAentry.set_text("")
+        self.ppa_entry.set_text("")
 
         self.show_all()
 
-    def exit(self,button):
+    def exit(self, button):
+        """Exit"""
         Gtk.main_quit("delete-event")
         self.destroy()
-        return(0)
+        return 0
 
     def clear_window(self):
+        """Clear Winodw"""
         children = self.grid.get_children()
         for each in children:
             self.grid.remove(each)
-        if (self.scrolling):
+        if self.scrolling:
             self.scrolled_window.remove(self.grid)
             self.remove(self.scrolled_window)
             self.add(self.grid)
             self.scrolling = False
             self.set_default_size(-1, -1)
 
-def exit_button(x,y):
-    Gtk.main_quit("delete-event")
-    exit(1)
+    def dump_settings_dialog(self, button):
+        """Dump Settings Dialog"""
+        eprint("\t###\tQUICK INSTALL MODE ACTIVATED\t###\t")
+        dialog = Gtk.FileChooserDialog("System Installer", self,
+                                       Gtk.FileChooserAction.SAVE,
+                                       Gtk.FileChooser.set_current_name("settings.json"),
+                                       (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                                        Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
 
-main.main = report.main.main
-main.toggle_UI = report.main.toggle_UI
-main.message_accept = report.main.message_accept
-main.message_handler = report.main.message_handler
-main.generate_message = report.main.generate_message
-main.preview_message = report.main.preview_message
-main.send_report = report.main.send_report
-main.cpu_explaination = report.main.cpu_explaination
-main.cpu_toggle = report.main.cpu_toggle
-main.disk_explaination = report.main.disk_explaination
-main.disk_toggle = report.main.disk_toggle
-main.generate_message = report.main.generate_message
-main.gpu_explaination = report.main.gpu_explaination
-main.gpu_toggle = report.main.gpu_toggle
-main.log_explaination = report.main.log_explaination
-main.log_toggle = report.main.log_toggle
-main.ram_explaination = report.main.ram_explaination
-main.ram_toggle = report.main.ram_toggle
-main.toggle_UI = report.main.toggle_UI
-main.main = report.main.main
 
-def show_success():
-    window = main()
+        response = dialog.run()
+        if response == Gtk.ResponseType.OK:
+            data = dialog.get_filename()
+            dump_settings(self.settings, data)
+
+        dialog.destroy()
+
+def dump_settings(settings, path):
+    """Dump Settings to File"""
+    with open(path, "w+") as dump_file:
+        dump_file.write(json.dumps(settings))
+
+Main.main = report.Main.main
+Main.toggle_ui = report.Main.toggle_ui
+Main.message_accept = report.Main.message_accept
+Main.message_handler = report.Main.message_handler
+Main.generate_message = report.Main.generate_message
+Main.preview_message = report.Main.preview_message
+Main.send_report = report.Main.send_report
+Main.cpu_explaination = report.Main.cpu_explaination
+Main.cpu_toggle = report.Main.cpu_toggle
+Main.disk_explaination = report.Main.disk_explaination
+Main.disk_toggle = report.Main.disk_toggle
+Main.generate_message = report.Main.generate_message
+Main.gpu_explaination = report.Main.gpu_explaination
+Main.gpu_toggle = report.Main.gpu_toggle
+Main.log_explaination = report.Main.log_explaination
+Main.log_toggle = report.Main.log_toggle
+Main.ram_explaination = report.Main.ram_explaination
+Main.ram_toggle = report.Main.ram_toggle
+
+def show_success(settings):
+    """Show Success UI"""
+    window = Main(settings)
     window.set_decorated(True)
     window.set_resizable(False)
     window.set_position(Gtk.WindowPosition.CENTER)
-    window.connect("delete-event",main.exit)
+    window.connect("delete-event", Main.exit)
     window.show_all()
     Gtk.main()
 
+def __reboot__(button):
+    Popen(["systemctl", "reboot", "now"])
+    sys.exit(0)
+
 if __name__ == '__main__':
-    show_success()
+    show_success(sys.argv[1])

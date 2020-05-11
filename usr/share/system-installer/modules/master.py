@@ -31,8 +31,9 @@ import multiprocessing
 from os import remove, mkdir, environ, symlink, chmod
 from shutil import rmtree
 from inspect import getfullargspec
-import urllib3
 import json
+import urllib3
+
 
 # import our own programs
 import modules.auto_login_set as auto_login_set
@@ -63,14 +64,14 @@ def __update__(percentage):
     value = ""
     try:
         with open("/tmp/system-installer-progress.log", "r") as progress:
-            value  = int(progress.read())
+            value = int(progress.read())
         if int(percentage) > value:
             with open("/tmp/system-installer-progress.log", "w+") as progress:
                 progress.write(str(percentage))
     except PermissionError:
         chmod("/tmp/system-installer-progress.log", 0o666)
         with open("/tmp/system-installer-progress.log", "r") as progress:
-            value  = int(progress.read())
+            value = int(progress.read())
         if int(percentage) > value:
             with open("/tmp/system-installer-progress.log", "w+") as progress:
                 progress.write(str(percentage))
@@ -86,7 +87,9 @@ class MainInstallation():
             args_list = getfullargspec(process_new)[0]
             args = []
             for each in args_list:
-                args.append(settings[each])
+                if each == "self":
+                    continue
+                args.append(settings[each.upper()])
             globals()[each1] = multiprocessing.Process(target=process_new, args=args)
             globals()[each1].start()
         while len(processes_to_do) > 0:
@@ -95,43 +98,43 @@ class MainInstallation():
                     globals()[processes_to_do[each]].join()
                     del processes_to_do[each]
 
-    def time_set(TIME_ZONE):
+    def time_set(self, time_zone):
         """Set system time"""
-        set_time.set_time(TIME_ZONE)
+        set_time.set_time(time_zone)
 
-    def locale_set(LANG):
+    def locale_set(self, lang):
         """Set system locale"""
-        set_locale.set_locale(LANG)
+        set_locale.set_locale(lang)
 
-    def set_networking(COMPUTER_NAME):
+    def set_networking(self, computer_name):
         """Set system hostname"""
-        eprint("Setting hostname to %s" % (COMPUTER_NAME))
+        eprint("Setting hostname to %s" % (computer_name))
         try:
             remove("/etc/hostname")
         except FileNotFoundError:
             pass
         with open("/etc/hostname", "w+") as hostname:
-            hostname.write(COMPUTER_NAME)
+            hostname.write(computer_name)
         try:
             remove("/etc/hosts")
         except FileNotFoundError:
             pass
         with open("/etc/hosts", "w+") as hosts:
-            hosts.write("127.0.0.1 %s" % (COMPUTER_NAME))
+            hosts.write("127.0.0.1 %s" % (computer_name))
         __update__(48)
 
-    def make_user(USERNAME, PASSWORD):
+    def make_user(self, username, password):
         """Set up main user"""
         # This needs to be set up in Python. Leave it in shell for now
         try:
-            Popen(["/make_user.sh", USERNAME, PASSWORD])
+            Popen(["/make_user.sh", username, password])
         except PermissionError:
             chmod("/make_user.sh", 0o777)
-            Popen(["/make_user.sh", USERNAME, PASSWORD])
+            Popen(["/make_user.sh", username, password])
 
-    def mk_swap(SWAP):
+    def mk_swap(self, swap):
         """Make swap file"""
-        if SWAP == "FILE":
+        if swap == "FILE":
             try:
                 make_swap.make_swap()
                 with open("/etc/fstab", "a") as fstab:
@@ -140,44 +143,45 @@ class MainInstallation():
                 eprint("Adding swap failed. Must manually add later")
         __update__(66)
 
-    def __install_updates__(UPDATES, INTERNET):
+    def __install_updates__(self, updates, internet):
         """Install updates"""
-        if ((UPDATES) and (INTERNET)):
+        if ((updates) and (internet)):
             try:
                 check_call("/install_updates.sh")
             except PermissionError:
                 chmod("/install_updates.sh", 0o777)
                 check_call("/install_updates.sh")
-        elif not INTERNET:
+        elif not internet:
             eprint("Cannot install updates. No internet.")
 
-    def __install_extras__(EXTRAS, INTERNET):
+    def __install_extras__(self, extras, internet):
         """Install Restricted Extras and Drivers"""
-        if ((EXTRAS) and (INTERNET)):
+        if ((extras) and (internet)):
             try:
                 check_call("/install_extras.sh")
             except PermissionError:
                 chmod("/install_extras.sh", 0o777)
                 check_call("/install_extras.sh")
-        elif not INTERNET:
+        elif not internet:
             eprint("Cannot install extras. No internet.")
 
-    def apt(UPDATES, EXTRAS, INTERNET):
-        MainInstallation.__install_updates__(UPDATES, INTERNET)
-        MainInstallation.__install_extras__(EXTRAS, INTERNET)
+    def apt(self, updates, extras, internet):
+        """Run commands for apt sequentially to avoid front-end lock"""
+        MainInstallation.__install_updates__(updates, internet)
+        MainInstallation.__install_extras__(extras, internet)
 
-    def set_passwd(PASSWORD):
+    def set_passwd(self, password):
         """Set Root password"""
         __update__(84)
         process = Popen("chpasswd", stdout=stderr.buffer, stdin=PIPE, stderr=PIPE)
-        process.communicate(input=bytes(r"root:%s" % (PASSWORD), "utf-8"))
+        process.communicate(input=bytes(r"root:%s" % (password), "utf-8"))
         __update__(85)
 
-    def lightdm_config(LOGIN, USERNAME):
+    def lightdm_config(self, login, username):
         """Set autologin setting for lightdm"""
-        auto_login_set.auto_login_set(LOGIN, USERNAME)
+        auto_login_set.auto_login_set(login, username)
 
-    def set_keyboard(MODEL, LAYOUT, VARIENT):
+    def set_keyboard(self, model, layout, varient):
         """Set keyboard model, layout, and varient"""
         with open("/usr/share/X11/xkb/rules/base.lst", "r") as xkb_conf:
             kcd = xkb_conf.read()
@@ -192,11 +196,11 @@ class MainInstallation():
         xkbl = ""
         xkbv = ""
         for each1 in kcd:
-            if " ".join(each1[1:]) == MODEL:
+            if " ".join(each1[1:]) == model:
                 xkbm = each1[0]
-            elif " ".join(each1[1:]) == LAYOUT:
+            elif " ".join(each1[1:]) == layout:
                 xkbl = each1[0]
-            elif " ".join(each1[1:]) == VARIENT:
+            elif " ".join(each1[1:]) == varient:
                 xkbv = each1[0]
         with open("/etc/default/keyboard", "w+") as xkb_default:
             xkb_default.write("""XKBMODEL=\"%s\"
@@ -207,27 +211,32 @@ XKBOPTIONS=\"\"
 BACKSPACE=\"guess\"
 """ % (xkbm, xkbl, xkbv))
         __update__(90)
-        Popen(["udevadm", "trigger", "--subsystem-match=input", "--action=change"], stdout=stderr.buffer)
+        Popen(["udevadm", "trigger", "--subsystem-match=input",
+               "--action=change"], stdout=stderr.buffer)
 
-    def remove_launcher(USERNAME):
+    def remove_launcher(self, username):
         """Remove system installer desktop launcher"""
         try:
-            remove("/home/%s/Desktop/system-installer.desktop" % (USERNAME))
+            remove("/home/%s/Desktop/system-installer.desktop" % (username))
         except FileNotFoundError:
             try:
-                rmtree("/home/%sE/.config/xfce4/panel/launcher-3" % (USERNAME))
+                rmtree("/home/%sE/.config/xfce4/panel/launcher-3" % (username))
             except FileNotFoundError:
                 eprint("Cannot find launcher for system-installer. User will need to remove manually.")
 
 def set_plymouth_theme():
     """Ensure the plymouth theme is set correctly"""
-    Popen(["update-alternatives", "--install", "/usr/share/plymouth/themes/default.plymouth",
-           "default.plymouth", "/usr/share/plymouth/themes/drauger-theme/drauger-theme.plymouth",
+    Popen(["update-alternatives", "--install",
+           "/usr/share/plymouth/themes/default.plymouth",
+           "default.plymouth",
+           "/usr/share/plymouth/themes/drauger-theme/drauger-theme.plymouth",
            "100", "--slave",
            "/usr/share/plymouth/themes/default.grub", "default.plymouth.grub",
-           "/usr/share/plymouth/themes/drauger-theme/drauger-theme.grub"], stdout=stderr.buffer)
+           "/usr/share/plymouth/themes/drauger-theme/drauger-theme.grub"],
+          stdout=stderr.buffer)
     process = Popen(["update-alternatives", "--config",
-                   "default.plymouth"], stdout=stderr.buffer, stdin=PIPE, stderr=PIPE)
+                     "default.plymouth"], stdout=stderr.buffer, stdin=PIPE,
+                    stderr=PIPE)
     process.communicate(input=bytes("2\n", "utf-8"))
     __update__(86)
 
@@ -236,7 +245,8 @@ def install_kernel():
     # we are going to do offline kernel installation from now on.
     # it's just easier and more reliable
     check_call(["7z", "x", "/kernel.7z"], stdout=stderr.buffer)
-    check_call(["apt", "purge", "-y", "linux-headers-drauger", "linux-image-drauger"], stdout=stderr.buffer)
+    check_call(["apt", "purge", "-y", "linux-headers-drauger",
+                "linux-image-drauger"], stdout=stderr.buffer)
     check_call(["apt", "autoremove", "-y", "--purge"], stdout=stderr.buffer)
     check_call(["dpkg", "-R", "--install", "kernel/"], stdout=stderr.buffer)
     rmtree("/kernel")
@@ -264,8 +274,10 @@ def _install_grub(root):
         del root[-1]
     root = "".join(root)
     check_call(["grub-mkdevicemap", "--verbose"], stdout=stderr.buffer)
-    check_call(["grub-install", "--verbose", "--force", "--target=i386-pc", root], stdout=stderr.buffer)
-    check_call(["grub-mkconfig", "-o", "/boot/grub/grub.cfg"], stdout=stderr.buffer)
+    check_call(["grub-install", "--verbose", "--force", "--target=i386-pc",
+                root], stdout=stderr.buffer)
+    check_call(["grub-mkconfig", "-o", "/boot/grub/grub.cfg"],
+               stdout=stderr.buffer)
 
 def _install_systemd_boot(root):
     """set up and install systemd-boot"""
@@ -302,23 +314,23 @@ def setup_lowlevel(efi, root):
     symlink("/boot/initrd.img-" + release, "/boot/initrd.img")
     symlink("/boot/vmlinuz-" + release, "/boot/vmlinuz")
 
-def verify_install(USERNAME, PASSWORD):
+def verify_install(username, password):
     """Fix possible bugs post-installation"""
     try:
-        check_call(["/verify_install.sh", USERNAME, PASSWORD], stdout=stderr.buffer)
+        check_call(["/verify_install.sh", username, password], stdout=stderr.buffer)
     except PermissionError:
         chmod("/verify_install.sh", 0o777)
-        check_call(["/verify_install.sh", USERNAME, PASSWORD], stdout=stderr.buffer)
+        check_call(["/verify_install.sh", username, password], stdout=stderr.buffer)
 
 def install(settings, internet):
     """Entry point for installation procedure"""
     __update__(39)
-    PROCESSES_TO_DO = dir(MainInstallation)
-    for each in range(len(PROCESSES_TO_DO) - 1, -1, -1):
-        if PROCESSES_TO_DO[each][0] == "_":
-            del PROCESSES_TO_DO[each]
+    processes_to_do = dir(MainInstallation)
+    for each in range(len(processes_to_do) - 1, -1, -1):
+        if processes_to_do[each][0] == "_":
+            del processes_to_do[each]
     settings["INTERNET"] = internet
-    MainInstallation(PROCESSES_TO_DO, settings)
+    MainInstallation(processes_to_do, settings)
     setup_lowlevel(settings["EFI"], settings["ROOT"])
     verify_install(settings["USERNAME"], settings["PASSWORD"])
 
@@ -327,7 +339,7 @@ if __name__ == "__main__":
     ARGC = len(argv)
     # set vars
     # for security reasons, these are no longer environmental variables
-    settings = json.loads(argv[1])
+    SETTINGS = json.loads(argv[1])
     # settings["LANG"] = argv[1]
     # settings["TIME_ZONE"] = argv[2]
     # settings["USERNAME"] = argv[3]
@@ -347,4 +359,4 @@ if __name__ == "__main__":
         # settings["SWAP"] = None
     INTERNET = check_internet()
 
-    install(settings, INTERNET)
+    install(SETTINGS, INTERNET)

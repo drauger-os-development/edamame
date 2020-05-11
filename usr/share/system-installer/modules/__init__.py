@@ -21,6 +21,7 @@
 #  MA 02110-1301, USA.
 #
 #
+"""Import modules as proper names"""
 import modules.master as master
 import modules.make_swap as make_swap
 import modules.auto_login_set as auto_login_set
