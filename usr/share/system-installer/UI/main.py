@@ -971,6 +971,7 @@ Sub-Region""")
         for each in enumerate(layout_list):
             del(layout_list[each[0]][0])
         model = []
+        del layout_list[-1]
         for each in enumerate(layout_list):
             if (layout_list[each[0]][0] == "model"):
                 model.append(layout_list[each[0]][-1])
