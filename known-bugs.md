@@ -4,7 +4,6 @@ List of known bugs
   - built in auto-partitioner isn't great but it works
 - No slideshow or installation segment progress bar, or some other form of progress indicator
   - This is talking about `progress.py`, right now to get some form of output we are using `zenity`
-- Consistent false positives
 - `chroot` is not opening when user requests access to it post-install
 - systems with 16+ drives in them cannot have root on the 16th drive during installation
 	- This is due to a parsing issue when installing to the correct NVMe drive
