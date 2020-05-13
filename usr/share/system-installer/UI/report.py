@@ -26,6 +26,7 @@ from subprocess import Popen, check_output, PIPE, STDOUT, CalledProcessError
 from os import getenv
 from datetime import datetime
 from shutil import copyfile
+import json
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
@@ -261,7 +262,7 @@ class Main(Gtk.Window):
             with open(self.path, "r") as mail:
                 send = mail.read()
             process = Popen(["sendmail", "-froot",
-                             "installation-reports@draugeros.org"],
+                             send_to()],
                             stdout=PIPE, stdin=PIPE, stderr=STDOUT)
             process.communicate(input=bytes(send, 'utf-8'))
             Popen(["notify-send",
@@ -561,3 +562,9 @@ def get_info(cmd):
         info = "".join(info)
     info = info.split("\n")
     return info
+
+def send_to():
+    try:
+        return json.loads("/etc/system-installer/default.json")["report_to"]
+    except (FileNotFoundError, PermissionError, KeyError):
+        return "installation-reports@draugeros.org"

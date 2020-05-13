@@ -1,5 +1,6 @@
 {
 	"squashfs_Location":"/run/live/medium/live/filesystem.squashfs",
-	"distro":"Drauger OS"
+	"distro":"Drauger OS",
+	"report_to":"installation-reports@draugeros.org"
 }
 
