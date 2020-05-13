@@ -84,6 +84,7 @@ if INSTALL:
         PROGRESS.start()
         installer.install(SETTINGS)
         PROGRESS.join()
+        UI.success.show_success(SETTINGS)
     except:
         UI.error.show_error("""\n\tError detected.\t
 \tPlease see /tmp/system-installer.log for details.\t\n""")

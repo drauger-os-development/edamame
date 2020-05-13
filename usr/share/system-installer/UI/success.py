@@ -32,7 +32,6 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 import UI.report as report
 
-
 class Main(Gtk.Window):
     """Success UI Class"""
     def __init__(self, settings):
@@ -227,7 +226,6 @@ class Main(Gtk.Window):
 
     def dump_settings_dialog(self, button):
         """Dump Settings Dialog"""
-        eprint("\t###\tQUICK INSTALL MODE ACTIVATED\t###\t")
         dialog = Gtk.FileChooserDialog("System Installer", self,
                                        Gtk.FileChooserAction.SAVE,
                                        Gtk.FileChooser.set_current_name("settings.json"),
