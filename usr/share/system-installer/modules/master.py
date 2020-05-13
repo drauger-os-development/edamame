@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-#  MASTER.py
+#  master.py
 #
 #  Copyright 2020 Thomas Castleman <contact@draugeros.org>
 #
@@ -87,9 +87,7 @@ class MainInstallation():
             args_list = getfullargspec(process_new)[0]
             args = []
             for each in args_list:
-                if each == "self":
-                    continue
-                args.append(settings[each.upper()])
+                args.append(settings[each])
             globals()[each1] = multiprocessing.Process(target=process_new, args=args)
             globals()[each1].start()
         while len(processes_to_do) > 0:
@@ -98,43 +96,43 @@ class MainInstallation():
                     globals()[processes_to_do[each]].join()
                     del processes_to_do[each]
 
-    def time_set(self, time_zone):
+    def time_set(TIME_ZONE):
         """Set system time"""
-        set_time.set_time(time_zone)
+        set_time.set_time(TIME_ZONE)
 
-    def locale_set(self, lang):
+    def locale_set(LANG):
         """Set system locale"""
-        set_locale.set_locale(lang)
+        set_locale.set_locale(LANG)
 
-    def set_networking(self, computer_name):
+    def set_networking(COMPUTER_NAME):
         """Set system hostname"""
-        eprint("Setting hostname to %s" % (computer_name))
+        eprint("Setting hostname to %s" % (COMPUTER_NAME))
         try:
             remove("/etc/hostname")
         except FileNotFoundError:
             pass
         with open("/etc/hostname", "w+") as hostname:
-            hostname.write(computer_name)
+            hostname.write(COMPUTER_NAME)
         try:
             remove("/etc/hosts")
         except FileNotFoundError:
             pass
         with open("/etc/hosts", "w+") as hosts:
-            hosts.write("127.0.0.1 %s" % (computer_name))
+            hosts.write("127.0.0.1 %s" % (COMPUTER_NAME))
         __update__(48)
 
-    def make_user(self, username, password):
+    def make_user(USERNAME, PASSWORD):
         """Set up main user"""
         # This needs to be set up in Python. Leave it in shell for now
         try:
-            Popen(["/make_user.sh", username, password])
+            Popen(["/make_user.sh", USERNAME, PASSWORD])
         except PermissionError:
             chmod("/make_user.sh", 0o777)
-            Popen(["/make_user.sh", username, password])
+            Popen(["/make_user.sh", USERNAME, PASSWORD])
 
-    def mk_swap(self, swap):
+    def mk_swap(SWAP):
         """Make swap file"""
-        if swap == "FILE":
+        if SWAP == "FILE":
             try:
                 make_swap.make_swap()
                 with open("/etc/fstab", "a") as fstab:
@@ -143,45 +141,45 @@ class MainInstallation():
                 eprint("Adding swap failed. Must manually add later")
         __update__(66)
 
-    def __install_updates__(self, updates, internet):
+    def __install_updates__(UPDATES, INTERNET):
         """Install updates"""
-        if ((updates) and (internet)):
+        if ((UPDATES) and (INTERNET)):
             try:
                 check_call("/install_updates.sh")
             except PermissionError:
                 chmod("/install_updates.sh", 0o777)
                 check_call("/install_updates.sh")
-        elif not internet:
+        elif not INTERNET:
             eprint("Cannot install updates. No internet.")
 
-    def __install_extras__(self, extras, internet):
+    def __install_extras__(EXTRAS, INTERNET):
         """Install Restricted Extras and Drivers"""
-        if ((extras) and (internet)):
+        if ((EXTRAS) and (INTERNET)):
             try:
                 check_call("/install_extras.sh")
             except PermissionError:
                 chmod("/install_extras.sh", 0o777)
                 check_call("/install_extras.sh")
-        elif not internet:
+        elif not INTERNET:
             eprint("Cannot install extras. No internet.")
 
-    def apt(self, updates, extras, internet):
+    def apt(UPDATES, EXTRAS, INTERNET):
         """Run commands for apt sequentially to avoid front-end lock"""
-        MainInstallation.__install_updates__(updates, internet)
-        MainInstallation.__install_extras__(extras, internet)
+        MainInstallation.__install_updates__(UPDATES, INTERNET)
+        MainInstallation.__install_extras__(EXTRAS, INTERNET)
 
-    def set_passwd(self, password):
+    def set_passwd(PASSWORD):
         """Set Root password"""
         __update__(84)
         process = Popen("chpasswd", stdout=stderr.buffer, stdin=PIPE, stderr=PIPE)
-        process.communicate(input=bytes(r"root:%s" % (password), "utf-8"))
+        process.communicate(input=bytes(r"root:%s" % (PASSWORD), "utf-8"))
         __update__(85)
 
-    def lightdm_config(self, login, username):
+    def lightdm_config(LOGIN, USERNAME):
         """Set autologin setting for lightdm"""
-        auto_login_set.auto_login_set(login, username)
+        auto_login_set.auto_login_set(LOGIN, USERNAME)
 
-    def set_keyboard(self, model, layout, varient):
+    def set_keyboard(MODEL, LAYOUT, VARIENT):
         """Set keyboard model, layout, and varient"""
         with open("/usr/share/X11/xkb/rules/base.lst", "r") as xkb_conf:
             kcd = xkb_conf.read()
@@ -196,11 +194,11 @@ class MainInstallation():
         xkbl = ""
         xkbv = ""
         for each1 in kcd:
-            if " ".join(each1[1:]) == model:
+            if " ".join(each1[1:]) == MODEL:
                 xkbm = each1[0]
-            elif " ".join(each1[1:]) == layout:
+            elif " ".join(each1[1:]) == LAYOUT:
                 xkbl = each1[0]
-            elif " ".join(each1[1:]) == varient:
+            elif " ".join(each1[1:]) == VARIENT:
                 xkbv = each1[0]
         with open("/etc/default/keyboard", "w+") as xkb_default:
             xkb_default.write("""XKBMODEL=\"%s\"
@@ -214,13 +212,13 @@ BACKSPACE=\"guess\"
         Popen(["udevadm", "trigger", "--subsystem-match=input",
                "--action=change"], stdout=stderr.buffer)
 
-    def remove_launcher(self, username):
+    def remove_launcher(USERNAME):
         """Remove system installer desktop launcher"""
         try:
-            remove("/home/%s/Desktop/system-installer.desktop" % (username))
+            remove("/home/%s/Desktop/system-installer.desktop" % (USERNAME))
         except FileNotFoundError:
             try:
-                rmtree("/home/%sE/.config/xfce4/panel/launcher-3" % (username))
+                rmtree("/home/%sE/.config/xfce4/panel/launcher-3" % (USERNAME))
             except FileNotFoundError:
                 eprint("Cannot find launcher for system-installer. User will need to remove manually.")
 
