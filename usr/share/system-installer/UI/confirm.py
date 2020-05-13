@@ -45,7 +45,7 @@ class Main(Gtk.Window):
         self.install = False
         self.grid = Gtk.Grid(orientation=Gtk.Orientation.VERTICAL)
         self.add(self.grid)
-        self.set_icon_from_file("/usr/share/icons/Drauger/720x720/Menus/install-drauger.png")
+        self.set_icon_name("system-installer")
 
         self.label = Gtk.Label()
         self.label.set_markup("""
