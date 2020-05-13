@@ -50,7 +50,7 @@ def auto_login_set(login, username):
             if login in ("0", 0, False):
                 del new_conf[each[0]]
             else:
-                new_conf[each][1] = username
+                new_conf[each[0]][1] = username
             break
     for each in enumerate(new_conf):
         if each[0] == 0:
