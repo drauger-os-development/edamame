@@ -29,6 +29,7 @@ from os import path
 import threading
 import json
 from psutil import virtual_memory
+from shutil import copyfile
 import UI
 import installer
 
@@ -91,3 +92,4 @@ if INSTALL:
 else:
     sys.exit(1)
 eprint("\t###\t%s CLOSED\t###\t" % (sys.argv[0]))
+copyfile("/tmp/system-installer.log", "/mnt/var/log/system-installer.log")
