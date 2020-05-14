@@ -28,12 +28,13 @@ from __future__ import print_function
 from sys import argv, stderr
 from subprocess import Popen, PIPE, check_output, check_call, CalledProcessError
 import multiprocessing
-from os import remove, mkdir, environ, symlink, chmod
-from shutil import rmtree
+from os import remove, mkdir, environ, symlink, chmod, listdir
+from shutil import rmtree, copyfile
 from inspect import getfullargspec
 from time import sleep
 import json
 import urllib3
+import warnings
 
 
 # import our own programs
@@ -300,6 +301,7 @@ def _install_systemd_boot(root):
         chmod("/boot/efi/loader/loader.conf", 0o444)
     systemd_boot_config.systemd_boot_config(root)
     check_call("/etc/kernel/postinst.d/zz-update-systemd-boot", stdout=stderr.buffer)
+    check_systemd_boot(release, root)
 
 
 def setup_lowlevel(efi, root):
@@ -313,6 +315,108 @@ def setup_lowlevel(efi, root):
     sleep(0.5)
     symlink("/boot/initrd.img-" + release, "/boot/initrd.img")
     symlink("/boot/vmlinuz-" + release, "/boot/vmlinuz")
+
+def check_systemd_boot(release, root):
+    """Ensure systemd-boot was configured correctly"""
+    # Initialize variables
+    root_flags = "quiet splash"
+    recovery_flags = "ro recovery nomodeset"
+    # Get Root UUID
+    uuid = check_output(["blkid", "-s", "PARTUUID", "-o", "value", root]).decode()[0:-1]
+
+    # Check for standard boot config
+    if not path.exists("/boot/efi/loader/entries/Drauger_OS.conf"):
+        # Write standard boot conf if it doesn't exist
+        eprint("Standard Systemd-boot entry non-existant")
+        try:
+            with open("/boot/efi/loader/entries/Drauger_OS.conf", "w+") as main_conf:
+                main_conf.write("""title   Drauger OS
+linux   /Drauger_OS/vmlinuz
+initrd  /Drauger_OS/initrd.img
+options root=PARTUUID=%s %s""" % (uuid, root_flags))
+            eprint("Made standard systemd-boot entry")
+        # Raise an exception if we cannot write the entry
+        except (PermissionError, IOError):
+            eprint("\t###\tERROR\t###\tCANNOT MAKE STANDARD SYSTEMD-BOOT ENTRY CONFIG FILE\t###ERROR\t###\t")
+            raise IOError("Cannot make standard systemd-boot entry config file. Installation will not boot.")
+    else:
+        eprint("Standard systemd-boot entry checks out")
+    # Check for recovery boot config
+    if not path.exists("/boot/efi/loader/entries/Drauger_OS_Recovery.conf") as recovery_conf:
+        eprint("Recovery Systemd-boot entry non-existant")
+        try:
+            # Write recovery boot conf if it doesn't exist
+            with open("/boot/efi/loader/entries/Drauger_OS.conf", "w+") as main_conf:
+                main_conf.write("""title   Drauger OS Recovery
+linux   /Drauger_OS/vmlinuz
+initrd  /Drauger_OS/initrd.img
+options root=PARTUUID=%s %s""" % (uuid, recovery_flags))
+            eprint("Made recovery systemd-boot entry")
+        # Raise a warning if we cannot write the entry
+        except (PermissionError, IOError):
+            eprint("\t###\WARNING\t###\tCANNOT MAKE RECOVERY SYSTEMD-BOOT ENTRY CONFIG FILE\t###WARNING\t###\t")
+            warnings.warn("Cannot make recovery systemd-boot entry config file. Installation will not be recoverable.")
+    else:
+        eprint("Recovery systemd-boot entry checks out")
+
+    # Make sure we have our kernel image, config file, initrd, and System map
+    files = listdir("/boot")
+    vmlinuz = []
+    config = []
+    initrd = []
+    sysmap = []
+    # Sort the files by name
+    for each in files:
+        if "vmlinuz-" in each:
+            vmlinuz.append(each)
+        elif "config-" in each:
+            config.append(each)
+        elif "initrd.img-" in each:
+            initrd.append(each)
+        elif "System.map-" in each:
+            sysmap.append(each)
+
+    # Sort the file names by version number.
+    # The file with the highest index in the list is the latest version
+    vmlinuz = sorted(vmlinuz)[-1]
+    config = sorted(config)[-1]
+    initrd = sorted(initrd)[-1]
+    sysmap = sorted(sysmap)[-1]
+    # Copy the latest files into place
+    # Also, rename them so that systemd-boot can find them
+    if not path.exists("/boot/efi/Drauger_OS/vmlinuz"):
+        eprint("vmlinuz non-existant")
+        copyfile("/boot/" + vmlinuz, "/boot/efi/Drauger_OS/vmlinuz")
+        eprint("vmlinuz copied")
+    else:
+        eprint("vmlinuz checks out")
+    if not path.exists("/boot/efi/Drauger_OS/config"):
+        eprint("config non-existant")
+        copyfile("/boot/" + config, "/boot/efi/Drauger_OS/config")
+        eprint("config copied")
+    else:
+        eprint("Config checks out")
+    if not path.exists("/boot/efi/Drauger_OS/initrd.img"):
+        eprint("initrd.img non-existant")
+        copyfile("/boot/" + initrd, "/boot/efi/Drauger_OS/initrd.img")
+        eprint("initrd.img copied")
+    else:
+        eprint("initrd.img checks out")
+    if not path.exists("/boot/efi/Drauger_OS/System.map"):
+        eprint("System.map non-existant")
+        copyfile("/boot/" + sysmap, "/boot/efi/Drauger_OS/System.map")
+        eprint("System.map copied")
+    else:
+        eprint("System.map checks out")
+
+
+
+
+def make_num(string):
+    try:
+        return int(string)
+    except ValueError:
+        return float(string)
 
 def verify_install(username, password):
     """Fix possible bugs post-installation"""
