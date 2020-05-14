@@ -94,7 +94,6 @@ def install(settings):
         remove("/tmp/system-installer-progress.log")
     __update__(12)
     # STEP 2: Mount the new partitions
-    eprint("Mounting " + settings["ROOT"] + " on /mnt")
     __mount__(settings["ROOT"], "/mnt")
     if settings["EFI"] not in ("NULL", None, ""):
         try:
@@ -105,14 +104,12 @@ def install(settings):
             mkdir("/mnt/boot/efi")
         except FileExistsError:
             pass
-        eprint("Mounting " + settings["EFI"] + " on /mnt/boot/efi")
         __mount__(settings["EFI"], "/mnt/boot/efi")
     if settings["HOME"] not in ("NULL", None, ""):
         try:
             mkdir("/mnt/home")
         except FileExistsError:
             eprint("/mnt/home exists when it shouldn't. What the hell is going on???")
-        eprint("Mounting " + settings["HOME"] + " on /mnt/home")
         __mount__(settings["HOME"], "/mnt/home")
     if settings["SWAP"] != "FILE":
         # This can happen in the background. No biggie.
