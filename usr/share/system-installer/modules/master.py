@@ -31,6 +31,7 @@ import multiprocessing
 from os import remove, mkdir, environ, symlink, chmod
 from shutil import rmtree
 from inspect import getfullargspec
+from time import sleep
 import json
 import urllib3
 
@@ -309,6 +310,7 @@ def setup_lowlevel(efi, root):
     eprint("\t###\tMAKING INITRAMFS\t###\t")
     check_call(["mkinitramfs", "-o", "/boot/initrd.img-" + release], stdout=stderr.buffer)
     install_bootloader(efi, root)
+    sleep(0.5)
     symlink("/boot/initrd.img-" + release, "/boot/initrd.img")
     symlink("/boot/vmlinuz-" + release, "/boot/vmlinuz")
 
