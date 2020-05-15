@@ -252,11 +252,11 @@ def install_kernel():
     rmtree("/kernel")
 
 
-def install_bootloader(efi, root):
+def install_bootloader(efi, root, release):
     """Determine whether bootloader needs to be systemd-boot (for UEFI) or GRUB (for BIOS)
     and install the correct one."""
     if efi not in ("NULL", None, ""):
-        _install_systemd_boot(root)
+        _install_systemd_boot(release, root)
     else:
         _install_grub(root)
 
@@ -279,7 +279,7 @@ def _install_grub(root):
     check_call(["grub-mkconfig", "-o", "/boot/grub/grub.cfg"],
                stdout=stderr.buffer)
 
-def _install_systemd_boot(root):
+def _install_systemd_boot(release, root):
     """set up and install systemd-boot"""
     try:
         mkdir("/boot/efi")
@@ -311,7 +311,7 @@ def setup_lowlevel(efi, root):
     release = check_output(["uname", "--release"]).decode()[0:-1]
     eprint("\t###\tMAKING INITRAMFS\t###\t")
     check_call(["mkinitramfs", "-o", "/boot/initrd.img-" + release], stdout=stderr.buffer)
-    install_bootloader(efi, root)
+    install_bootloader(efi, root, release)
     sleep(0.5)
     symlink("/boot/initrd.img-" + release, "/boot/initrd.img")
     symlink("/boot/vmlinuz-" + release, "/boot/vmlinuz")
