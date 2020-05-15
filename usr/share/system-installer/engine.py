@@ -85,11 +85,19 @@ if INSTALL:
         PROGRESS.start()
         installer.install(SETTINGS)
         PROGRESS.join()
+        eprint("\t###\t%s CLOSED\t###\t" % (sys.argv[0]))
+        try:
+            copyfile("/tmp/system-installer.log", "/mnt/var/log/system-installer.log")
+        except FileNotFoundError:
+            eprint("\t###\tLog Not Found. Testing?\t###\t")
+            with open("/tmp/system-installer.log", "w+") as log:
+                log.write("""Log was not created during installation.
+This is a stand-in file.
+""")
+            copyfile("/tmp/system-installer.log", "/mnt/var/log/system-installer.log")
         UI.success.show_success(SETTINGS)
     except:
         UI.error.show_error("""\n\tError detected.\t
 \tPlease see /tmp/system-installer.log for details.\t\n""")
 else:
     sys.exit(1)
-eprint("\t###\t%s CLOSED\t###\t" % (sys.argv[0]))
-copyfile("/tmp/system-installer.log", "/mnt/var/log/system-installer.log")
