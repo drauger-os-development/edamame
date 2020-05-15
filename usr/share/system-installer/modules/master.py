@@ -342,11 +342,11 @@ options root=PARTUUID=%s %s""" % (uuid, root_flags))
     else:
         eprint("Standard systemd-boot entry checks out")
     # Check for recovery boot config
-    if not path.exists("/boot/efi/loader/entries/Drauger_OS_Recovery.conf") as recovery_conf:
+    if not path.exists("/boot/efi/loader/entries/Drauger_OS_Recovery.conf"):
         eprint("Recovery Systemd-boot entry non-existant")
         try:
             # Write recovery boot conf if it doesn't exist
-            with open("/boot/efi/loader/entries/Drauger_OS.conf", "w+") as main_conf:
+            with open("/boot/efi/loader/entries/Drauger_OS_Recovery.conf", "w+") as main_conf:
                 main_conf.write("""title   Drauger OS Recovery
 linux   /Drauger_OS/vmlinuz
 initrd  /Drauger_OS/initrd.img
