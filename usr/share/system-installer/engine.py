@@ -88,10 +88,10 @@ if INSTALL:
         file_list = listdir("/mnt")
         for each in file_list:
             if each[-3:] in (".sh", ".py", ".7z"):
-            try:
-                remove("/mnt/" + each)
-            except FileNotFoundError:
-                pass
+                try:
+                    remove("/mnt/" + each)
+                except FileNotFoundError:
+                    pass
         eprint("\t###\t%s CLOSED\t###\t" % (sys.argv[0]))
         try:
             copyfile("/tmp/system-installer.log", "/mnt/var/log/system-installer.log")
