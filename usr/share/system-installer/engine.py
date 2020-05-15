@@ -25,7 +25,7 @@
 from __future__ import print_function
 import sys
 from subprocess import check_output
-from os import path
+from os import path, listdir, remove
 import threading
 import json
 from psutil import virtual_memory
@@ -85,6 +85,13 @@ if INSTALL:
         PROGRESS.start()
         installer.install(SETTINGS)
         PROGRESS.join()
+        file_list = listdir("/mnt")
+        for each in file_list:
+            if each[-3:] in (".sh", ".py", ".7z"):
+            try:
+                remove("/mnt/" + each)
+            except FileNotFoundError:
+                pass
         eprint("\t###\t%s CLOSED\t###\t" % (sys.argv[0]))
         try:
             copyfile("/tmp/system-installer.log", "/mnt/var/log/system-installer.log")
