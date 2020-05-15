@@ -28,7 +28,7 @@ from __future__ import print_function
 from sys import argv, stderr
 from subprocess import Popen, PIPE, check_output, check_call, CalledProcessError
 import multiprocessing
-from os import remove, mkdir, environ, symlink, chmod, listdir
+from os import remove, mkdir, environ, symlink, chmod, listdir, path
 from shutil import rmtree, copyfile
 from inspect import getfullargspec
 from time import sleep
