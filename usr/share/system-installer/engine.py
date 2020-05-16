@@ -85,7 +85,7 @@ if INSTALL:
         PROGRESS.start()
         #Popen("/usr/share/system-installer/ui_surrogate.py")
         installer.install(SETTINGS)
-        PROGRESS.join()
+        PROGRESS.join(timeout=0.25)
         file_list = listdir("/mnt")
         for each in file_list:
             if each[-3:] in (".sh", ".py", ".7z"):
@@ -104,6 +104,7 @@ This is a stand-in file.
 """)
             copyfile("/tmp/system-installer.log", "/mnt/var/log/system-installer.log")
         UI.success.show_success(SETTINGS)
+        PROGRESS.join()
     except Exception as error:
         eprint("\nAn Error has occured:\n%s\n" % (error))
         print("\nAn Error has occured:\n%s\n" % (error))
