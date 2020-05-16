@@ -63,21 +63,11 @@ def check_internet():
         return False
 
 def __update__(percentage):
-    value = ""
     try:
-        with open("/tmp/system-installer-progress.log", "r") as progress:
-            value = int(progress.read())
-        if int(percentage) > value:
-            with open("/tmp/system-installer-progress.log", "w+") as progress:
-                progress.write(str(percentage))
+        with open("/tmp/system-installer-progress.log", "w+") as progress:
+            progress.write(str(percentage))
     except PermissionError:
         chmod("/tmp/system-installer-progress.log", 0o666)
-        with open("/tmp/system-installer-progress.log", "r") as progress:
-            value = int(progress.read())
-        if int(percentage) > value:
-            with open("/tmp/system-installer-progress.log", "w+") as progress:
-                progress.write(str(percentage))
-    except FileNotFoundError:
         with open("/tmp/system-installer-progress.log", "w+") as progress:
             progress.write(str(percentage))
 
