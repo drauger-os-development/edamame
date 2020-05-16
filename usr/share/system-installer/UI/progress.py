@@ -39,7 +39,6 @@ class Main(Gtk.ApplicationWindow):
         self.set_resizable(False)
         self.set_deletable(False)
         self.set_position(Gtk.WindowPosition.CENTER)
-        self.connect("delete-event", self.exit)
 
         self.label = Gtk.Label()
         self.label.set_markup("""
@@ -88,22 +87,16 @@ to: contact@draugeros.org   """)
         except FileNotFoundError:
             fraction = 0
         try:
-            self.progress.set_fraction(int(fraction))
+            fraction = int(fraction) / 100
+            self.progress.set_fraction(fraction)
         except ValueError:
             self.progress.set_fraction(0)
-        if fraction == "100":
-            GLib.source_remove(self.source_id)
-            self.source_id = 0
+        if fraction == 1:
+            sys.exit(0)
 
         self.show_all()
         self.read_file()
         return True
-
-    def exit(self, button):
-        """Exit"""
-        Gtk.main_quit("delete-event")
-        self.destroy()
-        return False
 
 class Worker(Gtk.Application):
 
