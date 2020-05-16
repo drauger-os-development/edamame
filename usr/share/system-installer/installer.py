@@ -27,6 +27,7 @@ from sys import stderr
 from subprocess import Popen, check_output, check_call, CalledProcessError
 from os import mkdir, path, chdir, listdir, remove, symlink, chmod
 from shutil import rmtree, move, copyfile, copytree
+from time import sleep
 import json
 import UI
 import modules
@@ -274,6 +275,7 @@ def install(settings):
     except FileNotFoundError:
         pass
     __update__(100)
+    sleep(1)
     remove("/tmp/system-installer-progress.log")
     remove("/mnt/tmp/system-installer-progress.log")
     eprint("\t###\tinstaller.py CLOSED\t###\t")
