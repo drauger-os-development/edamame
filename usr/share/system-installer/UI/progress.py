@@ -22,19 +22,24 @@
 #
 #
 """Progress Window GUI"""
-from time import sleep
+import sys
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
+from gi.repository import Gtk, GLib
 
-class Main(Gtk.Window):
+class Main(Gtk.ApplicationWindow):
     """Progress UI Window"""
-    def __init__(self):
+    def __init__(self, app):
         """Progress UI main set-up"""
-        Gtk.Window.__init__(self, title="System Installer")
+        Gtk.Window.__init__(self, title="System Installer", application=app)
         self.grid = Gtk.Grid(orientation=Gtk.Orientation.VERTICAL)
         self.add(self.grid)
         self.set_icon_name("system-installer")
+        self.set_decorated(True)
+        self.set_resizable(False)
+        self.set_deletable(False)
+        self.set_position(Gtk.WindowPosition.CENTER)
+        self.connect("delete-event", self.exit)
 
         self.label = Gtk.Label()
         self.label.set_markup("""
@@ -49,7 +54,6 @@ to: contact@draugeros.org   """)
         self.progress = Gtk.ProgressBar()
         self.progress.set_fraction(0)
         self.progress.set_show_text(True)
-        self.progress.set_text("0 %")
         self.grid.attach(self.progress, 1, 3, 1, 1)
 
         self.file_contents = Gtk.TextBuffer()
@@ -59,12 +63,7 @@ to: contact@draugeros.org   """)
         self.text.set_monospace(True)
         self.grid.attach(self.text, 1, 5, 1, 1)
 
-        #self.read_file()
-        status = True
-        while status:
-            status = self.pulse()
-            sleep(0.05)
-
+        self.source_id = GLib.timeout_add(40, self.pulse)
 
     def read_file(self):
         """Read Progress log"""
@@ -77,26 +76,27 @@ to: contact@draugeros.org   """)
             self.file_contents.set_text("", len(""))
 
         self.show_all()
+        return True
 
 
     def pulse(self):
         """Update progress indicator and log output in GUI"""
-        self.read_file()
         fraction = ""
         try:
             with open("/tmp/system-installer-progress.log", "r") as prog_file:
                 fraction = prog_file.read()
         except FileNotFoundError:
-            fraction = "0"
+            fraction = 0
         try:
             self.progress.set_fraction(int(fraction))
         except ValueError:
             self.progress.set_fraction(0)
-        self.progress.set_text(fraction + " %")
         if fraction == "100":
-            return self.exit("clicked")
+            GLib.source_remove(self.source_id)
+            self.source_id = 0
 
         self.show_all()
+        self.read_file()
         return True
 
     def exit(self, button):
@@ -105,16 +105,23 @@ to: contact@draugeros.org   """)
         self.destroy()
         return False
 
+class Worker(Gtk.Application):
+
+    def __init__(self):
+        Gtk.Application.__init__(self)
+
+    def do_activate(self):
+        win = Main(self)
+        win.show_all()
+
+    def do_startup(self):
+        Gtk.Application.do_startup(self)
+
 def show_progress():
     """Show Progress UI"""
-    window = Main()
-    window.set_decorated(True)
-    window.set_resizable(False)
-    window.set_deletable(False)
-    window.set_position(Gtk.WindowPosition.CENTER)
-    window.connect("delete-event", Main.exit)
-    window.show_all()
-    Gtk.main()
+    window = Worker()
+    exit_status = window.run(sys.argv)
+    # sys.exit(exit_status)
 
 if __name__ == '__main__':
     show_progress()

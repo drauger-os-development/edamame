@@ -81,11 +81,11 @@ INSTALL = UI.confirm.show_confirm(SETTINGS["AUTO_PART"], SETTINGS["ROOT"],
                                   SETTINGS["VARIENT"])
 if INSTALL:
     try:
-        #PROGRESS = threading.Thread(target=UI.progress.show_progress)
-        #PROGRESS.start()
-        Popen("/usr/share/system-installer/ui_surrogate.py")
+        PROGRESS = threading.Thread(target=UI.progress.show_progress)
+        PROGRESS.start()
+        #Popen("/usr/share/system-installer/ui_surrogate.py")
         installer.install(SETTINGS)
-        #PROGRESS.join()
+        PROGRESS.join()
         file_list = listdir("/mnt")
         for each in file_list:
             if each[-3:] in (".sh", ".py", ".7z"):
