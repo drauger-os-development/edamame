@@ -110,7 +110,11 @@ class Main(Gtk.Window):
 
         button4 = Gtk.Button.new_with_label("Exit")
         button4.connect("clicked", self.exit)
-        self.grid.attach(button4, 2, 7, 1, 1)
+        self.grid.attach(button4, 3, 7, 1, 1)
+
+        button5 = Gtk.Button.new_with_label("<-- Back")
+        button5.connect("clicked", self.main_menu)
+        self.grid.attach(button5, 1, 7, 1, 1)
 
         self.show_all()
 
