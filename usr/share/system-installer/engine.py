@@ -104,7 +104,9 @@ This is a stand-in file.
 """)
             copyfile("/tmp/system-installer.log", "/mnt/var/log/system-installer.log")
         UI.success.show_success(SETTINGS)
-    except:
+    except Exception as error:
+        eprint("\nAn Error has occured:\n%s\n" % (error))
+        print("\nAn Error has occured:\n%s\n" % (error))
         UI.error.show_error("""\n\tError detected.\t
 \tPlease see /tmp/system-installer.log for details.\t\n""")
 else:
