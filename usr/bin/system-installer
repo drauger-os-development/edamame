@@ -57,5 +57,5 @@ if ARGC > 1:
 else:
     check_call(["/usr/bin/xhost", "+si:localuser:root"])
     print(Y + "RUNNING LOG LOCATED AT /tmp/system-installer.log" + NC)
-    system("/usr/bin/pkexec /usr/share/system-installer/engine.py 2>/tmp/system-installer.log")
+    system("echo 'toor' | sudo -S /usr/share/system-installer/engine.py 2>/tmp/system-installer.log")
     check_call(["/usr/bin/xhost", "-si:localuser:root"])
