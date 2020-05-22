@@ -247,7 +247,7 @@ class Main(Gtk.Window):
 def dump_settings(settings, path):
     """Dump Settings to File"""
     with open(path, "w+") as dump_file:
-        dump_file.write(json.dumps(settings))
+        json.dump(settings, dump_file, indent=1)
 
 Main.main = report.Main.main
 Main.toggle_ui = report.Main.toggle_ui
