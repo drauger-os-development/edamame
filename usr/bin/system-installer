@@ -24,7 +24,7 @@
 """Command line executable for System Installer"""
 from sys import argv, stderr
 from subprocess import check_call
-from os import system
+from os import system, path
 ARGC = len(argv)
 VERSION = "1.1.9-beta1"
 HELP = """
@@ -58,7 +58,7 @@ else:
     check_call(["/usr/bin/xhost", "+si:localuser:root"])
     print(Y + "RUNNING LOG LOCATED AT /tmp/system-installer.log" + NC)
     exit_code = system("echo 'toor' | sudo -S /usr/share/system-installer/engine.py 2>/tmp/system-installer.log")
-    if exit_code == 256:
+    if ((exit_code == 256) and (not path.exists("/tmp/system-installer.log"))):
         eprint("Error accessing /usr/share/system-installer/engine.py: No such file or directory")
         with open("/tmp/system-installer.log", "w+") as log_file:
             log_file.write("Error accessing /usr/share/system-installer/engine.py: No such file or directory")
