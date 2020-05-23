@@ -3,7 +3,7 @@
 #
 #  installer.sh
 #  
-#  Copyright 2019 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2020 Thomas Castleman <contact@draugeros.org>
 #  
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -25,11 +25,11 @@ R='\033[0;31m'
 G='\033[0;32m'
 Y='\033[1;33m'
 NC='\033[0m'
-echo -e "$Y \bSHELLCHECK: installer.sh $NC"
+echo -e "$Y \PYLINT: installer.py $NC"
 {
-	shellcheck --exclude=SC2206 --shell=bash --severity=warning ../usr/share/system-installer/installer.sh --color=never 2>&1
+	pylint ../usr/share/system-installer/installer.py 2>&1
 } && {
-	echo -e "-$G INSTALLER.SH: GOOD"
+	echo -e "-$G INSTALLER.PY: GOOD"
 } || {
-	echo -e "-$R INSTALLER.SH: NEEDS CORRECTIONS"
+	echo -e "-$R INSTALLER.PY: NEEDS CORRECTIONS"
 }

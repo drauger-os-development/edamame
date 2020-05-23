@@ -57,5 +57,9 @@ if ARGC > 1:
 else:
     check_call(["/usr/bin/xhost", "+si:localuser:root"])
     print(Y + "RUNNING LOG LOCATED AT /tmp/system-installer.log" + NC)
-    system("echo 'toor' | sudo -S /usr/share/system-installer/engine.py 2>/tmp/system-installer.log")
+    exit_code = system("echo 'toor' | sudo -S /usr/share/system-installer/engine.py 2>/tmp/system-installer.log")
+    if exit_code == 256:
+        eprint("Error accessing /usr/share/system-installer/engine.py: No such file or directory")
+        with open("/tmp/system-installer.log", "w+") as log_file:
+            log_file.write("Error accessing /usr/share/system-installer/engine.py: No such file or directory")
     check_call(["/usr/bin/xhost", "-si:localuser:root"])
