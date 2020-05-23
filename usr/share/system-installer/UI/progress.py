@@ -95,6 +95,8 @@ to: contact@draugeros.org   """)
         if fraction == 1:
             remove("/tmp/system-installer-progress.log")
             remove("/mnt/tmp/system-installer-progress.log")
+            Gtk.main_quit("delete-event")
+            self.destroy()
             sys.exit(0)
 
         self.show_all()
