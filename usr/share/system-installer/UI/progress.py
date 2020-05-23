@@ -26,6 +26,7 @@ import sys
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, GLib
+from os import remove
 
 class Main(Gtk.ApplicationWindow):
     """Progress UI Window"""
@@ -92,6 +93,8 @@ to: contact@draugeros.org   """)
         except ValueError:
             self.progress.set_fraction(0)
         if fraction == 1:
+            remove("/tmp/system-installer-progress.log")
+            remove("/mnt/tmp/system-installer-progress.log")
             sys.exit(0)
 
         self.show_all()

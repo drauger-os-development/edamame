@@ -275,7 +275,4 @@ def install(settings):
     except FileNotFoundError:
         pass
     __update__(100)
-    sleep(1)
-    remove("/tmp/system-installer-progress.log")
-    remove("/mnt/tmp/system-installer-progress.log")
     eprint("\t###\tinstaller.py CLOSED\t###\t")
