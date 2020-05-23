@@ -3,7 +3,7 @@
 #
 #  progress.py
 #
-#  Copyright 2019 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2020 Thomas Castleman <contact@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -62,7 +62,7 @@ to: contact@draugeros.org   """)
         self.text.set_monospace(True)
         self.grid.attach(self.text, 1, 5, 1, 1)
 
-        self.source_id = GLib.timeout_add(40, self.pulse)
+        self.source_id = GLib.timeout_add(33, self.pulse)
 
     def read_file(self):
         """Read Progress log"""
