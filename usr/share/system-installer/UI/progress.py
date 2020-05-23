@@ -42,7 +42,7 @@ class Main(Gtk.ApplicationWindow):
 
         self.label = Gtk.Label()
         self.label.set_markup("""
-\tInstalling Drauger OS to your internal hard drive.
+\t<b>Installing Drauger OS to your internal hard drive.</b>
 This may take some time. If you have an error, please send
 the log file (located at /tmp/system-installer.log)
 to: contact@draugeros.org   """)
