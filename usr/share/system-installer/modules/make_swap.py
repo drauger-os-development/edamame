@@ -25,7 +25,7 @@
 from __future__ import print_function
 from sys import stderr
 from math import sqrt
-from subprocess import Popen
+from subprocess import Popen, check_call
 from os import chmod
 from time import sleep
 from psutil import virtual_memory
@@ -62,7 +62,7 @@ def make_swap():
     print("60")
     chmod("/.swapfile", 0o600)
     print("62")
-    Popen(["mkswap", "/.swapfile"])
+    check_call(["mkswap", "/.swapfile"])
     sleep(0.1)
     print("64")
     Popen(["swapon", "/.swapfile"])
