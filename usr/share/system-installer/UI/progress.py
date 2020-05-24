@@ -97,7 +97,8 @@ to: contact@draugeros.org   """)
             remove("/mnt/tmp/system-installer-progress.log")
             Gtk.main_quit("delete-event")
             self.destroy()
-            sys.exit(0)
+            self.source_id = None
+            return False
 
         self.show_all()
         self.read_file()
