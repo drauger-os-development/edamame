@@ -614,7 +614,8 @@ class Main(Gtk.Window):
             self.efi_setting = True
         else:
             self.efi_setting = False
-        self.home_setting = "NULL"
+        if self.home_setting == "":
+            self.home_setting = "NULL"
         self.swap_setting = "FILE"
         if self.disks.get_active_id() is None:
             try:
