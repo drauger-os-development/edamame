@@ -548,7 +548,7 @@ class Main(Gtk.Window):
 
     def auto_home_setup(self, widget):
         """Handle preexisting vs making a new home directory"""
-        if widget.get_active() == 1:
+        if widget.get_active():
             pre_exist = Gtk.CheckButton.new_with_label("Pre-existing")
             pre_exist.connect("toggled", self.auto_home_setup2)
             self.grid.attach(pre_exist, 1, 4, 2, 1)
