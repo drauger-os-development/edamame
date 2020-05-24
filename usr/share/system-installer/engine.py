@@ -59,7 +59,7 @@ if len(DISK["blockdevices"]) < 1:
     sys.exit(2)
 SETTINGS = UI.main.show_main()
 try:
-    if SETTINGS == 1:
+    if ((SETTINGS == 1) or (len(SETTINGS) == 0)):
         sys.exit(1)
     elif path.exists(SETTINGS):
         with open(SETTINGS, "r") as quick_install_file:
