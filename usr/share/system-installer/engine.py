@@ -85,7 +85,6 @@ if INSTALL:
         PROGRESS.start()
         #Popen("/usr/share/system-installer/ui_surrogate.py")
         installer.install(SETTINGS)
-        PROGRESS.join(timeout=0.25)
         file_list = listdir("/mnt")
         for each in file_list:
             if each[-3:] in (".sh", ".py", ".7z"):
