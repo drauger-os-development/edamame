@@ -49,9 +49,9 @@ class Main(Gtk.Window):
         self.log_setting = False
         self.custom_setting = False
         self.settings = settings
-        self.main_menu()
+        self.main_menu("clicked")
 
-    def main_menu(self):
+    def main_menu(self, widget):
         """Main Success Window"""
         self.clear_window()
 
