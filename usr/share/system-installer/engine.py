@@ -24,9 +24,10 @@
 """Main installation Engine"""
 from __future__ import print_function
 import sys
-from subprocess import check_output
+from subprocess import check_output, Popen
 from os import path, listdir, remove, fork, kill
 import json
+import threading
 from psutil import virtual_memory
 from shutil import copyfile
 import UI
@@ -81,11 +82,8 @@ INSTALL = UI.confirm.show_confirm(SETTINGS["AUTO_PART"], SETTINGS["ROOT"],
 if INSTALL:
     try:
         # fork() to get proper multi-threading needs
-        pid = fork()
-        # if pid == 0 we are child. Child runs progress bar.
-        if pid == 0:
-            UI.progress.show_progress()
-            sys.exit(0)
+        PROGRESS = threading.Thread(target=UI.progress.show_progress)
+        PROGRESS.start()
         # otherwise, we are parent and should continue
         installer.install(SETTINGS)
         file_list = listdir("/mnt")
@@ -105,8 +103,8 @@ if INSTALL:
 This is a stand-in file.
 """)
             copyfile("/tmp/system-installer.log", "/mnt/var/log/system-installer.log")
-        kill(pid, 15)
-        UI.success.show_success(SETTINGS)
+        Popen(["/usr/share/system-installer/success.py", json.dumps(SETTINGS)])
+        PROGRESS.join()
     except Exception as error:
         eprint("\nAn Error has occured:\n%s\n" % (error))
         print("\nAn Error has occured:\n%s\n" % (error))
