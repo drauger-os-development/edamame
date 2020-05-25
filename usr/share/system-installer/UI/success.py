@@ -232,7 +232,6 @@ class Main(Gtk.Window):
         """Dump Settings Dialog"""
         dialog = Gtk.FileChooserDialog("System Installer", self,
                                        Gtk.FileChooserAction.SAVE,
-                                       Gtk.FileChooser.set_current_name("settings.json"),
                                        (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                                         Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
 
