@@ -31,6 +31,9 @@ import json
 import multiprocessing
 from psutil import virtual_memory
 from shutil import copyfile
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gdk
 import UI
 import installer
 
@@ -42,6 +45,7 @@ def eprint(*args, **kwargs):
 
 
 eprint("\t###\t%s STARTED\t###\t" % (sys.argv[0]))
+Gdk.threads_init()
 MEMCHECK = virtual_memory().total
 if (MEMCHECK / 1024 ** 2) < 1024:
     UI.error.show_error("\n\tRAM is less than 1 GB.\t\n")
