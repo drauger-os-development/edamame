@@ -31,9 +31,6 @@ import json
 import multiprocessing
 from psutil import virtual_memory
 from shutil import copyfile
-import gi
-gi.require_version('Gdk', '3.0')
-from gi.repository import Gdk
 import UI
 import installer
 
@@ -87,10 +84,12 @@ INSTALL = UI.confirm.show_confirm(SETTINGS["AUTO_PART"], SETTINGS["ROOT"],
 if INSTALL:
     try:
         # fork() to get proper multi-threading needs
-        PROGRESS = multiprocessing.Process(target=UI.progress.show_progress)
+        # PROGRESS = multiprocessing.Process(target=UI.progress.show_progress)
         # PROGRESS = threading.Thread(target=UI.progress.show_progress)
-        PROGRESS.start()
+        # PROGRESS.start()
         # otherwise, we are parent and should continue
+        process = Popen("/usr/share/system-installer/progress.py")
+        pid = process.pid
         installer.install(SETTINGS)
         file_list = listdir("/mnt")
         for each in file_list:
@@ -110,8 +109,9 @@ This is a stand-in file.
 """)
             copyfile("/tmp/system-installer.log", "/mnt/var/log/system-installer.log")
         Popen(["/usr/share/system-installer/success.py", json.dumps(SETTINGS)])
-        PROGRESS.terminate()
-        PROGRESS.join()
+        kill(pid, 15)
+        # PROGRESS.terminate()
+        # PROGRESS.join()
     except Exception as error:
         eprint("\nAn Error has occured:\n%s\n" % (error))
         print("\nAn Error has occured:\n%s\n" % (error))
