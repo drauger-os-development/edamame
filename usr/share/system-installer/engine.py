@@ -87,7 +87,7 @@ INSTALL = UI.confirm.show_confirm(SETTINGS["AUTO_PART"], SETTINGS["ROOT"],
 if INSTALL:
     try:
         # fork() to get proper multi-threading needs
-        PROGRESS = multithreading.Process(target=UI.progress.show_progress)
+        PROGRESS = multiprocessing.Process(target=UI.progress.show_progress)
         # PROGRESS = threading.Thread(target=UI.progress.show_progress)
         PROGRESS.start()
         # otherwise, we are parent and should continue
