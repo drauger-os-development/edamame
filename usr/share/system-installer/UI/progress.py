@@ -23,10 +23,13 @@
 #
 """Progress Window GUI"""
 import sys
+import signal
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, GLib
 from os import remove
+
+window = None
 
 class Main(Gtk.ApplicationWindow):
     """Progress UI Window"""
@@ -108,19 +111,24 @@ class Worker(Gtk.Application):
 
     def __init__(self):
         Gtk.Application.__init__(self)
-
-    def do_activate(self):
-        win = Main(self)
-        win.show_all()
+        self.win = Main(self)
+        self.win.show_all()
 
     def do_startup(self):
         Gtk.Application.do_startup(self)
 
 def show_progress():
     """Show Progress UI"""
+    signal.signal(signal.SIGTERM, handle_sig_term)
+    global window
     window = Worker()
     exit_status = window.run(sys.argv)
-    # sys.exit(exit_status)
+
+def handle_sig_term(signum, frame):
+    print("SIGTERM RECEIVED")
+    global window
+    window.win.destroy()
+    sys.exit()
 
 if __name__ == '__main__':
     show_progress()
