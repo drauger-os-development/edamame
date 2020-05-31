@@ -32,7 +32,7 @@ import multiprocessing
 from psutil import virtual_memory
 from shutil import copyfile
 import gi
-gi.require_version('Gtk', '3.0')
+gi.require_version('Gdk', '3.0')
 from gi.repository import Gdk
 import UI
 import installer
