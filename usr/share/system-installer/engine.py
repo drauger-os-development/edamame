@@ -27,7 +27,8 @@ import sys
 from subprocess import check_output, Popen
 from os import path, listdir, remove, fork, kill
 import json
-import threading
+# import threading
+import multiprocessing
 from psutil import virtual_memory
 from shutil import copyfile
 import UI
@@ -82,7 +83,8 @@ INSTALL = UI.confirm.show_confirm(SETTINGS["AUTO_PART"], SETTINGS["ROOT"],
 if INSTALL:
     try:
         # fork() to get proper multi-threading needs
-        PROGRESS = threading.Thread(target=UI.progress.show_progress)
+        PROGRESS = multithreading.Process(target=UI.progress.show_progress)
+        # PROGRESS = threading.Thread(target=UI.progress.show_progress)
         PROGRESS.start()
         # otherwise, we are parent and should continue
         installer.install(SETTINGS)
@@ -104,6 +106,7 @@ This is a stand-in file.
 """)
             copyfile("/tmp/system-installer.log", "/mnt/var/log/system-installer.log")
         Popen(["/usr/share/system-installer/success.py", json.dumps(SETTINGS)])
+        PROGRESS.terminate()
         PROGRESS.join()
     except Exception as error:
         eprint("\nAn Error has occured:\n%s\n" % (error))
