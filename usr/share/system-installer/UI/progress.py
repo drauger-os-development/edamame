@@ -34,8 +34,10 @@ window = None
 class Main(Gtk.ApplicationWindow):
     """Progress UI Window"""
     def __init__(self, app):
+    # def __init__(self):
         """Progress UI main set-up"""
         Gtk.Window.__init__(self, title="System Installer", application=app)
+        # Gtk.Window.__init__(self, title="System Installer")
         self.grid = Gtk.Grid(orientation=Gtk.Orientation.VERTICAL)
         self.add(self.grid)
         self.set_icon_name("system-installer")
@@ -116,6 +118,10 @@ class Worker(Gtk.Application):
 
     def do_startup(self):
         Gtk.Application.do_startup(self)
+
+    def do_activate(self):
+        win = Main(self)
+        win.show_all()
 
 def show_progress():
     """Show Progress UI"""
