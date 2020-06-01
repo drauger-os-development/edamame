@@ -129,7 +129,6 @@ class Main(Gtk.Window):
         button1 = Gtk.Button.new_with_label("<-- Back")
         button1.connect("clicked", self.main)
         self.grid.attach(button1, 1, 12, 1, 1)
-
         self.show_all()
 
     def ram_toggle(self, widget):
@@ -255,7 +254,6 @@ class Main(Gtk.Window):
         label = Gtk.Label()
         label.set_markup("\n\n\t\tSending Report. Please Wait . . .\t\t\n\n")
         self.grid.attach(label, 1, 1, 1, 1)
-
         self.show_all()
 
         try:
