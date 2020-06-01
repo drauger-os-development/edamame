@@ -3,7 +3,7 @@
 #
 #  bin.sh
 #  
-#  Copyright 2019 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2020 Thomas Castleman <contact@draugeros.org>
 #  
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -85,15 +85,15 @@ localuser:root being removed from access control list"
 			exit 1
 		fi
 		log_output=$(</tmp/system-installer.log)
-		stdin="Error accessing /usr/share/system-installer/engine.sh: No such file or directory"
+		stdin="Error accessing /usr/share/system-installer/engine.py: No such file or directory"
 		if [ "$log_output" == "$stdin" ]; then
-			echo -e "\n- $G \bATTEMPTED TO CALL engine.sh: TRUE$NC"
+			echo -e "\n- $G \bATTEMPTED TO CALL engine.py: TRUE$NC"
 		else
-			echo -e "\n- $R \bATTEMPTED TO CALL engine.sh: FALSE$NC"
+			echo -e "\n- $R \bATTEMPTED TO CALL engine.py: FALSE$NC"
 		fi
 	fi
 done
 for each in $list; do
-	echo -e "- $Y \bPYCODESTYLE: $each $NC"
-	pycodestyle --ignore=W191 ../usr/bin/"$each"
+	echo -e "- $Y \bPYLINT: $each $NC"
+	pylint ../usr/bin/"$each"
 done

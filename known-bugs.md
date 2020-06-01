@@ -2,10 +2,7 @@ List of known bugs
 - built in manual partitioner is TERRIBLE
   - This is disabled, in favor of using `gparted`
   - built in auto-partitioner isn't great but it works
-- No slideshow or installation segment progress bar, or some other form of progress indicator
-  - This is talking about `progress.py`, right now to get some form of output we are using `zenity`
-- Consistent false positives
-- `chroot` is not opening when user requests access to it post-install
+
 - systems with 16+ drives in them cannot have root on the 16th drive during installation
 	- This is due to a parsing issue when installing to the correct NVMe drive
 	- See Step 12 during GRUB installation in MASTER.sh for what is causing this issue
@@ -16,3 +13,5 @@ List of known bugs
 			- A server (which Drauger OS should not be running on)
 			- A SUPER high-end machine which likely supports UEFI
 - installer.sh only supports default.config for now
+- X11 keeps throwing errors because of the multi-threaded back-end
+	- This should be fixable by calling `XInitThreads()` but that is strictly a C function. We could create a Python binding, but that is much harder than using the depricated function `Gdk.threads_init()`

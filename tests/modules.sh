@@ -3,7 +3,7 @@
 #
 #  modules.sh
 #  
-#  Copyright 2019 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2020 Thomas Castleman <contact@draugeros.org>
 #  
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -26,13 +26,13 @@ G='\033[0;32m'
 Y='\033[1;33m'
 NC='\033[0m'
 cd ../usr/share/system-installer/modules
-MODSH_LIST=$(ls | grep ".sh$" )
-MODPY_LIST=$(ls | grep ".py$")
+MODSH_LIST=$(ls *.sh)
+MODPY_LIST=$(ls *.py)
 for each in $MODSH_LIST; do
 	echo -e "- $Y \bSHELLCHECK: $each $NC"
 	shellcheck --exclude=SC2206 --shell=bash --severity=warning "$each" --color=never 2>&1
 done
 for each in $MODPY_LIST; do
-	echo -e "- $Y \bPYCODESTYLE: $each $NC"
-	pycodestyle --ignore=W191 "$each"
+	echo -e "- $Y \bPYLINT: $each $NC"
+	pylint "$each"
 done

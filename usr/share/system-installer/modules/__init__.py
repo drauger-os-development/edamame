@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-#  install_updates.sh
+#  __init__.py
 #
 #  Copyright 2020 Thomas Castleman <contact@draugeros.org>
 #
@@ -21,16 +21,10 @@
 #  MA 02110-1301, USA.
 #
 #
-builtin echo -e "\t###\tinstall_updates.sh STARTED\t###\t" 1>&2
-set -e
-set -o pipefail
-apt update 2>/dev/null 1>>/tmp/system-installer.log
-builtin echo "67"
-apt -y dist-upgrade 2>/dev/null 1>>/tmp/system-installer.log
-builtin echo "70"
-apt -y autoremove 2>/dev/null 1>>/tmp/system-installer.log
-builtin echo "72"
-apt clean 2>/dev/null 1>>/tmp/system-installer.log
-set +e
-builtin echo "74"
-builtin echo -e "\t###\tinstall_updates.sh CLOSED\t###\t" 1>&2
+"""Import modules as proper names"""
+import modules.master as master
+import modules.make_swap as make_swap
+import modules.auto_login_set as auto_login_set
+import modules.set_locale as set_locale
+import modules.set_time as set_time
+import modules.systemd_boot_config as systemd_boot_config

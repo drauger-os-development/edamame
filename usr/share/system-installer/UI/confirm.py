@@ -21,62 +21,31 @@
 #  MA 02110-1301, USA.
 #
 #
+"""Confirm UI for System Installer"""
 from __future__ import print_function
+from sys import argv, stderr
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
-from sys import argv
-SETTINGS = argv[1]
-SETTINGS = SETTINGS.split(" , ")
+
+
 
 def eprint(*args, **kwargs):
-    print(*args, file=sys.stderr, **kwargs)
+    """Make it easier for us to print to stderr"""
+    print(*args, file=stderr, **kwargs)
 
-# Partitioning settings
-AUTO_PART = SETTINGS[0]
-ROOT = SETTINGS[1]
-EFI = SETTINGS[2]
-HOME = SETTINGS[3]
-SWAP = SETTINGS[4]
+class Main(Gtk.Window):
+    """UI Confirmation Class"""
 
-# Locale settings
-LANG = SETTINGS[5]
-TIME_ZONE = SETTINGS[6]
-
-# User settings
-USERNAME = SETTINGS[7]
-COMPNAME = SETTINGS[8]
-PASS = SETTINGS[9]
-
-# Options settings
-EXTRAS = SETTINGS[10]
-UPDATES = SETTINGS[11]
-LOGIN = SETTINGS[12]
-
-#Keyboard Settings
-MODEL = SETTINGS[13]
-LAYOUT = SETTINGS[14]
-VARIENT = SETTINGS[15]
-if EXTRAS != "0" and EXTRAS != None:
-    EXTRAS = "Yes"
-else:
-    EXTRAS = "No"
-if UPDATES != "0" and UPDATES != None:
-    UPDATES = "Yes"
-else:
-    UPDATES = "No"
-if LOGIN != "0" and LOGIN != None:
-    LOGIN = "Yes"
-else:
-    LOGIN = "No"
-
-class main(Gtk.Window):
-
-    def __init__(self):
+    def __init__(self, AUTO_PART, ROOT, EFI, HOME, SWAP, LANG, TIME_ZONE,
+                 USERNAME, PASS, COMPNAME, EXTRAS, UPDATES, LOGIN, MODEL,
+                 LAYOUT, VARIENT):
+        """set up confirmation UI"""
         Gtk.Window.__init__(self, title="System Installer")
-        self.grid=Gtk.Grid(orientation=Gtk.Orientation.VERTICAL)
+        self.install = False
+        self.grid = Gtk.Grid(orientation=Gtk.Orientation.VERTICAL)
         self.add(self.grid)
-        self.set_icon_from_file("/usr/share/icons/Drauger/720x720/Menus/install-drauger.png")
+        self.set_icon_name("system-installer")
 
         self.label = Gtk.Label()
         self.label.set_markup("""
@@ -101,14 +70,14 @@ class main(Gtk.Window):
 
         self.label5 = Gtk.Label()
 
-        if (AUTO_PART == "True"):
+        if AUTO_PART == "True":
             self.label5.set_markup("""AUTO PARTITIONING ENABLED\t
 INSTALLATION DRIVE: %s""" % (ROOT))
         else:
             self.label5.set_markup("""ROOT: %s
 EFI: %s
 HOME: %s
-SWAP: %s""" % (ROOT,EFI,HOME,SWAP))
+SWAP: %s""" % (ROOT, EFI, HOME, SWAP))
 
         self.label5.set_justify(Gtk.Justification.LEFT)
         self.grid.attach(self.label5, 3, 4, 1, 1)
@@ -183,7 +152,7 @@ SWAP: %s""" % (ROOT,EFI,HOME,SWAP))
         self.grid.attach(self.label23, 1, 12, 1, 1)
 
         self.label24 = Gtk.Label()
-        self.label24.set_markup(LOGIN)
+        self.label24.set_markup(str(LOGIN))
         self.label24.set_justify(Gtk.Justification.CENTER)
         self.grid.attach(self.label24, 3, 12, 1, 1)
 
@@ -200,7 +169,7 @@ SWAP: %s""" % (ROOT,EFI,HOME,SWAP))
         self.grid.attach(self.label19, 1, 14, 1, 1)
 
         self.label20 = Gtk.Label()
-        self.label20.set_markup(EXTRAS)
+        self.label20.set_markup(str(EXTRAS))
         self.label20.set_justify(Gtk.Justification.CENTER)
         self.grid.attach(self.label20, 3, 14, 1, 1)
 
@@ -210,7 +179,7 @@ SWAP: %s""" % (ROOT,EFI,HOME,SWAP))
         self.grid.attach(self.label21, 1, 15, 1, 1)
 
         self.label22 = Gtk.Label()
-        self.label22.set_markup(UPDATES)
+        self.label22.set_markup(str(UPDATES))
         self.label22.set_justify(Gtk.Justification.CENTER)
         self.grid.attach(self.label22, 3, 15, 1, 1)
 
@@ -249,23 +218,89 @@ SWAP: %s""" % (ROOT,EFI,HOME,SWAP))
         self.grid.attach(self.button1, 3, 19, 1, 1)
 
         self.button2 = Gtk.Button.new_with_label("Exit")
-        self.button2.connect("clicked", self.onexitclicked)
+        self.button2.connect("clicked", self.exit)
         self.grid.attach(self.button2, 1, 19, 1, 1)
 
-    def onnextclicked(self,button):
-            exit(0)
-    def onexitclicked(self,button):
-            exit(1)
+    def onnextclicked(self, button):
+        """set install to false"""
+        self.install = True
+        self.exit("clicked")
 
+    def onexitclicked(self, button):
+        """set install to true"""
+        self.install = False
+        self.exit("clicked")
 
-def show_main():
-    window = main()
-    window.set_decorated(False)
+    def exit(self, button):
+        """exit"""
+        Gtk.main_quit("delete-event")
+        self.destroy()
+        print(1)
+        return 1
+
+    def return_install(self):
+        """Getter for data"""
+        return self.install
+
+def show_confirm(auto_part, root, efi, home, swap, lang, time_zone, username,
+                 password, comp_name, extras, updates, login, model, layout,
+                 varient):
+    """Show confirmation dialog"""
+    window = Main(auto_part, root, efi, home, swap, lang, time_zone, username,
+                  password, comp_name, extras, updates, login, model, layout,
+                  varient)
+    window.set_decorated(True)
     window.set_resizable(False)
     window.set_position(Gtk.WindowPosition.CENTER)
-    window.connect("delete-event", Gtk.main_quit)
+    window.connect("delete-event", Main.exit)
     window.show_all()
     Gtk.main()
+    data = window.return_install()
+    window.exit("clicked")
+    return data
 
+if __name__ == '__main__':
+    SETTINGS = argv[1]
+    SETTINGS = SETTINGS.split(" , ")
 
-show_main()
+    # Partitioning settings
+    AUTO_PART = SETTINGS[0]
+    ROOT = SETTINGS[1]
+    EFI = SETTINGS[2]
+    HOME = SETTINGS[3]
+    SWAP = SETTINGS[4]
+
+    # Locale settings
+    LANG = SETTINGS[5]
+    TIME_ZONE = SETTINGS[6]
+
+    # User settings
+    USERNAME = SETTINGS[7]
+    COMPNAME = SETTINGS[8]
+    PASS = SETTINGS[9]
+
+    # Options settings
+    EXTRAS = SETTINGS[10]
+    UPDATES = SETTINGS[11]
+    LOGIN = SETTINGS[12]
+
+    #Keyboard Settings
+    MODEL = SETTINGS[13]
+    LAYOUT = SETTINGS[14]
+    VARIENT = SETTINGS[15]
+    if EXTRAS not in ("0", None):
+        EXTRAS = "Yes"
+    else:
+        EXTRAS = "No"
+    if UPDATES not in ("0", None):
+        UPDATES = "Yes"
+    else:
+        UPDATES = "No"
+    if LOGIN not in ("0", None):
+        LOGIN = "Yes"
+    else:
+        LOGIN = "No"
+
+    show_confirm(AUTO_PART, ROOT, EFI, HOME, SWAP, LANG, TIME_ZONE, USERNAME,
+                 PASS, COMPNAME, EXTRAS, UPDATES, LOGIN, MODEL, LAYOUT,
+                 VARIENT)
