@@ -123,8 +123,8 @@ class Worker(Gtk.Application):
         Gtk.Application.do_startup(self)
 
     def do_activate(self):
-        win = Main(self)
-        win.show_all()
+        self.win = Main(self)
+        self.win.show_all()
 
 def show_progress():
     """Show Progress UI"""
