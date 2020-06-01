@@ -21,104 +21,107 @@
 #  MA 02110-1301, USA.
 #
 #
+"""Error dialog for System Installer"""
+from sys import argv
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
-from sys import argv
-from subprocess import Popen, check_output, PIPE, STDOUT
-from os import remove, listdir, getenv
-from datetime import datetime
-import report
-
-display = str(argv[1])
-
-class main(Gtk.Window):
-	def __init__(self):
-		global display
-		Gtk.Window.__init__(self, title="System Installer")
-		self.grid=Gtk.Grid(orientation=Gtk.Orientation.VERTICAL)
-		self.add(self.grid)
-		self.set_icon_from_file("/usr/share/icons/Drauger/720x720/Menus/install-drauger.png")
-		self.scrolling = False
-		self.opt_setting = False
-		self.cpu_setting = False
-		self.gpu_setting = False
-		self.ram_setting = False
-		self.disk_setting = False
-		self.log_setting = False
-		self.custom_setting = False
-		self.main_menu("clicked")
-
-	def main_menu(self, widget):
-		self.clear_window()
-
-		self.label = Gtk.Label()
-		self.label.set_markup("<b>" + display  + "</b>")
-		self.label.set_justify(Gtk.Justification.CENTER)
-		self.grid.attach(self.label, 1, 1, 3, 1)
-
-		self.label2 = Gtk.Label()
-		self.label2.set_markup("""
-	If you wish to notify the developers of this failed installation,\t\t
-	you can send an installation report below.
-	""")
-		self.label2.set_justify(Gtk.Justification.CENTER)
-		self.grid.attach(self.label2, 1, 2, 3, 1)
-
-		self.button2 = Gtk.Button.new_with_label("Exit")
-		self.button2.connect("clicked", self.exit)
-		self.grid.attach(self.button2, 1, 3, 1, 1)
-
-		self.button = Gtk.Button.new_with_label("Send Installation report")
-		self.button.connect("clicked", self.main)
-		self.grid.attach(self.button, 3, 3, 1, 1)
-
-		self.show_all()
-
-	def clear_window(self):
-		children = self.grid.get_children()
-		for each in children:
-			self.grid.remove(each)
-		if (self.scrolling):
-			self.scrolled_window.remove(self.grid)
-			self.remove(self.scrolled_window)
-			self.add(self.grid)
-			self.scrolling = False
-			self.set_default_size(-1, -1)
-
-	def exit(self,button):
-		Gtk.main_quit("delete-event")
-		exit(0)
-
-main.main = report.main.main
-main.toggle_UI = report.main.toggle_UI
-main.message_accept = report.main.message_accept
-main.message_handler = report.main.message_handler
-main.generate_message = report.main.generate_message
-main.preview_message = report.main.preview_message
-main.send_report = report.main.send_report
-main.cpu_explaination = report.main.cpu_explaination
-main.cpu_toggle = report.main.cpu_toggle
-main.disk_explaination = report.main.disk_explaination
-main.disk_toggle = report.main.disk_toggle
-main.generate_message = report.main.generate_message
-main.gpu_explaination = report.main.gpu_explaination
-main.gpu_toggle = report.main.gpu_toggle
-main.log_explaination = report.main.log_explaination
-main.log_toggle = report.main.log_toggle
-main.ram_explaination = report.main.ram_explaination
-main.ram_toggle = report.main.ram_toggle
-main.toggle_UI = report.main.toggle_UI
-main.main = report.main.main
-
-def show_main():
-	window = main()
-	window.set_decorated(True)
-	window.set_resizable(False)
-	window.set_position(Gtk.WindowPosition.CENTER)
-	window.connect("delete-event", Gtk.main_quit)
-	window.show_all()
-	Gtk.main()
+import UI.report as report
 
 
-show_main()
+class Main(Gtk.Window):
+    """UI Error Class"""
+    def __init__(self, display):
+        """set up Error UI"""
+        self.display = display
+        Gtk.Window.__init__(self, title="System Installer")
+        self.grid = Gtk.Grid(orientation=Gtk.Orientation.VERTICAL)
+        self.add(self.grid)
+        self.set_icon_name("system-installer")
+        self.scrolling = False
+        self.opt_setting = False
+        self.cpu_setting = False
+        self.gpu_setting = False
+        self.ram_setting = False
+        self.disk_setting = False
+        self.log_setting = False
+        self.custom_setting = False
+        self.main_menu("clicked")
+
+    def main_menu(self, widget):
+        """Main Menu"""
+        self.clear_window()
+
+        self.label = Gtk.Label()
+        self.label.set_markup("<b>" + self.display  + "</b>")
+        self.label.set_justify(Gtk.Justification.CENTER)
+        self.grid.attach(self.label, 1, 1, 3, 1)
+
+        self.label2 = Gtk.Label()
+        self.label2.set_markup("""
+    If you wish to notify the developers of this failed installation,\t\t
+    you can send an installation report below.
+    """)
+        self.label2.set_justify(Gtk.Justification.CENTER)
+        self.grid.attach(self.label2, 1, 2, 3, 1)
+
+        self.button2 = Gtk.Button.new_with_label("Exit")
+        self.button2.connect("clicked", self.exit)
+        self.grid.attach(self.button2, 1, 3, 1, 1)
+
+        self.button = Gtk.Button.new_with_label("Send Installation report")
+        self.button.connect("clicked", self.main)
+        self.grid.attach(self.button, 3, 3, 1, 1)
+
+        self.show_all()
+
+    def clear_window(self):
+        """Clear window of everything"""
+        children = self.grid.get_children()
+        for each in children:
+            self.grid.remove(each)
+        if self.scrolling:
+            self.scrolled_window.remove(self.grid)
+            self.remove(self.scrolled_window)
+            self.add(self.grid)
+            self.scrolling = False
+            self.set_default_size(-1, -1)
+
+    def exit(self, button):
+        """Exit"""
+        Gtk.main_quit("delete-event")
+        self.destroy()
+        return 0
+
+Main.main = report.Main.main
+Main.toggle_UI = report.Main.toggle_ui
+Main.message_accept = report.Main.message_accept
+Main.message_handler = report.Main.message_handler
+Main.generate_message = report.Main.generate_message
+Main.preview_message = report.Main.preview_message
+Main.send_report = report.Main.send_report
+Main.cpu_explaination = report.Main.cpu_explaination
+Main.cpu_toggle = report.Main.cpu_toggle
+Main.disk_explaination = report.Main.disk_explaination
+Main.disk_toggle = report.Main.disk_toggle
+Main.generate_message = report.Main.generate_message
+Main.gpu_explaination = report.Main.gpu_explaination
+Main.gpu_toggle = report.Main.gpu_toggle
+Main.log_explaination = report.Main.log_explaination
+Main.log_toggle = report.Main.log_toggle
+Main.ram_explaination = report.Main.ram_explaination
+Main.ram_toggle = report.Main.ram_toggle
+
+def show_error(display):
+    """Show Error Dialog"""
+    window = Main(display)
+    window.set_decorated(True)
+    window.set_resizable(False)
+    window.set_position(Gtk.WindowPosition.CENTER)
+    window.connect("delete-event", Main.exit)
+    window.show_all()
+    Gtk.main()
+
+if __name__ == '__main__':
+    DISPLAY = str(argv[1])
+    show_error(DISPLAY)
