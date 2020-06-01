@@ -117,8 +117,7 @@ class Worker(Gtk.Application):
 
     def __init__(self):
         Gtk.Application.__init__(self)
-        self.win = Main(self)
-        self.win.show_all()
+        self.win = None
 
     def do_startup(self):
         Gtk.Application.do_startup(self)
