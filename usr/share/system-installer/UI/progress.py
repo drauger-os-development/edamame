@@ -76,6 +76,10 @@ to: contact@draugeros.org   """)
         try:
             with open("/tmp/system-installer.log", "r") as read_file:
                 text = read_file.read()
+            if len(text.split("\n")) > 7:
+                text = text.split("\n")
+                text = text[-8:-1]
+                "\n".join(text)
             self.file_contents.set_text(text, len(text))
         except FileNotFoundError:
             self.file_contents.set_text("", len(""))
