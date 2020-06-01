@@ -79,7 +79,7 @@ to: contact@draugeros.org   """)
             if len(text.split("\n")) > 7:
                 text = text.split("\n")
                 text = text[-8:-1]
-                "\n".join(text)
+                text = "\n".join(text)
             self.file_contents.set_text(text, len(text))
         except FileNotFoundError:
             self.file_contents.set_text("", len(""))
