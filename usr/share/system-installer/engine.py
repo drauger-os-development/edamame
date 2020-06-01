@@ -112,6 +112,7 @@ This is a stand-in file.
         # PROGRESS.terminate()
         # PROGRESS.join()
     except Exception as error:
+        kill(pid, 15)
         eprint("\nAn Error has occured:\n%s\n" % (error))
         print("\nAn Error has occured:\n%s\n" % (error))
         UI.error.show_error("""\n\tError detected.\t
