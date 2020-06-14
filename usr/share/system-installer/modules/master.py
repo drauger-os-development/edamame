@@ -230,13 +230,13 @@ def set_plymouth_theme():
     process.communicate(input=bytes("2\n", "utf-8"))
     __update__(86)
 
-def install_kernel():
+def install_kernel(release):
     """Install kernel from kernel.7z"""
     # we are going to do offline kernel installation from now on.
     # it's just easier and more reliable
     check_call(["7z", "x", "/kernel.7z"], stdout=stderr.buffer)
-    check_call(["apt", "purge", "-y", "linux-headers-drauger",
-                "linux-image-drauger"], stdout=stderr.buffer)
+    check_call(["apt", "purge", "-y", "linux-headers-" + release,
+                "linux-image-" + release], stdout=stderr.buffer)
     check_call(["apt", "autoremove", "-y", "--purge"], stdout=stderr.buffer)
     check_call(["dpkg", "-R", "--install", "kernel/"], stdout=stderr.buffer)
     rmtree("/kernel")
@@ -296,9 +296,9 @@ def _install_systemd_boot(release, root):
 
 def setup_lowlevel(efi, root):
     """Set up kernel and bootloader"""
-    install_kernel()
-    set_plymouth_theme()
     release = check_output(["uname", "--release"]).decode()[0:-1]
+    install_kernel(release)
+    set_plymouth_theme()
     eprint("\n\t###\tMAKING INITRAMFS\t###\t")
     check_call(["mkinitramfs", "-o", "/boot/initrd.img-" + release], stdout=stderr.buffer)
     install_bootloader(efi, root, release)

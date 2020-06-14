@@ -94,7 +94,7 @@ class Main(Gtk.Window):
         return 0
 
 Main.main = report.Main.main
-Main.toggle_UI = report.Main.toggle_ui
+Main.toggle_ui = report.Main.toggle_ui
 Main.message_accept = report.Main.message_accept
 Main.message_handler = report.Main.message_handler
 Main.generate_message = report.Main.generate_message

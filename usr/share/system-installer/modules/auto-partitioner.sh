@@ -46,13 +46,13 @@
         builtin echo "DRIVE HAS PARTITION TABLE. NO NEED TO RE-MAKE."
     else
         builtin echo "MAKING NEW PARTITION TABLE."
-        if [ "$EFI" == "True" ]; then
+        if [ "$EFI" == "True" ] || [ "$EFI" == "TRUE" ]; then
             parted --script "$INSTALL_DISK" mktable gpt
         else
             parted --script "$INSTALL_DISK" mktable msdos
         fi
     fi
-    if [ "$EFI" == "True" ]; then
+    if [ "$EFI" == "True" ] || [ "$EFI" == "TRUE" ]; then
         # we need 2 partitions: /boot/efi and /
         # we make /boot/efi first, then /
 
@@ -101,7 +101,7 @@
     partprobe
     builtin echo -e "\t###\tauto-partioner.sh CLOSED\t###\t"
 } 1>&2
-if [ "$EFI" == "True" ]; then
+if [ "$EFI" == "True" ] || [ "$EFI" == "TRUE" ]; then
     builtin echo "{\"EFI\":\"$PART1\", \"ROOT\":\"$PART2\", \"HOME\":\"$PART3\"}"
 else
     builtin echo "{\"EFI\":\"NULL\", \"ROOT\":\"$PART1\", \"HOME\":\"$PART3\"}"

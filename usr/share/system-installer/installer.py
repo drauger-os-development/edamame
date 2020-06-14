@@ -87,7 +87,7 @@ def install(settings):
     if settings["AUTO_PART"]:
         partitioning = json.loads(check_output(
             ["/usr/share/system-installer/modules/auto-partitioner.sh",
-             settings["ROOT"], settings["EFI"], settings["HOME"]]))
+             settings["ROOT"], str(settings["EFI"]), settings["HOME"]]))
         settings["ROOT"] = partitioning["ROOT"]
         settings["EFI"] = partitioning["EFI"]
         settings["HOME"] = partitioning["HOME"]
