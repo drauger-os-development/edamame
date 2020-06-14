@@ -32,6 +32,11 @@ for each in $list; do
 		rm -rf kernel/$each/$each2
 	done
 done
+meta="kernel/linux-meta-xanmod/$(ls kernel/linux-meta-xanmod)"
+dep=$(dpkg-deb --field $meta Depends | sed 's/,/ /g' | awk '{print $1}' | sed 's/-headers//g')
+cd kernel
+rm -rf $(ls | grep -Ev "^linux-meta-xanmod$|^$dep\$")
+cd ..
 # delete empty folders
 find . -type d -empty -print -delete
 7z a -t7z kernel.7z kernel
