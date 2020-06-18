@@ -55,10 +55,9 @@ def make_swap():
     swap = round(swap / multiplyer)
     i = 0
     with open("/.swapfile", "w+") as swapfile:
-        while i < range(round(swap / (multiplyer * load_balancer))):
+        for i in range(round(swap / (multiplyer * load_balancer))):
             swapfile.write(master_string * (multiplyer * load_balancer))
             swapfile.flush()
-            i = i + 1
     print("60")
     chmod("/.swapfile", 0o600)
     print("62")
