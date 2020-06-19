@@ -33,9 +33,11 @@ import UI
 import modules
 import chroot
 
+
 def eprint(*args, **kwargs):
     """Make it easier for us to print to stderr"""
     print(*args, file=stderr, **kwargs)
+
 
 def __mount__(device, path_dir):
     """Mount device at path
@@ -47,6 +49,7 @@ def __mount__(device, path_dir):
         check_call(["mount", device, path_dir])
     except CalledProcessError:
         pass
+
 
 def __update__(percentage):
     """Update progress percentage file"""

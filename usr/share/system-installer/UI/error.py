@@ -53,7 +53,7 @@ class Main(Gtk.Window):
         self.clear_window()
 
         self.label = Gtk.Label()
-        self.label.set_markup("<b>" + self.display  + "</b>")
+        self.label.set_markup("<b>" + self.display + "</b>")
         self.label.set_justify(Gtk.Justification.CENTER)
         self.grid.attach(self.label, 1, 1, 3, 1)
 
@@ -93,6 +93,7 @@ class Main(Gtk.Window):
         self.destroy()
         return 0
 
+
 Main.main = report.Main.main
 Main.toggle_ui = report.Main.toggle_ui
 Main.message_accept = report.Main.message_accept
@@ -112,6 +113,7 @@ Main.log_toggle = report.Main.log_toggle
 Main.ram_explaination = report.Main.ram_explaination
 Main.ram_toggle = report.Main.ram_toggle
 
+
 def show_error(display):
     """Show Error Dialog"""
     window = Main(display)
@@ -121,6 +123,7 @@ def show_error(display):
     window.connect("delete-event", Main.exit)
     window.show_all()
     Gtk.main()
+
 
 if __name__ == '__main__':
     DISPLAY = str(argv[1])

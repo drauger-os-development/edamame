@@ -281,7 +281,36 @@ def _install_systemd_boot(release, root):
     environ["SYSTEMD_RELAX_ESP_CHECKS"] = "1"
     with open("/etc/environment", "a") as envi:
         envi.write("export SYSTEMD_RELAX_ESP_CHECKS=1")
-    check_call(["bootctl", "--path=/boot/efi", "install"], stdout=stderr.buffer)
+    try:
+        check_call(["bootctl", "--path=/boot/efi", "install"], stdout=stderr.buffer)
+    except CalledProcessError as e:
+        eprint("WARNING: bootctl issued CalledProcessError:")
+        eprint(e)
+        eprint("Performing manual installation of systemd-boot.")
+        try:
+            mkdir("/boot/efi/EFI")
+        except FileExistsError:
+            pass
+        try:
+            mkdir("/boot/efi/EFI/systemd")
+        except FileExistsError:
+            pass
+        try:
+            mkdir("/boot/efi/EFI/BOOT")
+        except FileExistsError:
+            pass
+        try:
+            mkdir("/boot/efi/EFI/Linux")
+        except FileExistsError:
+            pass
+        try:
+            copyfile("/usr/lib/systemd/boot/efi/systemd-bootx64.efi", "/boot/efi/EFI/BOOT/BOOTX64.EFI")
+        except FileExistsError:
+            pass
+        try:
+            copyfile("/usr/lib/systemd/boot/efi/systemd-bootx64.efi", "/boot/efi/EFI/systemd/systemd-bootx64.efi")
+        except FileExistsError:
+            pass
     with open("/boot/efi/loader/loader.conf", "w+") as loader_conf:
         loader_conf.write("default Drauger_OS\ntimeout 5\neditor 1")
     try:
