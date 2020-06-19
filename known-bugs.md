@@ -13,5 +13,3 @@ List of known bugs
 			- A server (which Drauger OS should not be running on)
 			- A SUPER high-end machine which likely supports UEFI
 - installer.sh only supports default.config for now
-- X11 keeps throwing errors because of the multi-threaded back-end
-	- This should be fixable by calling `XInitThreads()` but that is strictly a C function. We could create a Python binding, but that is much harder than using the depricated function `Gdk.threads_init()`
