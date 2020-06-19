@@ -111,7 +111,6 @@ to: contact@draugeros.org   """)
 
         self.show_all()
         self.read_file()
-        print(self.get_size())
         return True
 
 class Worker(Gtk.Application):
