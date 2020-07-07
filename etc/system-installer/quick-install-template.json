@@ -1,7 +1,7 @@
 {
 	"DATA":{
-		"LANG":"english",
-		"TIME_ZONE":"America/New_York",
+		"LANG":"en",
+		"TIME_ZONE":"US/Eastern",
 		"AUTO_PART":false,
 		"ROOT":"/dev/sda2",
 		"EFI":"/dev/sda1",
