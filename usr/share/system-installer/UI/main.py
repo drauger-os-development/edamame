@@ -1201,7 +1201,7 @@ Sub-Region""")
         self.grid.attach(self.varient_menu, 2, 4, 3, 1)
 
         button1 = Gtk.Button.new_with_label("Okay -->")
-        button1.connect("clicked", self.onnext5clicked)
+        button1.connect("clicked", self.on_keyboard_completed)
         self.grid.attach(button1, 4, 6, 1, 1)
 
         button2 = Gtk.Button.new_with_label("Exit")
@@ -1236,7 +1236,7 @@ Sub-Region""")
         self.show_all()
 
 
-    def onnext5clicked(self, button):
+    def on_keyboard_completed(self, button):
         """Set default keyboard layout if user did not specify one"""
         if self.model_menu.get_active_id() is not None:
             self.model_setting = self.model_menu.get_active_id()
@@ -1244,10 +1244,14 @@ Sub-Region""")
             self.model_setting = "Generic 105-key PC (intl.)"
         if self.layout_menu.get_active_id() is not None:
             self.layout_setting = self.layout_menu.get_active_id()
+        elif "kernel keymap" in self.model_setting:
+            self.layout_setting = ""
         else:
             self.layout_setting = "English (US)"
         if self.varient_menu.get_active_id() is not None:
             self.varient_setting = self.varient_menu.get_active_id()
+        elif "kernel keymap" in self.model_setting:
+            self.varient_setting = ""
         else:
             self.varient_setting = "euro"
         global KEYBOARD_COMPLETION
