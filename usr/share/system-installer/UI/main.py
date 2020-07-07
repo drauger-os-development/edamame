@@ -137,6 +137,33 @@ class Main(Gtk.Window):
         self.varient_setting = ""
         self.data = {}
 
+        self.langs = {'Afar':"aa", 'Afrikaans':"af", 'Aragonese':"an",
+                 'Arabic':"ar", 'Asturian':"ast", 'Belarusian':"be",
+                 'Bulgarian':"bg", 'Breton':"br", 'Bosnian':"bs",
+                 'Catalan':"ca", 'Czech':"cs", 'Welsh':"cy", "Danish":'da',
+                 "German":'de', "Greek":'el', "English":'en', "Esperanto":'eo',
+                 "Spanish":'es', "Estonian":'et', "Basque":'eu',
+                 "Finnish":'fi', "Faroese":'fo', "French":'fr', "Irish":'ga',
+                 "Gaelic":'gd', "Galician":'gl', "Manx":'gv', "Hebrew":'he',
+                 "Croatian":'hr', "Upper Sorbian":'hsb', "Hungarian":'hu',
+                 "Indonesian":'id', "Icelandic":'is', "Italian":'it',
+                 "Japanese":'ja', "Kashmiri":'ka', "Kazakh":'kk',
+                 "Greenlandic":'kl', "Korean":'ko', "Kurdish":'ku',
+                 "Cornish":'kw', 'Bhili':"bhb",
+                 "Ganda":'lg', "Lithuanian":'lt', "Latvian":'lv',
+                 "Malagasy":'mg', "Maori":'mi', "Macedonian":'mk',
+                 "Malay":'ms', "Maltese":'mt', "Min Nan Chinese":'nan',
+                 "North Ndebele":'nb', "Dutch":'nl', "Norwegian Nynorsk":'nn',
+                 "Occitan":'oc', "Oromo":'om', "Polish":'pl',
+                 "Portuguese":'pt', "Romanian":'ro', "Russian":'ru',
+                 "Slovak":'sk', "Slovenian":'sl', "Northern Sami":'so',
+                 "Albanian":'sq', "Serbian":'sr', "Sotho":'st', "Swedish":'sv',
+                 "Tulu":'tcy', "Tajik":'tg', "Thai":'th', "Tagalog":'tl',
+                 "Turkish":'tr', "Uighur":'ug', "Ukrainian":'uk', "Uzbek":'uz',
+                 "Walloon":'wa', "Xhosa":'xh', "Yiddish":'yi', "Chinese":'zh',
+                 "Zulu":'zu'}
+        self.langs = sorted(self.langs)
+
         # Open initial window
         self.reset("clicked")
 
@@ -998,16 +1025,18 @@ Langauge""")
         self.grid.attach(label2, 2, 2, 1, 1)
 
         self.lang_menu = Gtk.ComboBoxText.new()
-        self.lang_menu.append("english", "English")
-        self.lang_menu.append("chinese", "Chinese")
-        self.lang_menu.append("japanese", "Japanese")
-        self.lang_menu.append("spanish", "Spanish")
-        self.lang_menu.append("hindi", "Hindi")
-        self.lang_menu.append("german", "German")
-        self.lang_menu.append("french", "French")
-        self.lang_menu.append("italian", "Italian")
-        self.lang_menu.append("korean", "Korean")
-        self.lang_menu.append("russian", "Russian")
+        for each in self.langs:
+            self.lang_menu.append(each, each)
+        # self.lang_menu.append("english", "English")
+        # self.lang_menu.append("chinese", "Chinese")
+        # self.lang_menu.append("japanese", "Japanese")
+        # self.lang_menu.append("spanish", "Spanish")
+        # self.lang_menu.append("hindi", "Hindi")
+        # self.lang_menu.append("german", "German")
+        # self.lang_menu.append("french", "French")
+        # self.lang_menu.append("italian", "Italian")
+        # self.lang_menu.append("korean", "Korean")
+        # self.lang_menu.append("russian", "Russian")
         self.lang_menu.append("other", "Other, User will need to set up manually.")
         if self.lang_setting != "":
             self.lang_menu.set_active_id(self.lang_setting)
@@ -1043,7 +1072,7 @@ Sub-Region""")
         self.grid.attach(self.sub_region, 2, 7, 1, 1)
 
         button1 = Gtk.Button.new_with_label("Okay -->")
-        button1.connect("clicked", self.onnext3clicked)
+        button1.connect("clicked", self.on_locale_completed)
         self.grid.attach(button1, 4, 8, 1, 1)
 
         button2 = Gtk.Button.new_with_label("Exit")
@@ -1078,12 +1107,12 @@ Sub-Region""")
 
         self.show_all()
 
-    def onnext3clicked(self, button):
+    def on_locale_completed(self, button):
         """Set default language and time zone if user did not set them"""
         if self.lang_menu.get_active_id() is not None:
-            self.lang_setting = self.lang_menu.get_active_id()
+            self.lang_setting = self.langs[self.lang_menu.get_active_id()]
         else:
-            self.lang_setting = "english"
+            self.lang_setting = "en"
 
         if ((self.time_menu.get_active_id() is not None) and
                 (self.sub_region.get_active_id() is not None)):
