@@ -278,7 +278,8 @@ def show_success(settings):
     Gtk.main()
 
 def __reboot__(button):
-    Popen(["systemctl", "reboot", "now"])
+    """Reboot the system"""
+    Popen(["/usr/sbin/reboot"])
     sys.exit(0)
 
 if __name__ == '__main__':
