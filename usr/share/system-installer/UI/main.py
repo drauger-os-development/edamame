@@ -1026,7 +1026,7 @@ Langauge""")
 
         self.lang_menu = Gtk.ComboBoxText.new()
         for each in self.langs:
-            self.lang_menu.append(each, each)
+            self.lang_menu.append(self.lang[each], each)
         # self.lang_menu.append("english", "English")
         # self.lang_menu.append("chinese", "Chinese")
         # self.lang_menu.append("japanese", "Japanese")
@@ -1110,7 +1110,7 @@ Sub-Region""")
     def on_locale_completed(self, button):
         """Set default language and time zone if user did not set them"""
         if self.lang_menu.get_active_id() is not None:
-            self.lang_setting = self.langs[self.lang_menu.get_active_id()]
+            self.lang_setting = self.lang_menu.get_active_id()
         else:
             self.lang_setting = "en"
 
