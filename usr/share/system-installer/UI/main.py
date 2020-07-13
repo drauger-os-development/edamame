@@ -171,7 +171,6 @@ class Main(Gtk.Window):
                       "Uzbek": 'uz',
                       "Walloon": 'wa', "Xhosa": 'xh', "Yiddish": 'yi',
                       "Chinese": 'zh', "Zulu": 'zu'}
-        self.langs = sorted(self.langs)
 
         # Open initial window
         self.reset("clicked")
@@ -1034,7 +1033,7 @@ Langauge""")
 
         self.lang_menu = Gtk.ComboBoxText.new()
         for each in self.langs:
-            self.lang_menu.append(self.lang[each], each)
+            self.lang_menu.append(self.langs[each], each)
         # self.lang_menu.append("english", "English")
         # self.lang_menu.append("chinese", "Chinese")
         # self.lang_menu.append("japanese", "Japanese")
