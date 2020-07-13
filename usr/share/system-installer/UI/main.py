@@ -33,10 +33,10 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
 
-
 def eprint(*args, **kwargs):
     """Make it easier for us to print to stderr"""
     print(*args, file=sys.stderr, **kwargs)
+
 
 def has_special_character(input_string):
     """Check for special characters"""
@@ -45,6 +45,7 @@ def has_special_character(input_string):
         return False
     else:
         return True
+
 
 def hasspace(input_string):
     """Check for spaces"""
@@ -109,6 +110,7 @@ PART_COMPLETION = "TO DO"
 LOCALE_COMPLETION = "TO DO"
 OPTIONS_COMPLETION = "TO DO"
 
+
 class Main(Gtk.Window):
     """Main UI Window"""
     def __init__(self):
@@ -137,31 +139,40 @@ class Main(Gtk.Window):
         self.varient_setting = ""
         self.data = {}
 
-        self.langs = {'Afar':"aa", 'Afrikaans':"af", 'Aragonese':"an",
-                 'Arabic':"ar", 'Asturian':"ast", 'Belarusian':"be",
-                 'Bulgarian':"bg", 'Breton':"br", 'Bosnian':"bs",
-                 'Catalan':"ca", 'Czech':"cs", 'Welsh':"cy", "Danish":'da',
-                 "German":'de', "Greek":'el', "English":'en', "Esperanto":'eo',
-                 "Spanish":'es', "Estonian":'et', "Basque":'eu',
-                 "Finnish":'fi', "Faroese":'fo', "French":'fr', "Irish":'ga',
-                 "Gaelic":'gd', "Galician":'gl', "Manx":'gv', "Hebrew":'he',
-                 "Croatian":'hr', "Upper Sorbian":'hsb', "Hungarian":'hu',
-                 "Indonesian":'id', "Icelandic":'is', "Italian":'it',
-                 "Japanese":'ja', "Kashmiri":'ka', "Kazakh":'kk',
-                 "Greenlandic":'kl', "Korean":'ko', "Kurdish":'ku',
-                 "Cornish":'kw', 'Bhili':"bhb",
-                 "Ganda":'lg', "Lithuanian":'lt', "Latvian":'lv',
-                 "Malagasy":'mg', "Maori":'mi', "Macedonian":'mk',
-                 "Malay":'ms', "Maltese":'mt', "Min Nan Chinese":'nan',
-                 "North Ndebele":'nb', "Dutch":'nl', "Norwegian Nynorsk":'nn',
-                 "Occitan":'oc', "Oromo":'om', "Polish":'pl',
-                 "Portuguese":'pt', "Romanian":'ro', "Russian":'ru',
-                 "Slovak":'sk', "Slovenian":'sl', "Northern Sami":'so',
-                 "Albanian":'sq', "Serbian":'sr', "Sotho":'st', "Swedish":'sv',
-                 "Tulu":'tcy', "Tajik":'tg', "Thai":'th', "Tagalog":'tl',
-                 "Turkish":'tr', "Uighur":'ug', "Ukrainian":'uk', "Uzbek":'uz',
-                 "Walloon":'wa', "Xhosa":'xh', "Yiddish":'yi', "Chinese":'zh',
-                 "Zulu":'zu'}
+        self.langs = {'Afar': "aa", 'Afrikaans': "af", 'Aragonese': "an",
+                      'Arabic': "ar", 'Asturian': "ast", 'Belarusian': "be",
+                      'Bulgarian': "bg", 'Breton': "br", 'Bosnian': "bs",
+                      'Catalan': "ca", 'Czech': "cs", 'Welsh': "cy",
+                      "Danish": 'da',
+                      "German": 'de', "Greek": 'el', "English": 'en',
+                      "Esperanto":'eo',
+                      "Spanish": 'es', "Estonian": 'et', "Basque": 'eu',
+                      "Finnish": 'fi', "Faroese": 'fo', "French": 'fr',
+                      "Irish": 'ga',
+                      "Gaelic": 'gd', "Galician": 'gl', "Manx": 'gv',
+                      "Hebrew": 'he',
+                      "Croatian": 'hr', "Upper Sorbian": 'hsb',
+                      "Hungarian": 'hu',
+                      "Indonesian": 'id', "Icelandic": 'is', "Italian": 'it',
+                      "Japanese": 'ja', "Kashmiri": 'ka', "Kazakh": 'kk',
+                      "Greenlandic": 'kl', "Korean": 'ko', "Kurdish": 'ku',
+                      "Cornish": 'kw', 'Bhili': "bhb",
+                      "Ganda": 'lg', "Lithuanian": 'lt', "Latvian": 'lv',
+                      "Malagasy": 'mg', "Maori": 'mi', "Macedonian": 'mk',
+                      "Malay": 'ms', "Maltese": 'mt', "Min Nan Chinese": 'nan',
+                      "North Ndebele": 'nb', "Dutch": 'nl',
+                      "Norwegian Nynorsk": 'nn',
+                      "Occitan": 'oc', "Oromo": 'om', "Polish": 'pl',
+                      "Portuguese": 'pt', "Romanian": 'ro', "Russian": 'ru',
+                      "Slovak": 'sk', "Slovenian": 'sl', "Northern Sami": 'so',
+                      "Albanian": 'sq', "Serbian": 'sr', "Sotho": 'st',
+                      "Swedish": 'sv',
+                      "Tulu": 'tcy', "Tajik": 'tg', "Thai": 'th',
+                      "Tagalog": 'tl',
+                      "Turkish": 'tr', "Uighur": 'ug', "Ukrainian": 'uk',
+                      "Uzbek": 'uz',
+                      "Walloon": 'wa', "Xhosa": 'xh', "Yiddish": 'yi',
+                      "Chinese": 'zh', "Zulu": 'zu'}
         self.langs = sorted(self.langs)
 
         # Open initial window
