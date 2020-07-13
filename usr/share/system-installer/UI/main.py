@@ -1278,11 +1278,11 @@ Sub-Region""")
         global OPTIONS_COMPLETION
         global PART_COMPLETION
         global USER_COMPLETION
-        if ((KEYBOARD_COMPLETION != "COMPLETED")
-            or (LOCALE_COMPLETION != "COMPLETED")
-            or (OPTIONS_COMPLETION != "COMPLETED")
-            or (PART_COMPLETION != "COMPLETED")
-            or (USER_COMPLETION != "COMPLETED")):
+        if ((KEYBOARD_COMPLETION != "COMPLETED"
+            ) or (LOCALE_COMPLETION != "COMPLETED"
+            ) or (OPTIONS_COMPLETION != "COMPLETED"
+            ) or (PART_COMPLETION != "COMPLETED"
+            ) or (USER_COMPLETION != "COMPLETED")):
             self.label.set_markup("""
         Feel free to complete any of the below segments in any order.\t
         However, all segments must be completed.
@@ -1298,23 +1298,6 @@ Sub-Region""")
         """Set settings var"""
         Gtk.main_quit("delete-event")
         self.destroy()
-        # Vars to return:
-            #   1  * self.auto_part_setting
-            #   2  * self.password_setting
-            #   3  * self.username_setting
-            #   4  * self.compname_setting
-            #   5  * self.root_setting
-            #   6  * self.efi_setting
-            #   7  * self.home_setting
-            #   8  * self.swap_setting
-            #   9  * self.extras_setting
-            #   10  * self.updates_setting
-            #   11 * self.login_setting
-            #   12 * self.model_setting
-            #   13 * self.layout_setting
-            #   14 * self.lang_setting
-            #   15 * self.time_zone
-            #   16 * self.varient_setting
         if "" in (self.root_setting, self.efi_setting, self.home_setting,
                   self.swap_setting, self.auto_part_setting, self.lang_setting,
                   self.username_setting, self.compname_setting,
@@ -1323,20 +1306,19 @@ Sub-Region""")
                   self.layout_setting, self.varient_setting):
             self.data = 1
         else:
-            self.data = {"AUTO_PART":bool(self.auto_part_setting),
-                         "ROOT":self.root_setting, "EFI":self.efi_setting,
-                         "HOME":self.home_setting, "SWAP":self.swap_setting,
-                         "LANG":self.lang_setting, "TIME_ZONE":self.time_zone,
-                         "USERNAME":self.username_setting,
-                         "PASSWORD":self.password_setting,
-                         "COMPUTER_NAME":self.compname_setting,
-                         "EXTRAS":bool(self.extras_setting),
-                         "UPDATES":bool(self.updates_setting),
-                         "LOGIN":bool(self.login_setting),
-                         "MODEL":self.model_setting,
-                         "LAYOUT":self.layout_setting,
-                         "VARIENT":self.varient_setting}
-
+            self.data = {"AUTO_PART": bool(self.auto_part_setting),
+                         "ROOT": self.root_setting, "EFI": self.efi_setting,
+                         "HOME": self.home_setting, "SWAP": self.swap_setting,
+                         "LANG": self.lang_setting, "TIME_ZONE": self.time_zone,
+                         "USERNAME": self.username_setting,
+                         "PASSWORD": self.password_setting,
+                         "COMPUTER_NAME": self.compname_setting,
+                         "EXTRAS": bool(self.extras_setting),
+                         "UPDATES": bool(self.updates_setting),
+                         "LOGIN": bool(self.login_setting),
+                         "MODEL": self.model_setting,
+                         "LAYOUT": self.layout_setting,
+                         "VARIENT": self.varient_setting}
 
     def exit(self, button):
         """Exit"""
@@ -1368,6 +1350,7 @@ def show_main():
     data = window.return_data()
     window.exit("clicked")
     return data
+
 
 if __name__ == '__main__':
     show_main()
