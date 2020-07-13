@@ -233,12 +233,14 @@ class Main(Gtk.Window):
     def dump_settings_dialog(self, button):
         """Dump Settings Dialog"""
         dialog = Gtk.FileChooserDialog("System Installer", self,
+                                        Gtk.FileChooserAction.SAVE,
                                        (Gtk.STOCK_CANCEL,
                                         Gtk.ResponseType.CANCEL,
                                         Gtk.STOCK_SAVE,
                                         Gtk.ResponseType.ACCEPT))
         dialog.set_action(Gtk.FileChooserAction.SAVE)
         dialog.set_current_name("installation-settings.json")
+        dialog.set_do_overwrite_confirmation(True)
 
         response = dialog.run()
         if response == Gtk.ResponseType.ACCEPT:
