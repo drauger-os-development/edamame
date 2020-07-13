@@ -519,7 +519,8 @@ class Main(Gtk.Window):
         self.auto_part_setting = True
 
         # Get a list of disks and their capacity
-        self.device = check_output(["lsblk", "-n", "-i", "-o", "NAME,SIZE,TYPE"]).decode()
+        self.device = check_output(["lsblk", "-n", "-i", "-o",
+                                    "NAME,SIZE,TYPE"]).decode()
         self.device = list(self.device)
         del self.device[-1]
         self.device = "".join(self.device)
@@ -676,7 +677,6 @@ class Main(Gtk.Window):
             self.main_menu("clicked")
 
 
-
     def input_part(self, button):
         """Manual Partitioning Input Window"""
         self.clear_window()
@@ -752,8 +752,8 @@ class Main(Gtk.Window):
 
     def onnext4clicked(self, button):
         """Check device paths provided for manual partitioner"""
-        if ((self.root.get_text() == "") or
-                (self.root.get_text()[0:5] != "/dev/")):
+        if ((self.root.get_text() == "")
+            or (self.root.get_text()[0:5] != "/dev/")):
             label = Gtk.Label()
             label.set_markup("""
     What are the mount points for the partions you wish to be used?
@@ -788,9 +788,9 @@ class Main(Gtk.Window):
 
             self.show_all()
 
-        elif (((self.efi.get_text() == "") or
-               (self.efi.get_text()[0:5] != "/dev/")) and
-              path.isdir("/sys/firmware/efi")):
+        elif (((self.efi.get_text() == "")
+            or (self.efi.get_text()[0:5] != "/dev/"))
+            and path.isdir("/sys/firmware/efi")):
             label = Gtk.Label()
             label.set_markup("""
     What are the mount points for the partions you wish to be used?
@@ -808,9 +808,9 @@ class Main(Gtk.Window):
             self.grid.attach(label, 1, 1, 3, 1)
 
             self.show_all()
-        elif (not path.exists(self.efi.get_text()) or
-              ((self.efi.get_text() == "") and
-               not path.isdir("/sys/firmware/efi"))):
+        elif (not path.exists(self.efi.get_text())
+            or ((self.efi.get_text() == "")
+            and not path.isdir("/sys/firmware/efi"))):
             label = Gtk.Label()
             label.set_markup("""
     What are the mount points for the partions you wish to be used?
@@ -827,8 +827,8 @@ class Main(Gtk.Window):
             self.grid.attach(label, 1, 1, 3, 1)
 
             self.show_all()
-        elif ((self.home.get_text() != "") and
-              (self.home.get_text()[0:5] != "/dev/")):
+        elif ((self.home.get_text() != "")
+            and (self.home.get_text()[0:5] != "/dev/")):
             label = Gtk.Label()
             label.set_markup("""
     What are the mount points for the partions you wish to be used?
@@ -845,8 +845,8 @@ class Main(Gtk.Window):
             self.grid.attach(label, 1, 1, 3, 1)
 
             self.show_all()
-        elif (not path.exists(self.home.get_text()) and
-              (self.home.get_text() != "")):
+        elif (not path.exists(self.home.get_text())
+            and (self.home.get_text() != "")):
             label = Gtk.Label()
             label.set_markup("""
     What are the mount points for the partions you wish to be used?
@@ -863,9 +863,9 @@ class Main(Gtk.Window):
             self.grid.attach(label, 1, 1, 3, 1)
 
             self.show_all()
-        elif ((self.swap.get_text() != "") and
-              (self.swap.get_text()[0:5] != "/dev/") and
-              (self.swap.get_text().upper() != "FILE")):
+        elif ((self.swap.get_text() != "")
+            and (self.swap.get_text()[0:5] != "/dev/")
+            and (self.swap.get_text().upper() != "FILE")):
             label = Gtk.Label()
             label.set_markup("""
     What are the mount points for the partions you wish to be used?
@@ -883,9 +883,9 @@ class Main(Gtk.Window):
             self.grid.attach(label, 1, 1, 3, 1)
 
             self.show_all()
-        elif (not path.exists(self.swap.get_text()) and
-              (self.swap.get_text().upper() != "FILE") and
-              (self.swap.get_text() != "")):
+        elif (not path.exists(self.swap.get_text())
+            and (self.swap.get_text().upper() != "FILE")
+            and (self.swap.get_text() != "")):
             label = Gtk.Label()
             label.set_markup("""
     What are the mount points for the partions you wish to be used?
@@ -926,8 +926,8 @@ class Main(Gtk.Window):
                 self.home_setting = "NULL"
             else:
                 self.home_setting = self.home.get_text()
-            if ((self.swap.get_text() == "") or
-                    (self.swap.get_text().upper() == "FILE")):
+            if ((self.swap.get_text() == "")
+                or (self.swap.get_text().upper() == "FILE")):
                 self.swap_setting = "FILE"
             else:
                 self.swap_setting = self.swap.get_text()
@@ -936,12 +936,12 @@ class Main(Gtk.Window):
             self.main_menu("clicked")
 
 
-
     def opengparted(self, button):
         """Open GParted"""
         Popen("gparted", stdout=DEVNULL, stderr=DEVNULL)
         self.auto_part_setting = False
         self.input_part("clicked")
+
 
     def options(self, button):
         """Extraneous options menu"""
@@ -1000,6 +1000,7 @@ class Main(Gtk.Window):
 
         self.show_all()
 
+
     def options_next(self, button):
         """Set update and extras settings"""
         if self.extras.get_active():
@@ -1017,6 +1018,7 @@ class Main(Gtk.Window):
         global OPTIONS_COMPLETION
         OPTIONS_COMPLETION = "COMPLETED"
         self.main_menu("clicked")
+
 
     def locale(self, button):
         """Language and Time Zone settings menu"""
@@ -1105,8 +1107,8 @@ Sub-Region""")
         """
         if widget.get_active_id() is None:
             return
-        zones = sorted(listdir("/usr/share/zoneinfo/" +
-                               widget.get_active_id()))
+        zones = sorted(listdir("/usr/share/zoneinfo/"
+                               + widget.get_active_id()))
         self.grid.remove(self.grid.get_child_at(2, 7))
         self.sub_region = Gtk.ComboBoxText.new()
         for each7 in zones:
@@ -1118,6 +1120,7 @@ Sub-Region""")
 
         self.show_all()
 
+
     def on_locale_completed(self, button):
         """Set default language and time zone if user did not set them"""
         if self.lang_menu.get_active_id() is not None:
@@ -1125,8 +1128,8 @@ Sub-Region""")
         else:
             self.lang_setting = "en"
 
-        if ((self.time_menu.get_active_id() is not None) and
-                (self.sub_region.get_active_id() is not None)):
+        if ((self.time_menu.get_active_id() is not None)
+            and (self.sub_region.get_active_id() is not None)):
             self.time_zone = self.time_menu.get_active_id()
             self.time_zone = self.time_zone + "/"
             self.time_zone = self.time_zone + self.sub_region.get_active_id()
@@ -1136,6 +1139,7 @@ Sub-Region""")
         global LOCALE_COMPLETION
         LOCALE_COMPLETION = "COMPLETED"
         self.main_menu("clicked")
+
 
     def keyboard(self, button):
         """Keyboard Settings Dialog"""
@@ -1270,6 +1274,7 @@ Sub-Region""")
 
         self.main_menu("clicked")
 
+
     def done(self, button):
         """Check to see if each segment has been completed
         If it hasn't, print a warning, else
@@ -1280,11 +1285,11 @@ Sub-Region""")
         global OPTIONS_COMPLETION
         global PART_COMPLETION
         global USER_COMPLETION
-        if ((KEYBOARD_COMPLETION != "COMPLETED") or
-                (LOCALE_COMPLETION != "COMPLETED") or
-                (OPTIONS_COMPLETION != "COMPLETED") or
-                (PART_COMPLETION != "COMPLETED") or
-                (USER_COMPLETION != "COMPLETED")):
+        if ((KEYBOARD_COMPLETION != "COMPLETED")
+            or (LOCALE_COMPLETION != "COMPLETED")
+            or (OPTIONS_COMPLETION != "COMPLETED")
+            or (PART_COMPLETION != "COMPLETED")
+            or (USER_COMPLETION != "COMPLETED")):
             self.label.set_markup("""
         Feel free to complete any of the below segments in any order.\t
         However, all segments must be completed.
