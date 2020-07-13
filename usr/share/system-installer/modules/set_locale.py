@@ -27,9 +27,11 @@ from sys import argv, stderr
 from os import remove
 from subprocess import check_call
 
+
 def eprint(*args, **kwargs):
     """Make it easier for us to print to stderr"""
     print(*args, file=stderr, **kwargs)
+
 
 def set_locale(lang_set):
     """Figure out locale code for a given language name"""
@@ -49,8 +51,9 @@ def set_locale(lang_set):
         else:
             data[each] = data[each][0][:-6]
     for each in range(len(data) - 1, -1, -1):
-        if (("@" in data[each]) or ("_" not in data[each]) or (data[each] == "")):
-            del data[each]
+        if (("@" in data[each]) or ("_" not in data[each]) or (
+            data[each] == "")):
+                del data[each]
     for each in range(len(data) - 1, -1, -1):
         if lang_set + "_" not in data[each]:
             del data[each]
@@ -81,6 +84,7 @@ def set_locale(lang_set):
         # _setlocale("en_US")
     eprint("\t###\tset_locale.py STOPPED\t###\t")
 
+
 def _setlocale(locale):
     """Handle setting locale for a given locale code"""
     # Edit /etc/locale.gen
@@ -89,7 +93,8 @@ def _setlocale(locale):
     contents = contents.split("\n")
     code = locale.split("_")[0]
     for each in enumerate(contents):
-        if ((code + "_" in contents[each[0]]) and (".UTF-8 UTF-8" in contents[each[0]])):
+        if ((code + "_" in contents[each[0]]
+            ) and (".UTF-8 UTF-8" in contents[each[0]])):
             if contents[each[0]][0] == "#":
                 contents[each[0]] = contents[each[0]].split(" ")
                 del contents[each[0]][0]

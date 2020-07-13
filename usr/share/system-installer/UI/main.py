@@ -763,13 +763,13 @@ class Main(Gtk.Window):
     / NOT SET
     """)
                 label.set_justify(Gtk.Justification.LEFT)
-            try:
-                self.grid.remove(self.grid.get_child_at(1, 1))
-            except TypeError:
-                pass
-            self.grid.attach(label, 1, 1, 3, 1)
+                try:
+                    self.grid.remove(self.grid.get_child_at(1, 1))
+                except TypeError:
+                    pass
+                self.grid.attach(label, 1, 1, 3, 1)
 
-            self.show_all()
+                self.show_all()
         elif not path.exists(self.root.get_text()):
             label = Gtk.Label()
             label.set_markup("""

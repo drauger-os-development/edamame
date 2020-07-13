@@ -97,16 +97,18 @@ if INSTALL:
                     pass
         eprint("\t###\t%s CLOSED\t###\t" % (sys.argv[0]))
         try:
-            copyfile("/tmp/system-installer.log", "/mnt/var/log/system-installer.log")
+            copyfile("/tmp/system-installer.log",
+                     "/mnt/var/log/system-installer.log")
         except FileNotFoundError:
             eprint("\t###\tLog Not Found. Testing?\t###\t")
             with open("/tmp/system-installer.log", "w+") as log:
                 log.write("""Log was not created during installation.
 This is a stand-in file.
 """)
-            copyfile("/tmp/system-installer.log", "/mnt/var/log/system-installer.log")
+            copyfile("/tmp/system-installer.log",
+                     "/mnt/var/log/system-installer.log")
         Popen(["su", "live", "-c",
-                 "/usr/share/system-installer/success.py \'%s\'" % (json.dumps(SETTINGS))])
+               "/usr/share/system-installer/success.py \'%s\'" % (json.dumps(SETTINGS))])
         kill(pid, 15)
         # PROGRESS.terminate()
         # PROGRESS.join()
