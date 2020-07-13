@@ -752,10 +752,10 @@ class Main(Gtk.Window):
 
     def onnext4clicked(self, button):
         """Check device paths provided for manual partitioner"""
-        if ((self.root.get_text() == "")
-            or (self.root.get_text()[0:5] != "/dev/")):
-            label = Gtk.Label()
-            label.set_markup("""
+        if ((self.root.get_text() == "") or (
+            self.root.get_text()[0:5] != "/dev/")):
+                label = Gtk.Label()
+                label.set_markup("""
     What are the mount points for the partions you wish to be used?
     Leave empty the partions you don't want.
     <b> / MUST BE USED </b>
@@ -788,11 +788,10 @@ class Main(Gtk.Window):
 
             self.show_all()
 
-        elif (((self.efi.get_text() == "")
-            or (self.efi.get_text()[0:5] != "/dev/"))
-            and path.isdir("/sys/firmware/efi")):
-            label = Gtk.Label()
-            label.set_markup("""
+        elif (((self.efi.get_text() == "") or (
+            self.efi.get_text()[0:5] != "/dev/")) and path.isdir("/sys/firmware/efi")):
+                label = Gtk.Label()
+                label.set_markup("""
     What are the mount points for the partions you wish to be used?
     Leave empty the partions you don't want.
     <b> / MUST BE USED </b>
@@ -808,66 +807,66 @@ class Main(Gtk.Window):
             self.grid.attach(label, 1, 1, 3, 1)
 
             self.show_all()
-        elif (not path.exists(self.efi.get_text())
-            or ((self.efi.get_text() == "")
-            and not path.isdir("/sys/firmware/efi"))):
-            label = Gtk.Label()
-            label.set_markup("""
+        elif (not path.exists(self.efi.get_text()) or (
+             (self.efi.get_text() == "") and not path.isdir("/sys/firmware/efi")
+             )):
+                label = Gtk.Label()
+                label.set_markup("""
     What are the mount points for the partions you wish to be used?
     Leave empty the partions you don't want.
     <b> / MUST BE USED </b>
 
     Not a Valid Device on /boot/efi
     """)
-            label.set_justify(Gtk.Justification.LEFT)
-            try:
-                self.grid.remove(self.grid.get_child_at(1, 1))
-            except TypeError:
-                pass
-            self.grid.attach(label, 1, 1, 3, 1)
+                label.set_justify(Gtk.Justification.LEFT)
+                try:
+                    self.grid.remove(self.grid.get_child_at(1, 1))
+                except TypeError:
+                    pass
+                self.grid.attach(label, 1, 1, 3, 1)
 
-            self.show_all()
-        elif ((self.home.get_text() != "")
-            and (self.home.get_text()[0:5] != "/dev/")):
-            label = Gtk.Label()
-            label.set_markup("""
+                self.show_all()
+        elif ((self.home.get_text() != "") and (
+             self.home.get_text()[0:5] != "/dev/")):
+                label = Gtk.Label()
+                label.set_markup("""
     What are the mount points for the partions you wish to be used?
     Leave empty the partions you don't want.
     <b> / MUST BE USED </b>
 
     Please input a valid device path for HOME partition.
     """)
-            label.set_justify(Gtk.Justification.LEFT)
-            try:
-                self.grid.remove(self.grid.get_child_at(1, 1))
-            except TypeError:
-                pass
-            self.grid.attach(label, 1, 1, 3, 1)
+                label.set_justify(Gtk.Justification.LEFT)
+                try:
+                    self.grid.remove(self.grid.get_child_at(1, 1))
+                except TypeError:
+                    pass
+                self.grid.attach(label, 1, 1, 3, 1)
 
-            self.show_all()
-        elif (not path.exists(self.home.get_text())
-            and (self.home.get_text() != "")):
-            label = Gtk.Label()
-            label.set_markup("""
+                self.show_all()
+        elif (not path.exists(self.home.get_text()) and (
+             self.home.get_text() != "")):
+                label = Gtk.Label()
+                label.set_markup("""
     What are the mount points for the partions you wish to be used?
     Leave empty the partions you don't want.
     <b> / MUST BE USED </b>
 
     Not a Valid Device on /home
     """)
-            label.set_justify(Gtk.Justification.LEFT)
-            try:
-                self.grid.remove(self.grid.get_child_at(1, 1))
-            except TypeError:
-                pass
-            self.grid.attach(label, 1, 1, 3, 1)
+                label.set_justify(Gtk.Justification.LEFT)
+                try:
+                    self.grid.remove(self.grid.get_child_at(1, 1))
+                except TypeError:
+                    pass
+                self.grid.attach(label, 1, 1, 3, 1)
 
-            self.show_all()
-        elif ((self.swap.get_text() != "")
-            and (self.swap.get_text()[0:5] != "/dev/")
-            and (self.swap.get_text().upper() != "FILE")):
-            label = Gtk.Label()
-            label.set_markup("""
+                self.show_all()
+        elif ((self.swap.get_text() != "") and (
+             self.swap.get_text()[0:5] != "/dev/") and (
+             self.swap.get_text().upper() != "FILE")):
+                label = Gtk.Label()
+                label.set_markup("""
     What are the mount points for the partions you wish to be used?
     Leave empty the partions you don't want.
     <b> / MUST BE USED </b>
@@ -875,33 +874,33 @@ class Main(Gtk.Window):
     SWAP must be set to a valid partition path, "FILE", or
     left empty.
     """)
-            label.set_justify(Gtk.Justification.LEFT)
-            try:
-                self.grid.remove(self.grid.get_child_at(1, 1))
-            except TypeError:
-                pass
-            self.grid.attach(label, 1, 1, 3, 1)
+                label.set_justify(Gtk.Justification.LEFT)
+                try:
+                    self.grid.remove(self.grid.get_child_at(1, 1))
+                except TypeError:
+                    pass
+                self.grid.attach(label, 1, 1, 3, 1)
 
-            self.show_all()
-        elif (not path.exists(self.swap.get_text())
-            and (self.swap.get_text().upper() != "FILE")
-            and (self.swap.get_text() != "")):
-            label = Gtk.Label()
-            label.set_markup("""
+                self.show_all()
+        elif (not path.exists(self.swap.get_text()) and (
+             self.swap.get_text().upper() != "FILE") and (
+             self.swap.get_text() != "")):
+                label = Gtk.Label()
+                label.set_markup("""
     What are the mount points for the partions you wish to be used?
     Leave empty the partions you don't want.
     <b> / MUST BE USED </b>
 
     Not a Valid Device on SWAP
     """)
-            label.set_justify(Gtk.Justification.LEFT)
-            try:
-                self.grid.remove(self.grid.get_child_at(1, 1))
-            except TypeError:
-                pass
-            self.grid.attach(label, 1, 1, 3, 1)
+                label.set_justify(Gtk.Justification.LEFT)
+                try:
+                    self.grid.remove(self.grid.get_child_at(1, 1))
+                except TypeError:
+                    pass
+                self.grid.attach(label, 1, 1, 3, 1)
 
-            self.show_all()
+                self.show_all()
         else:
             label = Gtk.Label()
             label.set_markup("""
@@ -926,22 +925,20 @@ class Main(Gtk.Window):
                 self.home_setting = "NULL"
             else:
                 self.home_setting = self.home.get_text()
-            if ((self.swap.get_text() == "")
-                or (self.swap.get_text().upper() == "FILE")):
-                self.swap_setting = "FILE"
+            if ((self.swap.get_text() == "") or (
+                self.swap.get_text().upper() == "FILE")):
+                    self.swap_setting = "FILE"
             else:
                 self.swap_setting = self.swap.get_text()
             global PART_COMPLETION
             PART_COMPLETION = "COMPLETED"
             self.main_menu("clicked")
 
-
     def opengparted(self, button):
         """Open GParted"""
         Popen("gparted", stdout=DEVNULL, stderr=DEVNULL)
         self.auto_part_setting = False
         self.input_part("clicked")
-
 
     def options(self, button):
         """Extraneous options menu"""
@@ -1000,7 +997,6 @@ class Main(Gtk.Window):
 
         self.show_all()
 
-
     def options_next(self, button):
         """Set update and extras settings"""
         if self.extras.get_active():
@@ -1018,7 +1014,6 @@ class Main(Gtk.Window):
         global OPTIONS_COMPLETION
         OPTIONS_COMPLETION = "COMPLETED"
         self.main_menu("clicked")
-
 
     def locale(self, button):
         """Language and Time Zone settings menu"""
@@ -1120,7 +1115,6 @@ Sub-Region""")
 
         self.show_all()
 
-
     def on_locale_completed(self, button):
         """Set default language and time zone if user did not set them"""
         if self.lang_menu.get_active_id() is not None:
@@ -1128,18 +1122,17 @@ Sub-Region""")
         else:
             self.lang_setting = "en"
 
-        if ((self.time_menu.get_active_id() is not None)
-            and (self.sub_region.get_active_id() is not None)):
-            self.time_zone = self.time_menu.get_active_id()
-            self.time_zone = self.time_zone + "/"
-            self.time_zone = self.time_zone + self.sub_region.get_active_id()
+        if ((self.time_menu.get_active_id() is not None) and (
+            self.sub_region.get_active_id() is not None)):
+                self.time_zone = self.time_menu.get_active_id()
+                self.time_zone = self.time_zone + "/"
+                self.time_zone = self.time_zone + self.sub_region.get_active_id()
         else:
             self.time_zone = "America/New_York"
 
         global LOCALE_COMPLETION
         LOCALE_COMPLETION = "COMPLETED"
         self.main_menu("clicked")
-
 
     def keyboard(self, button):
         """Keyboard Settings Dialog"""
