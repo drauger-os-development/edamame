@@ -762,7 +762,7 @@ class Main(Gtk.Window):
 
     / NOT SET
     """)
-            label.set_justify(Gtk.Justification.LEFT)
+                label.set_justify(Gtk.Justification.LEFT)
             try:
                 self.grid.remove(self.grid.get_child_at(1, 1))
             except TypeError:

@@ -40,22 +40,20 @@ def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
 
-
 eprint("\t###\t%s STARTED\t###\t" % (sys.argv[0]))
 MEMCHECK = virtual_memory().total
 if (MEMCHECK / 1024 ** 2) < 1024:
     UI.error.show_error("\n\tRAM is less than 1 GB.\t\n")
     sys.exit(2)
 
-DISK = json.loads(check_output(["lsblk", "--json"]))
-for each in range(len(DISK["blockdevices"]) - 1, -1, -1):
-    if DISK["blockdevices"][each]["type"] == "loop":
-        del DISK["blockdevices"][each]
-for each in range(len(DISK["blockdevices"]) - 1, -1, -1):
-    if float(DISK["blockdevices"][each]["size"][0:len(DISK["blockdevices"]
-                                                      [each]["size"]) - 1]) < 16:
-        del DISK["blockdevices"][each]
-if len(DISK["blockdevices"]) < 1:
+DISK = json.loads(check_output(["lsblk", "--json"]))["blockdevices"]
+for each in range(len(DISK) - 1, -1, -1):
+    if DISK[each]["type"] == "loop":
+        del DISK[each]
+for each in range(len(DISK) - 1, -1, -1):
+    if float(DISK[each]["size"][0:len(DISK[each]["size"]) - 1]) < 16:
+        del DISK[each]
+if len(DISK) < 1:
     UI.error.show_error("\n\tNo Drives Larger than 16 GB detected\t\n")
     sys.exit(2)
 SETTINGS = UI.main.show_main()
