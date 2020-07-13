@@ -33,10 +33,10 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
 
-
 def eprint(*args, **kwargs):
     """Make it easier for us to print to stderr"""
     print(*args, file=sys.stderr, **kwargs)
+
 
 def has_special_character(input_string):
     """Check for special characters"""
@@ -45,6 +45,7 @@ def has_special_character(input_string):
         return False
     else:
         return True
+
 
 def hasspace(input_string):
     """Check for spaces"""
@@ -68,7 +69,7 @@ try:
                         if len(CONFIG_DIR) != 1:
                             eprint("More than one custom config file in /etc/system-installer is not supported.")
                             eprint("Please remove all but one and try again.")
-                            eprint("'default.config' and 'quick-install-template.config' may remain though.")
+                            eprint("'default.json' and 'quick-install-template.json' may remain though.")
                             sys.exit(2)
                         else:
                             break
@@ -82,8 +83,6 @@ except FileNotFoundError:
     DISTRO = "Drauger OS"
 
 
-
-
 DEFAULT = """
     Welcome to the %s System Installer!
 
@@ -91,15 +90,15 @@ DEFAULT = """
 
     <b>PARTITIONING</b>
 
-    The %s System Installer uses Gparted to allow the user to set up their partitions
-    It is advised to account for this if installing next to another OS.
-    If using automatic partitoning, it will take up the entirety of the drive told to use.
-    Loss of data from usage of this tool is entirely at the fault of the user.
-    You have been warned.
+    The %s System Installer uses Gparted to allow the user to set up their
+    partitions. It is advised to account for this if installing next to another
+    OS. If using automatic partitoning, it will take up the entirety of the
+    drive told to use. Loss of data from usage of this tool is entirely at the
+    fault of the user. You have been warned.
 
-    <b>ALPHA WARNING</b>
+    <b>BETA WARNING</b>
 
-    The %s System Installer is currently in alpha.
+    The %s System Installer is currently in beta.
     Expect bugs.
     """ % (DISTRO, DISTRO, DISTRO)
 
@@ -108,6 +107,7 @@ USER_COMPLETION = "TO DO"
 PART_COMPLETION = "TO DO"
 LOCALE_COMPLETION = "TO DO"
 OPTIONS_COMPLETION = "TO DO"
+
 
 class Main(Gtk.Window):
     """Main UI Window"""
@@ -136,6 +136,41 @@ class Main(Gtk.Window):
         self.layout_setting = ""
         self.varient_setting = ""
         self.data = {}
+
+        self.langs = {'Afar': "aa", 'Afrikaans': "af", 'Aragonese': "an",
+                      'Arabic': "ar", 'Asturian': "ast", 'Belarusian': "be",
+                      'Bulgarian': "bg", 'Breton': "br", 'Bosnian': "bs",
+                      'Catalan': "ca", 'Czech': "cs", 'Welsh': "cy",
+                      "Danish": 'da',
+                      "German": 'de', "Greek": 'el', "English": 'en',
+                      "Esperanto": 'eo',
+                      "Spanish": 'es', "Estonian": 'et', "Basque": 'eu',
+                      "Finnish": 'fi', "Faroese": 'fo', "French": 'fr',
+                      "Irish": 'ga',
+                      "Gaelic": 'gd', "Galician": 'gl', "Manx": 'gv',
+                      "Hebrew": 'he',
+                      "Croatian": 'hr', "Upper Sorbian": 'hsb',
+                      "Hungarian": 'hu',
+                      "Indonesian": 'id', "Icelandic": 'is', "Italian": 'it',
+                      "Japanese": 'ja', "Kashmiri": 'ka', "Kazakh": 'kk',
+                      "Greenlandic": 'kl', "Korean": 'ko', "Kurdish": 'ku',
+                      "Cornish": 'kw', 'Bhili': "bhb",
+                      "Ganda": 'lg', "Lithuanian": 'lt', "Latvian": 'lv',
+                      "Malagasy": 'mg', "Maori": 'mi', "Macedonian": 'mk',
+                      "Malay": 'ms', "Maltese": 'mt', "Min Nan Chinese": 'nan',
+                      "North Ndebele": 'nb', "Dutch": 'nl',
+                      "Norwegian Nynorsk": 'nn',
+                      "Occitan": 'oc', "Oromo": 'om', "Polish": 'pl',
+                      "Portuguese": 'pt', "Romanian": 'ro', "Russian": 'ru',
+                      "Slovak": 'sk', "Slovenian": 'sl', "Northern Sami": 'so',
+                      "Albanian": 'sq', "Serbian": 'sr', "Sotho": 'st',
+                      "Swedish": 'sv',
+                      "Tulu": 'tcy', "Tajik": 'tg', "Thai": 'th',
+                      "Tagalog": 'tl',
+                      "Turkish": 'tr', "Uighur": 'ug', "Ukrainian": 'uk',
+                      "Uzbek": 'uz',
+                      "Walloon": 'wa', "Xhosa": 'xh', "Yiddish": 'yi',
+                      "Chinese": 'zh', "Zulu": 'zu'}
 
         # Open initial window
         self.reset("clicked")
@@ -201,7 +236,8 @@ class Main(Gtk.Window):
         eprint("\t###\tQUICK INSTALL MODE ACTIVATED\t###\t")
         dialog = Gtk.FileChooserDialog("System Installer", self,
                                        Gtk.FileChooserAction.OPEN,
-                                       (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                                       (Gtk.STOCK_CANCEL,
+                                        Gtk.ResponseType.CANCEL,
                                         Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
 
         self.add_filters(dialog)
@@ -451,8 +487,9 @@ class Main(Gtk.Window):
     Or, would you like to manually partition space for it?\t
 
     <b>NOTE</b>
-    Auto partitioning takes up an entire drive. If you are uncomfortable with this,\t
-    please either manually partition your drive, or abort installation now.\t
+    Auto partitioning takes up an entire drive. If you are uncomfortable with\t
+    this, please either manually partition your drive, or abort installation
+    now.\t
     """ % (DISTRO))
         label.set_justify(Gtk.Justification.LEFT)
         self.grid.attach(label, 1, 1, 7, 1)
@@ -481,7 +518,8 @@ class Main(Gtk.Window):
         self.auto_part_setting = True
 
         # Get a list of disks and their capacity
-        self.device = check_output(["lsblk", "-n", "-i", "-o", "NAME,SIZE,TYPE"]).decode()
+        self.device = check_output(["lsblk", "-n", "-i", "-o",
+                                    "NAME,SIZE,TYPE"]).decode()
         self.device = list(self.device)
         del self.device[-1]
         self.device = "".join(self.device)
@@ -638,7 +676,6 @@ class Main(Gtk.Window):
             self.main_menu("clicked")
 
 
-
     def input_part(self, button):
         """Manual Partitioning Input Window"""
         self.clear_window()
@@ -714,24 +751,24 @@ class Main(Gtk.Window):
 
     def onnext4clicked(self, button):
         """Check device paths provided for manual partitioner"""
-        if ((self.root.get_text() == "") or
-                (self.root.get_text()[0:5] != "/dev/")):
-            label = Gtk.Label()
-            label.set_markup("""
+        if ((self.root.get_text() == "") or (
+            self.root.get_text()[0:5] != "/dev/")):
+                label = Gtk.Label()
+                label.set_markup("""
     What are the mount points for the partions you wish to be used?
     Leave empty the partions you don't want.
     <b> / MUST BE USED </b>
 
     / NOT SET
     """)
-            label.set_justify(Gtk.Justification.LEFT)
-            try:
-                self.grid.remove(self.grid.get_child_at(1, 1))
-            except TypeError:
-                pass
-            self.grid.attach(label, 1, 1, 3, 1)
+                label.set_justify(Gtk.Justification.LEFT)
+                try:
+                    self.grid.remove(self.grid.get_child_at(1, 1))
+                except TypeError:
+                    pass
+                self.grid.attach(label, 1, 1, 3, 1)
 
-            self.show_all()
+                self.show_all()
         elif not path.exists(self.root.get_text()):
             label = Gtk.Label()
             label.set_markup("""
@@ -750,11 +787,10 @@ class Main(Gtk.Window):
 
             self.show_all()
 
-        elif (((self.efi.get_text() == "") or
-               (self.efi.get_text()[0:5] != "/dev/")) and
-              path.isdir("/sys/firmware/efi")):
-            label = Gtk.Label()
-            label.set_markup("""
+        elif (((self.efi.get_text() == "") or (
+            self.efi.get_text()[0:5] != "/dev/")) and path.isdir("/sys/firmware/efi")):
+                label = Gtk.Label()
+                label.set_markup("""
     What are the mount points for the partions you wish to be used?
     Leave empty the partions you don't want.
     <b> / MUST BE USED </b>
@@ -762,74 +798,74 @@ class Main(Gtk.Window):
     You are using EFI, therefore an EFI partition
     must be set.
     """)
-            label.set_justify(Gtk.Justification.LEFT)
-            try:
-                self.grid.remove(self.grid.get_child_at(1, 1))
-            except TypeError:
-                pass
-            self.grid.attach(label, 1, 1, 3, 1)
+                label.set_justify(Gtk.Justification.LEFT)
+                try:
+                    self.grid.remove(self.grid.get_child_at(1, 1))
+                except TypeError:
+                    pass
+                self.grid.attach(label, 1, 1, 3, 1)
 
-            self.show_all()
-        elif (not path.exists(self.efi.get_text()) or
-              ((self.efi.get_text() == "") and
-               not path.isdir("/sys/firmware/efi"))):
-            label = Gtk.Label()
-            label.set_markup("""
+                self.show_all()
+        elif (not path.exists(self.efi.get_text()) or (
+             (self.efi.get_text() == "") and not path.isdir("/sys/firmware/efi")
+             )):
+                label = Gtk.Label()
+                label.set_markup("""
     What are the mount points for the partions you wish to be used?
     Leave empty the partions you don't want.
     <b> / MUST BE USED </b>
 
     Not a Valid Device on /boot/efi
     """)
-            label.set_justify(Gtk.Justification.LEFT)
-            try:
-                self.grid.remove(self.grid.get_child_at(1, 1))
-            except TypeError:
-                pass
-            self.grid.attach(label, 1, 1, 3, 1)
+                label.set_justify(Gtk.Justification.LEFT)
+                try:
+                    self.grid.remove(self.grid.get_child_at(1, 1))
+                except TypeError:
+                    pass
+                self.grid.attach(label, 1, 1, 3, 1)
 
-            self.show_all()
-        elif ((self.home.get_text() != "") and
-              (self.home.get_text()[0:5] != "/dev/")):
-            label = Gtk.Label()
-            label.set_markup("""
+                self.show_all()
+        elif ((self.home.get_text() != "") and (
+             self.home.get_text()[0:5] != "/dev/")):
+                label = Gtk.Label()
+                label.set_markup("""
     What are the mount points for the partions you wish to be used?
     Leave empty the partions you don't want.
     <b> / MUST BE USED </b>
 
     Please input a valid device path for HOME partition.
     """)
-            label.set_justify(Gtk.Justification.LEFT)
-            try:
-                self.grid.remove(self.grid.get_child_at(1, 1))
-            except TypeError:
-                pass
-            self.grid.attach(label, 1, 1, 3, 1)
+                label.set_justify(Gtk.Justification.LEFT)
+                try:
+                    self.grid.remove(self.grid.get_child_at(1, 1))
+                except TypeError:
+                    pass
+                self.grid.attach(label, 1, 1, 3, 1)
 
-            self.show_all()
-        elif (not path.exists(self.home.get_text()) and
-              (self.home.get_text() != "")):
-            label = Gtk.Label()
-            label.set_markup("""
+                self.show_all()
+        elif (not path.exists(self.home.get_text()) and (
+             self.home.get_text() != "")):
+                label = Gtk.Label()
+                label.set_markup("""
     What are the mount points for the partions you wish to be used?
     Leave empty the partions you don't want.
     <b> / MUST BE USED </b>
 
     Not a Valid Device on /home
     """)
-            label.set_justify(Gtk.Justification.LEFT)
-            try:
-                self.grid.remove(self.grid.get_child_at(1, 1))
-            except TypeError:
-                pass
-            self.grid.attach(label, 1, 1, 3, 1)
+                label.set_justify(Gtk.Justification.LEFT)
+                try:
+                    self.grid.remove(self.grid.get_child_at(1, 1))
+                except TypeError:
+                    pass
+                self.grid.attach(label, 1, 1, 3, 1)
 
-            self.show_all()
-        elif ((self.swap.get_text() != "") and
-              (self.swap.get_text()[0:5] != "/dev/") and
-              (self.swap.get_text().upper() != "FILE")):
-            label = Gtk.Label()
-            label.set_markup("""
+                self.show_all()
+        elif ((self.swap.get_text() != "") and (
+             self.swap.get_text()[0:5] != "/dev/") and (
+             self.swap.get_text().upper() != "FILE")):
+                label = Gtk.Label()
+                label.set_markup("""
     What are the mount points for the partions you wish to be used?
     Leave empty the partions you don't want.
     <b> / MUST BE USED </b>
@@ -837,33 +873,33 @@ class Main(Gtk.Window):
     SWAP must be set to a valid partition path, "FILE", or
     left empty.
     """)
-            label.set_justify(Gtk.Justification.LEFT)
-            try:
-                self.grid.remove(self.grid.get_child_at(1, 1))
-            except TypeError:
-                pass
-            self.grid.attach(label, 1, 1, 3, 1)
+                label.set_justify(Gtk.Justification.LEFT)
+                try:
+                    self.grid.remove(self.grid.get_child_at(1, 1))
+                except TypeError:
+                    pass
+                self.grid.attach(label, 1, 1, 3, 1)
 
-            self.show_all()
-        elif (not path.exists(self.swap.get_text()) and
-              (self.swap.get_text().upper() != "FILE") and
-              (self.swap.get_text() != "")):
-            label = Gtk.Label()
-            label.set_markup("""
+                self.show_all()
+        elif (not path.exists(self.swap.get_text()) and (
+             self.swap.get_text().upper() != "FILE") and (
+             self.swap.get_text() != "")):
+                label = Gtk.Label()
+                label.set_markup("""
     What are the mount points for the partions you wish to be used?
     Leave empty the partions you don't want.
     <b> / MUST BE USED </b>
 
     Not a Valid Device on SWAP
     """)
-            label.set_justify(Gtk.Justification.LEFT)
-            try:
-                self.grid.remove(self.grid.get_child_at(1, 1))
-            except TypeError:
-                pass
-            self.grid.attach(label, 1, 1, 3, 1)
+                label.set_justify(Gtk.Justification.LEFT)
+                try:
+                    self.grid.remove(self.grid.get_child_at(1, 1))
+                except TypeError:
+                    pass
+                self.grid.attach(label, 1, 1, 3, 1)
 
-            self.show_all()
+                self.show_all()
         else:
             label = Gtk.Label()
             label.set_markup("""
@@ -888,16 +924,14 @@ class Main(Gtk.Window):
                 self.home_setting = "NULL"
             else:
                 self.home_setting = self.home.get_text()
-            if ((self.swap.get_text() == "") or
-                    (self.swap.get_text().upper() == "FILE")):
-                self.swap_setting = "FILE"
+            if ((self.swap.get_text() == "") or (
+                self.swap.get_text().upper() == "FILE")):
+                    self.swap_setting = "FILE"
             else:
                 self.swap_setting = self.swap.get_text()
             global PART_COMPLETION
             PART_COMPLETION = "COMPLETED"
             self.main_menu("clicked")
-
-
 
     def opengparted(self, button):
         """Open GParted"""
@@ -998,16 +1032,18 @@ Langauge""")
         self.grid.attach(label2, 2, 2, 1, 1)
 
         self.lang_menu = Gtk.ComboBoxText.new()
-        self.lang_menu.append("english", "English")
-        self.lang_menu.append("chinese", "Chinese")
-        self.lang_menu.append("japanese", "Japanese")
-        self.lang_menu.append("spanish", "Spanish")
-        self.lang_menu.append("hindi", "Hindi")
-        self.lang_menu.append("german", "German")
-        self.lang_menu.append("french", "French")
-        self.lang_menu.append("italian", "Italian")
-        self.lang_menu.append("korean", "Korean")
-        self.lang_menu.append("russian", "Russian")
+        for each in self.langs:
+            self.lang_menu.append(self.langs[each], each)
+        # self.lang_menu.append("english", "English")
+        # self.lang_menu.append("chinese", "Chinese")
+        # self.lang_menu.append("japanese", "Japanese")
+        # self.lang_menu.append("spanish", "Spanish")
+        # self.lang_menu.append("hindi", "Hindi")
+        # self.lang_menu.append("german", "German")
+        # self.lang_menu.append("french", "French")
+        # self.lang_menu.append("italian", "Italian")
+        # self.lang_menu.append("korean", "Korean")
+        # self.lang_menu.append("russian", "Russian")
         self.lang_menu.append("other", "Other, User will need to set up manually.")
         if self.lang_setting != "":
             self.lang_menu.set_active_id(self.lang_setting)
@@ -1027,33 +1063,6 @@ Region""")
                  "Europe", "Indian", "Mexico", "Pacific", "US"]
         for each6 in zones:
             self.time_menu.append(each6, each6)
-        # self.time_menu.append("EST", "Eastern Standard Time")
-        # self.time_menu.append("CST", "Central Standard Time")
-        # self.time_menu.append("MST", "Mountain Standard Time")
-        # self.time_menu.append("PST", "Pacific Standard Time")
-        # self.time_menu.append("AST", "Alaska Standard Time")
-        # self.time_menu.append("HST", "Hawaii Standard Time")
-        # self.time_menu.append("MIT", "Midway Islands Time")
-        # self.time_menu.append("NST", "New Zealand Standard Time")
-        # self.time_menu.append("SST", "Soloman Standard Time")
-        # self.time_menu.append("AET", "Austrailia Eastern Time")
-        # self.time_menu.append("ACT", "Austrailia Central Time")
-        # self.time_menu.append("JST", "Japan Standard Time")
-        # self.time_menu.append("CTT", "China Taiwan Time")
-        # self.time_menu.append("VST", "Vietnam Standard Time")
-        # self.time_menu.append("BST", "Bangladesh Standard Time")
-        # self.time_menu.append("PLT", "Pakistan Lahore Time")
-        # self.time_menu.append("NET", "Near East Time")
-        # self.time_menu.append("EAT", "East Africa Time")
-        # self.time_menu.append("ART", "(Arabic) Egypt Standard Time")
-        # self.time_menu.append("EET", "Eastern European Time")
-        # self.time_menu.append("ECT", "European Central Time")
-        # self.time_menu.append("GMT", "Greenwich Mean Time")
-        # self.time_menu.append("CAT", "Central African Time")
-        # self.time_menu.append("BET", "Brazil Eastern Time")
-        # self.time_menu.append("AGT", "Argentina Standard Time")
-        # self.time_menu.append("PRT", "Puerto Rico and US Virgin Islands Time")
-        # self.time_menu.append("IET", "Indiana Eastern Standard Time")
         if len(time_zone) > 0:
             self.time_menu.set_active_id(time_zone[0])
         self.time_menu.connect("changed", self.update_subregion)
@@ -1070,7 +1079,7 @@ Sub-Region""")
         self.grid.attach(self.sub_region, 2, 7, 1, 1)
 
         button1 = Gtk.Button.new_with_label("Okay -->")
-        button1.connect("clicked", self.onnext3clicked)
+        button1.connect("clicked", self.on_locale_completed)
         self.grid.attach(button1, 4, 8, 1, 1)
 
         button2 = Gtk.Button.new_with_label("Exit")
@@ -1092,8 +1101,8 @@ Sub-Region""")
         """
         if widget.get_active_id() is None:
             return
-        zones = sorted(listdir("/usr/share/zoneinfo/" +
-                               widget.get_active_id()))
+        zones = sorted(listdir("/usr/share/zoneinfo/"
+                               + widget.get_active_id()))
         self.grid.remove(self.grid.get_child_at(2, 7))
         self.sub_region = Gtk.ComboBoxText.new()
         for each7 in zones:
@@ -1105,18 +1114,18 @@ Sub-Region""")
 
         self.show_all()
 
-    def onnext3clicked(self, button):
+    def on_locale_completed(self, button):
         """Set default language and time zone if user did not set them"""
         if self.lang_menu.get_active_id() is not None:
             self.lang_setting = self.lang_menu.get_active_id()
         else:
-            self.lang_setting = "english"
+            self.lang_setting = "en"
 
-        if ((self.time_menu.get_active_id() is not None) and
-                (self.sub_region.get_active_id() is not None)):
-            self.time_zone = self.time_menu.get_active_id()
-            self.time_zone = self.time_zone + "/"
-            self.time_zone = self.time_zone + self.sub_region.get_active_id()
+        if ((self.time_menu.get_active_id() is not None) and (
+            self.sub_region.get_active_id() is not None)):
+                self.time_zone = self.time_menu.get_active_id()
+                self.time_zone = self.time_zone + "/"
+                self.time_zone = self.time_zone + self.sub_region.get_active_id()
         else:
             self.time_zone = "America/New_York"
 
@@ -1199,7 +1208,7 @@ Sub-Region""")
         self.grid.attach(self.varient_menu, 2, 4, 3, 1)
 
         button1 = Gtk.Button.new_with_label("Okay -->")
-        button1.connect("clicked", self.onnext5clicked)
+        button1.connect("clicked", self.on_keyboard_completed)
         self.grid.attach(button1, 4, 6, 1, 1)
 
         button2 = Gtk.Button.new_with_label("Exit")
@@ -1234,7 +1243,7 @@ Sub-Region""")
         self.show_all()
 
 
-    def onnext5clicked(self, button):
+    def on_keyboard_completed(self, button):
         """Set default keyboard layout if user did not specify one"""
         if self.model_menu.get_active_id() is not None:
             self.model_setting = self.model_menu.get_active_id()
@@ -1242,16 +1251,21 @@ Sub-Region""")
             self.model_setting = "Generic 105-key PC (intl.)"
         if self.layout_menu.get_active_id() is not None:
             self.layout_setting = self.layout_menu.get_active_id()
+        elif "kernel keymap" in self.model_setting:
+            self.layout_setting = ""
         else:
             self.layout_setting = "English (US)"
         if self.varient_menu.get_active_id() is not None:
             self.varient_setting = self.varient_menu.get_active_id()
+        elif "kernel keymap" in self.model_setting:
+            self.varient_setting = ""
         else:
             self.varient_setting = "euro"
         global KEYBOARD_COMPLETION
         KEYBOARD_COMPLETION = "COMPLETED"
 
         self.main_menu("clicked")
+
 
     def done(self, button):
         """Check to see if each segment has been completed
@@ -1263,11 +1277,11 @@ Sub-Region""")
         global OPTIONS_COMPLETION
         global PART_COMPLETION
         global USER_COMPLETION
-        if ((KEYBOARD_COMPLETION != "COMPLETED") or
-                (LOCALE_COMPLETION != "COMPLETED") or
-                (OPTIONS_COMPLETION != "COMPLETED") or
-                (PART_COMPLETION != "COMPLETED") or
-                (USER_COMPLETION != "COMPLETED")):
+        if ((KEYBOARD_COMPLETION != "COMPLETED"
+            ) or (LOCALE_COMPLETION != "COMPLETED"
+            ) or (OPTIONS_COMPLETION != "COMPLETED"
+            ) or (PART_COMPLETION != "COMPLETED"
+            ) or (USER_COMPLETION != "COMPLETED")):
             self.label.set_markup("""
         Feel free to complete any of the below segments in any order.\t
         However, all segments must be completed.
@@ -1283,23 +1297,6 @@ Sub-Region""")
         """Set settings var"""
         Gtk.main_quit("delete-event")
         self.destroy()
-        # Vars to return:
-            #   1  * self.auto_part_setting
-            #   2  * self.password_setting
-            #   3  * self.username_setting
-            #   4  * self.compname_setting
-            #   5  * self.root_setting
-            #   6  * self.efi_setting
-            #   7  * self.home_setting
-            #   8  * self.swap_setting
-            #   9  * self.extras_setting
-            #   10  * self.updates_setting
-            #   11 * self.login_setting
-            #   12 * self.model_setting
-            #   13 * self.layout_setting
-            #   14 * self.lang_setting
-            #   15 * self.time_zone
-            #   16 * self.varient_setting
         if "" in (self.root_setting, self.efi_setting, self.home_setting,
                   self.swap_setting, self.auto_part_setting, self.lang_setting,
                   self.username_setting, self.compname_setting,
@@ -1308,20 +1305,19 @@ Sub-Region""")
                   self.layout_setting, self.varient_setting):
             self.data = 1
         else:
-            self.data = {"AUTO_PART":bool(self.auto_part_setting),
-                         "ROOT":self.root_setting, "EFI":self.efi_setting,
-                         "HOME":self.home_setting, "SWAP":self.swap_setting,
-                         "LANG":self.lang_setting, "TIME_ZONE":self.time_zone,
-                         "USERNAME":self.username_setting,
-                         "PASSWORD":self.password_setting,
-                         "COMPUTER_NAME":self.compname_setting,
-                         "EXTRAS":bool(self.extras_setting),
-                         "UPDATES":bool(self.updates_setting),
-                         "LOGIN":bool(self.login_setting),
-                         "MODEL":self.model_setting,
-                         "LAYOUT":self.layout_setting,
-                         "VARIENT":self.varient_setting}
-
+            self.data = {"AUTO_PART": bool(self.auto_part_setting),
+                         "ROOT": self.root_setting, "EFI": self.efi_setting,
+                         "HOME": self.home_setting, "SWAP": self.swap_setting,
+                         "LANG": self.lang_setting, "TIME_ZONE": self.time_zone,
+                         "USERNAME": self.username_setting,
+                         "PASSWORD": self.password_setting,
+                         "COMPUTER_NAME": self.compname_setting,
+                         "EXTRAS": bool(self.extras_setting),
+                         "UPDATES": bool(self.updates_setting),
+                         "LOGIN": bool(self.login_setting),
+                         "MODEL": self.model_setting,
+                         "LAYOUT": self.layout_setting,
+                         "VARIENT": self.varient_setting}
 
     def exit(self, button):
         """Exit"""
@@ -1353,6 +1349,7 @@ def show_main():
     data = window.return_data()
     window.exit("clicked")
     return data
+
 
 if __name__ == '__main__':
     show_main()

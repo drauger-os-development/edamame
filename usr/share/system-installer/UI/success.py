@@ -32,6 +32,7 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 import UI.report as report
 
+
 class Main(Gtk.Window):
     """Success UI Class"""
     def __init__(self, settings):
@@ -124,7 +125,8 @@ class Main(Gtk.Window):
 
         label = Gtk.Label()
         label.set_markup("""
-\tAre you sure you wish to delete the new installation? No data will be recoverable.\t
+\tAre you sure you wish to delete the new installation?\t
+\tNo data will be recoverable.\t
 """)
         label.set_justify(Gtk.Justification.CENTER)
         self.grid.attach(label, 1, 1, 3, 1)
@@ -231,11 +233,14 @@ class Main(Gtk.Window):
     def dump_settings_dialog(self, button):
         """Dump Settings Dialog"""
         dialog = Gtk.FileChooserDialog("System Installer", self,
-                                       (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
-                                        Gtk.STOCK_SAVE, Gtk.ResponseType.ACCEPT))
+                                        Gtk.FileChooserAction.SAVE,
+                                       (Gtk.STOCK_CANCEL,
+                                        Gtk.ResponseType.CANCEL,
+                                        Gtk.STOCK_SAVE,
+                                        Gtk.ResponseType.ACCEPT))
         dialog.set_action(Gtk.FileChooserAction.SAVE)
         dialog.set_current_name("installation-settings.json")
-
+        dialog.set_do_overwrite_confirmation(True)
 
         response = dialog.run()
         if response == Gtk.ResponseType.ACCEPT:
@@ -243,10 +248,12 @@ class Main(Gtk.Window):
 
         dialog.destroy()
 
+
 def dump_settings(settings, path):
     """Dump Settings to File"""
     with open(path, "w+") as dump_file:
         json.dump(settings, dump_file, indent=1)
+
 
 Main.main = report.Main.main
 Main.toggle_ui = report.Main.toggle_ui
@@ -267,6 +274,7 @@ Main.log_toggle = report.Main.log_toggle
 Main.ram_explaination = report.Main.ram_explaination
 Main.ram_toggle = report.Main.ram_toggle
 
+
 def show_success(settings):
     """Show Success UI"""
     window = Main(settings)
@@ -277,9 +285,12 @@ def show_success(settings):
     window.show_all()
     Gtk.main()
 
+
 def __reboot__(button):
-    Popen(["systemctl", "reboot", "now"])
+    """Reboot the system"""
+    Popen(["/sbin/reboot"])
     sys.exit(0)
+
 
 if __name__ == '__main__':
     show_success(sys.argv[1])

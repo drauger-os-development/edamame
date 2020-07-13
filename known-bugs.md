@@ -12,4 +12,4 @@ List of known bugs
 		- What few systems do have enough drives for this issue to arise are either;
 			- A server (which Drauger OS should not be running on)
 			- A SUPER high-end machine which likely supports UEFI
-- installer.sh only supports default.config for now
+- installer.py only supports default.json for now
