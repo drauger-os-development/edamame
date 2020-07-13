@@ -69,7 +69,7 @@ try:
                         if len(CONFIG_DIR) != 1:
                             eprint("More than one custom config file in /etc/system-installer is not supported.")
                             eprint("Please remove all but one and try again.")
-                            eprint("'default.config' and 'quick-install-template.config' may remain though.")
+                            eprint("'default.json' and 'quick-install-template.json' may remain though.")
                             sys.exit(2)
                         else:
                             break
@@ -83,8 +83,6 @@ except FileNotFoundError:
     DISTRO = "Drauger OS"
 
 
-
-
 DEFAULT = """
     Welcome to the %s System Installer!
 
@@ -92,15 +90,15 @@ DEFAULT = """
 
     <b>PARTITIONING</b>
 
-    The %s System Installer uses Gparted to allow the user to set up their partitions
-    It is advised to account for this if installing next to another OS.
-    If using automatic partitoning, it will take up the entirety of the drive told to use.
-    Loss of data from usage of this tool is entirely at the fault of the user.
-    You have been warned.
+    The %s System Installer uses Gparted to allow the user to set up their
+    partitions. It is advised to account for this if installing next to another
+    OS. If using automatic partitoning, it will take up the entirety of the
+    drive told to use. Loss of data from usage of this tool is entirely at the
+    fault of the user. You have been warned.
 
-    <b>ALPHA WARNING</b>
+    <b>BETA WARNING</b>
 
-    The %s System Installer is currently in alpha.
+    The %s System Installer is currently in beta.
     Expect bugs.
     """ % (DISTRO, DISTRO, DISTRO)
 
@@ -145,7 +143,7 @@ class Main(Gtk.Window):
                       'Catalan': "ca", 'Czech': "cs", 'Welsh': "cy",
                       "Danish": 'da',
                       "German": 'de', "Greek": 'el', "English": 'en',
-                      "Esperanto":'eo',
+                      "Esperanto": 'eo',
                       "Spanish": 'es', "Estonian": 'et', "Basque": 'eu',
                       "Finnish": 'fi', "Faroese": 'fo', "French": 'fr',
                       "Irish": 'ga',
@@ -239,7 +237,8 @@ class Main(Gtk.Window):
         eprint("\t###\tQUICK INSTALL MODE ACTIVATED\t###\t")
         dialog = Gtk.FileChooserDialog("System Installer", self,
                                        Gtk.FileChooserAction.OPEN,
-                                       (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                                       (Gtk.STOCK_CANCEL,
+                                        Gtk.ResponseType.CANCEL,
                                         Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
 
         self.add_filters(dialog)
@@ -489,8 +488,9 @@ class Main(Gtk.Window):
     Or, would you like to manually partition space for it?\t
 
     <b>NOTE</b>
-    Auto partitioning takes up an entire drive. If you are uncomfortable with this,\t
-    please either manually partition your drive, or abort installation now.\t
+    Auto partitioning takes up an entire drive. If you are uncomfortable with\t
+    this, please either manually partition your drive, or abort installation
+    now.\t
     """ % (DISTRO))
         label.set_justify(Gtk.Justification.LEFT)
         self.grid.attach(label, 1, 1, 7, 1)
