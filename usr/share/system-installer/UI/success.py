@@ -286,7 +286,7 @@ def show_success(settings):
 
 def __reboot__(button):
     """Reboot the system"""
-    Popen(["/usr/sbin/reboot"])
+    Popen(["/sbin/reboot"])
     sys.exit(0)
 
 
