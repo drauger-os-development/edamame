@@ -799,14 +799,14 @@ class Main(Gtk.Window):
     You are using EFI, therefore an EFI partition
     must be set.
     """)
-            label.set_justify(Gtk.Justification.LEFT)
-            try:
-                self.grid.remove(self.grid.get_child_at(1, 1))
-            except TypeError:
-                pass
-            self.grid.attach(label, 1, 1, 3, 1)
+                label.set_justify(Gtk.Justification.LEFT)
+                try:
+                    self.grid.remove(self.grid.get_child_at(1, 1))
+                except TypeError:
+                    pass
+                self.grid.attach(label, 1, 1, 3, 1)
 
-            self.show_all()
+                self.show_all()
         elif (not path.exists(self.efi.get_text()) or (
              (self.efi.get_text() == "") and not path.isdir("/sys/firmware/efi")
              )):

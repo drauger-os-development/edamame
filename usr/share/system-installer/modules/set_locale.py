@@ -59,29 +59,6 @@ def set_locale(lang_set):
             del data[each]
     _setlocale(data[0])
 
-    # if lang_set == "english":
-        # _setlocale("en_US")
-    # elif lang_set == "chinese":
-        # _setlocale("zh_CN")
-    # elif lang_set == "japanese":
-        # _setlocale("ja_JP")
-    # elif lang_set == "spanish":
-        # _setlocale("es_ES")
-    # elif lang_set == "hindi":
-        # _setlocale("hi_IN")
-    # elif lang_set == "german":
-        # _setlocale("de_DE")
-    # elif lang_set == "french":
-        # _setlocale("fr_CA")
-    # elif lang_set == "italian":
-        # _setlocale("it_IT")
-    # elif lang_set == "korean":
-        # _setlocale("ko_KR")
-    # elif lang_set == "russian":
-        # _setlocale("ru_RU")
-    # else:
-        # eprint("No locale set. Defaulting to en_US.UTF-8")
-        # _setlocale("en_US")
     eprint("\t###\tset_locale.py STOPPED\t###\t")
 
 
