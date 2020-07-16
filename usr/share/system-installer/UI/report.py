@@ -523,10 +523,10 @@ If you would like a response, please leave:
         Send installation and hardware report\t""")
         self.grid.attach(label, 1, 1, 3, 1)
 
-        opt = Gtk.Switch()
-        opt.set_state(self.opt_setting)
-        opt.connect("state-set", self.toggle_ui)
-        self.grid.attach(opt, 5, 1, 1, 1)
+        self.opt = Gtk.Switch()
+        self.opt.set_state(self.opt_setting)
+        self.opt.connect("state-set", self.toggle_ui)
+        self.grid.attach(self.opt, 5, 1, 1, 1)
 
         button1 = Gtk.Button.new_with_label("<-- Back")
         button1.connect("clicked", self.main_menu)
