@@ -79,13 +79,13 @@ class Main(Gtk.Window):
         label1 = Gtk.Label()
         label1.set_markup("""
     Knowing what CPUs most of our users use helps us to optimize Drauger OS.
-    It allows us to know if we have more or less CPU cores to take advantage of,
-    or if we need to focus on becoming even lighter weight.
+    It allows us to know if we have more or less CPU cores to take
+    advantage of, or if we need to focus on becoming even lighter weight.
 
     It also gives us valuable information such as CPU vulnerabilities that are
-    common among our users. Knowing this helps us decide if we need to keep certain\t
-    security measures enabled, or if we can disable some for better performance
-    with little to no risk to security.
+    common among our users. Knowing this helps us decide if we need to keep \t
+    certain security measures enabled, or if we can disable some for better
+    performance with little to no risk to security.
     \t""")
         self.grid.attach(label1, 1, 2, 2, 1)
 
@@ -117,12 +117,13 @@ class Main(Gtk.Window):
     It can help us know if we need to put more work into Nvidia and/or AMD
     support.
 
-    It can also help us know if we need to lighten the grpahical load on our users
-    GPUs based on the age and/or power of these GPUs.
+    It can also help us know if we need to lighten the grpahical load on our
+    users GPUs based on the age and/or power of these GPUs.
 
     As for PCIe info, this can help us ensure support for common Wi-Fi cards is
-    built into the kernel, and drivers that aren't needed aren't included. This can save
-    space on your system, as well as speed up updates and increase hardware support.\t
+    built into the kernel, and drivers that aren't needed aren't included. This
+    can save space on your system, as well as speed up updates and increase \t
+    hardware support.
     \t""")
         self.grid.attach(label1, 1, 2, 2, 1)
 
@@ -220,9 +221,10 @@ class Main(Gtk.Window):
     As soon as the installation of Drauger OS completed, the installation log
     was copied to your internal drive.
 
-    Normally, if you have a bug that might be related to the installer, we would ask you
-    to send us that log. By sending it now, we don't have to do that. Instead, we can give you
-    a command to run in your terminal. The output of that command will tell us which installation log is yours
+    Normally, if you have a bug that might be related to the installer, we
+    would ask you to send us that log. By sending it now, we don't have to do
+    that. Instead, we can give you a command to run in your terminal. The
+    output of that command will tell us which installation log is yours
     so we can immediatly access it and track down bugs.
 
     <b>If you send nothing else, please send this.</b>
@@ -286,12 +288,13 @@ class Main(Gtk.Window):
 
             self.scrolled_window = Gtk.ScrolledWindow()
             self.scrolled_window.set_border_width(10)
-            # there is always the scrollbar (otherwise: AUTOMATIC - only if needed
+            # there is always the scrollbar (otherwise: AUTOMATIC -
+            # only if needed
             # - or NEVER)
             self.scrolled_window.set_policy(Gtk.PolicyType.AUTOMATIC,
                                             Gtk.PolicyType.AUTOMATIC)
             self.add(self.scrolled_window)
-            #self.scrolled_window.add_with_viewport(self.grid)
+            # self.scrolled_window.add_with_viewport(self.grid)
             self.scrolled_window.add(self.grid)
 
         # self.text_buffer = Gtk.TextBuffer()
@@ -312,7 +315,6 @@ class Main(Gtk.Window):
         self.grid.attach(button2, 1, 5, 1, 1)
 
         self.show_all()
-
 
     def generate_message(self):
         """write installation report to disk"""
@@ -523,10 +525,10 @@ If you would like a response, please leave:
         Send installation and hardware report\t""")
         self.grid.attach(label, 1, 1, 3, 1)
 
-        opt = Gtk.Switch()
-        opt.set_state(self.opt_setting)
-        opt.connect("state-set", self.toggle_ui)
-        self.grid.attach(opt, 5, 1, 1, 1)
+        self.opt = Gtk.Switch()
+        self.opt.set_state(self.opt_setting)
+        self.opt.connect("state-set", self.toggle_ui)
+        self.grid.attach(self.opt, 5, 1, 1, 1)
 
         button1 = Gtk.Button.new_with_label("<-- Back")
         button1.connect("clicked", self.main_menu)
@@ -540,6 +542,7 @@ def cpu_info():
     info = check_output("lscpu").decode().split("\n")
     return info[13]
 
+
 def disk_info():
     """Get disk info"""
     info = check_output("lsblk").decode().split("\n")
@@ -551,6 +554,7 @@ def disk_info():
     info = "\n".join(info)
     return info
 
+
 def get_info(cmd):
     """Get arbitrary info from commands"""
     info = check_output(cmd).decode()
@@ -560,6 +564,7 @@ def get_info(cmd):
         info = "".join(info)
     info = info.split("\n")
     return info
+
 
 def send_to():
     try:
