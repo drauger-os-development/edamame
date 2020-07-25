@@ -43,6 +43,7 @@ import modules.make_swap as make_swap
 import modules.set_time as set_time
 import modules.systemd_boot_config as systemd_boot_config
 import modules.set_locale as set_locale
+import modules.install_updates as install_updates
 
 def eprint(*args, **kwargs):
     """Make it easier for us to print to stderr"""
@@ -157,7 +158,8 @@ class MainInstallation():
 
     def apt(UPDATES, EXTRAS, INTERNET):
         """Run commands for apt sequentially to avoid front-end lock"""
-        MainInstallation.__install_updates__(UPDATES, INTERNET)
+        # MainInstallation.__install_updates__(UPDATES, INTERNET)
+        install_updates.update_system()
         MainInstallation.__install_extras__(EXTRAS, INTERNET)
 
     def set_passwd(PASSWORD):

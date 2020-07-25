@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-#  install_updates.sh
+#  install_updates.py
 #
 #  Copyright 2020 Thomas Castleman <contact@draugeros.org>
 #
@@ -21,16 +21,29 @@
 #  MA 02110-1301, USA.
 #
 #
-builtin echo -e "\t###\tinstall_updates.sh STARTED\t###\t" 1>&2
-set -e
-set -o pipefail
-apt update 2>/dev/null 1>>/tmp/system-installer.log
-builtin echo "67"
-apt -y dist-upgrade 2>/dev/null 1>>/tmp/system-installer.log
-builtin echo "70"
-apt -y autoremove 2>/dev/null 1>>/tmp/system-installer.log
-builtin echo "72"
-apt clean 2>/dev/null 1>>/tmp/system-installer.log
-set +e
-builtin echo "74"
-builtin echo -e "\t###\tinstall_updates.sh CLOSED\t###\t" 1>&2
+import apt
+from __future__ import print_function
+from sys import argv, stderr, version_info
+
+
+# Make it easier for us to print to stderr
+def __eprint__(*args, **kwargs):
+    """Make it easier for us to print to stderr"""
+    print(*args, file=stderr, **kwargs)
+
+def update_system():
+    """update system through package manager"""
+    __eprint__("\t###\tinstall_updates.py STARTED\t###\t")
+    cache = apt.cache.Cache()
+    cache.update()
+    cache.open()
+    cache.upgrade(dist_upgrade=True)
+    # the autoremove function does not exist. So, emulate it
+    with cache.actiongroup():
+        for each in cache:
+            if each.is_auto_removable:
+                each.mark_delete()
+    cache.commit()
+    __eprint__("\t###\tinstall_updates.py CLOSED\t###\t")
+
+
