@@ -24,9 +24,10 @@
 """Success Reporting UI"""
 from subprocess import Popen, CalledProcessError
 from os import remove, listdir
-from shutil import rmtree
+from shutil import rmtree, copytree, move
 import sys
 import json
+import tarfile as tar
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
@@ -253,6 +254,27 @@ def dump_settings(settings, path):
     """Dump Settings to File"""
     with open(path, "w+") as dump_file:
         json.dump(settings, dump_file, indent=1)
+
+def adv_dump_settings(settings, dump_path):
+    """Compress settings and wallpaper to tar bar for later use"""
+    # Make our directory layout
+    mkdir("/tmp/working_dir")
+    mkdir("/tmp/working_dir/settings")
+    mkdir("/tmp/working_dir/assets")
+    # dump our installation settings and grab our network settings too
+    dump_settings(settings,
+                  "/tmp/working_dir/settings/installation-settings.json")
+    copytree("/mnt/etc/NetworkManager/system-connections",
+             "/tmp/working_dir/settings/network-settings")
+    # make our tar ball, with XZ compression
+    tar_file = tar.open(name=dump_path.split("/")[-1], mode="w:xz")
+    tar_file.add(name="settings")
+    tar_file.add(name="assets")
+    tar_file.close()
+    # copy it to the desired location
+    move(dump_path.split("/")[-1], dump_path)
+    # clean up
+    rmtree("/tmp/working_dir")
 
 
 Main.main = report.Main.main
