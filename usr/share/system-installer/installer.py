@@ -86,6 +86,7 @@ def install(settings):
     json.loads()["DATA"] to see an example of acceptable settings
     """
     eprint("\t###\tinstaller.py STARTED\t###\t")
+    work_dir = "/tmp/quick-install_working-dir"
     # STEP 1: Partion and format the drive ( if needed )
     if settings["AUTO_PART"]:
         partitioning = json.loads(check_output(
@@ -238,6 +239,11 @@ def install(settings):
     rmtree("/mnt/etc/NetworkManager/system-connections")
     copytree("/etc/NetworkManager/system-connections",
              "/mnt/etc/NetworkManager/system-connections")
+    if path.exists(work_dir) and path.exists(work_dir + "/assets"):
+            ls = listdir(work_dir + "/assets")
+            for each in ls:
+                if "wallpaper" in each:
+                    copyfile(work_dir + "/assets/" + each, "/mnt/" + each)
     real_root = chroot.arch_chroot("/mnt")
     modules.master.install(settings, internet)
     chroot.de_chroot(real_root, "/mnt")
