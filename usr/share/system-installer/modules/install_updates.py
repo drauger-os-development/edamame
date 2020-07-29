@@ -44,6 +44,7 @@ def update_system():
             if each.is_auto_removable:
                 each.mark_delete()
     cache.commit()
+    cache.close()
     __eprint__("\t###\tinstall_updates.py CLOSED\t###\t")
 
 
