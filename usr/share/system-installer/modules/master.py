@@ -134,17 +134,6 @@ class MainInstallation():
                 eprint("Adding swap failed. Must manually add later")
         __update__(66)
 
-    def __install_updates__(UPDATES, INTERNET):
-        """Install updates"""
-        if ((UPDATES) and (INTERNET)):
-            try:
-                check_call("/install_updates.sh")
-            except PermissionError:
-                chmod("/install_updates.sh", 0o777)
-                check_call("/install_updates.sh")
-        elif not INTERNET:
-            eprint("Cannot install updates. No internet.")
-
     def __install_extras__(EXTRAS, INTERNET):
         """Install Restricted Extras and Drivers"""
         if ((EXTRAS) and (INTERNET)):
