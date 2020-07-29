@@ -162,11 +162,13 @@ class MainInstallation():
         install_updates.update_system()
         MainInstallation.__install_extras__(EXTRAS, INTERNET)
 
-    def set_passwd(PASSWORD):
+    def set_passwd(USERNAME, PASSWORD):
         """Set Root password"""
         __update__(84)
         process = Popen("chpasswd", stdout=stderr.buffer, stdin=PIPE, stderr=PIPE)
         process.communicate(input=bytes(r"root:%s" % (PASSWORD), "utf-8"))
+        process = Popen("chpasswd", stdout=stderr.buffer, stdin=PIPE, stderr=PIPE)
+        process.communicate(input=bytes(r"%s:%s" % (USERNAME, PASSWORD), "utf-8"))
         __update__(85)
 
     def lightdm_config(LOGIN, USERNAME):
