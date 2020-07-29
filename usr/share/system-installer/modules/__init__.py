@@ -29,3 +29,5 @@ import modules.set_locale as set_locale
 import modules.set_time as set_time
 import modules.systemd_boot_config as systemd_boot_config
 import modules.install_updates as install_updates
+import modules.set_wallpaper as set_wallpaper
+import modules.make_user as make_user

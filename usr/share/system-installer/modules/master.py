@@ -44,6 +44,7 @@ import modules.set_time as set_time
 import modules.systemd_boot_config as systemd_boot_config
 import modules.set_locale as set_locale
 import modules.install_updates as install_updates
+import modules.make_user as make_user
 
 def eprint(*args, **kwargs):
     """Make it easier for us to print to stderr"""
@@ -116,12 +117,7 @@ class MainInstallation():
 
     def make_user(USERNAME, PASSWORD):
         """Set up main user"""
-        # This needs to be set up in Python. Leave it in shell for now
-        try:
-            Popen(["/make_user.sh", USERNAME, PASSWORD])
-        except PermissionError:
-            chmod("/make_user.sh", 0o777)
-            Popen(["/make_user.sh", USERNAME, PASSWORD])
+        make_user.make_user(USERNAME, PASSWORD)
 
     def mk_swap(SWAP):
         """Make swap file"""
