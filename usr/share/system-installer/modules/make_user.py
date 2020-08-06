@@ -54,9 +54,9 @@ def make_user(username, password):
         eprint("Fixing refrences to old home . . .")
         with open("/home/live/.config/gtk-3.0/bookmarks", "r") as bookmark_file:
             bookmarks = bookmark_file.read().split("\n")
-        for each in enumerate(bookmarks)):
+        for each in enumerate(bookmarks):
             bookmarks[each[0]] = bookmarks[each[0]].split("/home/live")
-        for each in enumerate(bookmarks)):
+        for each in enumerate(bookmarks):
             bookmarks[each[0]] = ("/home/" + username).join(bookmarks[each[0]])
         with open("/home/live/.config/gtk-3.0/bookmarks", "w") as bookmark_file:
             bookmark_file.write("\n".join(bookmarks))

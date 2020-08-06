@@ -21,9 +21,9 @@
 #  MA 02110-1301, USA.
 #
 #
-import apt
 from __future__ import print_function
 from sys import argv, stderr, version_info
+import apt
 
 
 # Make it easier for us to print to stderr
