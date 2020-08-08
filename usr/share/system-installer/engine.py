@@ -62,13 +62,13 @@ try:
     if ((SETTINGS == 1) or (len(SETTINGS) == 0)):
         sys.exit(1)
     elif path.exists(SETTINGS):
-        if SETTINGS.split("/")[-1][-5:-1] == ".json":
+        if SETTINGS.split("/")[-1][-5:] == ".json":
             with open(SETTINGS, "r") as quick_install_file:
                 try:
                     SETTINGS = json.loads(quick_install_file.read())["DATA"]
                 except KeyError:
                     SETTINGS = json.loads(quick_install_file.read())
-        elif SETTINGS.split("/")[-1][-7:-1] == ".tar.xz":
+        elif SETTINGS.split("/")[-1][-7:] == ".tar.xz":
             tar_file = tar.open(name=SETTINGS)
             tar_file.extractall(path=work_dir)
             tar_file.close()
