@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-#  __init__.py
+#  install_updates.py
 #
 #  Copyright 2020 Thomas Castleman <contact@draugeros.org>
 #
@@ -21,13 +21,30 @@
 #  MA 02110-1301, USA.
 #
 #
-"""Import modules as proper names"""
-import modules.master as master
-import modules.make_swap as make_swap
-import modules.auto_login_set as auto_login_set
-import modules.set_locale as set_locale
-import modules.set_time as set_time
-import modules.systemd_boot_config as systemd_boot_config
-import modules.install_updates as install_updates
-import modules.set_wallpaper as set_wallpaper
-import modules.make_user as make_user
+from __future__ import print_function
+from sys import argv, stderr, version_info
+import apt
+
+
+# Make it easier for us to print to stderr
+def __eprint__(*args, **kwargs):
+    """Make it easier for us to print to stderr"""
+    print(*args, file=stderr, **kwargs)
+
+def update_system():
+    """update system through package manager"""
+    __eprint__("\t###\tinstall_updates.py STARTED\t###\t")
+    cache = apt.cache.Cache()
+    cache.update()
+    cache.open()
+    cache.upgrade(dist_upgrade=True)
+    # the autoremove function does not exist. So, emulate it
+    with cache.actiongroup():
+        for each in cache:
+            if each.is_auto_removable:
+                each.mark_delete()
+    cache.commit()
+    cache.close()
+    __eprint__("\t###\tinstall_updates.py CLOSED\t###\t")
+
+

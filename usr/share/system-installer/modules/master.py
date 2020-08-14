@@ -43,6 +43,8 @@ import modules.make_swap as make_swap
 import modules.set_time as set_time
 import modules.systemd_boot_config as systemd_boot_config
 import modules.set_locale as set_locale
+import modules.install_updates as install_updates
+import modules.make_user as make_user
 
 def eprint(*args, **kwargs):
     """Make it easier for us to print to stderr"""
@@ -115,12 +117,7 @@ class MainInstallation():
 
     def make_user(USERNAME, PASSWORD):
         """Set up main user"""
-        # This needs to be set up in Python. Leave it in shell for now
-        try:
-            Popen(["/make_user.sh", USERNAME, PASSWORD])
-        except PermissionError:
-            chmod("/make_user.sh", 0o777)
-            Popen(["/make_user.sh", USERNAME, PASSWORD])
+        make_user.make_user(USERNAME, PASSWORD)
 
     def mk_swap(SWAP):
         """Make swap file"""
@@ -132,17 +129,6 @@ class MainInstallation():
             except IOError:
                 eprint("Adding swap failed. Must manually add later")
         __update__(66)
-
-    def __install_updates__(UPDATES, INTERNET):
-        """Install updates"""
-        if ((UPDATES) and (INTERNET)):
-            try:
-                check_call("/install_updates.sh")
-            except PermissionError:
-                chmod("/install_updates.sh", 0o777)
-                check_call("/install_updates.sh")
-        elif not INTERNET:
-            eprint("Cannot install updates. No internet.")
 
     def __install_extras__(EXTRAS, INTERNET):
         """Install Restricted Extras and Drivers"""
@@ -157,14 +143,17 @@ class MainInstallation():
 
     def apt(UPDATES, EXTRAS, INTERNET):
         """Run commands for apt sequentially to avoid front-end lock"""
-        MainInstallation.__install_updates__(UPDATES, INTERNET)
+        # MainInstallation.__install_updates__(UPDATES, INTERNET)
+        install_updates.update_system()
         MainInstallation.__install_extras__(EXTRAS, INTERNET)
 
-    def set_passwd(PASSWORD):
+    def set_passwd(USERNAME, PASSWORD):
         """Set Root password"""
         __update__(84)
         process = Popen("chpasswd", stdout=stderr.buffer, stdin=PIPE, stderr=PIPE)
         process.communicate(input=bytes(r"root:%s" % (PASSWORD), "utf-8"))
+        process = Popen("chpasswd", stdout=stderr.buffer, stdin=PIPE, stderr=PIPE)
+        process.communicate(input=bytes(r"%s:%s" % (USERNAME, PASSWORD), "utf-8"))
         __update__(85)
 
     def lightdm_config(LOGIN, USERNAME):

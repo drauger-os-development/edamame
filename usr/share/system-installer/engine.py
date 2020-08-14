@@ -27,7 +27,7 @@ import sys
 from subprocess import check_output, Popen
 from os import path, listdir, remove, fork, kill
 import json
-# import threading
+import tarfile as tar
 import multiprocessing
 from psutil import virtual_memory
 from shutil import copyfile
@@ -56,16 +56,29 @@ for each in range(len(DISK) - 1, -1, -1):
 if len(DISK) < 1:
     UI.error.show_error("\n\tNo Drives Larger than 16 GB detected\t\n")
     sys.exit(2)
+work_dir = "/tmp/quick-install_working-dir"
 SETTINGS = UI.main.show_main()
 try:
     if ((SETTINGS == 1) or (len(SETTINGS) == 0)):
         sys.exit(1)
     elif path.exists(SETTINGS):
-        with open(SETTINGS, "r") as quick_install_file:
-            try:
-                SETTINGS = json.loads(quick_install_file.read())["DATA"]
-            except KeyError:
-                SETTINGS = json.loads(quick_install_file.read())
+        if SETTINGS.split("/")[-1][-5:] == ".json":
+            with open(SETTINGS, "r") as quick_install_file:
+                try:
+                    SETTINGS = json.loads(quick_install_file.read())["DATA"]
+                except KeyError:
+                    SETTINGS = json.loads(quick_install_file.read())
+        elif SETTINGS.split("/")[-1][-7:] == ".tar.xz":
+            tar_file = tar.open(name=SETTINGS)
+            tar_file.extractall(path=work_dir)
+            tar_file.close()
+            if path.exists(work_dir + "/settings/installation-settings.json"):
+                with open(work_dir + "/settings/installation-settings.json",
+                          "r") as quick_install_file:
+                    try:
+                        SETTINGS = json.loads(quick_install_file.read())["DATA"]
+                    except KeyError:
+                        SETTINGS = json.loads(quick_install_file.read())
 except TypeError:
     pass
 INSTALL = UI.confirm.show_confirm(SETTINGS["AUTO_PART"], SETTINGS["ROOT"],
