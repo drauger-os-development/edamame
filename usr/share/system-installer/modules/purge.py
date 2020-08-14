@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-#  install_updates.py
+#  purge.py
 #
 #  Copyright 2020 Thomas Castleman <contact@draugeros.org>
 #
@@ -21,28 +21,38 @@
 #  MA 02110-1301, USA.
 #
 #
-from __future__ import print_function
-from sys import stderr
+"""Make it easier to purge packages from the system"""
 import apt
 
-import modules.purge as purge
 
+def purge_package(pkg_name):
+    """Purge packages from system using apt
 
-# Make it easier for us to print to stderr
-def __eprint__(*args, **kwargs):
-    """Make it easier for us to print to stderr"""
-    print(*args, file=stderr, **kwargs)
-
-def update_system():
-    """update system through package manager"""
-    __eprint__("\t###\tinstall_updates.py STARTED\t###\t")
+    arguments: pkg_name
+                - Should be a list of package names to purge
+                - Can also remove a single package (provided as a string),
+                    but this is less efficient
+    """
+    if type(pkg_name) == str:
+        pkg_name = [pkg_name]
     cache = apt.cache.Cache()
-    cache.update()
     cache.open()
-    cache.upgrade(dist_upgrade=True)
-    purge.autoremove(cache)
+    with cache.actiongroup():
+        for pkg in pkg_name:
+            for each in cache:
+                if pkg == each.name:
+                    each.mark_delete()
     cache.commit()
     cache.close()
-    __eprint__("\t###\tinstall_updates.py CLOSED\t###\t")
 
 
+def autoremove(cache):
+    """Auto-remove emulation using apt Python library"""
+    # the autoremove function does not exist. So, emulate it
+    cache.open()
+    with cache.actiongroup():
+        for each in cache:
+            if each.is_auto_removable:
+                each.mark_delete()
+    cache.commit()
+    cache.close()

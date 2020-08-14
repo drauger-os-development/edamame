@@ -45,6 +45,8 @@ import modules.systemd_boot_config as systemd_boot_config
 import modules.set_locale as set_locale
 import modules.install_updates as install_updates
 import modules.make_user as make_user
+from modules.verify_install import verify
+from modules.purge import purge_package
 
 def eprint(*args, **kwargs):
     """Make it easier for us to print to stderr"""
@@ -426,13 +428,13 @@ def make_num(string):
     except ValueError:
         return float(string)
 
-def verify_install(username, password):
-    """Fix possible bugs post-installation"""
-    try:
-        check_call(["/verify_install.sh", username, password], stdout=stderr.buffer)
-    except PermissionError:
-        chmod("/verify_install.sh", 0o777)
-        check_call(["/verify_install.sh", username, password], stdout=stderr.buffer)
+# def verify_install(username, password):
+    # """Fix possible bugs post-installation"""
+    # try:
+        # check_call(["/verify_install.sh", username, password], stdout=stderr.buffer)
+    # except PermissionError:
+        # chmod("/verify_install.sh", 0o777)
+        # check_call(["/verify_install.sh", username, password], stdout=stderr.buffer)
 
 def install(settings, internet):
     """Entry point for installation procedure"""
@@ -444,7 +446,9 @@ def install(settings, internet):
     settings["INTERNET"] = internet
     MainInstallation(processes_to_do, settings)
     setup_lowlevel(settings["EFI"], settings["ROOT"])
-    verify_install(settings["USERNAME"], settings["PASSWORD"])
+    verify(settings["USERNAME"], settings["PASSWORD"])
+    if "PURGE" in settings:
+        purge_package(settings["PURGE"])
 
 if __name__ == "__main__":
     # get length of argv
