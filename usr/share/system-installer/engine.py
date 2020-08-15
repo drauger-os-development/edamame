@@ -64,10 +64,7 @@ try:
     elif path.exists(SETTINGS):
         if SETTINGS.split("/")[-1][-5:] == ".json":
             with open(SETTINGS, "r") as quick_install_file:
-                try:
-                    SETTINGS = json.loads(quick_install_file.read())["DATA"]
-                except KeyError:
-                    SETTINGS = json.loads(quick_install_file.read())
+                SETTINGS = json.load(quick_install_file)
         elif SETTINGS.split("/")[-1][-7:] == ".tar.xz":
             tar_file = tar.open(name=SETTINGS)
             tar_file.extractall(path=work_dir)
@@ -75,10 +72,9 @@ try:
             if path.exists(work_dir + "/settings/installation-settings.json"):
                 with open(work_dir + "/settings/installation-settings.json",
                           "r") as quick_install_file:
-                    try:
-                        SETTINGS = json.loads(quick_install_file.read())["DATA"]
-                    except KeyError:
-                        SETTINGS = json.loads(quick_install_file.read())
+                    SETTINGS = json.load(quick_install_file)
+        if "DATA" in SETTINGS:
+            SETTINGS = SETTINGS["DATA"]
 except TypeError:
     pass
 INSTALL = UI.confirm.show_confirm(SETTINGS["AUTO_PART"], SETTINGS["ROOT"],
