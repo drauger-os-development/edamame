@@ -58,7 +58,7 @@ def verify(username, password):
             for each in cache:
                 if (("grub" in each.name) and each.is_installed):
                     each.mark_delete()
-    purge.autoremove(cache)
     cache.commit()
+    purge.autoremove(cache)
     cache.close()
     __eprint__("\t###\tverify_install.py CLOSED\t###\t")
