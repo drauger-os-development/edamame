@@ -30,7 +30,7 @@ import json
 import tarfile as tar
 import multiprocessing
 from psutil import virtual_memory
-from shutil import copyfile
+from shutil import copyfile, copytree
 import UI
 import installer
 
@@ -73,6 +73,14 @@ try:
                 with open(work_dir + "/settings/installation-settings.json",
                           "r") as quick_install_file:
                     SETTINGS = json.load(quick_install_file)
+            try:
+                net_settings = listdir(work_dir + "/settings/network-settings")
+                if len(net_settings) > 0:
+                copytree(net_settings + "/settings/network-settings",
+                         "/etc/NetworkManager/system-connections")
+                eprint("\t###\tNOTE: NETWORK SETTINGS COPIED TO LIVE SYSTEM\t###\t")
+            except FileNotFoundError:
+                pass
         if "DATA" in SETTINGS:
             SETTINGS = SETTINGS["DATA"]
 except TypeError:
