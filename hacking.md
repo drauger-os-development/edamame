@@ -19,8 +19,8 @@ However, there are some limitations:
  * A file, `kernel.7z`, is created upon creation of the *.deb package. This file is necessary as it provides a fall-back kernel for installation when the internet is inaccessible.
  
  
- Installation Procedure
- ---
+Installation Procedure
+---
   1. Obtain user settings - Partition the drive if needed
    
   2. Mount the partitions in the places they will be in the finished system, this includes swap if it is already present.
@@ -37,16 +37,66 @@ However, there are some limitations:
   
   8. Make an initramfs
   
-  9. Set up bootloader
+  9. Set up & configure bootloader
   
     a) GRUB for BIOS
     b) systemd-boot for UEFI
-    
-  10. Configure Bootloader
+  
+  
+Project Layout
+---
+
+System Installer is designed to be as modular as possible. While it still has a long way to go, there are 2 main modules:
+
+- UI Module
+ 	- Located at /usr/share/system-installer/UI
+ 	- Essential Functions:
+ 		- UI.error.show_error()
+ 			- Takes a markup formatted string
+ 			- displays string as an error to the user
+ 		- UI.main.show_main()
+ 			- Takes no arguments
+ 			- Retreives Settings from user
+ 			- Returns either a dictionary of settings, or a file path to pull settings from
+ 		- UI.confirm.show_confirm()
+ 			- Takes settings, each entry in the dictionary, as an argument
+ 			- Displays settings to user, to confirm them for accuracy
+ 			- Returns a Boolean, True for proceed, False for halt
+ 		- UI.progress.show_progress()
+ 			- Takes no arguments
+ 			- Returns `None`
+ 			- Monitors `/tmp/system-installer.log` and `/tmp/system-installer-progress.log` to show the user what is being done during install and how far along install is.
+ 		- UI.success.show_success()
+ 			- Takes settings dictionary as argument
+ 			- Shows user installation success window
+ 			- Allows user to dump settings to JSON file for usage with Quick Install later on
+ 				- Also will grab network settings, wallpaper, and more if requested. A spec for Quick Install formatting will be released later.
+ 			- All other functions included in this window are at the developer's discretion as nothing else is used elsewhere in System Installer
+ 			- Returns `None`
+ 			
+- Installation Module
+	- Located at /usr/share/system-installer/modules
+	- The installation module can be further broken down into sub modules, each with it's own segment of installation it works on.
+	- Everything in this module is orchestrated by the `master.py` file
+	- Essential Functions:
+		- modules.master.check_internet()
+			- Takes no arguments
+			- Checks for internet access
+			- Returns Boolean, True if internet access present, False if not present
+		- modules.master.install()
+			- Takes two arguments: settings dictionary, modules.master.check_internet() return value
+			- Handles installation procedure
+			- Returns `None`
+			- Should be multi-threaded in order to speed up installation
+				- The stock function is multi-threaded using the multiprocessing library
+	
+The UI module is the most replaceable module. As long as the necessary functions are available to `engine.py`, it can easily be replaced with a Qt UI, a GTK UI that looks totally different, or something else!
+
+
  
  
- Notable files for hacking
- ---
+Notable files for hacking
+---
  
 ```
 
