@@ -76,9 +76,9 @@ try:
             try:
                 net_settings = listdir(work_dir + "/settings/network-settings")
                 if len(net_settings) > 0:
-                copytree(net_settings + "/settings/network-settings",
-                         "/etc/NetworkManager/system-connections")
-                eprint("\t###\tNOTE: NETWORK SETTINGS COPIED TO LIVE SYSTEM\t###\t")
+                    copytree(net_settings + "/settings/network-settings",
+                             "/etc/NetworkManager/system-connections")
+                    eprint("\t###\tNOTE: NETWORK SETTINGS COPIED TO LIVE SYSTEM\t###\t")
             except FileNotFoundError:
                 pass
         if "DATA" in SETTINGS:

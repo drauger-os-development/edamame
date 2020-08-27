@@ -21,6 +21,7 @@
 #  MA 02110-1301, USA.
 #
 #
+"""Install system updates from apt"""
 from __future__ import print_function
 from sys import stderr
 import apt
@@ -44,5 +45,3 @@ def update_system():
     cache.commit()
     cache.close()
     __eprint__("\t###\tinstall_updates.py CLOSED\t###\t")
-
-

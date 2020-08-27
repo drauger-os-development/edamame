@@ -33,7 +33,7 @@ def purge_package(pkg_name):
                 - Can also remove a single package (provided as a string),
                     but this is less efficient
     """
-    if type(pkg_name) == str:
+    if isinstance(pkg_name, str):
         pkg_name = [pkg_name]
     cache = apt.cache.Cache()
     cache.open()

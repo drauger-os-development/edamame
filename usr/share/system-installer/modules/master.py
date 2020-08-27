@@ -117,9 +117,9 @@ class MainInstallation():
             hosts.write("127.0.0.1 %s" % (COMPUTER_NAME))
         __update__(48)
 
-    def make_user(USERNAME, PASSWORD):
+    def make_user(USERNAME):
         """Set up main user"""
-        make_user.make_user(USERNAME, PASSWORD)
+        make_user.make_user(USERNAME)
 
     def mk_swap(SWAP):
         """Make swap file"""

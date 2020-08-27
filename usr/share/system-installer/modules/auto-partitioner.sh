@@ -28,7 +28,7 @@
     INSTALL_DISK="$1"
     EFI="$2"
     HOME_DATA="$3"
-    SIZE=$(lsblk | grep $(builtin echo "$INSTALL_DISK" | sed 's:/dev/::g') | grep 'disk' | awk '{print $4}')
+    # SIZE=$(lsblk | grep $(builtin echo "$INSTALL_DISK" | sed 's:/dev/::g') | grep 'disk' | awk '{print $4}')
     if [[ "$HOME_DATA" == "MAKE" ]] || [[ "$HOME_DATA" == "NULL" ]]; then
         builtin echo -e "\t###\tWARNING: DD-ING DRIVE. NO DATA WILL BE RECOVERABLE.\t###\t"
         dd if=/dev/zero of="$INSTALL_DISK" count=1 bs=512

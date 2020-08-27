@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-#  untitled.py
+#  make_user.py
 #
 #  Copyright 2020 Thomas Castleman <contact@draugeros.org>
 #
@@ -21,18 +21,22 @@
 #  MA 02110-1301, USA.
 #
 #
+"""Make user profile"""
 from __future__ import print_function
-from sys import argv, stderr, version_info
-from os import path, rename
+from sys import stderr
+from os import path
 from shutil import move, rmtree
 
 import modules.set_wallpaper as set_wallpaper
 
-# Make it easier for us to print to stderr
+
 def eprint(*args, **kwargs):
+    """Make it easier for us to print to stderr"""
     print(*args, file=stderr, **kwargs)
 
+
 def __fix_home__(username):
+    """Fix home path"""
     if path.exists("/home/home/live"):
         move("/home/home/live", "/home/" + username)
         try:
@@ -43,7 +47,8 @@ def __fix_home__(username):
         eprint("An error occured setting home directory. Hopefully the user's own files are there?")
 
 
-def make_user(username, password):
+def make_user(username):
+    """Set up the user's profile by modifying the Live user"""
     eprint("\t###\tmake_user.py STARTED\t###\t")
     if path.exists("/home/" + username):
         eprint("Original home folder found. Substituting it in . . .")

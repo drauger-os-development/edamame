@@ -51,9 +51,8 @@ def set_locale(lang_set):
         else:
             data[each] = data[each][0][:-6]
     for each in range(len(data) - 1, -1, -1):
-        if (("@" in data[each]) or ("_" not in data[each]) or (
-            data[each] == "")):
-                del data[each]
+        if (("@" in data[each]) or ("_" not in data[each]) or (data[each] == "")):
+            del data[each]
     for each in range(len(data) - 1, -1, -1):
         if lang_set + "_" not in data[each]:
             del data[each]

@@ -53,7 +53,6 @@ def make_swap():
     load_balancer = 3
     master_string = "\0" * multiplyer
     swap = round(swap / multiplyer)
-    i = 0
     with open("/.swapfile", "w+") as swapfile:
         for i in range(round(swap / (multiplyer * load_balancer))):
             swapfile.write(master_string * (multiplyer * load_balancer))
