@@ -21,28 +21,58 @@
 #  MA 02110-1301, USA.
 #
 #
+"""Set user wallpaper"""
 from __future__ import print_function
-from sys import argv, stderr, version_info
-from os import listdir
-from subprocess import check_call
-from shutil import move
+from sys import stderr
+from os import listdir, path
+from subprocess import check_call, CalledProcessError
+from shutil import move, copytree
 
-# Make it easier for us to print to stderr
+
 def eprint(*args, **kwargs):
+    """Make it easier for us to print to stderr"""
     print(*args, file=stderr, **kwargs)
 
 
 def set_wallpaper(username):
+    """Set wallpaper. Wallpapers to set must be in /user-data"""
     eprint("\t###\tset_wallpaper.py STARTED\t###\t")
-    ls = listdir()
+    ls = listdir("/user-data")
+    screens = []
     for each in ls:
-        if (("wallpaper" in each) and ("set_wallpaper.py" != each)):
-            move(each, "/home/" + username + "/.config/" + each)
+        if "wallpaper." in each:
+            try:
+                with open("/user-data/screens.list", "r") as data:
+                    screens = data.read().split("\n")
+            except FileNotFoundError:
+                pass
+            if "monitor0" not in screens:
+                screens.append("monitor0")
+            move("/user-data/" + each,
+                 "/home/" + username + "/.config/" + each)
+    if len(screens) == 0:
+        for each in ls:
+            copytree("/user-data/" + each,
+                     "/home/" + username + "/.config/" + each)
+        screens = ls
+    for each in screens:
+        if path.exists("/home/" + username + "/.config/" + each):
+            file_name = each + "/" + listdir("/home/" + username + "/.config/" + each)[0]
+        else:
+            file_type = listdir("/home/" + username + "/.config")
+            for each1 in file_type:
+                if "wallpaper." in each1:
+                    file_name = each1
+                    break
+        try:
             check_call(["xfconf-query", "-c", "xfce4-desktop", "-p",
-                        "/backdrop/screen0/monitor0/workspace0/last-image",
-                        "-s", "/home/" + username + "/.config/" + each])
-            break
+                        "/backdrop/screen0/" + each + "/workspace0/last-image",
+                        "-s", "/home/" + username + "/.config/" + file_name])
+        except CalledProcessError:
+            check_call(["xfconf-query", "-c", "xfce4-desktop", "--create",
+                        "-p",
+                        "/backdrop/screen0/" + each + "/workspace0/last-image",
+                        "--type", "string", "-s",
+                        "/home/" + username + "/.config/" + file_name])
+
     eprint("\t###\tset_wallpaper.py CLOSED\t###\t")
-
-
-

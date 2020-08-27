@@ -241,9 +241,17 @@ def install(settings):
              "/mnt/etc/NetworkManager/system-connections")
     if path.exists(work_dir) and path.exists(work_dir + "/assets"):
             ls = listdir(work_dir + "/assets")
-            for each in ls:
-                if "wallpaper" in each:
-                    copyfile(work_dir + "/assets/" + each, "/mnt/" + each)
+            mkdir("/mnt/user-data")
+            if "master" in ls:
+                file_type = listdir(work_dir + "/assets/master")[0].split("/")[-1].split(".")[-1]
+                copyfile(work_dir + "/assets/master/wallpaper." + file_type,
+                         "/mnt/user-data/wallpaper." + file_type)
+                copyfile(work_dir + "/assets/screens.list",
+                         "/mnt/user-data/screens.list")
+            else:
+                for each in ls:
+                    copytree(work_dir + "/assets/" + each,
+                             "/mnt/user-data/" + each)
     real_root = chroot.arch_chroot("/mnt")
     modules.master.install(settings, internet)
     chroot.de_chroot(real_root, "/mnt")
