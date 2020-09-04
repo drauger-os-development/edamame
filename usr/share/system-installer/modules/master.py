@@ -127,7 +127,7 @@ class MainInstallation():
             try:
                 make_swap.make_swap()
                 with open("/etc/fstab", "a") as fstab:
-                    fstab.write("/.swapfile swap    swap    defaults    0   0")
+                    fstab.write("/.swapfile\tswap\tswap\tdefaults\t0\t0")
             except IOError:
                 eprint("Adding swap failed. Must manually add later")
         __update__(66)
@@ -198,12 +198,16 @@ BACKSPACE=\"guess\"
     def remove_launcher(USERNAME):
         """Remove system installer desktop launcher"""
         try:
-            remove("/home/%s/Desktop/system-installer.desktop" % (USERNAME))
+            remove("/home/live/Desktop/system-installer.desktop")
         except FileNotFoundError:
             try:
-                rmtree("/home/%sE/.config/xfce4/panel/launcher-3" % (USERNAME))
+                remove("/home/%s/Desktop/system-installer.desktop" % (USERNAME))
             except FileNotFoundError:
-                eprint("Cannot find launcher for system-installer. User will need to remove manually.")
+                try:
+                    rmtree("/home/%s/.config/xfce4/panel/launcher-3" % (USERNAME))
+                except FileNotFoundError:
+                    eprint("""Cannot find launcher for system-installer.
+User will need to remove manually.""")
 
 def set_plymouth_theme():
     """Ensure the plymouth theme is set correctly"""
