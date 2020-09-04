@@ -28,11 +28,6 @@
     INSTALL_DISK="$1"
     EFI="$2"
     HOME_DATA="$3"
-    # SIZE=$(lsblk | grep $(builtin echo "$INSTALL_DISK" | sed 's:/dev/::g') | grep 'disk' | awk '{print $4}')
-    if [[ "$HOME_DATA" == "MAKE" ]] || [[ "$HOME_DATA" == "NULL" ]]; then
-        builtin echo -e "\t###\tWARNING: DD-ING DRIVE. NO DATA WILL BE RECOVERABLE.\t###\t"
-        dd if=/dev/zero of="$INSTALL_DISK" count=1 bs=512
-    fi
     if $(builtin echo "$INSTALL_DISK" | grep -q "nvme"); then
         PART1="$INSTALL_DISK"p1
         PART2="$INSTALL_DISK"p2
@@ -42,20 +37,15 @@
         PART2="$INSTALL_DISK"2
         PART3="$INSTALL_DISK"3
     fi
-    if $(sfdisk -l "$INSTALL_DISK" | grep -q "^Disklabel type:"); then
-        builtin echo "DRIVE HAS PARTITION TABLE. NO NEED TO RE-MAKE."
+    builtin echo "MAKING NEW PARTITION TABLE."
+    if [ "$EFI" == "True" ] || [ "$EFI" == "TRUE" ]; then
+        parted --script "$INSTALL_DISK" mktable gpt
     else
-        builtin echo "MAKING NEW PARTITION TABLE."
-        if [ "$EFI" == "True" ] || [ "$EFI" == "TRUE" ]; then
-            parted --script "$INSTALL_DISK" mktable gpt
-        else
-            parted --script "$INSTALL_DISK" mktable msdos
-        fi
+        parted --script "$INSTALL_DISK" mktable msdos
     fi
     if [ "$EFI" == "True" ] || [ "$EFI" == "TRUE" ]; then
         # we need 2 partitions: /boot/efi and /
         # we make /boot/efi first, then /
-
         if [[ "$HOME_DATA" == "MAKE" ]]; then
             #Make home partition
             parted --script "$INSTALL_DISK" mktable gpt mkpart primary fat32 0% 200M
