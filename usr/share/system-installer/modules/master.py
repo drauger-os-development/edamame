@@ -44,7 +44,7 @@ import modules.set_time as set_time
 import modules.systemd_boot_config as systemd_boot_config
 import modules.set_locale as set_locale
 import modules.install_updates as install_updates
-import modules.make_user as make_user
+import modules.make_user as mkuser
 from modules.verify_install import verify
 from modules.purge import purge_package
 
@@ -119,7 +119,7 @@ class MainInstallation():
 
     def make_user(USERNAME):
         """Set up main user"""
-        make_user.make_user(USERNAME)
+        mkuser.make_user(USERNAME)
 
     def mk_swap(SWAP):
         """Make swap file"""
