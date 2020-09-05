@@ -53,6 +53,13 @@
             parted --script "$INSTALL_DISK" mkpart primary ext4 201M 100%
             PART3="$HOME_DATA"
         fi
+         # apply FS on both, use "builtin echo -e "y\n"" piped into mkfs.fat and mkfs.ext4 to force it to make the FS
+        builtin echo -e "y\n" | mkfs.fat -F 32 "$PART1"
+        builtin echo -e "y\n" | mkfs.ext4 "$PART2"
+        # if we have a home partition, set the FS on it too
+        if [[ "$HOME_DATA" == "MAKE" ]]; then
+            builtin echo -e "y\n" | mkfs.ext4 "$PART3"
+        fi
     else
         #only need one partition cause we are using BIOS
         if [[ "$HOME_DATA" == "MAKE" ]]; then
@@ -64,6 +71,12 @@
             #don't make one. Reset $PART3
             parted --script "$INSTALL_DISK" mkpart primary ext4 0% 100%
             PART3="$HOME_DATA"
+        fi
+         # apply FS on both, use "builtin echo -e "y\n"" piped into mkfs.fat and mkfs.ext4 to force it to make the FS
+        builtin echo -e "y\n" | mkfs.ext4 "$PART1"
+        # if we have a home partition, set the FS on it too
+        if [[ "$HOME_DATA" == "MAKE" ]]; then
+            builtin echo -e "y\n" | mkfs.ext4 "$PART2"
         fi
     fi
     set +e
