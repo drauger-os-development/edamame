@@ -82,10 +82,7 @@
     set +e
     parted --script "$INSTALL_DISK" set 1 boot on
     partprobe
-    # Pause until the files are present
-    while [ ! -f "$PART1" ]; do
-	    sleep 1s
-	done
+    sleep 2s
     builtin echo -e "\t###\tauto-partioner.sh CLOSED\t###\t"
 } 1>&2
 if [ "$EFI" == "True" ] || [ "$EFI" == "TRUE" ]; then

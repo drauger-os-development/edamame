@@ -311,7 +311,8 @@ def setup_lowlevel(efi, root):
     install_kernel(release)
     set_plymouth_theme()
     eprint("\n\t###\tMAKING INITRAMFS\t###\t")
-    check_call(["mkinitramfs", "-o", "/boot/initrd.img-" + release], stdout=stderr.buffer)
+    check_call(["mkinitramfs", "-o", "/boot/initrd.img-" + release],
+               stdout=stderr.buffer)
     install_bootloader(efi, root, release)
     sleep(0.5)
     symlink("/boot/initrd.img-" + release, "/boot/initrd.img")
@@ -323,7 +324,8 @@ def check_systemd_boot(release, root):
     root_flags = "quiet splash"
     recovery_flags = "ro recovery nomodeset"
     # Get Root UUID
-    uuid = check_output(["blkid", "-s", "PARTUUID", "-o", "value", root]).decode()[0:-1]
+    uuid = check_output(["blkid", "-s", "PARTUUID",
+                         "-o", "value", root]).decode()[0:-1]
 
     # Check for standard boot config
     if not path.exists("/boot/efi/loader/entries/Drauger_OS.conf"):
@@ -355,7 +357,7 @@ options root=PARTUUID=%s %s""" % (uuid, recovery_flags))
             eprint("Made recovery systemd-boot entry")
         # Raise a warning if we cannot write the entry
         except (PermissionError, IOError):
-            eprint("\t###\WARNING\t###\tCANNOT MAKE RECOVERY SYSTEMD-BOOT ENTRY CONFIG FILE\t###WARNING\t###\t")
+            eprint("\t###\tWARNING\t###\tCANNOT MAKE RECOVERY SYSTEMD-BOOT ENTRY CONFIG FILE\t###\tWARNING\t###\t")
             warnings.warn("Cannot make recovery systemd-boot entry config file. Installation will not be recoverable.")
     else:
         eprint("Recovery systemd-boot entry checks out")
