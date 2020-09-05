@@ -57,8 +57,8 @@
             parted --script "$INSTALL_DISK" mkpart primary ext4 201M 100%
             PART3="$HOME_DATA"
         fi
-        sleep 1s
         set +e
+        partprobe
         sfdisk --reorder "$INSTALL_DISK"
         builtin echo "PARTITION NUMBERING MODIFIED. CHECK FSTAB OF OTHER INSTALLED OSs TO ENSURE THEY WILL STILL WORK."
         parted --script "$INSTALL_DISK" set 1 boot on
