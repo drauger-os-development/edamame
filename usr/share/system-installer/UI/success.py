@@ -333,7 +333,7 @@ def adv_dump_settings(settings, dump_path, copy_net=True, copy_set=True,
         for each in monitors:
             wall_path.append(check_output(["xfconf-query", "--channel", "xfce4-desktop",
                                            "--property",
-                                           "/backdrop/screen0/monitor" + each + "/workspace0/last-image"]).decode("utf-8")
+                                           "/backdrop/screen0/monitor" + each + "/workspace0/last-image"]).decode("utf-8"))
         wall_path_unique = __unique__(wall_path)
         # Copy designated files into "assets"
         if len(wall_path_unique) == 1:
