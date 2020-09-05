@@ -72,6 +72,7 @@
     # Pause until the files are present
     while [ ! -f "$PART1" ]; do
 	    sleep 1s
+	done
     builtin echo -e "\t###\tauto-partioner.sh CLOSED\t###\t"
 } 1>&2
 if [ "$EFI" == "True" ] || [ "$EFI" == "TRUE" ]; then
