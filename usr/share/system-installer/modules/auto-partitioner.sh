@@ -58,17 +58,17 @@
             PART3="$HOME_DATA"
         fi
         set +e
-        partprobe
-        sfdisk --reorder "$INSTALL_DISK"
-        builtin echo "PARTITION NUMBERING MODIFIED. CHECK FSTAB OF OTHER INSTALLED OSs TO ENSURE THEY WILL STILL WORK."
+        #partprobe
+        #sfdisk --reorder "$INSTALL_DISK"
+        #builtin echo "PARTITION NUMBERING MODIFIED. CHECK FSTAB OF OTHER INSTALLED OSs TO ENSURE THEY WILL STILL WORK."
         parted --script "$INSTALL_DISK" set 1 boot on
         # apply FS on both, use "builtin echo -e "y\n"" piped into mkfs.fat and mkfs.ext4 to force it to make the FS
-        builtin echo -e "y\n" | mkfs.fat -F 32 "$PART1"
-        builtin echo -e "y\n" | mkfs.ext4 "$PART2"
+        #builtin echo -e "y\n" | mkfs.fat -F 32 "$PART1"
+        #builtin echo -e "y\n" | mkfs.ext4 "$PART2"
         # if we have a home partition, set the FS on it too
-        if [[ "$HOME_DATA" == "MAKE" ]]; then
-            builtin echo -e "y\n" | mkfs.ext4 "$PART3"
-        fi
+        #if [[ "$HOME_DATA" == "MAKE" ]]; then
+        #    builtin echo -e "y\n" | mkfs.ext4 "$PART3"
+        #fi
     else
         #only need one partition cause we are using BIOS
         if [[ "$HOME_DATA" == "MAKE" ]]; then
@@ -83,12 +83,12 @@
         fi
         sleep 1s
         set +e
-        sfdisk --reorder "$INSTALL_DISK"
-        builtin echo "PARTITION NUMBERING MODIFIED. CHECK FSTAB OF OTHER INSTALLED OSs TO ENSURE THEY WILL STILL WORK."
+        #sfdisk --reorder "$INSTALL_DISK"
+        #builtin echo "PARTITION NUMBERING MODIFIED. CHECK FSTAB OF OTHER INSTALLED OSs TO ENSURE THEY WILL STILL WORK."
         parted --script "$INSTALL_DISK" set 1 boot on
-        builtin echo -e "y\n" | mkfs.ext4 "$PART1"
+        #builtin echo -e "y\n" | mkfs.ext4 "$PART1"
     fi
-    partprobe
+    #partprobe
     builtin echo -e "\t###\tauto-partioner.sh CLOSED\t###\t"
 } 1>&2
 if [ "$EFI" == "True" ] || [ "$EFI" == "TRUE" ]; then
