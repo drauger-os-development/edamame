@@ -52,19 +52,6 @@ def eprint(*args, **kwargs):
     """Make it easier for us to print to stderr"""
     print(*args, file=stderr, **kwargs)
 
-def check_internet():
-    """Check Internet Connectivity"""
-    try:
-        urllib3.connection_from_url('http://draugeros.org', timeout=1)
-        return True
-    except urllib3.exceptions.ConnectTimeoutError:
-        return False
-    except urllib3.exceptions.ConnectionError:
-        return False
-    except urllib3.exceptions.TimeoutError:
-        return False
-    except urllib3.exceptions.HTTPError:
-        return False
 
 def __update__(percentage):
     try:
@@ -440,14 +427,13 @@ def make_num(string):
         # chmod("/verify_install.sh", 0o777)
         # check_call(["/verify_install.sh", username, password], stdout=stderr.buffer)
 
-def install(settings, internet):
+def install(settings):
     """Entry point for installation procedure"""
     __update__(39)
     processes_to_do = dir(MainInstallation)
     for each in range(len(processes_to_do) - 1, -1, -1):
         if processes_to_do[each][0] == "_":
             del processes_to_do[each]
-    settings["INTERNET"] = internet
     MainInstallation(processes_to_do, settings)
     setup_lowlevel(settings["EFI"], settings["ROOT"])
     verify(settings["USERNAME"], settings["PASSWORD"])
@@ -477,6 +463,5 @@ if __name__ == "__main__":
         # settings["SWAP"] = argv[14]
     # else:
         # settings["SWAP"] = None
-    INTERNET = check_internet()
 
-    install(SETTINGS, INTERNET)
+    install(SETTINGS)

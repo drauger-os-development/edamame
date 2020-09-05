@@ -234,7 +234,6 @@ def install(settings):
     # jumps through a lot of hoops for us.
     # check_call(["arch-chroot", "python3", "/master.py", settings],
     # stdout=stderr.buffer)
-    internet = modules.master.check_internet()
     # Copy live system networking settings into installed system
     rmtree("/mnt/etc/NetworkManager/system-connections")
     copytree("/etc/NetworkManager/system-connections",
@@ -253,7 +252,7 @@ def install(settings):
                     copytree(work_dir + "/assets/" + each,
                              "/mnt/user-data/" + each)
     real_root = chroot.arch_chroot("/mnt")
-    modules.master.install(settings, internet)
+    modules.master.install(settings)
     chroot.de_chroot(real_root, "/mnt")
     eprint("Removing installation scripts and resetting resolv.conf")
     for each in file_list:

@@ -1,6 +1,10 @@
 {
 	"squashfs_Location":"/run/live/medium/live/filesystem.squashfs",
 	"distro":"Drauger OS",
-	"report_to":"installation-reports@draugeros.org"
+	"report_to":"installation-reports@draugeros.org",
+	"ping servers":["https://apt.draugeros.org",
+									"https://ubuntu.com",
+									"https://debian.org"],
+	"ping count":2
 }
 

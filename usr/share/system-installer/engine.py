@@ -33,6 +33,7 @@ from psutil import virtual_memory
 from shutil import copyfile, copytree
 import UI
 import installer
+import check_internet
 
 
 def eprint(*args, **kwargs):
@@ -104,6 +105,7 @@ if INSTALL:
         # otherwise, we are parent and should continue
         process = Popen("/usr/share/system-installer/progress.py")
         pid = process.pid
+        SETTINGS["INTERNET"] = check_internet.has_internet()
         installer.install(SETTINGS)
         file_list = listdir("/mnt")
         for each in file_list:
