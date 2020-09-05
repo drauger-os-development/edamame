@@ -70,7 +70,7 @@ RECOVERY_FLAGS="ro recovery nomodeset"
 KERNELS=()
 FIND=$(ls -A /boot | grep "vmlinuz-*")
 for each in $FIND; do
-    KERNELS+="/boot/$each "
+    KERNELS+="/boot/$each"
 done
 
 # There has to be at least one kernel.

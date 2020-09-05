@@ -28,11 +28,6 @@
     INSTALL_DISK="$1"
     EFI="$2"
     HOME_DATA="$3"
-    SIZE=$(lsblk | grep $(builtin echo "$INSTALL_DISK" | sed 's:/dev/::g') | grep 'disk' | awk '{print $4}')
-    if [[ "$HOME_DATA" == "MAKE" ]] || [[ "$HOME_DATA" == "NULL" ]]; then
-        builtin echo -e "\t###\tWARNING: DD-ING DRIVE. NO DATA WILL BE RECOVERABLE.\t###\t"
-        dd if=/dev/zero of="$INSTALL_DISK" count=1 bs=512
-    fi
     if $(builtin echo "$INSTALL_DISK" | grep -q "nvme"); then
         PART1="$INSTALL_DISK"p1
         PART2="$INSTALL_DISK"p2
@@ -42,23 +37,14 @@
         PART2="$INSTALL_DISK"2
         PART3="$INSTALL_DISK"3
     fi
-    if $(sfdisk -l "$INSTALL_DISK" | grep -q "^Disklabel type:"); then
-        builtin echo "DRIVE HAS PARTITION TABLE. NO NEED TO RE-MAKE."
-    else
-        builtin echo "MAKING NEW PARTITION TABLE."
-        if [ "$EFI" == "True" ] || [ "$EFI" == "TRUE" ]; then
-            parted --script "$INSTALL_DISK" mktable gpt
-        else
-            parted --script "$INSTALL_DISK" mktable msdos
-        fi
-    fi
+    builtin echo "MAKING NEW PARTITION TABLE."
+    parted --script "$INSTALL_DISK" mktable gpt
     if [ "$EFI" == "True" ] || [ "$EFI" == "TRUE" ]; then
         # we need 2 partitions: /boot/efi and /
         # we make /boot/efi first, then /
-
         if [[ "$HOME_DATA" == "MAKE" ]]; then
             #Make home partition
-            parted --script "$INSTALL_DISK" mktable gpt mkpart primary fat32 0% 200M
+            parted --script "$INSTALL_DISK" mkpart primary fat32 0% 200M
             parted --script "$INSTALL_DISK" mkpart primary ext4 201M 30%
             parted --script "$INSTALL_DISK" mkpart primary ext4 30% 100%
         else
@@ -67,12 +53,7 @@
             parted --script "$INSTALL_DISK" mkpart primary ext4 201M 100%
             PART3="$HOME_DATA"
         fi
-        sleep 1s
-        set +e
-        sfdisk --reorder "$INSTALL_DISK"
-        builtin echo "PARTITION NUMBERING MODIFIED. CHECK FSTAB OF OTHER INSTALLED OSs TO ENSURE THEY WILL STILL WORK."
-        parted --script "$INSTALL_DISK" set 1 boot on
-        # apply FS on both, use "builtin echo -e "y\n"" piped into mkfs.fat and mkfs.ext4 to force it to make the FS
+         # apply FS on both, use "builtin echo -e "y\n"" piped into mkfs.fat and mkfs.ext4 to force it to make the FS
         builtin echo -e "y\n" | mkfs.fat -F 32 "$PART1"
         builtin echo -e "y\n" | mkfs.ext4 "$PART2"
         # if we have a home partition, set the FS on it too
@@ -83,7 +64,7 @@
         #only need one partition cause we are using BIOS
         if [[ "$HOME_DATA" == "MAKE" ]]; then
             #Make home partition
-            parted --script "$INSTALL_DISK" mktabel msdos mkpart primary ext4 0% 30%
+            parted --script "$INSTALL_DISK" mkpart primary ext4 0% 30%
             parted --script "$INSTALL_DISK" mkpart primary ext4 30% 100%
 
         else
@@ -91,14 +72,17 @@
             parted --script "$INSTALL_DISK" mkpart primary ext4 0% 100%
             PART3="$HOME_DATA"
         fi
-        sleep 1s
-        set +e
-        sfdisk --reorder "$INSTALL_DISK"
-        builtin echo "PARTITION NUMBERING MODIFIED. CHECK FSTAB OF OTHER INSTALLED OSs TO ENSURE THEY WILL STILL WORK."
-        parted --script "$INSTALL_DISK" set 1 boot on
+         # apply FS on both, use "builtin echo -e "y\n"" piped into mkfs.fat and mkfs.ext4 to force it to make the FS
         builtin echo -e "y\n" | mkfs.ext4 "$PART1"
+        # if we have a home partition, set the FS on it too
+        if [[ "$HOME_DATA" == "MAKE" ]]; then
+            builtin echo -e "y\n" | mkfs.ext4 "$PART2"
+        fi
     fi
+    set +e
+    parted --script "$INSTALL_DISK" set 1 boot on
     partprobe
+    sleep 2s
     builtin echo -e "\t###\tauto-partioner.sh CLOSED\t###\t"
 } 1>&2
 if [ "$EFI" == "True" ] || [ "$EFI" == "TRUE" ]; then

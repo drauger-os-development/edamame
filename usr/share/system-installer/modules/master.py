@@ -44,25 +44,14 @@ import modules.set_time as set_time
 import modules.systemd_boot_config as systemd_boot_config
 import modules.set_locale as set_locale
 import modules.install_updates as install_updates
-import modules.make_user as make_user
+import modules.make_user as mkuser
+from modules.verify_install import verify
+from modules.purge import purge_package
 
 def eprint(*args, **kwargs):
     """Make it easier for us to print to stderr"""
     print(*args, file=stderr, **kwargs)
 
-def check_internet():
-    """Check Internet Connectivity"""
-    try:
-        urllib3.connection_from_url('http://draugeros.org', timeout=1)
-        return True
-    except urllib3.exceptions.ConnectTimeoutError:
-        return False
-    except urllib3.exceptions.ConnectionError:
-        return False
-    except urllib3.exceptions.TimeoutError:
-        return False
-    except urllib3.exceptions.HTTPError:
-        return False
 
 def __update__(percentage):
     try:
@@ -115,9 +104,9 @@ class MainInstallation():
             hosts.write("127.0.0.1 %s" % (COMPUTER_NAME))
         __update__(48)
 
-    def make_user(USERNAME, PASSWORD):
+    def make_user(USERNAME):
         """Set up main user"""
-        make_user.make_user(USERNAME, PASSWORD)
+        mkuser.make_user(USERNAME)
 
     def mk_swap(SWAP):
         """Make swap file"""
@@ -125,7 +114,7 @@ class MainInstallation():
             try:
                 make_swap.make_swap()
                 with open("/etc/fstab", "a") as fstab:
-                    fstab.write("/.swapfile swap    swap    defaults    0   0")
+                    fstab.write("/.swapfile\tswap\tswap\tdefaults\t0\t0")
             except IOError:
                 eprint("Adding swap failed. Must manually add later")
         __update__(66)
@@ -196,12 +185,16 @@ BACKSPACE=\"guess\"
     def remove_launcher(USERNAME):
         """Remove system installer desktop launcher"""
         try:
-            remove("/home/%s/Desktop/system-installer.desktop" % (USERNAME))
+            remove("/home/live/Desktop/system-installer.desktop")
         except FileNotFoundError:
             try:
-                rmtree("/home/%sE/.config/xfce4/panel/launcher-3" % (USERNAME))
+                remove("/home/%s/Desktop/system-installer.desktop" % (USERNAME))
             except FileNotFoundError:
-                eprint("Cannot find launcher for system-installer. User will need to remove manually.")
+                try:
+                    rmtree("/home/%s/.config/xfce4/panel/launcher-3" % (USERNAME))
+                except FileNotFoundError:
+                    eprint("""Cannot find launcher for system-installer.
+User will need to remove manually.""")
 
 def set_plymouth_theme():
     """Ensure the plymouth theme is set correctly"""
@@ -318,7 +311,8 @@ def setup_lowlevel(efi, root):
     install_kernel(release)
     set_plymouth_theme()
     eprint("\n\t###\tMAKING INITRAMFS\t###\t")
-    check_call(["mkinitramfs", "-o", "/boot/initrd.img-" + release], stdout=stderr.buffer)
+    check_call(["mkinitramfs", "-o", "/boot/initrd.img-" + release],
+               stdout=stderr.buffer)
     install_bootloader(efi, root, release)
     sleep(0.5)
     symlink("/boot/initrd.img-" + release, "/boot/initrd.img")
@@ -330,7 +324,8 @@ def check_systemd_boot(release, root):
     root_flags = "quiet splash"
     recovery_flags = "ro recovery nomodeset"
     # Get Root UUID
-    uuid = check_output(["blkid", "-s", "PARTUUID", "-o", "value", root]).decode()[0:-1]
+    uuid = check_output(["blkid", "-s", "PARTUUID",
+                         "-o", "value", root]).decode()[0:-1]
 
     # Check for standard boot config
     if not path.exists("/boot/efi/loader/entries/Drauger_OS.conf"):
@@ -362,7 +357,7 @@ options root=PARTUUID=%s %s""" % (uuid, recovery_flags))
             eprint("Made recovery systemd-boot entry")
         # Raise a warning if we cannot write the entry
         except (PermissionError, IOError):
-            eprint("\t###\WARNING\t###\tCANNOT MAKE RECOVERY SYSTEMD-BOOT ENTRY CONFIG FILE\t###WARNING\t###\t")
+            eprint("\t###\tWARNING\t###\tCANNOT MAKE RECOVERY SYSTEMD-BOOT ENTRY CONFIG FILE\t###\tWARNING\t###\t")
             warnings.warn("Cannot make recovery systemd-boot entry config file. Installation will not be recoverable.")
     else:
         eprint("Recovery systemd-boot entry checks out")
@@ -426,25 +421,26 @@ def make_num(string):
     except ValueError:
         return float(string)
 
-def verify_install(username, password):
-    """Fix possible bugs post-installation"""
-    try:
-        check_call(["/verify_install.sh", username, password], stdout=stderr.buffer)
-    except PermissionError:
-        chmod("/verify_install.sh", 0o777)
-        check_call(["/verify_install.sh", username, password], stdout=stderr.buffer)
+# def verify_install(username, password):
+    # """Fix possible bugs post-installation"""
+    # try:
+        # check_call(["/verify_install.sh", username, password], stdout=stderr.buffer)
+    # except PermissionError:
+        # chmod("/verify_install.sh", 0o777)
+        # check_call(["/verify_install.sh", username, password], stdout=stderr.buffer)
 
-def install(settings, internet):
+def install(settings):
     """Entry point for installation procedure"""
     __update__(39)
     processes_to_do = dir(MainInstallation)
     for each in range(len(processes_to_do) - 1, -1, -1):
         if processes_to_do[each][0] == "_":
             del processes_to_do[each]
-    settings["INTERNET"] = internet
     MainInstallation(processes_to_do, settings)
     setup_lowlevel(settings["EFI"], settings["ROOT"])
-    verify_install(settings["USERNAME"], settings["PASSWORD"])
+    verify(settings["USERNAME"], settings["PASSWORD"])
+    if "PURGE" in settings:
+        purge_package(settings["PURGE"])
 
 if __name__ == "__main__":
     # get length of argv
@@ -469,6 +465,5 @@ if __name__ == "__main__":
         # settings["SWAP"] = argv[14]
     # else:
         # settings["SWAP"] = None
-    INTERNET = check_internet()
 
-    install(SETTINGS, INTERNET)
+    install(SETTINGS)

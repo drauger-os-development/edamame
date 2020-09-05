@@ -30,9 +30,10 @@ import json
 import tarfile as tar
 import multiprocessing
 from psutil import virtual_memory
-from shutil import copyfile
+from shutil import copyfile, copytree
 import UI
 import installer
+import check_internet
 
 
 def eprint(*args, **kwargs):
@@ -64,10 +65,7 @@ try:
     elif path.exists(SETTINGS):
         if SETTINGS.split("/")[-1][-5:] == ".json":
             with open(SETTINGS, "r") as quick_install_file:
-                try:
-                    SETTINGS = json.loads(quick_install_file.read())["DATA"]
-                except KeyError:
-                    SETTINGS = json.loads(quick_install_file.read())
+                SETTINGS = json.load(quick_install_file)
         elif SETTINGS.split("/")[-1][-7:] == ".tar.xz":
             tar_file = tar.open(name=SETTINGS)
             tar_file.extractall(path=work_dir)
@@ -75,10 +73,17 @@ try:
             if path.exists(work_dir + "/settings/installation-settings.json"):
                 with open(work_dir + "/settings/installation-settings.json",
                           "r") as quick_install_file:
-                    try:
-                        SETTINGS = json.loads(quick_install_file.read())["DATA"]
-                    except KeyError:
-                        SETTINGS = json.loads(quick_install_file.read())
+                    SETTINGS = json.load(quick_install_file)
+            try:
+                net_settings = listdir(work_dir + "/settings/network-settings")
+                if len(net_settings) > 0:
+                    copytree(net_settings + "/settings/network-settings",
+                             "/etc/NetworkManager/system-connections")
+                    eprint("\t###\tNOTE: NETWORK SETTINGS COPIED TO LIVE SYSTEM\t###\t")
+            except FileNotFoundError:
+                pass
+        if "DATA" in SETTINGS:
+            SETTINGS = SETTINGS["DATA"]
 except TypeError:
     pass
 INSTALL = UI.confirm.show_confirm(SETTINGS["AUTO_PART"], SETTINGS["ROOT"],
@@ -100,6 +105,7 @@ if INSTALL:
         # otherwise, we are parent and should continue
         process = Popen("/usr/share/system-installer/progress.py")
         pid = process.pid
+        SETTINGS["INTERNET"] = check_internet.has_internet()
         installer.install(SETTINGS)
         file_list = listdir("/mnt")
         for each in file_list:

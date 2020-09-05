@@ -31,3 +31,5 @@ import modules.systemd_boot_config as systemd_boot_config
 import modules.install_updates as install_updates
 import modules.set_wallpaper as set_wallpaper
 import modules.make_user as make_user
+import modules.purge as purge
+import modules.verify_install as verify_install

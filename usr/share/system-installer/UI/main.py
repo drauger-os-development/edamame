@@ -253,10 +253,15 @@ class Main(Gtk.Window):
 
     def add_filters(self, dialog):
         """Add Filters to Quick Install File Selection Window"""
-        filter_text = Gtk.FileFilter()
-        filter_text.set_name("JSON")
-        filter_text.add_mime_type("application/json")
-        dialog.add_filter(filter_text)
+        json_filter_text = Gtk.FileFilter()
+        json_filter_text.set_name("JSON Files (*.json)")
+        json_filter_text.add_mime_type("application/json")
+        dialog.add_filter(json_filter_text)
+
+        xz_filter_text = Gtk.FileFilter()
+        xz_filter_text.set_name("XZ compressed Tar balls (*.tar.xz)")
+        xz_filter_text.add_mime_type("application/x-xz-compressed-tar")
+        dialog.add_filter(xz_filter_text)
 
         filter_any = Gtk.FileFilter()
         filter_any.set_name("Any files")

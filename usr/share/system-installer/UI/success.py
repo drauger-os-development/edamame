@@ -22,9 +22,9 @@
 #
 #
 """Success Reporting UI"""
-from subprocess import Popen, CalledProcessError
-from os import remove, listdir
-from shutil import rmtree, copytree, move
+from subprocess import Popen, CalledProcessError, check_output
+from os import remove, listdir, mkdir, chdir, chmod, chown
+from shutil import rmtree, copytree, move, copyfile
 import sys
 import json
 import tarfile as tar
@@ -232,7 +232,41 @@ class Main(Gtk.Window):
             self.set_default_size(-1, -1)
 
     def dump_settings_dialog(self, button):
-        """Dump Settings Dialog"""
+        """Get what to dump and what not to dump"""
+        self.clear_window()
+
+        label = Gtk.Label()
+        label.set_markup("""\n\tSelect what you would like included in your Quick Install file.\t\n""")
+        self.grid.attach(label, 1, 1, 4, 1)
+
+        self.settings_toggle = Gtk.CheckButton.new_with_label("Installation Settings")
+        self.settings_toggle.set_active(True)
+        self.grid.attach(self.settings_toggle, 1, 2, 4, 1)
+
+        self.network_toggle = Gtk.CheckButton.new_with_label("Network Settings")
+        self.network_toggle.set_active(True)
+        self.grid.attach(self.network_toggle, 1, 3, 4, 1)
+
+        self.wall_toggle = Gtk.CheckButton.new_with_label("Wallpaper")
+        self.wall_toggle.set_active(False)
+        self.grid.attach(self.wall_toggle, 1, 4, 4, 1)
+
+        button4 = Gtk.Button.new_with_label("Exit")
+        button4.connect("clicked", self.exit)
+        self.grid.attach(button4, 4, 6, 1, 1)
+
+        button5 = Gtk.Button.new_with_label("<-- Back")
+        button5.connect("clicked", self.onadvclicked)
+        self.grid.attach(button5, 1, 6, 1, 1)
+
+        button3 = Gtk.Button.new_with_label("DUMP")
+        button3.connect("clicked", self.dump_settings_file_dialog)
+        self.grid.attach(button3, 1, 5, 4, 1)
+
+        self.show_all()
+
+    def dump_settings_file_dialog(self, button):
+        """Dump Settings File Dialog"""
         dialog = Gtk.FileChooserDialog("System Installer", self,
                                         Gtk.FileChooserAction.SAVE,
                                        (Gtk.STOCK_CANCEL,
@@ -240,14 +274,27 @@ class Main(Gtk.Window):
                                         Gtk.STOCK_SAVE,
                                         Gtk.ResponseType.ACCEPT))
         dialog.set_action(Gtk.FileChooserAction.SAVE)
-        dialog.set_current_name("installation-settings.json")
+        try:
+            if self.network_toggle.get_active():
+                dialog.set_current_name("installation-settings.tar.xz")
+            else:
+                dialog.set_current_name("installation-settings.json")
+        except NameError:
+            dialog.set_current_name("installation-settings.json")
         dialog.set_do_overwrite_confirmation(True)
 
         response = dialog.run()
         if response == Gtk.ResponseType.ACCEPT:
-            dump_settings(self.settings, dialog.get_filename())
+            if self.network_toggle.get_active():
+                adv_dump_settings(self.settings, dialog.get_filename(),
+                                  copy_net=self.network_toggle.get_active(),
+                                  copy_set=self.settings_toggle.get_active(),
+                                  copy_wall=self.wall_toggle.get_active())
+            else:
+                dump_settings(self.settings, dialog.get_filename())
 
         dialog.destroy()
+        self.onadvclicked("clicked")
 
 
 def dump_settings(settings, path):
@@ -255,27 +302,84 @@ def dump_settings(settings, path):
     with open(path, "w+") as dump_file:
         json.dump(settings, dump_file, indent=1)
 
-def adv_dump_settings(settings, dump_path):
-    """Compress settings and wallpaper to tar bar for later use"""
+
+def adv_dump_settings(settings, dump_path, copy_net=True, copy_set=True,
+                      copy_wall=False):
+    """Compress Install settings and
+       Network settings to tar bar for later use
+    """
     # Make our directory layout
     mkdir("/tmp/working_dir")
     mkdir("/tmp/working_dir/settings")
     mkdir("/tmp/working_dir/assets")
     # dump our installation settings and grab our network settings too
-    dump_settings(settings,
-                  "/tmp/working_dir/settings/installation-settings.json")
-    copytree("/mnt/etc/NetworkManager/system-connections",
-             "/tmp/working_dir/settings/network-settings")
+    if copy_set:
+        dump_settings(settings,
+                      "/tmp/working_dir/settings/installation-settings.json")
+    if copy_net:
+        copytree("/etc/NetworkManager/system-connections",
+                 "/tmp/working_dir/settings/network-settings")
+    if copy_wall:
+        # Grab wallpaper from xfconf
+        monitors = check_output(["xrandr", "--listmonitors"]).decode("utf-8")
+        monitors = monitors.split("\n")
+        for each in enumerate(monitors):
+            monitors[each[0]] = monitors[each[0]].split(" ")
+        del monitors[0]
+        del monitors[-1]
+        for each in enumerate(monitors):
+            monitors[each[0]] = monitors[each[0]][-1]
+        wall_path = []
+        for each in monitors:
+            wall_path.append(check_output(["xfconf-query", "--channel", "xfce4-desktop",
+                                           "--property",
+                                           "/backdrop/screen0/monitor" + each + "/workspace0/last-image"]).decode("utf-8"))
+        wall_path_unique = __unique__(wall_path)
+        # Copy designated files into "assets"
+        if len(wall_path_unique) == 1:
+            # we only have one wallpaper, so copy that into assets/master
+            # then, dump the list of screens to assets/screens.list
+            # when read in, this will make it so that the wallpaper is used on
+            # all the same screens as before
+            mkdir("/tmp/working_dir/assets/master")
+            with open("/tmp/working_dir/assets/screens.list", w) as screens_list:
+                json.dump(monitors, screens_list)
+            file_type = wall_path[0].split("/")[-1].split(".")[-1]
+            copyfile(wall_path[0],
+                     "/tmp/working_dir/assets/master/wallpaper." + file_type)
+        else:
+            # We have different wallpapers on different screens
+            # This has a trade-off of taking up more disk space in the tar ball
+            # But, it should work out okay
+            for each in range(wall_path):
+                mkdir("/tmp/working_dir/assets/" + monitors[each])
+                file_type = wall_path[each].split("/")[-1].split(".")[-1]
+                copyfile(wall_path[each],
+                         "/tmp/working_dir/assets/" + monitors[each] + "/wallpaper." + file_type)
     # make our tar ball, with XZ compression
+    chdir("/tmp/working_dir")
     tar_file = tar.open(name=dump_path.split("/")[-1], mode="w:xz")
     tar_file.add(name="settings")
     tar_file.add(name="assets")
     tar_file.close()
     # copy it to the desired location
     move(dump_path.split("/")[-1], dump_path)
+    chmod(dump_path, 0o740)
+    chown(dump_path, 1000, 1000)
     # clean up
     rmtree("/tmp/working_dir")
 
+def __unique__(starting_list):
+
+    # intilize a null list
+    unique_list = []
+
+    # traverse for all elements
+    for x in starting_list:
+        # check if exists in unique_list or not
+        if x not in unique_list:
+            unique_list.append(x)
+    return(unique_list)
 
 Main.main = report.Main.main
 Main.toggle_ui = report.Main.toggle_ui

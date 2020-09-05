@@ -234,18 +234,25 @@ def install(settings):
     # jumps through a lot of hoops for us.
     # check_call(["arch-chroot", "python3", "/master.py", settings],
     # stdout=stderr.buffer)
-    internet = modules.master.check_internet()
     # Copy live system networking settings into installed system
     rmtree("/mnt/etc/NetworkManager/system-connections")
     copytree("/etc/NetworkManager/system-connections",
              "/mnt/etc/NetworkManager/system-connections")
     if path.exists(work_dir) and path.exists(work_dir + "/assets"):
             ls = listdir(work_dir + "/assets")
-            for each in ls:
-                if "wallpaper" in each:
-                    copyfile(work_dir + "/assets/" + each, "/mnt/" + each)
+            mkdir("/mnt/user-data")
+            if "master" in ls:
+                file_type = listdir(work_dir + "/assets/master")[0].split("/")[-1].split(".")[-1]
+                copyfile(work_dir + "/assets/master/wallpaper." + file_type,
+                         "/mnt/user-data/wallpaper." + file_type)
+                copyfile(work_dir + "/assets/screens.list",
+                         "/mnt/user-data/screens.list")
+            else:
+                for each in ls:
+                    copytree(work_dir + "/assets/" + each,
+                             "/mnt/user-data/" + each)
     real_root = chroot.arch_chroot("/mnt")
-    modules.master.install(settings, internet)
+    modules.master.install(settings)
     chroot.de_chroot(real_root, "/mnt")
     eprint("Removing installation scripts and resetting resolv.conf")
     for each in file_list:
