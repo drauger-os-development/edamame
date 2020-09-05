@@ -42,8 +42,7 @@ def ping(mirror, count):
     """Ping the mirrors"""
     # We need just the domain name, so we have to parse things down a bit
     mirror = mirror.split("/")[2]
-    command = ["ping", "-c", count, "-q", mirror]
-    print("PINGING %s" % (mirror))
+    command = ["ping", "-c", str(count), "-q", mirror]
     # get the ping times
     output = check_output(command).decode("utf-8").split("\n")[-2]
     return float(output.split("/")[-2])
