@@ -114,7 +114,7 @@ def install(settings):
         try:
             mkdir("/mnt/home")
         except FileExistsError:
-            eprint("/mnt/home exists when it shouldn't. What the hell is going on???")
+            eprint("/mnt/home exists when it shouldn't. We have issues...")
         __mount__(settings["HOME"], "/mnt/home")
     if settings["SWAP"] != "FILE":
         # This can happen in the background. No biggie.
@@ -151,8 +151,11 @@ def install(settings):
     eprint("\t###\tEXTRACTION COMPLETE\t###\t")
     file_list = listdir("/mnt/squashfs-root")
     for each in file_list:
-        eprint("/mnt/squashfs-root/" + each + " --> /mnt/" + each)
-        move("/mnt/squashfs-root/" + each, "/mnt/" + each)
+        try:
+            eprint("/mnt/squashfs-root/" + each + " --> /mnt/" + each)
+            move("/mnt/squashfs-root/" + each, "/mnt/" + each)
+        except FileExistsError as e:
+            eprint("ERROR: %s" % (e))
     rmtree("/mnt/squashfs-root")
     try:
         mkdir("/mnt/boot")
