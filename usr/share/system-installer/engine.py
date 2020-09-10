@@ -34,6 +34,7 @@ from shutil import copyfile, copytree
 import UI
 import installer
 import check_internet
+import check_kernel_versions
 
 
 def eprint(*args, **kwargs):
@@ -56,6 +57,13 @@ for each in range(len(DISK) - 1, -1, -1):
         del DISK[each]
 if len(DISK) < 1:
     UI.error.show_error("\n\tNo Drives Larger than 16 GB detected\t\n")
+    sys.exit(2)
+if not check_kernel_versions.check_kernel_versions():
+    UI.error.show_error("""
+\tKernel Version Mismatch.\t
+\tPlease reboot and retry installation.\t
+\tIf your problem persists, please create an issue on our Github.\t
+""")
     sys.exit(2)
 work_dir = "/tmp/quick-install_working-dir"
 SETTINGS = UI.main.show_main()
