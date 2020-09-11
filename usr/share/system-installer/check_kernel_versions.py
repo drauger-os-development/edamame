@@ -42,6 +42,7 @@ def __get_file_version__():
     except FileNotFoundError:
         tar_file = tar.open("/usr/share/system-installer/modules/kernel.tar.7z")
     files = tar_file.getnames()
+    tar_file.close()
     for each in range(len(files) - 1, -1, -1):
         if files[each] in ("kernel", "kernel/linux-meta-xanmod"):
             del files[each]
