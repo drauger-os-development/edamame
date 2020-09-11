@@ -39,7 +39,7 @@ rm -rf $(ls | grep -Ev "^linux-meta-xanmod$|^$dep\$")
 cd ..
 # delete empty folders
 find . -type d -empty -print -delete
-7z a -t7z kernel.7z kernel
+tar --verbose --create --xz -f kernel.tar.xz kernel
 rm -rf kernel
 cd ../../../..
 ##############################################################
