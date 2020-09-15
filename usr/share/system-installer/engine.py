@@ -35,14 +35,10 @@ import UI
 import installer
 import check_internet
 import check_kernel_versions
+import common
 
 
-def eprint(*args, **kwargs):
-    """Make it easier for us to print to stderr"""
-    print(*args, file=sys.stderr, **kwargs)
-
-
-eprint("\t###\t%s STARTED\t###\t" % (sys.argv[0]))
+common.eprint("\t###\t%s STARTED\t###\t" % (sys.argv[0]))
 MEMCHECK = virtual_memory().total
 if (MEMCHECK / 1024 ** 2) < 1024:
     UI.error.show_error("\n\tRAM is less than 1 GB.\t\n")
@@ -87,7 +83,7 @@ try:
                 if len(net_settings) > 0:
                     copytree(net_settings + "/settings/network-settings",
                              "/etc/NetworkManager/system-connections")
-                    eprint("\t###\tNOTE: NETWORK SETTINGS COPIED TO LIVE SYSTEM\t###\t")
+                    common.eprint("\t###\tNOTE: NETWORK SETTINGS COPIED TO LIVE SYSTEM\t###\t")
             except FileNotFoundError:
                 pass
         if "DATA" in SETTINGS:
@@ -122,12 +118,12 @@ if INSTALL:
                     remove("/mnt/" + each)
                 except FileNotFoundError:
                     pass
-        eprint("\t###\t%s CLOSED\t###\t" % (sys.argv[0]))
+        common.eprint("\t###\t%s CLOSED\t###\t" % (sys.argv[0]))
         try:
             copyfile("/tmp/system-installer.log",
                      "/mnt/var/log/system-installer.log")
         except FileNotFoundError:
-            eprint("\t###\tLog Not Found. Testing?\t###\t")
+            common.eprint("\t###\tLog Not Found. Testing?\t###\t")
             with open("/tmp/system-installer.log", "w+") as log:
                 log.write("""Log was not created during installation.
 This is a stand-in file.
@@ -141,7 +137,7 @@ This is a stand-in file.
         # PROGRESS.join()
     except Exception as error:
         kill(pid, 15)
-        eprint("\nAn Error has occured:\n%s\n" % (error))
+        common.eprint("\nAn Error has occured:\n%s\n" % (error))
         print("\nAn Error has occured:\n%s\n" % (error))
         UI.error.show_error("""\n\tError detected.\t
 \tPlease see /tmp/system-installer.log for details.\t\n""")

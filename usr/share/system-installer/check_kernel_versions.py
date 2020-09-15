@@ -27,12 +27,7 @@ kernel cannot be booted.
 """
 import tarfile as tar
 import subprocess
-from common import unique
-
-
-def __eprint__(*args, **kwargs):
-    """Make it easier for us to print to stderr"""
-    print(*args, file=stderr, **kwargs)
+import common
 
 
 def __get_file_version__():
@@ -57,7 +52,7 @@ def __get_file_version__():
                     files[each] = files[each][1]
                 except IndexError:
                     del files[each]
-    return unique(files)[0]
+    return common.unique(files)[0]
 
 
 def __get_installed_version__():
@@ -72,17 +67,17 @@ def __get_installed_version__():
 
 def check_kernel_versions():
     """Compare kernel versions"""
-    __eprint__("CHECKING KERNEL VERSIONS")
+    common.eprint("CHECKING KERNEL VERSIONS")
     file_version = __get_file_version__()
     installed_version = __get_installed_version__()
     if file_version == installed_version:
-        __eprint__("KERNEL VERSIONS MATCH: SUCCESS")
+        common.eprint("KERNEL VERSIONS MATCH: SUCCESS")
         return True
     else:
-        __eprint__("ERROR: KERNEL VERSION MISMATCH")
-        __eprint__("FILE VERSION: %s" % (file_version))
-        __eprint__("INSTALLED VERSION: %s" % (installed_version))
-        __eprint__("USER LIKELY UPDATED system-installer TO A VERSION WITH NEWER KERNEL")
-        __eprint__("PLEASE EITHER DOWNLOAD A NEW ISO, OR DO NOT UPDATE BEFORE INSTALLING")
-        __eprint__("REBOOT, REFRAIN FROM UPDATING, AND ALL SHOULD BE WELL")
+        common.eprint("ERROR: KERNEL VERSION MISMATCH")
+        common.eprint("FILE VERSION: %s" % (file_version))
+        common.eprint("INSTALLED VERSION: %s" % (installed_version))
+        common.eprint("USER LIKELY UPDATED system-installer TO A VERSION WITH NEWER KERNEL")
+        common.eprint("PLEASE EITHER DOWNLOAD A NEW ISO, OR DO NOT UPDATE BEFORE INSTALLING")
+        common.eprint("REBOOT, REFRAIN FROM UPDATING, AND ALL SHOULD BE WELL")
         return False

@@ -22,6 +22,7 @@
 #
 #
 """Common functions and other data for system-installer"""
+import sys
 
 
 def unique(starting_list):
@@ -34,3 +35,8 @@ def unique(starting_list):
         if x not in unique_list:
             unique_list.append(x)
     return(unique_list)
+
+
+def eprint(*args, **kwargs):
+    """Make it easier for us to print to stderr"""
+    print(*args, file=sys.stderr, **kwargs)
