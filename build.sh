@@ -13,18 +13,10 @@ mkdir ../"$FOLDER"
 #							     #
 ##############################################################
 
-# Instead of compiling, we are building a 7z archive of the latest kernel
+# Instead of compiling, we are building a tar.xz archive of the latest kernel package
 cd usr/share/system-installer/modules
-mkdir kernel
-cp -R /home/batcastle/Dropbox/drauger_files/apt-repo/pool/main/l/* $PWD/kernel # this will error out if you don't have the Drauger OS apt repo on your local system. Replace with wget or curl to fix this.
-list=$(ls kernel)
-for each in $list; do
-	if $(echo "$each" | grep -q "linux"); then
-		continue
-	else
-		rm -rf kernel/$each
-	fi
-done
+rsync -vr rsync://apt.draugeros.org/aptsync/pool/main/l/linux-5.[8-9].*-xanmod* kernel
+rsync -vr rsync://apt.draugeros.org/aptsync/pool/main/l/linux-meta-xanmod kernel
 list=$(ls kernel)
 for each in $list; do
 	remove=$(ls kernel/$each | grep -v 'amd64.deb$')
