@@ -69,7 +69,11 @@ def arch_chroot(path_dir):
     return real_root
 
 def de_chroot(real_root, path_dir):
-    """exit chroot from arch_chroot()"""
+    """exit chroot from arch_chroot()
+
+real_root should be the return value from arch_chroot()
+path_dir should be the directory we initially chrooted into
+"""
     __unmount__(path_dir + "/proc")
     __unmount__(path_dir + "/sys")
     if path.exists(path_dir + "/sys/firmware/efi/efivars"):
