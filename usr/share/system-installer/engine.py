@@ -117,7 +117,7 @@ if INSTALL:
         installer.install(SETTINGS)
         file_list = listdir("/mnt")
         for each in file_list:
-            if each[-3:] in (".sh", ".py", ".7z"):
+            if each[-3:] in (".sh", ".py", ".xz"):
                 try:
                     remove("/mnt/" + each)
                 except FileNotFoundError:

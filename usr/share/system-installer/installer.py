@@ -28,6 +28,7 @@ from subprocess import Popen, check_output, check_call, CalledProcessError
 from os import mkdir, path, chdir, listdir, remove, symlink, chmod
 from shutil import rmtree, move, copyfile, copytree
 from time import sleep
+import tarfile as tar
 import json
 import UI
 import modules
@@ -276,12 +277,16 @@ def install(settings):
             del file_list[each]
     if len(file_list) == 0:
         eprint("\t###\tKERNEL NOT INSTALLED. CORRECTING . . .\t###\t")
-        copyfile("/usr/share/system-installer/modules/kernel.7z",
-                 "/mnt/kernel.7z")
-        check_call(["arch-chroot", "/mnt",
-                    "\"bash -c '7z x /kernel.7z; dpkg -R --install /kernel/'\""])
+        copyfile("/usr/share/system-installer/modules/kernel.tar.xz",
+                 "/mnt/kernel.tar.xz")
+        root_dir = chroot.arch_chroot("/mnt")
+        tar_file = tar.open("kernel.tar.xz")
+        tar_file.extractall()
+        tar_file.close()
+        check_call(["dpkg", "-R", "--install", "/kernel"])
+        chroot.de_chroot(root_dir, "/mnt")
         rmtree("/mnt/kernel")
-        remove("/mnt/kernel.7z")
+        remove("/mnt/kernel.tar.xz")
     file_list = listdir("/mnt/boot/efi/loader/entries")
     if ((len(file_list) == 0) and ((settings["EFI"] is None) or
                                    (settings["EFI"] == "") or (settings["EFI"] == "NULL"))):
