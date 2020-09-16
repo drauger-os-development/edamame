@@ -133,7 +133,10 @@ def install(settings):
     for each in death_row:
         if each not in ("boot", "home"):
             common.eprint("Removing " + each)
-            rmtree(each)
+            try:
+                rmtree(each)
+            except NotADirectoryError:
+                remove(each)
     chdir("/mnt/boot")
     death_row = listdir()
     for each in death_row:
