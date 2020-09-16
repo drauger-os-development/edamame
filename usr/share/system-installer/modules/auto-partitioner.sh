@@ -23,8 +23,6 @@
 #
 {
     builtin echo -e "\t###\tauto-partioner.sh STARTED\t###\t"
-    set -e
-    set -o pipefail
     INSTALL_DISK="$1"
     EFI="$2"
     HOME_DATA="$3"
