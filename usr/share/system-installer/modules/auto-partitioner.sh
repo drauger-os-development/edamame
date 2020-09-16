@@ -43,8 +43,8 @@
         if [[ "$HOME_DATA" == "MAKE" ]]; then
             #Make home partition
             parted --script "$INSTALL_DISK" mkpart primary fat32 0% 200M
-            parted --script "$INSTALL_DISK" mkpart primary ext4 201M 30%
-            parted --script "$INSTALL_DISK" mkpart primary ext4 30% 100%
+            parted --script "$INSTALL_DISK" mkpart primary ext4 201M 35%
+            parted --script "$INSTALL_DISK" mkpart primary ext4 35% 100%
         else
             #don't make one. Reset $PART3
             parted --script "$INSTALL_DISK" mkpart primary fat32 0% 200M
@@ -62,8 +62,8 @@
         #only need one partition cause we are using BIOS
         if [[ "$HOME_DATA" == "MAKE" ]]; then
             #Make home partition
-            parted --script "$INSTALL_DISK" mkpart primary ext4 0% 30%
-            parted --script "$INSTALL_DISK" mkpart primary ext4 30% 100%
+            parted --script "$INSTALL_DISK" mkpart primary ext4 0% 35%
+            parted --script "$INSTALL_DISK" mkpart primary ext4 35% 100%
 
         else
             #don't make one. Reset $PART3
