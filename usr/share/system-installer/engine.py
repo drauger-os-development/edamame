@@ -49,7 +49,7 @@ for each in range(len(DISK) - 1, -1, -1):
     if DISK[each]["type"] == "loop":
         del DISK[each]
 for each in range(len(DISK) - 1, -1, -1):
-    if float(DISK[each]["size"][0:len(DISK[each]["size"]) - 1]) < 16:
+    if float(DISK[each]["size"][0:-1) - 1]) < 16:
         del DISK[each]
 if len(DISK) < 1:
     UI.error.show_error("\n\tNo Drives Larger than 16 GB detected\t\n")
