@@ -36,6 +36,7 @@ import installer
 import check_internet
 import check_kernel_versions
 import common
+import auto_partitioner
 
 
 common.eprint("\t###\t%s STARTED\t###\t" % (sys.argv[0]))
@@ -44,12 +45,9 @@ if (MEMCHECK / 1024 ** 2) < 1024:
     UI.error.show_error("\n\tRAM is less than 1 GB.\t\n")
     sys.exit(2)
 
-DISK = json.loads(check_output(["lsblk", "--json"]))["blockdevices"]
+DISK = auto_partitioner.check_disk_state()
 for each in range(len(DISK) - 1, -1, -1):
-    if DISK[each]["type"] == "loop":
-        del DISK[each]
-for each in range(len(DISK) - 1, -1, -1):
-    if float(DISK[each]["size"][0:-1) - 1]) < 16:
+    if float(DISK[each]["size"]) < auto_partitioner.limiter:
         del DISK[each]
 if len(DISK) < 1:
     UI.error.show_error("\n\tNo Drives Larger than 16 GB detected\t\n")

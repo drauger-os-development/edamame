@@ -34,6 +34,7 @@ import UI
 import modules
 import chroot
 import common
+import auto_partitioner
 
 
 def __mount__(device, path_dir):
@@ -86,9 +87,9 @@ def install(settings):
     work_dir = "/tmp/quick-install_working-dir"
     # STEP 1: Partion and format the drive ( if needed )
     if settings["AUTO_PART"]:
-        partitioning = json.loads(check_output(
-            ["/usr/share/system-installer/modules/auto-partitioner.sh",
-             settings["ROOT"], str(settings["EFI"]), settings["HOME"]]))
+        partitioning = auto_partitioner.partition(settings["ROOT"],
+                                                  settings["EFI"],
+                                                  settings["HOME"])
         settings["ROOT"] = partitioning["ROOT"]
         settings["EFI"] = partitioning["EFI"]
         settings["HOME"] = partitioning["HOME"]
