@@ -46,7 +46,12 @@ def __parted__(device, args):
     for each in args:
         command.append(str(each))
     # run our command
-    return subprocess.check_output(command).decode()
+    data = None
+    try:
+        data = subprocess.check_output(command).decode()
+    except subprocess.CalledProcessError as e:
+        data = e.output.decode()
+    return data
 
 
 def check_disk_state():
