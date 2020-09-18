@@ -77,7 +77,10 @@ def __make_efi__(device, start="0%", end="200M"):
     drive = check_disk_state()
     for each in drive:
         if each["name"] == device:
-            drive = each["children"]
+            try:
+                drive = each["children"]
+            except KeyError:
+                continue
             break
     for each in range(len(drive) - 1, -1, -1):
         if drive[each]["fstype"] not in ("vfat", "fat32"):
@@ -97,7 +100,10 @@ def __make_root__(device, start="201M", end="100%"):
     __parted__(device, ["mkpart", "primary", "ext4", str(start), str(end)])
     for each in drive:
         if each["name"] == device:
-            drive = each["children"]
+            try:
+                drive = each["children"]
+            except KeyError:
+                continue
             break
     for each in range(len(drive) - 1, -1, -1):
         if drive[each]["fstype"] not in ("ext4", "EXT4"):
