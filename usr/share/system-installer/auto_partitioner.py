@@ -224,7 +224,7 @@ def partition(root, efi, home):
         # If home == "MAKE", we KNOW there are no partitons because we made a
         # new partition table
         root_end = "16G"
-        if (efi and (part1 != None)):
+        if (efi and (part1 == None)):
             __make_efi__(root)
             part1 = __get_new_entry__(__get_children__(partitions, root),
                                       __get_children__(check_disk_state(),
@@ -240,7 +240,7 @@ def partition(root, efi, home):
                                       __get_children__(check_disk_state(),
                                                        root))[0]
             partitions = check_disk_state()
-        elif part1 != None:
+        elif part1 == None:
             __make_root__(root, start="0%", end=root_end)
             part1 = __get_new_entry__(__get_children__(partitions, root),
                                       __get_children__(check_disk_state(),
