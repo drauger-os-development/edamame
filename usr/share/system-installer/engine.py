@@ -31,6 +31,7 @@ import tarfile as tar
 import multiprocessing
 from psutil import virtual_memory
 from shutil import copyfile, copytree
+import traceback
 import UI
 import installer
 import check_internet
@@ -136,7 +137,9 @@ This is a stand-in file.
     except Exception as error:
         kill(pid, 15)
         common.eprint("\nAn Error has occured:\n%s\n" % (error))
+        common.eprint(traceback.format_exc())
         print("\nAn Error has occured:\n%s\n" % (error))
+        print(traceback.format_exc())
         UI.error.show_error("""\n\tError detected.\t
 \tPlease see /tmp/system-installer.log for details.\t\n""")
 else:
