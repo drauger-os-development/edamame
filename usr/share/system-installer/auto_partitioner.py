@@ -75,7 +75,7 @@ def __make_efi__(device, start="0%", end="200M"):
     end defaults to the 200MB mark on the drive
     """
     pre_state = __get_children__(check_disk_state(), device)
-    __parted__(device, ["mkpart", "fat32", str(start), str(end)])
+    __parted__(device, ["mkpart", "primary", "fat32", str(start), str(end)])
     post_state = __get_children__(check_disk_state(), device)
     drive = __get_new_entry__(pre_state, post_state)
     try:
@@ -95,7 +95,7 @@ def __make_root__(device, start="201M", end="100%"):
     end defaults to the end of the drive
     """
     pre_state = __get_children__(check_disk_state(), device)
-    __parted__(device, ["mkpart", "ext4", str(start), str(end)])
+    __parted__(device, ["mkpart", "primary", "ext4", str(start), str(end)])
     post_state = __get_children__(check_disk_state(), device)
     drive = __get_new_entry__(pre_state, post_state)
     try:
