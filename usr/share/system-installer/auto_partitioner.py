@@ -79,7 +79,7 @@ def __make_efi__(device, start="0%", end="200M"):
     post_state = __get_children__(check_disk_state(), device)
     drive = __get_new_entry__(pre_state, post_state)
     try:
-        drive = drive[0]["name"]
+        drive = drive[0]
     except (IndexError,KeyError):
         drive = ""
     process = subprocess.Popen(["mkfs.fat", "-F", "32", drive], stdout=sys.stderr.buffer,
@@ -99,7 +99,7 @@ def __make_root__(device, start="201M", end="100%"):
     post_state = __get_children__(check_disk_state(), device)
     drive = __get_new_entry__(pre_state, post_state)
     try:
-        drive = drive[0]["name"]
+        drive = drive[0]
     except (IndexError,KeyError):
         drive = ""
     process = subprocess.Popen(["mkfs.ext4", drive], stdout=sys.stderr.buffer, stdin=subprocess.PIPE,
@@ -108,9 +108,9 @@ def __make_root__(device, start="201M", end="100%"):
     time.sleep(0.1)
 
 
-def __make_home__(device, start="35%", end="100%"):
+def __make_home__(device, new_start="35%", new_end="100%"):
     """Easy sorta-macro to make a home partiton"""
-    __make_root__(device, start, end)
+    __make_root__(device, start=new_start, end=new_end)
 
 
 def __generate_return_data__(home, efi, part1, part2, part3):
@@ -232,7 +232,7 @@ def partition(root, efi, home):
                                       __get_children__(check_disk_state(),
                                                        root))[0]
             partitions = check_disk_state()
-            __make_home__(root, start=root_end)
+            __make_home__(root, new_start=root_end)
             part3 = __get_new_entry__(__get_children__(partitions, root),
                                       __get_children__(check_disk_state(),
                                                        root))[0]
@@ -243,7 +243,7 @@ def partition(root, efi, home):
                                       __get_children__(check_disk_state(),
                                                        root))[0]
             partitions = check_disk_state()
-            __make_home__(root, start=root_end)
+            __make_home__(root, new_start=root_end)
             part2 = __get_new_entry__(__get_children__(partitions, root),
                                       __get_children__(check_disk_state(),
                                                        root))[0]
