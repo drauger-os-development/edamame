@@ -92,18 +92,14 @@ def __make_root__(device, start="201M", end="100%"):
     Start defaults to 201MB mark on the drive
     end defaults to the end of the drive
     """
+    pre_state = __get_children__(check_disk_state(), device)
     __parted__(device, ["mkpart", "primary", "ext4", str(start), str(end)])
-    for each in drive:
-        if each["name"] == device:
-            try:
-                drive = each["children"]
-            except KeyError:
-                continue
-            break
-    for each in range(len(drive) - 1, -1, -1):
-        if drive[each]["fstype"] not in ("ext4", "EXT4"):
-            del drive[each]
-    drive = drive[0]["name"]
+    post_state = __get_children__(check_disk_state(), device)
+    drive = __get_new_entry__(pre_state, post_state)
+    try:
+        drive = drive[0]["name"]
+    except (IndexError,KeyError):
+        drive = ""
     process = subprocess.Popen(["mkfs.ext4", drive], stdout=sys.stderr.buffer, stdin=subprocess.PIPE,
                                               stderr=subprocess.PIPE)
     process.communicate(input=bytes("y\n", "utf-8"))
