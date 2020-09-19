@@ -68,7 +68,7 @@ def check_disk_state():
     return data
 
 
-def __make_efi__(device, start="0%", end="200M"):
+def __make_efi__(device, start="0%", end="200MB"):
     """Make EFI partition
 
     Start defaults to beginning of the drive
@@ -88,7 +88,7 @@ def __make_efi__(device, start="0%", end="200M"):
     time.sleep(0.1)
 
 
-def __make_root__(device, start="201M", end="100%"):
+def __make_root__(device, start="201MB", end="100%"):
     """Make root partition
 
     Start defaults to 201MB mark on the drive
@@ -220,7 +220,7 @@ def partition(root, efi, home):
     if home == "MAKE":
         # If home == "MAKE", we KNOW there are no partitons because we made a
         # new partition table
-        root_end = "16G"
+        root_end = "16GB"
         if (efi and (part1 == None)):
             __make_efi__(root)
             part1 = __get_new_entry__(__get_children__(partitions, root),
