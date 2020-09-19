@@ -73,19 +73,13 @@ def __make_efi__(device, start="0%", end="200M"):
     Start defaults to beginning of the drive
     end defaults to the 200MB mark on the drive
     """
+    pre_state = __get_children__(check_disk_state(), device)
     __parted__(device, ["mkpart", "primary", "fat32", str(start), str(end)])
+    post_state = __get_children__(check_disk_state(), device)
     drive = check_disk_state()
-    for each in drive:
-        if each["name"] == device:
-            try:
-                drive = each["children"]
-            except KeyError:
-                continue
-            break
-    for each in range(len(drive) - 1, -1, -1):
-        if drive[each]["fstype"] not in ("vfat", "fat32"):
-            del drive[each]
-    drive = drive[0]["name"]
+    try:
+        drive = drive[0]["name"]
+    except KeyError:
     process = Popen(["mkfs.fat", "-F", "32", drive], stdout=sys.stderr.buffer,
                                                 stdin=PIPE, stderr=PIPE)
     process.communicate(input=bytes("y\n", "utf-8"))
@@ -165,7 +159,7 @@ def __get_new_entry__(old, new):
             del new[each]
     data = []
     for each in new:
-        data.append(new["name"])
+        data.append(each["name"])
     return data
 
 
@@ -173,7 +167,10 @@ def __get_children__(data, drive):
     """Get partitions of a drive"""
     for each in data:
         if each["name"] == drive:
-            return each["children"]
+            try:
+                return each["children"]
+            except KeyError:
+                return []
 
 
 def partition(root, efi, home):
