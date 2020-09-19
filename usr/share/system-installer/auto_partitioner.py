@@ -76,10 +76,11 @@ def __make_efi__(device, start="0%", end="200M"):
     pre_state = __get_children__(check_disk_state(), device)
     __parted__(device, ["mkpart", "primary", "fat32", str(start), str(end)])
     post_state = __get_children__(check_disk_state(), device)
-    drive = check_disk_state()
+    drive = __get_new_entry__(pre_state, post_state)
     try:
         drive = drive[0]["name"]
-    except KeyError:
+    except (IndexError,KeyError):
+        drive = ""
     process = Popen(["mkfs.fat", "-F", "32", drive], stdout=sys.stderr.buffer,
                                                 stdin=PIPE, stderr=PIPE)
     process.communicate(input=bytes("y\n", "utf-8"))
