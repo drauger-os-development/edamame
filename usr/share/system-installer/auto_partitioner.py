@@ -26,6 +26,7 @@ import common
 import subprocess
 import json
 import sys
+import time
 
 
 limiter = 16 * (1 ** 9)
@@ -74,7 +75,7 @@ def __make_efi__(device, start="0%", end="200M"):
     end defaults to the 200MB mark on the drive
     """
     pre_state = __get_children__(check_disk_state(), device)
-    __parted__(device, ["mkpart", "primary", "fat32", str(start), str(end)])
+    __parted__(device, ["mkpart", "fat32", str(start), str(end)])
     post_state = __get_children__(check_disk_state(), device)
     drive = __get_new_entry__(pre_state, post_state)
     try:
@@ -84,6 +85,7 @@ def __make_efi__(device, start="0%", end="200M"):
     process = subprocess.Popen(["mkfs.fat", "-F", "32", drive], stdout=sys.stderr.buffer,
                                                 stdin=subprocess.PIPE, stderr=subprocess.PIPE)
     process.communicate(input=bytes("y\n", "utf-8"))
+    time.sleep(0.1)
 
 
 def __make_root__(device, start="201M", end="100%"):
@@ -93,7 +95,7 @@ def __make_root__(device, start="201M", end="100%"):
     end defaults to the end of the drive
     """
     pre_state = __get_children__(check_disk_state(), device)
-    __parted__(device, ["mkpart", "primary", "ext4", str(start), str(end)])
+    __parted__(device, ["mkpart", "ext4", str(start), str(end)])
     post_state = __get_children__(check_disk_state(), device)
     drive = __get_new_entry__(pre_state, post_state)
     try:
@@ -103,6 +105,7 @@ def __make_root__(device, start="201M", end="100%"):
     process = subprocess.Popen(["mkfs.ext4", drive], stdout=sys.stderr.buffer, stdin=subprocess.PIPE,
                                               stderr=subprocess.PIPE)
     process.communicate(input=bytes("y\n", "utf-8"))
+    time.sleep(0.1)
 
 
 def __make_home__(device, start="35%", end="100%"):
