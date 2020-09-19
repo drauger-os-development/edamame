@@ -81,7 +81,7 @@ def __make_efi__(device, start="0%", end="200M"):
         drive = drive[0]["name"]
     except (IndexError,KeyError):
         drive = ""
-    process = Popen(["mkfs.fat", "-F", "32", drive], stdout=sys.stderr.buffer,
+    process = subprocess.Popen(["mkfs.fat", "-F", "32", drive], stdout=sys.stderr.buffer,
                                                 stdin=PIPE, stderr=PIPE)
     process.communicate(input=bytes("y\n", "utf-8"))
 
@@ -104,7 +104,7 @@ def __make_root__(device, start="201M", end="100%"):
         if drive[each]["fstype"] not in ("ext4", "EXT4"):
             del drive[each]
     drive = drive[0]["name"]
-    process = Popen(["mkfs.ext4", drive], stdout=stderr.buffer, stdin=PIPE,
+    process = subprocess.Popen(["mkfs.ext4", drive], stdout=stderr.buffer, stdin=PIPE,
                                               stderr=PIPE)
     process.communicate(input=bytes("y\n", "utf-8"))
 
