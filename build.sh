@@ -25,7 +25,7 @@ for each in $list; do
 		rm -rf kernel/$each/$each2
 	done
 done
-meta=${echo kernel/linux-meta-xanmod/$(ls kernel/linux-meta-xanmod) | awk '{print $1}')
+meta=$(echo kernel/linux-meta-xanmod/$(ls kernel/linux-meta-xanmod) | awk '{print $1}')
 dep=$(dpkg-deb --field $meta Depends | sed 's/,/ /g' | awk '{print $1}' | sed 's/-headers//g')
 cd kernel
 rm -rf $(ls | grep -Ev "^linux-meta-xanmod$|^$dep\$")
