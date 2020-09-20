@@ -15,6 +15,7 @@ mkdir ../"$FOLDER"
 
 # Instead of compiling, we are building a tar.xz archive of the latest kernel package
 cd usr/share/system-installer/modules
+echo -e "\t###\tDOWNLOADING\t###\t"
 rsync -vr rsync://apt.draugeros.org/aptsync/pool/main/l/linux-5.[8-9].*-xanmod* kernel
 rsync -vr rsync://apt.draugeros.org/aptsync/pool/main/l/linux-meta-xanmod kernel
 list=$(ls kernel)
@@ -24,12 +25,13 @@ for each in $list; do
 		rm -rf kernel/$each/$each2
 	done
 done
-meta="kernel/linux-meta-xanmod/$(ls kernel/linux-meta-xanmod)"
+meta=${echo kernel/linux-meta-xanmod/$(ls kernel/linux-meta-xanmod) | awk '{print $1}')
 dep=$(dpkg-deb --field $meta Depends | sed 's/,/ /g' | awk '{print $1}' | sed 's/-headers//g')
 cd kernel
 rm -rf $(ls | grep -Ev "^linux-meta-xanmod$|^$dep\$")
 cd ..
 # delete empty folders
+echo -e "\t###\tCOMPRESSING\t###\t"
 find . -type d -empty -print -delete
 tar --verbose --create --xz -f kernel.tar.xz kernel
 rm -rf kernel
