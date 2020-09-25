@@ -48,7 +48,7 @@ if (MEMCHECK / 1024 ** 2) < 1024:
 
 DISK = auto_partitioner.check_disk_state()
 for each in range(len(DISK) - 1, -1, -1):
-    if float(DISK[each]["size"]) < auto_partitioner.limiter:
+    if float(DISK[each]["size"]) < auto_partitioner.LIMITER:
         del DISK[each]
 if len(DISK) < 1:
     UI.error.show_error("\n\tNo Drives Larger than 16 GB detected\t\n")

@@ -22,14 +22,14 @@
 #
 #
 """Auto-partition Drive selected for installation"""
-import common
 import subprocess
 import json
 import sys
 import time
+import common
 
 
-limiter = 16 * (1 ** 9)
+LIMITER = 16 * (1 ** 9)
 
 
 def __parted__(device, args):
@@ -50,8 +50,8 @@ def __parted__(device, args):
     data = None
     try:
         data = subprocess.check_output(command).decode()
-    except subprocess.CalledProcessError as e:
-        data = e.output.decode()
+    except subprocess.CalledProcessError as error:
+        data = error.output.decode()
     return data
 
 
@@ -80,10 +80,11 @@ def __make_efi__(device, start="0%", end="200MB"):
     drive = __get_new_entry__(pre_state, post_state)
     try:
         drive = drive[0]
-    except (IndexError,KeyError):
+    except (IndexError, KeyError):
         drive = ""
-    process = subprocess.Popen(["mkfs.fat", "-F", "32", drive], stdout=sys.stderr.buffer,
-                                                stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+    process = subprocess.Popen(["mkfs.fat", "-F", "32", drive],
+                               stdout=sys.stderr.buffer,
+                               stdin=subprocess.PIPE, stderr=subprocess.PIPE)
     process.communicate(input=bytes("y\n", "utf-8"))
     time.sleep(0.1)
 
@@ -100,10 +101,11 @@ def __make_root__(device, start="201MB", end="100%"):
     drive = __get_new_entry__(pre_state, post_state)
     try:
         drive = drive[0]
-    except (IndexError,KeyError):
+    except (IndexError, KeyError):
         drive = ""
-    process = subprocess.Popen(["mkfs.ext4", drive], stdout=sys.stderr.buffer, stdin=subprocess.PIPE,
-                                              stderr=subprocess.PIPE)
+    process = subprocess.Popen(["mkfs.ext4", drive], stdout=sys.stderr.buffer,
+                               stdin=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
     process.communicate(input=bytes("y\n", "utf-8"))
     time.sleep(0.1)
 
@@ -165,12 +167,14 @@ def __get_new_entry__(old, new):
 
 def __get_children__(data, drive):
     """Get partitions of a drive"""
+    output = None
     for each in data:
         if each["name"] == drive:
             try:
-                return each["children"]
+                output = each["children"]
             except KeyError:
-                return []
+                output = []
+    return output
 
 
 def partition(root, efi, home):
@@ -188,32 +192,31 @@ def partition(root, efi, home):
     # That was the easy part. Now comes the part that needs some inteligence
     partitions = check_disk_state()
     for each in partitions:
-        if ((each["name"] == root) and (each["size"] == limiter)):
+        if ((each["name"] == root) and (each["size"] == LIMITER)):
             if home == "MAKE":
                 common.eprint("CANNOT MAKE HOME PARTITION. NOT ENOUGH SPACE.")
                 raise RuntimeError("CANNOT MAKE HOME PARTITION. NOT ENOUGH SPACE.")
-            else:
-                if efi:
-                    __make_efi__(root)
-                    part1 = __get_new_entry__(__get_children__(partitions,
-                                                               root),
-                                              __get_children__(check_disk_state(),
-                                                               root))[0]
-                    partitions = check_disk_state()
-                    __make_root__(root)
-                    part2 = __get_new_entry__(__get_children__(partitions,
-                                                               root),
-                                              __get_children__(check_disk_state(),
-                                                               root))[0]
-                else:
-                    __make_root__(root)
-                    part1 = __get_new_entry__(__get_children__(partitions,
-                                                               root),
-                                              __get_children__(check_disk_state(),
-                                                               root))[0]
+            if efi:
+                __make_efi__(root)
+                part1 = __get_new_entry__(__get_children__(partitions,
+                                                           root),
+                                          __get_children__(check_disk_state(),
+                                                           root))[0]
                 partitions = check_disk_state()
-                common.eprint("\t###\tauto_partioner.py CLOSED\t###\t")
-                return __generate_return_data__(home, efi, part1, part2, part3)
+                __make_root__(root)
+                part2 = __get_new_entry__(__get_children__(partitions,
+                                                           root),
+                                          __get_children__(check_disk_state(),
+                                                           root))[0]
+            else:
+                __make_root__(root)
+                part1 = __get_new_entry__(__get_children__(partitions,
+                                                           root),
+                                          __get_children__(check_disk_state(),
+                                                           root))[0]
+            partitions = check_disk_state()
+            common.eprint("\t###\tauto_partioner.py CLOSED\t###\t")
+            return __generate_return_data__(home, efi, part1, part2, part3)
     # Handled 16GB drives
     # From here until 64GB drives, we want our root partition to be AT LEAST
     # 16GB
@@ -221,7 +224,7 @@ def partition(root, efi, home):
         # If home == "MAKE", we KNOW there are no partitons because we made a
         # new partition table
         root_end = "16GB"
-        if (efi and (part1 == None)):
+        if (efi and (part1 is None)):
             __make_efi__(root)
             part1 = __get_new_entry__(__get_children__(partitions, root),
                                       __get_children__(check_disk_state(),
@@ -237,7 +240,7 @@ def partition(root, efi, home):
                                       __get_children__(check_disk_state(),
                                                        root))[0]
             partitions = check_disk_state()
-        elif part1 == None:
+        elif part1 is None:
             __make_root__(root, start="0%", end=root_end)
             part1 = __get_new_entry__(__get_children__(partitions, root),
                                       __get_children__(check_disk_state(),
@@ -250,7 +253,7 @@ def partition(root, efi, home):
             partitions = check_disk_state()
         common.eprint("\t###\tauto_partioner.py CLOSED\t###\t")
         return __generate_return_data__(home, efi, part1, part2, part3)
-    elif home in ("NULL", "null", None):
+    if home in ("NULL", "null", None):
         # If home == any possible 'null' value,
         # we KNOW there are no partitons because we made a
         # new partition table
@@ -273,100 +276,96 @@ def partition(root, efi, home):
             partitions = check_disk_state()
         common.eprint("\t###\tauto_partioner.py CLOSED\t###\t")
         return __generate_return_data__(home, efi, part1, part2, part3)
+    # This one we need to figure out if the home partiton is on the drive
+    # we are working on or elsewhere
+    if "nvme" in home:
+        check = home[:-2]
     else:
-        # This one we need to figure out if the home partiton is on the drive
-        # we are working on or elsewhere
-        if "nvme" in home:
-            check = home[:-2]
-        else:
-            check = home[:-1]
-        if root == check:
-            # It IS on the same drive. We need to figure out where at and work
-            # around it
-            # NOTE: WE NEED TO WORK IN MB ONLY IN THIS SECTION
-            data = __get_part_endpoints__(root)
-            # We now know:
-                # Where each partiton starts and stops
-                # How big each partition is
-                # Each partition number
-                # Each partition's FS type
-            # Lets make some partitons!
-            if efi:
-                for each in enumerate(data):
-                    # This loop makes our EFI partition
-                    if each[0] == 0:
-                        start_check = 0
-                    else:
-                        start_check = float(data[each[0] - 1][1][:-2])
-                    end_check = float(data[each[0]][2][:-2])
-                    if (end_check - start_check) >= 200:
-                        __make_efi__(root, start=data[each[0] - 1][1][:-1],
-                                    end=data[each[0]][1][:-1])
-                        part1 = __get_new_entry__(__get_children__(partitions,
-                                                                   root),
-                                                  __get_children__(check_disk_state(),
-                                                                 root))[0]
-                        partitions = check_disk_state()
-                        # We MUST make sure to break here or else we will make a
-                        # shit ton of 200 MB partitions on the drive
-                        break
-                # refresh our partition end points
-                data = __get_part_endpoints__(root)
-            # Find our largest gap
-            gap = []
+        check = home[:-1]
+    if root == check:
+        # It IS on the same drive. We need to figure out where at and work
+        # around it
+        # NOTE: WE NEED TO WORK IN MB ONLY IN THIS SECTION
+        data = __get_part_endpoints__(root)
+        # We now know:
+            # Where each partiton starts and stops
+            # How big each partition is
+            # Each partition number
+            # Each partition's FS type
+        # Lets make some partitons!
+        if efi:
             for each in enumerate(data):
+                # This loop makes our EFI partition
                 if each[0] == 0:
                     start_check = 0
                 else:
                     start_check = float(data[each[0] - 1][1][:-2])
                 end_check = float(data[each[0]][2][:-2])
-                gap.append(end_check - start_check)
-            gap = max(gap)
-            # Make our root partition
-            for each in enumerate(data):
-                if each[0] == 0:
-                    start_check = 0
-                else:
-                    start_check = float(data[each[0] - 1][1][:-2])
-                end_check = float(data[each[0]][2][:-2])
-                if (end_check - start_check) == gap:
-                    __make_root__(root, start=data[each[0] - 1][1][:-1],
+                if (end_check - start_check) >= 200:
+                    __make_efi__(root, start=data[each[0] - 1][1][:-1],
                                  end=data[each[0]][1][:-1])
-                    if efi:
-                        part2 = __get_new_entry__(__get_children__(partitions,
-                                                                   root),
-                                                  __get_children__(check_disk_state(),
-                                                                   root))[0]
-                    else:
-                        part1 = __get_new_entry__(__get_children__(partitions,
-                                                                   root),
-                                                  __get_children__(check_disk_state(),
-                                                                   root))[0]
+                    part1 = __get_new_entry__(__get_children__(partitions,
+                                                               root),
+                                              __get_children__(check_disk_state(),
+                                                               root))[0]
                     partitions = check_disk_state()
-            ### WORK IN PROGRESS ###
-        else:
-            # it's elsewhere. We're good.
-            if efi:
-                __make_efi__(root)
-                part1 = __get_new_entry__(__get_children__(partitions, root),
-                                        __get_children__(check_disk_state(),
-                                                         root))[0]
-                partitions = check_disk_state()
-                __make_root__(root)
-                part2 = __get_new_entry__(__get_children__(partitions, root),
-                                          __get_children__(check_disk_state(),
-                                                           root))[0]
-                partitions = check_disk_state()
+                    # We MUST make sure to break here or else we will make a
+                    # shit ton of 200 MB partitions on the drive
+                    break
+            # refresh our partition end points
+            data = __get_part_endpoints__(root)
+        # Find our largest gap
+        gap = []
+        for each in enumerate(data):
+            if each[0] == 0:
+                start_check = 0
             else:
-                __make_root__(root, start="0%")
-                part1 = __get_new_entry__(__get_children__(partitions, root),
-                                          __get_children__(check_disk_state(),
-                                                           root))[0]
+                start_check = float(data[each[0] - 1][1][:-2])
+            end_check = float(data[each[0]][2][:-2])
+            gap.append(end_check - start_check)
+        gap = max(gap)
+        # Make our root partition
+        for each in enumerate(data):
+            if each[0] == 0:
+                start_check = 0
+            else:
+                start_check = float(data[each[0] - 1][1][:-2])
+            end_check = float(data[each[0]][2][:-2])
+            if (end_check - start_check) == gap:
+                __make_root__(root, start=data[each[0] - 1][1][:-1],
+                                end=data[each[0]][1][:-1])
+                if efi:
+                    part2 = __get_new_entry__(__get_children__(partitions,
+                                                               root),
+                                              __get_children__(check_disk_state(),
+                                                               root))[0]
+                else:
+                    part1 = __get_new_entry__(__get_children__(partitions,
+                                                               root),
+                                              __get_children__(check_disk_state(),
+                                                               root))[0]
                 partitions = check_disk_state()
-        part3 = home
+    else:
+        # it's elsewhere. We're good.
+        if efi:
+            __make_efi__(root)
+            part1 = __get_new_entry__(__get_children__(partitions, root),
+                                      __get_children__(check_disk_state(),
+                                                       root))[0]
+            partitions = check_disk_state()
+            __make_root__(root)
+            part2 = __get_new_entry__(__get_children__(partitions, root),
+                                      __get_children__(check_disk_state(),
+                                                       root))[0]
+            partitions = check_disk_state()
+        else:
+            __make_root__(root, start="0%")
+            part1 = __get_new_entry__(__get_children__(partitions, root),
+                                      __get_children__(check_disk_state(),
+                                                       root))[0]
+            partitions = check_disk_state()
+    part3 = home
     # Figure out what parts are for what
     # Return that data as a dictonary
     common.eprint("\t###\tauto_partioner.py CLOSED\t###\t")
     return __generate_return_data__(home, efi, part1, part2, part3)
-
-
