@@ -84,6 +84,13 @@ def __parted__(device, args):
     return data
 
 
+def __get_block_size__(device):
+    """Get block size on partition"""
+    size = subprocess.check_output(["blockdev", "--getbsz",
+                                    str(device)]).decode()
+    return int(size)
+
+
 def check_disk_state():
     """Check disk state as registered with lsblk
 
@@ -130,11 +137,9 @@ def __make_root__(device, start=config["ROOT"]["START"],
     __parted__(device, ["mkpart", "primary", fs, str(start), str(end)])
     post_state = __get_children__(check_disk_state(), device)
     drive = __get_new_entry__(pre_state, post_state)
-    try:
-        drive = drive[0]
-    except (IndexError, KeyError):
-        drive = ""
-    process = subprocess.Popen(["mkfs." + fs, drive], stdout=sys.stderr.buffer,
+    drive = drive[0]
+    size = drive["size"] / __get_block_size__(drive["name"])
+    process = subprocess.Popen(["mkfs", "-t", fs, drive["name"], size], stdout=sys.stderr.buffer,
                                stdin=subprocess.PIPE,
                                stderr=subprocess.PIPE)
     process.communicate(input=bytes("y\n", "utf-8"))
@@ -193,7 +198,7 @@ def __get_new_entry__(old, new):
             del new[each]
     data = []
     for each in new:
-        data.append(each["name"])
+        data.append(each)
     return data
 
 
