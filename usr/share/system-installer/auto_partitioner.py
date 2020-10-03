@@ -126,7 +126,7 @@ def __make_root__(device, start=config["ROOT"]["START"],
 
 
 def __make_home__(device, new_start=config["HOME"]["START"],
-                  new_end=config["HOME"]["END"], new_fs=config["HOME"]["fs"]
+                  new_end=config["HOME"]["END"], new_fs=config["HOME"]["fs"],
                   new_name="home"):
     """Easy sorta-macro to make a home partiton"""
     __make_root__(device, start=new_start, end=new_end, fs=new_fs,
