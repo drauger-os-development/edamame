@@ -51,7 +51,7 @@ for each in range(len(DISK) - 1, -1, -1):
     if float(DISK[each]["size"]) < auto_partitioner.LIMITER:
         del DISK[each]
 if len(DISK) < 1:
-    UI.error.show_error("\n\tNo Drives Larger than 16 GB detected\t\n")
+    UI.error.show_error("\n\tNo 32 GB or Larger Drives detected\t\n")
     sys.exit(2)
 if not check_kernel_versions.check_kernel_versions():
     UI.error.show_error("""

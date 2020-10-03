@@ -30,7 +30,13 @@ import os
 import common
 
 
-LIMITER = 16 * (1 ** 9)
+def gb_to_bytes(gb):
+    """Convert GB to Bytes"""
+    return gb * (1 ** 9)
+
+
+# GET DEFAULT CONFIG
+LIMITER = gb_to_bytes(32)
 
 # get configuration for partitioning
 with open("/etc/system-installer/default.json", "r") as config_file:
