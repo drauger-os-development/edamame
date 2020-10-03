@@ -113,35 +113,24 @@ def check_disk_state():
 def __make_efi__(device, start=config["EFI"]["START"],
                  end=config["EFI"]["END"]):
     """Make EFI partition"""
-    __parted__(device, ["mkpart", "primary", "fat32", str(start), str(end)])
+    __parted__(device, ["mkpart", "efi", "fat32", str(start), str(end)])
     time.sleep(0.1)
 
 
 def __make_root__(device, start=config["ROOT"]["START"],
-                  end=config["ROOT"]["END"], fs=config["ROOT"]["fs"]):
-    """Make root partition
-
-    Start defaults to 201MB mark on the drive
-    end defaults to the end of the drive
-    """
-    pre_state = __get_children__(check_disk_state(), device)
-    __parted__(device, ["mkpart", "primary", fs, str(start), str(end)])
-    post_state = __get_children__(check_disk_state(), device)
-    drive = __get_new_entry__(pre_state, post_state)
-    drive = drive[0]
-    size = drive["size"] / __get_block_size__(drive["name"])
-    process = subprocess.Popen(["mkfs", "-t", fs, drive["name"], str(size)],
-                               stdout=sys.stderr.buffer,
-                               stdin=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
-    process.communicate(input=bytes("y\n", "utf-8"))
+                  end=config["ROOT"]["END"], fs=config["ROOT"]["fs"],
+                  name="root"):
+    """Make root partition"""
+    __parted__(device, ["mkpart", name, fs, str(start), str(end)])
     time.sleep(0.1)
 
 
 def __make_home__(device, new_start=config["HOME"]["START"],
-                  new_end=config["HOME"]["END"], new_fs=config["HOME"]["fs"]):
+                  new_end=config["HOME"]["END"], new_fs=config["HOME"]["fs"]
+                  new_name="home"):
     """Easy sorta-macro to make a home partiton"""
-    __make_root__(device, start=new_start, end=new_end, fs=new_fs)
+    __make_root__(device, start=new_start, end=new_end, fs=new_fs,
+                  name=new_name)
 
 
 def __generate_return_data__(home, efi, part1, part2, part3):
