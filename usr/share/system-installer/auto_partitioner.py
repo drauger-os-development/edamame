@@ -63,7 +63,7 @@ try:
         config["HOME"]["fs"] = "ext4"
 except KeyError:
     config["HOME"]["fs"] = "ext4"
-
+# END GET DEFAULT CONFIG
 
 
 
@@ -130,7 +130,8 @@ def __make_root__(device, start=config["ROOT"]["START"],
     drive = __get_new_entry__(pre_state, post_state)
     drive = drive[0]
     size = drive["size"] / __get_block_size__(drive["name"])
-    process = subprocess.Popen(["mkfs", "-t", fs, drive["name"], str(size)], stdout=sys.stderr.buffer,
+    process = subprocess.Popen(["mkfs", "-t", fs, drive["name"], str(size)],
+                               stdout=sys.stderr.buffer,
                                stdin=subprocess.PIPE,
                                stderr=subprocess.PIPE)
     process.communicate(input=bytes("y\n", "utf-8"))
@@ -211,6 +212,7 @@ def partition(root, efi, home):
     part1 = None
     part2 = None
     part3 = None
+    size = None
     if home in ("NULL", "null", None, "MAKE"):
         common.eprint("MAKING NEW PARTITION TABLE.")
         __parted__(root, ["mktable", "gpt"])
@@ -245,13 +247,19 @@ def partition(root, efi, home):
             partitions = check_disk_state()
             common.eprint("\t###\tauto_partioner.py CLOSED\t###\t")
             return __generate_return_data__(home, efi, part1, part2, part3)
+        if each["name"] == root:
+            size = each["size"]
     # Handled 16GB drives
     # From here until 64GB drives, we want our root partition to be AT LEAST
     # 16GB
     if home == "MAKE":
         # If home == "MAKE", we KNOW there are no partitons because we made a
         # new partition table
-        root_end = "16GB"
+        if size >= gb_to_bytes(128):
+            root_end = int((size * 0.35) / (1 ** 9))
+            root_end = str(root_end) + "GB"
+        else:
+            root_end = "18GB"
         if (efi and (part1 is None)):
             __make_efi__(root)
             part1 = __get_new_entry__(__get_children__(partitions, root),
