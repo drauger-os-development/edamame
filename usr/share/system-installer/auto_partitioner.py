@@ -106,23 +106,8 @@ def check_disk_state():
 
 def __make_efi__(device, start=config["EFI"]["START"],
                  end=config["EFI"]["END"]):
-    """Make EFI partition
-
-    Start defaults to beginning of the drive
-    end defaults to the 200MB mark on the drive
-    """
-    pre_state = __get_children__(check_disk_state(), device)
+    """Make EFI partition"""
     __parted__(device, ["mkpart", "primary", "fat32", str(start), str(end)])
-    post_state = __get_children__(check_disk_state(), device)
-    drive = __get_new_entry__(pre_state, post_state)
-    try:
-        drive = drive[0]
-    except (IndexError, KeyError):
-        drive = ""
-    process = subprocess.Popen(["mkfs.fat", "-F", "32", drive],
-                               stdout=sys.stderr.buffer,
-                               stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-    process.communicate(input=bytes("y\n", "utf-8"))
     time.sleep(0.1)
 
 
