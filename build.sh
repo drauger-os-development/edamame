@@ -18,21 +18,25 @@ cd usr/share/system-installer/modules
 echo -e "\t###\tDOWNLOADING\t###\t"
 rsync -vr rsync://apt.draugeros.org/aptsync/pool/main/l/linux-5.[8-9].*-xanmod* kernel
 rsync -vr rsync://apt.draugeros.org/aptsync/pool/main/l/linux-meta-xanmod kernel
+echo -e "\t###\tDELETING CRUFT\t###\t"
 list=$(ls kernel)
 for each in $list; do
 	remove=$(ls kernel/$each | grep -v 'amd64.deb$')
 	for each2 in $remove; do
-		rm -rf kernel/$each/$each2
+		rm -rfv kernel/$each/$each2
 	done
 done
-meta=$(echo kernel/linux-meta-xanmod/$(ls kernel/linux-meta-xanmod) | awk '{print $1}')
+meta=$(echo kernel/linux-meta-xanmod/$(ls kernel/linux-meta-xanmod | sort -Vr | head -1))
 dep=$(dpkg-deb --field $meta Depends | sed 's/,/ /g' | awk '{print $1}' | sed 's/-headers//g')
 cd kernel
-rm -rf $(ls | grep -Ev "^linux-meta-xanmod$|^$dep\$")
-cd ..
+rm -rfv $(ls | grep -Ev "^linux-meta-xanmod$|^$dep\$")
+dep=$(echo "$dep" | sed 's/linux-//g')
+cd linux-meta-xanmod
+rm -rfv $(ls | grep -v "$dep")
+cd ../..
 # delete empty folders
-echo -e "\t###\tCOMPRESSING\t###\t"
 find . -type d -empty -print -delete
+echo -e "\t###\tCOMPRESSING\t###\t"
 tar --verbose --create --xz -f kernel.tar.xz kernel
 rm -rf kernel
 cd ../../../..
