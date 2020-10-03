@@ -124,7 +124,7 @@ def __make_root__(device, start=config["ROOT"]["START"],
     drive = __get_new_entry__(pre_state, post_state)
     drive = drive[0]
     size = drive["size"] / __get_block_size__(drive["name"])
-    process = subprocess.Popen(["mkfs", "-t", fs, drive["name"], size], stdout=sys.stderr.buffer,
+    process = subprocess.Popen(["mkfs", "-t", fs, drive["name"], str(size)], stdout=sys.stderr.buffer,
                                stdin=subprocess.PIPE,
                                stderr=subprocess.PIPE)
     process.communicate(input=bytes("y\n", "utf-8"))
@@ -183,7 +183,7 @@ def __get_new_entry__(old, new):
             del new[each]
     data = []
     for each in new:
-        data.append(each)
+        data.append(each["name"])
     return data
 
 
