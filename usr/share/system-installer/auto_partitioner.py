@@ -57,6 +57,19 @@ except FileNotFoundError:
               "EFI":{"START":0, "END":200}}
 
 
+def check_disk_state():
+    """Check disk state as registered with lsblk
+
+    Returns data as dictionary"""
+    command = ["lsblk", "--json", "--paths", "--bytes", "--output",
+               "name,size,type,fstype"]
+    data = json.loads(subprocess.check_output(command))["blockdevices"]
+    for each in range(len(data) - 1, -1, -1):
+        if data[each]["type"] == "loop":
+            del data[each]
+    return data
+
+
 def __mkfs__(device, fs):
     """Set partition filesystem"""
     # pre-define command
