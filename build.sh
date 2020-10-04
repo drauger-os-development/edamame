@@ -38,7 +38,8 @@ cd ../..
 find . -type d -empty -print -delete
 echo -e "\t###\tCOMPRESSING\t###\t"
 tar --verbose --create --xz -f kernel.tar.xz kernel
-rm -rf kernel
+echo -e "\t###\tCLEANING\t###\t"
+rm -rfv kernel
 cd ../../../..
 ##############################################################
 #							     #
