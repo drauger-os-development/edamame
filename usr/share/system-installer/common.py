@@ -34,7 +34,7 @@ def unique(starting_list):
         # check if exists in unique_list or not
         if x not in unique_list:
             unique_list.append(x)
-    return(unique_list)
+    return unique_list
 
 
 def eprint(*args, **kwargs):
