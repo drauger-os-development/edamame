@@ -55,4 +55,3 @@ def autoremove(cache):
             if each.is_auto_removable:
                 each.mark_delete()
     cache.commit()
-    cache.close()

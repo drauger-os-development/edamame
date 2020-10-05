@@ -41,7 +41,7 @@ def update_system():
     cache.update()
     cache.open()
     cache.upgrade(dist_upgrade=True)
-    purge.autoremove(cache)
     cache.commit()
+    purge.autoremove(cache)
     cache.close()
     __eprint__("\t###\tinstall_updates.py CLOSED\t###\t")
