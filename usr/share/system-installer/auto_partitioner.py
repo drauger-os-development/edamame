@@ -104,15 +104,15 @@ def __make_efi__(device, start=config["EFI"]["START"], end=config["EFI"]["END"])
     disk = parted.Disk(device)
     optimal = device.optimumAlignment
     start_geo = parted.geometry.Geometry(device=device,
-                                     start=parted.sizeToSectors(start, "MB",
-                                                                device.sectorSize),
-                                     end=parted.sizeToSectors(start + 10, "MB",
-                                                              device.sectorSize))
+                                         start=parted.sizeToSectors(start, "MB",
+                                                                    device.sectorSize),
+                                         end=parted.sizeToSectors(start + 10, "MB",
+                                                                  device.sectorSize))
     end_geo = parted.geometry.Geometry(device=device,
-                                   start=parted.sizeToSectors(end - 20, "MB",
-                                                              device.sectorSize),
-                                   end=parted.sizeToSectors(end + 10, "MB",
-                                                            device.sectorSize))
+                                       start=parted.sizeToSectors(end - 20, "MB",
+                                                                  device.sectorSize),
+                                       end=parted.sizeToSectors(end + 10, "MB",
+                                                                device.sectorSize))
     min_size = parted.sizeToSectors(((end - start) - 25), "MB", device.sectorSize)
     max_size = parted.sizeToSectors(((end - start) + 20), "MB", device.sectorSize)
     const = parted.Constraint(startAlign=optimal, endAlign=optimal,
