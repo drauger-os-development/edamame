@@ -239,9 +239,9 @@ home: whether to make a home partition, or if one already exists
     part1 = None
     part2 = None
     part3 = None
-    size = None
     device = parted.getDevice(root)
     disk = parted.Disk(device)
+    size = sectors_to_size(device.length, device.sectorSize) * 1000
     if home in ("NULL", "null", None, "MAKE"):
         common.eprint("DELETING PARTITIONS.")
         device.clobber()
@@ -249,7 +249,7 @@ home: whether to make a home partition, or if one already exists
         disk.commit()
     else:
         common.eprint("HOME PARTITION EXISTS. NOT DELETING PARTITIONS.")
-    if (sectors_to_size(device.length, device.sectorSize) * 1000) == LIMITER:
+    if size == LIMITER:
         if efi:
             part1 = __make_efi__(device)
             part2 = __make_root__(device, end="100%")
@@ -264,7 +264,7 @@ home: whether to make a home partition, or if one already exists
     if home == "MAKE":
         # If home == "MAKE", we KNOW there are no partitons because we made a
         # new partition table
-        if size >= (gb_to_bytes(128) / (1000 ** 2)):
+        if size >= gb_to_bytes(128):
             root_end = int((size * 0.35) / (1000 ** 2))
         else:
             root_end = 18432
