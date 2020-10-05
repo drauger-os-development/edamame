@@ -252,9 +252,9 @@ home: whether to make a home partition, or if one already exists
     if (sectors_to_size(device.length, device.sectorSize) * 1000) == LIMITER:
         if efi:
             part1 = __make_efi__(device)
-            part2 = __make_root__(root, end="100%")
+            part2 = __make_root__(device, end="100%")
         else:
-            part1 = __make_root__(root, start="0%", end="100%")
+            part1 = __make_root__(device, start="0%", end="100%")
             __make_root_boot__(disk)
         common.eprint("\t###\tauto_partioner.py CLOSED\t###\t")
         return __generate_return_data__(home, efi, part1, part2, part3)
@@ -269,13 +269,13 @@ home: whether to make a home partition, or if one already exists
         else:
             root_end = 18432
         if (efi and (part1 is None)):
-            part1 = __make_efi__(root)
-            part2 = __make_root__(root, end=root_end)
-            part3 = __make_home__(root, new_start=root_end)
+            part1 = __make_efi__(device)
+            part2 = __make_root__(device, end=root_end)
+            part3 = __make_home__(device, new_start=root_end)
         elif part1 is None:
-            part1 = __make_root__(root, start="0%", end=root_end)
+            part1 = __make_root__(device, start="0%", end=root_end)
             __make_root_boot__(disk)
-            part2 = __make_home__(root, new_start=root_end)
+            part2 = __make_home__(device, new_start=root_end)
         common.eprint("\t###\tauto_partioner.py CLOSED\t###\t")
         return __generate_return_data__(home, efi, part1, part2, part3)
     if home in ("NULL", "null", None):
@@ -283,10 +283,10 @@ home: whether to make a home partition, or if one already exists
         # we KNOW there are no partitons because we made a
         # new partition table
         if efi:
-            part1 = __make_efi__(root)
-            part2 = __make_root__(root, end="100%")
+            part1 = __make_efi__(device)
+            part2 = __make_root__(device, end="100%")
         else:
-            part1 = __make_root__(root, start="0%", end="100%")
+            part1 = __make_root__(device, start="0%", end="100%")
             __make_root_boot__(disk)
         common.eprint("\t###\tauto_partioner.py CLOSED\t###\t")
         return __generate_return_data__(home, efi, part1, part2, part3)
@@ -312,14 +312,14 @@ home: whether to make a home partition, or if one already exists
                     end = sizes[each].start + parted.sizeToSectors(200, "MB",
                                                                    device.sectorSize)
                     end = sectors_to_size(end, device.sectorSize)
-                    part1 = __make_efi__(root, start=sizes[each].start,
+                    part1 = __make_efi__(device, start=sizes[each].start,
                                          end=end)
-                    part2 = __make_root__(root, start=end, end=sizes[each].end)
+                    part2 = __make_root__(device, start=end, end=sizes[each].end)
                     break
         else:
             for each in sizes_sorted:
                 if sizes[each].getSize() >= 200:
-                    part1 = __make_root__(root, start=sizes[each].start,
+                    part1 = __make_root__(device, start=sizes[each].start,
                                           end=sizes[each].end)
                     __make_root_boot__(disk)
                     break
@@ -328,10 +328,10 @@ home: whether to make a home partition, or if one already exists
     else:
         # it's elsewhere. We're good.
         if efi:
-            part1 = __make_efi__(root)
-            part2 = __make_root__(root)
+            part1 = __make_efi__(device)
+            part2 = __make_root__(device)
         else:
-            part1 = __make_root__(root, start="0%", end="100%")
+            part1 = __make_root__(device, start="0%", end="100%")
             __make_root_boot__(disk)
     part3 = home
     # Figure out what parts are for what
