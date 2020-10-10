@@ -31,7 +31,7 @@ import common
 
 def gb_to_bytes(gb):
     """Convert GB to Bytes"""
-    return gb * (1 ** 9)
+    return gb * (10 ** 9)
 
 
 # GET DEFAULT CONFIG
