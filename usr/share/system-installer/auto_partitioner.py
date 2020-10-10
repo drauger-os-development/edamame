@@ -267,7 +267,7 @@ home: whether to make a home partition, or if one already exists
         if size >= gb_to_bytes(128):
             root_end = int((size * 0.35) / (1000 ** 2))
         else:
-            root_end = 18432
+            root_end = 19327
         if (efi and (part1 is None)):
             part1 = __make_efi__(device)
             part2 = __make_root__(device, end=root_end)
