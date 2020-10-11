@@ -22,7 +22,9 @@
 							"START":"35%",
 							"END":"100%",
 							"fs":"ext4"
-						   }
+						   },
+					"min root size":19327,
+					"mdswh":128
 					}
 }
 

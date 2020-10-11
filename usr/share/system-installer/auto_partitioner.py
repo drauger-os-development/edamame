@@ -38,23 +38,33 @@ def gb_to_bytes(gb):
 LIMITER = gb_to_bytes(32)
 
 # get configuration for partitioning
-config = None
+config = {"ROOT":{"START":201, "END":"40%", "fs":"ext4"},
+          "HOME":{"START":"40%", "END":"100%", "fs":"ext4"},
+          "EFI":{"START":0, "END":200},
+          "min root size":19327,
+          "mdswh":128}
 try:
     with open("/etc/system-installer/default.json", "r") as config_file:
-        config = json.load(config_file)
+        config_data = json.load(config_file)
 
     # check to make sure packager left this block in
-    if "partitioning" in config:
-        config = config["partitioning"]
+    if "partitioning" in config_data:
+        new_config = config_data["partitioning"]
+    # make sure everything is there. If not, substitute in defaults
+    if "ROOT" not in new_config:
+        new_config["ROOT"] = config["ROOT"]
+    if "HOME" not in new_config:
+        new_config["HOME"] = config["HOME"]
+    if "EFI" not in new_config:
+        new_config["EFI"] = config["EFI"]
+    if "min root size" not in new_config:
+        new_config["min root size"] = config["min root size"]
+    if "mdswh" not in new_config:
+        new_config["mdswh"] = config["mdswh"]
+    config = new_config
     # if not, fall back to internal default
-    else:
-        config = {"ROOT":{"START":201, "END":"35%", "fs":"ext4"},
-                  "HOME":{"START":"35%", "END":"100%", "fs":"ext4"},
-                  "EFI":{"START":0, "END":200}}
 except FileNotFoundError:
-    config = {"ROOT":{"START":201, "END":"35%", "fs":"ext4"},
-              "HOME":{"START":"35%", "END":"100%", "fs":"ext4"},
-              "EFI":{"START":0, "END":200}}
+    pass
 
 
 def check_disk_state():
@@ -264,10 +274,10 @@ home: whether to make a home partition, or if one already exists
     if home == "MAKE":
         # If home == "MAKE", we KNOW there are no partitons because we made a
         # new partition table
-        if size >= gb_to_bytes(128):
+        if size >= gb_to_bytes(config[["mdswh"]):
             root_end = int((size * 0.35) / (1000 ** 2))
         else:
-            root_end = 19327
+            root_end = config["min root size"]
         if (efi and (part1 is None)):
             part1 = __make_efi__(device)
             part2 = __make_root__(device, end=root_end)
