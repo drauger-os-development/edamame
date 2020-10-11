@@ -274,7 +274,7 @@ home: whether to make a home partition, or if one already exists
     if home == "MAKE":
         # If home == "MAKE", we KNOW there are no partitons because we made a
         # new partition table
-        if size >= gb_to_bytes(config[["mdswh"]):
+        if size >= gb_to_bytes(config["mdswh"]):
             root_end = int((size * 0.35) / (1000 ** 2))
         else:
             root_end = config["min root size"]
