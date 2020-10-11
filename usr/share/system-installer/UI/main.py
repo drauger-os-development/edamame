@@ -642,12 +642,20 @@ class Main(Gtk.Window):
                                                  devices[each5[0]][1]))
             if self.home_setting != "":
                 parts.set_active_id(self.home_setting)
+            parts.connect("changed", self.select_home_part)
             self.grid.attach(parts, 1, 5, 2, 1)
         else:
             self.grid.remove(parts)
             self.home_setting = "MAKE"
 
         self.show_all()
+
+    def select_home_part(self, widget):
+        """Set pre-existing home partition, based on user input"""
+        device = widget.get_active_id()
+        if path.exists(device):
+            self.home_setting = device
+
 
     def onnext6clicked(self, button):
         """Force User to either pick a drive to install to, abort,
