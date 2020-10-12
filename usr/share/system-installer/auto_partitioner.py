@@ -313,7 +313,7 @@ home: whether to make a home partition, or if one already exists
         data = disk.getFreeSpaceRegions()
         sizes = {}
         for each in data:
-            sizes[each] = each.length
+            sizes[each.length] = each
         sizes_sorted = sorted(sizes)
         # Lets make some partitons!
         if efi:
