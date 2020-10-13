@@ -31,6 +31,7 @@ import json
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
+import auto_partitioner
 
 
 def eprint(*args, **kwargs):
@@ -567,7 +568,7 @@ class Main(Gtk.Window):
                                                   devices[each4[0]][1]))
         if self.root_setting != "":
             self.disks.set_active_id(self.root_setting)
-        self.grid.attach(self.disks, 1, 2, 2, 1)
+        self.grid.attach(self.disks, 1, 2, 3, 1)
 
         home_part = Gtk.CheckButton.new_with_label("Seperate home partition")
         if ((self.home_setting != "") and (self.home_setting != "NULL")):
@@ -577,7 +578,11 @@ class Main(Gtk.Window):
 
         button1 = Gtk.Button.new_with_label("Okay -->")
         button1.connect("clicked", self.onnext6clicked)
-        self.grid.attach(button1, 3, 6, 1, 1)
+        self.grid.attach(button1, 4, 6, 1, 1)
+
+        button4 = Gtk.Button.new_with_label("Make Space")
+        button4.connect("clicked", self.make_space)
+        self.grid.attach(button4, 3, 6, 1, 1)
 
         button2 = Gtk.Button.new_with_label("Exit")
         button2.connect("clicked", self.exit)
@@ -588,6 +593,64 @@ class Main(Gtk.Window):
         self.grid.attach(button3, 1, 6, 1, 1)
 
         self.show_all()
+
+    def make_space(self, widget, drive=None):
+        """Window for making space on an installed drive"""
+        self.clear_window()
+
+        data = auto_partitioner.check_disk_state()
+        devices = Gtk.ComboBoxText.new()
+        for each in data:
+            devices.append(each["name"],
+                          "%s, size: %sGB" % (each["name"],
+                                            int(auto_partitioner.bytes_to_gb(each["size"]))))
+        devices.connect("changed", self.make_space_parts)
+        self.grid.attach(devices, 1, 3, 2, 1)
+
+        self.parts = Gtk.ComboBoxText.new()
+        self.grid.attach(self.parts, 1, 4, 2, 1)
+
+        button1 = Gtk.Button.new_with_label("Okay -->")
+        button1.connect("clicked", self.auto_partition)
+        self.grid.attach(button1, 4, 6, 1, 1)
+
+        button3 = Gtk.Button.new_with_label("!!! DELETE !!!")
+        button3.connect("clicked", self.remove_part)
+        self.grid.attach(button3, 3, 6, 1, 1)
+
+        button2 = Gtk.Button.new_with_label("Exit")
+        button2.connect("clicked", self.exit)
+        self.grid.attach(button2, 2, 6, 1, 1)
+
+        if drive is not None:
+            devices.set_active_id(drive)
+            self.make_space_parts(devices)
+        self.show_all()
+
+    def make_space_parts(self, widget):
+        """Set partitions to show for make_space()"""
+        self.parts.remove_all()
+        data = auto_partitioner.check_disk_state()
+        name = widget.get_active_id()
+        for each in data:
+            if each["name"] == name:
+                if "children" in each:
+                    for each1 in each["children"]:
+                        self.parts.append(each1["name"],
+                                          "%s, filesystem: %s, size: %sGB" % (each1["name"],
+                                                                              each1["fstype"],
+                                                                              int(auto_partitioner.bytes_to_gb(each1["size"]))))
+        self.show_all()
+
+    def remove_part(self, widget):
+        """Interface for removing partitions"""
+        part = self.parts.get_active_id()
+        auto_partitioner.delete_part(part)
+        if "nvme" in part:
+            self.make_space("clicked", drive=part[:-2])
+        else:
+            self.make_space("clicked", drive=part[:-1])
+
 
     def auto_home_setup(self, widget):
         """Handle preexisting vs making a new home directory"""

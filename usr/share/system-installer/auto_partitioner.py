@@ -33,6 +33,9 @@ def gb_to_bytes(gb):
     """Convert GB to Bytes"""
     return gb * (10 ** 9)
 
+def bytes_to_gb(b):
+    """Convert Bytes to GB"""
+    return b / (10 ** 9)
 
 # GET DEFAULT CONFIG
 LIMITER = gb_to_bytes(32)
@@ -233,6 +236,19 @@ This ONLY works if the root partition is the only partition on the drive
     partitions = disk.getPrimaryPartitions()
     partitions[0].setFlag(parted.PARTITION_BOOT)
     disk.commit()
+
+
+def delete_part(part_path):
+    """Delete partiton indicated by path"""
+    if "nvme" in part_path:
+        device = parted.getDevice(part_path[:-2])
+    else:
+        device = parted.getDevice(part_path[:-1])
+    disk = parted.Disk(device)
+    part = disk.getPartitionByPath(part_path)
+    disk.deletePartition(part)
+    disk.commit()
+
 
 def partition(root, efi, home):
     """Partition drive 'root' for Linux installation
