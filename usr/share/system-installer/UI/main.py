@@ -598,6 +598,13 @@ class Main(Gtk.Window):
         """Window for making space on an installed drive"""
         self.clear_window()
 
+        label = Gtk.Label()
+        label.set_markup("""
+    Drive to Delete From\t
+    """)
+        label.set_justify(Gtk.Justification.LEFT)
+        self.grid.attach(label, 1, 1, 3, 1)
+
         data = auto_partitioner.check_disk_state()
         devices = Gtk.ComboBoxText.new()
         for each in data:
@@ -605,22 +612,29 @@ class Main(Gtk.Window):
                           "%s, size: %sGB" % (each["name"],
                                             int(auto_partitioner.bytes_to_gb(each["size"]))))
         devices.connect("changed", self.make_space_parts)
-        self.grid.attach(devices, 1, 3, 2, 1)
+        self.grid.attach(devices, 1, 2, 3, 1)
+
+        label2 = Gtk.Label()
+        label2.set_markup("""
+    Partition to Delete\t
+    """)
+        label2.set_justify(Gtk.Justification.LEFT)
+        self.grid.attach(label2, 1, 3, 3, 1)
 
         self.parts = Gtk.ComboBoxText.new()
-        self.grid.attach(self.parts, 1, 4, 2, 1)
+        self.grid.attach(self.parts, 1, 4, 3, 1)
 
         button1 = Gtk.Button.new_with_label("Okay -->")
         button1.connect("clicked", self.auto_partition)
-        self.grid.attach(button1, 4, 6, 1, 1)
+        self.grid.attach(button1, 3, 6, 1, 1)
 
         button3 = Gtk.Button.new_with_label("!!! DELETE !!!")
         button3.connect("clicked", self.remove_part)
-        self.grid.attach(button3, 3, 6, 1, 1)
+        self.grid.attach(button3, 2, 6, 1, 1)
 
         button2 = Gtk.Button.new_with_label("Exit")
         button2.connect("clicked", self.exit)
-        self.grid.attach(button2, 2, 6, 1, 1)
+        self.grid.attach(button2, 1, 6, 1, 1)
 
         if drive is not None:
             devices.set_active_id(drive)
