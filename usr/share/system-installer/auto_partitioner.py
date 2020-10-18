@@ -178,9 +178,9 @@ def __make_root__(device, start=config["ROOT"]["START"],
                                                                   "MB",
                                                                   device.sectorSize))
     end_geo = parted.geometry.Geometry(device=device,
-                                       start=parted.sizeToSectors(end - 20, "MB",
+                                       start=parted.sizeToSectors(end - 40, "MB",
                                                                   device.sectorSize),
-                                       end=parted.sizeToSectors(end + 20, "MB",
+                                       end=parted.sizeToSectors(end, "MB",
                                                                 device.sectorSize))
     min_size = parted.sizeToSectors((end - start) - 150, "MB", device.sectorSize)
     max_size = parted.sizeToSectors((end - start) + 150, "MB", device.sectorSize)
