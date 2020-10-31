@@ -93,6 +93,7 @@ def make_user(username):
             os.chown(os.path.join(root, dev), 1000, 1000)
         for dev in files:
             os.chown(os.path.join(root, dev), 1000, 1000)
+    os.chown(new_home, 1000, 1000)
     os.chmod(new_home, 0o755)
     set_wallpaper.set_wallpaper(username)
     eprint("\t###\tmake_user.py CLOSED\t###\t")
