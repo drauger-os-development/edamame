@@ -90,9 +90,15 @@ def make_user(username):
     # Home directory has correct perms
     for root, dirs, files, in os.walk(new_home):
         for dev in dirs:
-            os.chown(os.path.join(root, dev), 1000, 1000)
+            try:
+                os.chown(os.path.join(root, dev), 1000, 1000)
+            except FileNotFoundError:
+                pass
         for dev in files:
-            os.chown(os.path.join(root, dev), 1000, 1000)
+            try:
+                os.chown(os.path.join(root, dev), 1000, 1000)
+            except FileNotFoundError:
+                pass
     os.chown(new_home, 1000, 1000)
     os.chmod(new_home, 0o755)
     set_wallpaper.set_wallpaper(username)
