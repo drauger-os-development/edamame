@@ -34,6 +34,7 @@ def __eprint__(*args, **kwargs):
     """Make it easier for us to print to stderr"""
     print(*args, file=stderr, **kwargs)
 
+
 def update_system():
     """update system through package manager"""
     __eprint__("\t###\tinstall_updates.py STARTED\t###\t")

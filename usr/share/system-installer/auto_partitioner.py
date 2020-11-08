@@ -120,22 +120,29 @@ def __make_efi__(device, start=config["EFI"]["START"],
     disk = parted.Disk(device)
     optimal = device.optimumAlignment
     start_geo = parted.geometry.Geometry(device=device,
-                                         start=parted.sizeToSectors(start, "MB",
+                                         start=parted.sizeToSectors(start,
+                                                                    "MB",
                                                                     device.sectorSize),
-                                         end=parted.sizeToSectors(start + 10, "MB",
+                                         end=parted.sizeToSectors(start + 10,
+                                                                  "MB",
                                                                   device.sectorSize))
     end_geo = parted.geometry.Geometry(device=device,
-                                       start=parted.sizeToSectors(end - 20, "MB",
+                                       start=parted.sizeToSectors(end - 20,
+                                                                  "MB",
                                                                   device.sectorSize),
-                                       end=parted.sizeToSectors(end + 10, "MB",
+                                       end=parted.sizeToSectors(end + 10,
+                                                                "MB",
                                                                 device.sectorSize))
-    min_size = parted.sizeToSectors(((end - start) - 25), "MB", device.sectorSize)
-    max_size = parted.sizeToSectors(((end - start) + 20), "MB", device.sectorSize)
+    min_size = parted.sizeToSectors(((end - start) - 25), "MB",
+                                    device.sectorSize)
+    max_size = parted.sizeToSectors(((end - start) + 20), "MB",
+                                    device.sectorSize)
     const = parted.Constraint(startAlign=optimal, endAlign=optimal,
                               startRange=start_geo, endRange=end_geo, minSize=min_size,
                               maxSize=max_size)
     geometry = parted.geometry.Geometry(start=start,
-                                        length=parted.sizeToSectors(end - start, "MB",
+                                        length=parted.sizeToSectors(end - start,
+                                                                    "MB",
                                                                     device.sectorSize),
                                         device=device)
     new_part = parted.Partition(disk=disk,
@@ -181,19 +188,23 @@ def __make_root__(device, start=config["ROOT"]["START"],
                                                                   "MB",
                                                                   device.sectorSize))
     end_geo = parted.geometry.Geometry(device=device,
-                                       start=parted.sizeToSectors(end - 40, "MB",
+                                       start=parted.sizeToSectors(end - 40,
+                                                                  "MB",
                                                                   device.sectorSize),
                                        end=parted.sizeToSectors(end, "MB",
                                                                 device.sectorSize))
-    min_size = parted.sizeToSectors((end - start) - 150, "MB", device.sectorSize)
-    max_size = parted.sizeToSectors((end - start) + 150, "MB", device.sectorSize)
+    min_size = parted.sizeToSectors((end - start) - 150, "MB",
+                                    device.sectorSize)
+    max_size = parted.sizeToSectors((end - start) + 150, "MB",
+                                    device.sectorSize)
     const = parted.Constraint(startAlign=optimal, endAlign=optimal,
                               startRange=start_geo, endRange=end_geo,
                               minSize=min_size,
                               maxSize=max_size)
     geometry = parted.geometry.Geometry(start=parted.sizeToSectors(start, "MB",
                                                                    device.sectorSize),
-                                        length=parted.sizeToSectors((end - start), "MB",
+                                        length=parted.sizeToSectors((end - start),
+                                                                    "MB",
                                                                     device.sectorSize),
                                         device=device)
     new_part = parted.Partition(disk=disk,
@@ -343,7 +354,8 @@ home: whether to make a home partition, or if one already exists
                     end = sectors_to_size(end, device.sectorSize)
                     part1 = __make_efi__(device, start=sizes[each].start,
                                          end=end)
-                    part2 = __make_root__(device, start=end, end=sizes[each].end)
+                    part2 = __make_root__(device, start=end,
+                                          end=sizes[each].end)
                     break
         else:
             for each in sizes_sorted:

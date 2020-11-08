@@ -62,7 +62,8 @@ Not using Advanced Quick Install's Wallpaper functionality.""")
         screens = ls
     for each in screens:
         if path.exists("/home/" + username + "/.config/" + each):
-            file_name = each + "/" + listdir("/home/" + username + "/.config/" + each)[0]
+            file_name = each + "/" + listdir("/home/%s/.config/%s" % (username,
+                                                                      each))[0]
         else:
             file_type = listdir("/home/" + username + "/.config")
             for each1 in file_type:

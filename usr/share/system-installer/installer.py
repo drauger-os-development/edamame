@@ -23,11 +23,9 @@
 #
 """Main module controling the installation process"""
 from __future__ import print_function
-from sys import stderr
 from subprocess import Popen, check_output, check_call, CalledProcessError
 from os import mkdir, path, chdir, listdir, remove, symlink, chmod
 from shutil import rmtree, move, copyfile, copytree
-from time import sleep
 import tarfile as tar
 import json
 import UI
@@ -190,8 +188,8 @@ def install(settings):
     for each in file_list:
         if each == "__pycache__":
             continue
-        common.eprint("/usr/share/system-installer/modules/" +
-               each + " --> " + "/mnt/" + each)
+        common.eprint("/usr/share/system-installer/modules/%s --> /mnt/%s" %
+                      (each, each))
         copyfile("/usr/share/system-installer/modules/" + each, "/mnt/" + each)
     __update__(35)
     # STEP 6: Run Master script inside chroot
@@ -243,18 +241,18 @@ def install(settings):
     copytree("/etc/NetworkManager/system-connections",
              "/mnt/etc/NetworkManager/system-connections")
     if path.exists(work_dir) and path.exists(work_dir + "/assets"):
-            ls = listdir(work_dir + "/assets")
-            mkdir("/mnt/user-data")
-            if "master" in ls:
-                file_type = listdir(work_dir + "/assets/master")[0].split("/")[-1].split(".")[-1]
-                copyfile(work_dir + "/assets/master/wallpaper." + file_type,
-                         "/mnt/user-data/wallpaper." + file_type)
-                copyfile(work_dir + "/assets/screens.list",
-                         "/mnt/user-data/screens.list")
-            else:
-                for each in ls:
-                    copytree(work_dir + "/assets/" + each,
-                             "/mnt/user-data/" + each)
+        ls = listdir(work_dir + "/assets")
+        mkdir("/mnt/user-data")
+        if "master" in ls:
+            file_type = listdir(work_dir + "/assets/master")[0].split("/")[-1].split(".")[-1]
+            copyfile(work_dir + "/assets/master/wallpaper." + file_type,
+                     "/mnt/user-data/wallpaper." + file_type)
+            copyfile(work_dir + "/assets/screens.list",
+                     "/mnt/user-data/screens.list")
+        else:
+            for each in ls:
+                copytree(work_dir + "/assets/" + each,
+                         "/mnt/user-data/" + each)
     real_root = chroot.arch_chroot("/mnt")
     modules.master.install(settings)
     chroot.de_chroot(real_root, "/mnt")
