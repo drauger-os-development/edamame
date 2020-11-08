@@ -57,8 +57,10 @@ def __get_file_version__():
 
 def __get_installed_version__():
     """Get kernel version using `uname'"""
-    release = subprocess.check_output(["uname", "--release"]).decode("utf-8")[:-1]
-    version = subprocess.check_output(["uname", "--kernel-version"]).decode("utf-8")[:-1]
+    release = subprocess.check_output(["uname",
+                                       "--release"]).decode("utf-8")[:-1]
+    version = subprocess.check_output(["uname",
+                                       "--kernel-version"]).decode("utf-8")[:-1]
     version = version.split(" ")[0]
     if version[0] == "#":
         version = version[1:]

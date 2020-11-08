@@ -36,6 +36,7 @@ def ping(mirror, count):
     output = check_output(command).decode("utf-8").split("\n")[-2]
     return float(output.split("/")[-2])
 
+
 def has_internet():
     """Check for internet, using mirrors and ping counts defined in
     the default `system-installer` config file."""

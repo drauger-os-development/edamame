@@ -33,19 +33,21 @@ def gb_to_bytes(gb):
     """Convert GB to Bytes"""
     return gb * (10 ** 9)
 
+
 def bytes_to_gb(b):
     """Convert Bytes to GB"""
     return b / (10 ** 9)
+
 
 # GET DEFAULT CONFIG
 LIMITER = gb_to_bytes(32)
 
 # get configuration for partitioning
-config = {"ROOT":{"START":201, "END":"40%", "fs":"ext4"},
-          "HOME":{"START":"40%", "END":"100%", "fs":"ext4"},
-          "EFI":{"START":0, "END":200},
-          "min root size":19327,
-          "mdswh":128}
+config = {"ROOT": {"START": 201, "END": "40%", "fs": "ext4"},
+          "HOME": {"START": "40%", "END": "100%", "fs": "ext4"},
+          "EFI": {"START": 0, "END": 200},
+          "min root size": 19327,
+          "mdswh": 128}
 try:
     with open("/etc/system-installer/default.json", "r") as config_file:
         config_data = json.load(config_file)
@@ -112,7 +114,8 @@ def __mkfs_fat__(device):
     return data
 
 
-def __make_efi__(device, start=config["EFI"]["START"], end=config["EFI"]["END"]):
+def __make_efi__(device, start=config["EFI"]["START"],
+                 end=config["EFI"]["END"]):
     """Make EFI partition"""
     disk = parted.Disk(device)
     optimal = device.optimumAlignment
