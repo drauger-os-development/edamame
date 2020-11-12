@@ -17,7 +17,7 @@ mkdir ../"$FOLDER"
 cd usr/share/system-installer/modules
 echo -e "\t###\tDOWNLOADING\t###\t"
 rsync -vr rsync://apt.draugeros.org/aptsync/pool/main/l/linux-5.9.*-xanmod* kernel
-rsync -vr rsync://apt.draugeros.org/aptsync/pool/main/l/linux-meta-xanmod kernel
+rsync -vr rsync://apt.draugeros.org/aptsync/pool/main/l/linux-meta kernel
 echo -e "\t###\tDELETING CRUFT\t###\t"
 list=$(ls kernel)
 for each in $list; do
@@ -26,13 +26,14 @@ for each in $list; do
 		rm -rfv kernel/$each/$each2
 	done
 done
-meta=$(echo kernel/linux-meta-xanmod/$(ls kernel/linux-meta-xanmod | sort -Vr | head -1))
+meta=$(echo kernel/linux-meta/$(ls kernel/linux-meta | sort -Vr | head -1))
 dep=$(dpkg-deb --field $meta Depends | sed 's/,/ /g' | awk '{print $1}' | sed 's/-headers//g')
 cd kernel
-rm -rfv $(ls | grep -Ev "^linux-meta-xanmod$|^$dep\$")
+rm -rfv $(ls | grep -Ev "^linux-meta$|^$dep\$")
 dep=$(echo "$dep" | sed 's/linux-//g')
-cd linux-meta-xanmod
+cd linux-meta
 rm -rfv $(ls | grep -v "$dep")
+rm -rfv $(ls | grep "edge")
 cd ../..
 # delete empty folders
 find . -type d -empty -print -delete
