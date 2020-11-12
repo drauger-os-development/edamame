@@ -37,6 +37,11 @@ def eprint(*args, **kwargs):
 def set_wallpaper(username):
     """Set wallpaper. Wallpapers to set must be in /user-data"""
     eprint("\t###\tset_wallpaper.py STARTED\t###\t")
+    if not path.isdir("/user-data"):
+        eprint("""/user-data does not exist.
+Not using Advanced Quick Install's Wallpaper functionality.""")
+        eprint("\t###\tset_wallpaper.py CLOSED\t###\t")
+        return
     ls = listdir("/user-data")
     screens = []
     for each in ls:
@@ -57,7 +62,8 @@ def set_wallpaper(username):
         screens = ls
     for each in screens:
         if path.exists("/home/" + username + "/.config/" + each):
-            file_name = each + "/" + listdir("/home/" + username + "/.config/" + each)[0]
+            file_name = each + "/" + listdir("/home/%s/.config/%s" % (username,
+                                                                      each))[0]
         else:
             file_type = listdir("/home/" + username + "/.config")
             for each1 in file_type:

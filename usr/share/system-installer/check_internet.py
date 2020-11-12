@@ -24,18 +24,7 @@
 """Ping servers to see if we have internet"""
 from subprocess import check_output, CalledProcessError
 import json
-
-
-def unique(starting_list):
-    """Function to get a list down to only unique elements"""
-    # intilize a null list
-    unique_list = []
-    # traverse for all elements
-    for x in starting_list:
-        # check if exists in unique_list or not
-        if x not in unique_list:
-            unique_list.append(x)
-    return(unique_list)
+import common
 
 
 def ping(mirror, count):
@@ -46,6 +35,7 @@ def ping(mirror, count):
     # get the ping times
     output = check_output(command).decode("utf-8").split("\n")[-2]
     return float(output.split("/")[-2])
+
 
 def has_internet():
     """Check for internet, using mirrors and ping counts defined in
@@ -58,7 +48,7 @@ def has_internet():
     mirrors = mirrors["ping servers"]
 
     # get only the unique mirrors
-    mirrors = unique(mirrors)
+    mirrors = common.unique(mirrors)
     # Get our ping times
     try:
         # Ping all listed servers, in case one or more is blocked

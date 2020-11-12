@@ -2,9 +2,29 @@
 	"squashfs_Location":"/run/live/medium/live/filesystem.squashfs",
 	"distro":"Drauger OS",
 	"report_to":"installation-reports@draugeros.org",
-	"ping servers":["https://apt.draugeros.org",
-									"https://ubuntu.com",
-									"https://debian.org"],
-	"ping count":2
+	"ping servers":[
+					"https://apt.draugeros.org",
+					"https://ubuntu.com",
+					"https://debian.org"
+				   ],
+	"ping count":2,
+	"partitioning":{
+					"EFI":{
+							"START":0,
+							"END":200
+							},
+					"ROOT":{
+							"START":201,
+							"END":"35%",
+							"fs":"ext4"
+							},
+					"HOME":{
+							"START":"35%",
+							"END":"100%",
+							"fs":"ext4"
+						   },
+					"min root size":19327,
+					"mdswh":128
+					}
 }
 

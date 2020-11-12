@@ -13,34 +13,33 @@ mkdir ../"$FOLDER"
 #							     #
 ##############################################################
 
-# Instead of compiling, we are building a 7z archive of the latest kernel
+# Instead of compiling, we are building a tar.xz archive of the latest kernel package
 cd usr/share/system-installer/modules
-mkdir kernel
-cp -R /home/batcastle/Dropbox/drauger_files/apt-repo/pool/main/l/* $PWD/kernel # this will error out if you don't have the Drauger OS apt repo on your local system. Replace with wget or curl to fix this.
-list=$(ls kernel)
-for each in $list; do
-	if $(echo "$each" | grep -q "linux"); then
-		continue
-	else
-		rm -rf kernel/$each
-	fi
-done
+echo -e "\t###\tDOWNLOADING\t###\t"
+rsync -vr rsync://apt.draugeros.org/aptsync/pool/main/l/linux-5.[8-9].*-xanmod* kernel
+rsync -vr rsync://apt.draugeros.org/aptsync/pool/main/l/linux-meta-xanmod kernel
+echo -e "\t###\tDELETING CRUFT\t###\t"
 list=$(ls kernel)
 for each in $list; do
 	remove=$(ls kernel/$each | grep -v 'amd64.deb$')
 	for each2 in $remove; do
-		rm -rf kernel/$each/$each2
+		rm -rfv kernel/$each/$each2
 	done
 done
-meta="kernel/linux-meta-xanmod/$(ls kernel/linux-meta-xanmod)"
+meta=$(echo kernel/linux-meta-xanmod/$(ls kernel/linux-meta-xanmod | sort -Vr | head -1))
 dep=$(dpkg-deb --field $meta Depends | sed 's/,/ /g' | awk '{print $1}' | sed 's/-headers//g')
 cd kernel
-rm -rf $(ls | grep -Ev "^linux-meta-xanmod$|^$dep\$")
-cd ..
+rm -rfv $(ls | grep -Ev "^linux-meta-xanmod$|^$dep\$")
+dep=$(echo "$dep" | sed 's/linux-//g')
+cd linux-meta-xanmod
+rm -rfv $(ls | grep -v "$dep")
+cd ../..
 # delete empty folders
 find . -type d -empty -print -delete
-7z a -t7z kernel.7z kernel
-rm -rf kernel
+echo -e "\t###\tCOMPRESSING\t###\t"
+tar --verbose --create --xz -f kernel.tar.xz kernel
+echo -e "\t###\tCLEANING\t###\t"
+rm -rfv kernel
 cd ../../../..
 ##############################################################
 #							     #
@@ -71,29 +70,8 @@ fi
 if [ -d libx32 ]; then
 	cp -R libx32 ../"$FOLDER"/libx32
 fi
-if [ -d dev ]; then
-	cp -R dev ../"$FOLDER"/dev
-fi
-if [ -d home ]; then
-	cp -R home ../"$FOLDER"/home
-fi
-if [ -d proc ]; then
-	cp -R proc ../"$FOLDER"/proc
-fi
-if [ -d root ]; then
-	cp -R root ../"$FOLDER"/root
-fi
-if [ -d run ]; then
-	cp -R run ../"$FOLDER"/run
-fi
 if [ -d sbin ]; then
 	cp -R sbin ../"$FOLDER"/sbin
-fi
-if [ -d sys ]; then
-	cp -R sys ../"$FOLDER"/sys
-fi
-if [ -d tmp ]; then
-	cp -R tmp ../"$FOLDER"/tmp
 fi
 if [ -d var ]; then
 	cp -R var ../"$FOLDER"/var
@@ -107,7 +85,7 @@ fi
 cp -R DEBIAN ../"$FOLDER"/DEBIAN
 cd ..
 #DELETE STUFF HERE
-rm system-installer/usr/share/system-installer/modules/kernel.7z
+rm system-installer/usr/share/system-installer/modules/kernel.tar.xz
 #build the shit
 dpkg-deb --build "$FOLDER"
 rm -rf "$FOLDER"

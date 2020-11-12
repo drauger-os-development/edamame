@@ -26,6 +26,7 @@ from os import chroot, fchdir, O_RDONLY, chdir, path, close
 from os import open as get
 from subprocess import check_call, CalledProcessError
 
+
 def __mount__(device, path_dir, fstype="", options=""):
     """Mount necessary psudeo-filesystems"""
     if device == "/run":
@@ -35,9 +36,11 @@ def __mount__(device, path_dir, fstype="", options=""):
             pass
     else:
         try:
-            check_call(["mount", device, path_dir, "-t", fstype, "-o", options])
+            check_call(["mount", device, path_dir, "-t",
+                        fstype, "-o", options])
         except CalledProcessError:
             pass
+
 
 def __unmount__(path_dir):
     """unmount psudeo-filesystems"""
@@ -68,8 +71,13 @@ def arch_chroot(path_dir):
     chroot(path_dir)
     return real_root
 
+
 def de_chroot(real_root, path_dir):
-    """exit chroot from arch_chroot()"""
+    """exit chroot from arch_chroot()
+
+real_root should be the return value from arch_chroot()
+path_dir should be the directory we initially chrooted into
+"""
     __unmount__(path_dir + "/proc")
     __unmount__(path_dir + "/sys")
     if path.exists(path_dir + "/sys/firmware/efi/efivars"):

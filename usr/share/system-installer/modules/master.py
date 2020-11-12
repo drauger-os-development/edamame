@@ -35,6 +35,7 @@ from time import sleep
 import json
 import urllib3
 import warnings
+import tarfile as tar
 
 
 # import our own programs
@@ -213,10 +214,14 @@ def set_plymouth_theme():
     __update__(86)
 
 def install_kernel(release):
-    """Install kernel from kernel.7z"""
+    """Install kernel from kernel.tar.xz"""
     # we are going to do offline kernel installation from now on.
     # it's just easier and more reliable
-    check_call(["7z", "x", "/kernel.7z"], stdout=stderr.buffer)
+    eprint("EXTRACTING KERNEL.TAR.XZ")
+    tar_file = tar.open("kernel.tar.xz")
+    tar_file.extractall()
+    tar_file.close()
+    eprint("EXTRACTION COMPLETE")
     check_call(["apt", "purge", "-y", "linux-headers-" + release,
                 "linux-image-" + release], stdout=stderr.buffer)
     check_call(["apt", "autoremove", "-y", "--purge"], stdout=stderr.buffer)

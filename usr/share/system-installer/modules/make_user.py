@@ -24,8 +24,9 @@
 """Make user profile"""
 from __future__ import print_function
 from sys import stderr
-from os import path
+import os
 from shutil import move, rmtree
+import subprocess
 
 import modules.set_wallpaper as set_wallpaper
 
@@ -37,7 +38,7 @@ def eprint(*args, **kwargs):
 
 def __fix_home__(username):
     """Fix home path"""
-    if path.exists("/home/home/live"):
+    if os.path.exists("/home/home/live"):
         move("/home/home/live", "/home/" + username)
         try:
             rmtree("/home/home")
@@ -48,12 +49,17 @@ def __fix_home__(username):
 
 
 def make_user(username):
-    """Set up the user's profile by modifying the Live user"""
+    """Set up the user's profile by modifying the Live user
+
+    This function is also responsible for setting up a user's home directory
+    as well as their groups.
+    """
     eprint("\t###\tmake_user.py STARTED\t###\t")
-    if path.exists("/home/" + username):
+    new_home = "/home/" + username
+    if os.path.exists(new_home):
         eprint("Original home folder found. Substituting it in . . .")
         rmtree("/home/live")
-    elif path.exists("/home/home/live"):
+    elif os.path.exists("/home/home/live"):
         __fix_home__(username)
     else:
         eprint("Fixing refrences to old home . . .")
@@ -62,11 +68,11 @@ def make_user(username):
         for each in enumerate(bookmarks):
             bookmarks[each[0]] = bookmarks[each[0]].split("/home/live")
         for each in enumerate(bookmarks):
-            bookmarks[each[0]] = ("/home/" + username).join(bookmarks[each[0]])
+            bookmarks[each[0]] = (new_home).join(bookmarks[each[0]])
         with open("/home/live/.config/gtk-3.0/bookmarks", "w") as bookmark_file:
             bookmark_file.write("\n".join(bookmarks))
         try:
-            move("/home/live", "/home/" + username)
+            move("/home/live", new_home)
         except FileNotFoundError:
             __fix_home__(username)
     with open("/etc/passwd", "r") as passwd_file:
@@ -77,5 +83,25 @@ def make_user(username):
         passwd[each[0]] = username.join(passwd[each[0]])
     with open("/etc/passwd", "w") as passwd_file:
         passwd_file.write("\n".join(passwd))
+    # Make sure groups are okay
+    default_groups = ["adm", "sudo", "cdrom", "audio",
+                      "dip", "plugdev", "lpadmin"]
+    subprocess.check_output(["groupmod", "--new-name", username, "live"])
+    subprocess.check_output(["usermod", "-G", ",".join(default_groups),
+                             "-a", username])
+    # Home directory has correct perms
+    for root, dirs, files, in os.walk(new_home):
+        for dev in dirs:
+            try:
+                os.chown(os.path.join(root, dev), 1000, 1000)
+            except FileNotFoundError:
+                pass
+        for dev in files:
+            try:
+                os.chown(os.path.join(root, dev), 1000, 1000)
+            except FileNotFoundError:
+                pass
+    os.chown(new_home, 1000, 1000)
+    os.chmod(new_home, 0o755)
     set_wallpaper.set_wallpaper(username)
     eprint("\t###\tmake_user.py CLOSED\t###\t")

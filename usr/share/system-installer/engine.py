@@ -31,31 +31,34 @@ import tarfile as tar
 import multiprocessing
 from psutil import virtual_memory
 from shutil import copyfile, copytree
+import traceback
 import UI
 import installer
 import check_internet
+import check_kernel_versions
+import common
+import auto_partitioner
 
 
-def eprint(*args, **kwargs):
-    """Make it easier for us to print to stderr"""
-    print(*args, file=sys.stderr, **kwargs)
-
-
-eprint("\t###\t%s STARTED\t###\t" % (sys.argv[0]))
+common.eprint("\t###\t%s STARTED\t###\t" % (sys.argv[0]))
 MEMCHECK = virtual_memory().total
 if (MEMCHECK / 1024 ** 2) < 1024:
     UI.error.show_error("\n\tRAM is less than 1 GB.\t\n")
     sys.exit(2)
 
-DISK = json.loads(check_output(["lsblk", "--json"]))["blockdevices"]
+DISK = auto_partitioner.check_disk_state()
 for each in range(len(DISK) - 1, -1, -1):
-    if DISK[each]["type"] == "loop":
-        del DISK[each]
-for each in range(len(DISK) - 1, -1, -1):
-    if float(DISK[each]["size"][0:len(DISK[each]["size"]) - 1]) < 16:
+    if float(DISK[each]["size"]) < auto_partitioner.LIMITER:
         del DISK[each]
 if len(DISK) < 1:
-    UI.error.show_error("\n\tNo Drives Larger than 16 GB detected\t\n")
+    UI.error.show_error("\n\tNo 32 GB or Larger Drives detected\t\n")
+    sys.exit(2)
+if not check_kernel_versions.check_kernel_versions():
+    UI.error.show_error("""
+\tKernel Version Mismatch.\t
+\tPlease reboot and retry installation.\t
+\tIf your problem persists, please create an issue on our Github.\t
+""")
     sys.exit(2)
 work_dir = "/tmp/quick-install_working-dir"
 SETTINGS = UI.main.show_main()
@@ -79,7 +82,7 @@ try:
                 if len(net_settings) > 0:
                     copytree(net_settings + "/settings/network-settings",
                              "/etc/NetworkManager/system-connections")
-                    eprint("\t###\tNOTE: NETWORK SETTINGS COPIED TO LIVE SYSTEM\t###\t")
+                    common.eprint("\t###\tNOTE: NETWORK SETTINGS COPIED TO LIVE SYSTEM\t###\t")
             except FileNotFoundError:
                 pass
         if "DATA" in SETTINGS:
@@ -109,17 +112,17 @@ if INSTALL:
         installer.install(SETTINGS)
         file_list = listdir("/mnt")
         for each in file_list:
-            if each[-3:] in (".sh", ".py", ".7z"):
+            if each[-3:] in (".sh", ".py", ".xz"):
                 try:
                     remove("/mnt/" + each)
                 except FileNotFoundError:
                     pass
-        eprint("\t###\t%s CLOSED\t###\t" % (sys.argv[0]))
+        common.eprint("\t###\t%s CLOSED\t###\t" % (sys.argv[0]))
         try:
             copyfile("/tmp/system-installer.log",
                      "/mnt/var/log/system-installer.log")
         except FileNotFoundError:
-            eprint("\t###\tLog Not Found. Testing?\t###\t")
+            common.eprint("\t###\tLog Not Found. Testing?\t###\t")
             with open("/tmp/system-installer.log", "w+") as log:
                 log.write("""Log was not created during installation.
 This is a stand-in file.
@@ -133,8 +136,10 @@ This is a stand-in file.
         # PROGRESS.join()
     except Exception as error:
         kill(pid, 15)
-        eprint("\nAn Error has occured:\n%s\n" % (error))
+        common.eprint("\nAn Error has occured:\n%s\n" % (error))
+        common.eprint(traceback.format_exc())
         print("\nAn Error has occured:\n%s\n" % (error))
+        print(traceback.format_exc())
         UI.error.show_error("""\n\tError detected.\t
 \tPlease see /tmp/system-installer.log for details.\t\n""")
 else:

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-#  install_updates.py
+#  common.py
 #
 #  Copyright 2020 Thomas Castleman <contact@draugeros.org>
 #
@@ -21,28 +21,22 @@
 #  MA 02110-1301, USA.
 #
 #
-"""Install system updates from apt"""
-from __future__ import print_function
-from sys import stderr
-import apt
-
-import modules.purge as purge
+"""Common functions and other data for system-installer"""
+import sys
 
 
-# Make it easier for us to print to stderr
-def __eprint__(*args, **kwargs):
+def unique(starting_list):
+    """Function to get a list down to only unique elements"""
+    # intilize a null list
+    unique_list = []
+    # traverse for all elements
+    for x in starting_list:
+        # check if exists in unique_list or not
+        if x not in unique_list:
+            unique_list.append(x)
+    return unique_list
+
+
+def eprint(*args, **kwargs):
     """Make it easier for us to print to stderr"""
-    print(*args, file=stderr, **kwargs)
-
-
-def update_system():
-    """update system through package manager"""
-    __eprint__("\t###\tinstall_updates.py STARTED\t###\t")
-    cache = apt.cache.Cache()
-    cache.update()
-    cache.open()
-    cache.upgrade(dist_upgrade=True)
-    cache.commit()
-    purge.autoremove(cache)
-    cache.close()
-    __eprint__("\t###\tinstall_updates.py CLOSED\t###\t")
+    print(*args, file=sys.stderr, **kwargs)

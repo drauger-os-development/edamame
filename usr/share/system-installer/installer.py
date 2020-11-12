@@ -23,20 +23,16 @@
 #
 """Main module controling the installation process"""
 from __future__ import print_function
-from sys import stderr
 from subprocess import Popen, check_output, check_call, CalledProcessError
 from os import mkdir, path, chdir, listdir, remove, symlink, chmod
 from shutil import rmtree, move, copyfile, copytree
-from time import sleep
+import tarfile as tar
 import json
 import UI
 import modules
 import chroot
-
-
-def eprint(*args, **kwargs):
-    """Make it easier for us to print to stderr"""
-    print(*args, file=stderr, **kwargs)
+import common
+import auto_partitioner
 
 
 def __mount__(device, path_dir):
@@ -85,13 +81,13 @@ def install(settings):
     You can read in /etc/system-installer/quick-install-template.json with
     json.loads()["DATA"] to see an example of acceptable settings
     """
-    eprint("\t###\tinstaller.py STARTED\t###\t")
+    common.eprint("\t###\tinstaller.py STARTED\t###\t")
     work_dir = "/tmp/quick-install_working-dir"
     # STEP 1: Partion and format the drive ( if needed )
     if settings["AUTO_PART"]:
-        partitioning = json.loads(check_output(
-            ["/usr/share/system-installer/modules/auto-partitioner.sh",
-             settings["ROOT"], str(settings["EFI"]), settings["HOME"]]))
+        partitioning = auto_partitioner.partition(settings["ROOT"],
+                                                  settings["EFI"],
+                                                  settings["HOME"])
         settings["ROOT"] = partitioning["ROOT"]
         settings["EFI"] = partitioning["EFI"]
         settings["HOME"] = partitioning["HOME"]
@@ -114,29 +110,32 @@ def install(settings):
         try:
             mkdir("/mnt/home")
         except FileExistsError:
-            eprint("/mnt/home exists when it shouldn't. What the hell is going on???")
+            common.eprint("/mnt/home exists when it shouldn't. We have issues...")
         __mount__(settings["HOME"], "/mnt/home")
     if settings["SWAP"] != "FILE":
         # This can happen in the background. No biggie.
         Popen(["swapon", settings["SWAP"]])
     else:
-        eprint("SWAPFILE NOT CREATED YET")
+        common.eprint("SWAPFILE NOT CREATED YET")
     __update__(14)
     # STEP 3: Unsquash the sqaushfs and get the files where they need to go
     squashfs = ""
     with open("/etc/system-installer/default.json", "r") as config:
         squashfs = json.loads(config.read())["squashfs_Location"]
     if not path.exists(squashfs):
-        eprint("\n\tSQUASHFS FILE DOES NOT EXIST\t\n")
+        common.eprint("\n\tSQUASHFS FILE DOES NOT EXIST\t\n")
         UI.error.show_error("\n\tSQUASHFS FILE DOES NOT EXIST\t\n")
     __update__(17)
     chdir("/mnt")
-    eprint("CLEANING INSTALLATION DIRECTORY")
+    common.eprint("CLEANING INSTALLATION DIRECTORY")
     death_row = listdir()
     for each in death_row:
         if each not in ("boot", "home"):
-            eprint("Removing " + each)
-            rmtree(each)
+            common.eprint("Removing " + each)
+            try:
+                rmtree(each)
+            except NotADirectoryError:
+                remove(each)
     chdir("/mnt/boot")
     death_row = listdir()
     for each in death_row:
@@ -146,22 +145,25 @@ def install(settings):
             except NotADirectoryError:
                 remove(each)
     chdir("/mnt")
-    eprint("\t###\tEXTRACTING SQUASHFS\t###\t")
+    common.eprint("\t###\tEXTRACTING SQUASHFS\t###\t")
     check_call(["unsquashfs", squashfs])
-    eprint("\t###\tEXTRACTION COMPLETE\t###\t")
+    common.eprint("\t###\tEXTRACTION COMPLETE\t###\t")
     file_list = listdir("/mnt/squashfs-root")
     for each in file_list:
-        eprint("/mnt/squashfs-root/" + each + " --> /mnt/" + each)
-        move("/mnt/squashfs-root/" + each, "/mnt/" + each)
+        try:
+            common.eprint("/mnt/squashfs-root/" + each + " --> /mnt/" + each)
+            move("/mnt/squashfs-root/" + each, "/mnt/" + each)
+        except FileExistsError as e:
+            common.eprint("ERROR: %s" % (e))
     rmtree("/mnt/squashfs-root")
     try:
         mkdir("/mnt/boot")
     except FileExistsError:
-        eprint("/mnt/boot already created")
+        common.eprint("/mnt/boot already created")
     file_list = listdir("/boot")
     for each in file_list:
         try:
-            eprint("/boot/" + each + " --> /mnt/boot/" + each)
+            common.eprint("/boot/" + each + " --> /mnt/boot/" + each)
             copyfile("/boot/" + each, "/mnt/boot/" + each)
         except IsADirectoryError:
             copytree("/boot/" + each, "/mnt/boot/" + each)
@@ -172,7 +174,7 @@ def install(settings):
             "/tmp/system-installer-progress.log")
     __update__(32)
     # STEP 4: Update fstab
-    eprint("\t###\tUpdating FSTAB\t###\t")
+    common.eprint("\t###\tUpdating FSTAB\t###\t")
     remove("/mnt/etc/fstab")
     fstab_contents = check_output(["genfstab", "-U", "/mnt"]).decode()
     with open("/mnt/etc/fstab", "w+") as fstab:
@@ -186,26 +188,26 @@ def install(settings):
     for each in file_list:
         if each == "__pycache__":
             continue
-        eprint("/usr/share/system-installer/modules/" +
-               each + " --> " + "/mnt/" + each)
+        common.eprint("/usr/share/system-installer/modules/%s --> /mnt/%s" %
+                      (each, each))
         copyfile("/usr/share/system-installer/modules/" + each, "/mnt/" + each)
     __update__(35)
     # STEP 6: Run Master script inside chroot
     # don't run it as a background process so we know when it gets done
-    eprint("/mnt/etc/resolv.conf" + " --> " + "/mnt/etc/resolv.conf.save")
+    common.eprint("/mnt/etc/resolv.conf" + " --> " + "/mnt/etc/resolv.conf.save")
     move("/mnt/etc/resolv.conf", "/mnt/etc/resolv.conf.save")
     copyfile("/etc/resolv.conf", "/mnt/etc/resolv.conf")
     __update__(36)
     # Check to make sure all these vars are set
     # if not, set them to some defaults
     if settings["LANG"] == "":
-        eprint("$LANG_SET is not set. Defaulting to english")
+        common.eprint("$LANG_SET is not set. Defaulting to english")
         settings["LANG"] = "english"
     if settings["TIME_ZONE"] == "":
-        eprint("$TIME_ZONE is not set. Defaulting to EST")
+        common.eprint("$TIME_ZONE is not set. Defaulting to EST")
         settings["TIME_ZONE"] = "America/New_York"
     if settings["USERNAME"] == "":
-        eprint("$USERNAME is not set. No default. Prompting user . . .")
+        common.eprint("$USERNAME is not set. No default. Prompting user . . .")
         settings["USERNAME"] = check_output(["zenity", "--entry",
                                              r"""--text=\"We're sorry.
                                              We lost your username somewhere in the chain.
@@ -213,10 +215,10 @@ def install(settings):
                                             ).decode()
         settings["USERNAME"] = settings["USERNAME"][0:-1]
     if settings["COMPUTER_NAME"] == "":
-        eprint("$COMP_NAME is not set. Defaulting to drauger-system-installed")
+        common.eprint("$COMP_NAME is not set. Defaulting to drauger-system-installed")
         settings["COMPUTER_NAME"] = "drauger-system-installed"
     if settings["PASSWORD"] == "":
-        eprint("$PASSWORD is not set. No default. Prompting user . . .")
+        common.eprint("$PASSWORD is not set. No default. Prompting user . . .")
         settings["PASSWORD"] = check_output(["zenity", "--entry",
                                              "--hide-text",
                                              r"""--text=\"We're sorry.
@@ -225,10 +227,10 @@ def install(settings):
                                             ).decode()
         settings["PASSWORD"] = settings["PASSWORD"][0:-1]
     if settings["EXTRAS"] == "":
-        eprint("$EXTRAS is not set. Defaulting to false.")
+        common.eprint("$EXTRAS is not set. Defaulting to false.")
         settings["EXTRAS"] = False
     if settings["UPDATES"] == "":
-        eprint("$UPDATES is not set. Defaulting to false.")
+        common.eprint("$UPDATES is not set. Defaulting to false.")
         settings["UPDATES"] = False
     # ues check_call(["arch-chroot", "python3", "/master.py", ...]) because it
     # jumps through a lot of hoops for us.
@@ -239,24 +241,24 @@ def install(settings):
     copytree("/etc/NetworkManager/system-connections",
              "/mnt/etc/NetworkManager/system-connections")
     if path.exists(work_dir) and path.exists(work_dir + "/assets"):
-            ls = listdir(work_dir + "/assets")
-            mkdir("/mnt/user-data")
-            if "master" in ls:
-                file_type = listdir(work_dir + "/assets/master")[0].split("/")[-1].split(".")[-1]
-                copyfile(work_dir + "/assets/master/wallpaper." + file_type,
-                         "/mnt/user-data/wallpaper." + file_type)
-                copyfile(work_dir + "/assets/screens.list",
-                         "/mnt/user-data/screens.list")
-            else:
-                for each in ls:
-                    copytree(work_dir + "/assets/" + each,
-                             "/mnt/user-data/" + each)
+        ls = listdir(work_dir + "/assets")
+        mkdir("/mnt/user-data")
+        if "master" in ls:
+            file_type = listdir(work_dir + "/assets/master")[0].split("/")[-1].split(".")[-1]
+            copyfile(work_dir + "/assets/master/wallpaper." + file_type,
+                     "/mnt/user-data/wallpaper." + file_type)
+            copyfile(work_dir + "/assets/screens.list",
+                     "/mnt/user-data/screens.list")
+        else:
+            for each in ls:
+                copytree(work_dir + "/assets/" + each,
+                         "/mnt/user-data/" + each)
     real_root = chroot.arch_chroot("/mnt")
     modules.master.install(settings)
     chroot.de_chroot(real_root, "/mnt")
-    eprint("Removing installation scripts and resetting resolv.conf")
+    common.eprint("Removing installation scripts and resetting resolv.conf")
     for each in file_list:
-        eprint("Removing /mnt/" + each)
+        common.eprint("Removing /mnt/" + each)
         try:
             remove("/mnt/" + each)
         except FileNotFoundError:
@@ -272,17 +274,21 @@ def install(settings):
         if "vmlinuz" not in file_list[each]:
             del file_list[each]
     if len(file_list) == 0:
-        eprint("\t###\tKERNEL NOT INSTALLED. CORRECTING . . .\t###\t")
-        copyfile("/usr/share/system-installer/modules/kernel.7z",
-                 "/mnt/kernel.7z")
-        check_call(["arch-chroot", "/mnt",
-                    "\"bash -c '7z x /kernel.7z; dpkg -R --install /kernel/'\""])
+        common.eprint("\t###\tKERNEL NOT INSTALLED. CORRECTING . . .\t###\t")
+        copyfile("/usr/share/system-installer/modules/kernel.tar.xz",
+                 "/mnt/kernel.tar.xz")
+        root_dir = chroot.arch_chroot("/mnt")
+        tar_file = tar.open("kernel.tar.xz")
+        tar_file.extractall()
+        tar_file.close()
+        check_call(["dpkg", "-R", "--install", "/kernel"])
+        chroot.de_chroot(root_dir, "/mnt")
         rmtree("/mnt/kernel")
-        remove("/mnt/kernel.7z")
+        remove("/mnt/kernel.tar.xz")
     file_list = listdir("/mnt/boot/efi/loader/entries")
     if ((len(file_list) == 0) and ((settings["EFI"] is None) or
                                    (settings["EFI"] == "") or (settings["EFI"] == "NULL"))):
-        eprint("\t###\tSYSTEMD-BOOT NOT CONFIGURED. CORRECTING . . .\t###\t")
+        common.eprint("\t###\tSYSTEMD-BOOT NOT CONFIGURED. CORRECTING . . .\t###\t")
         copyfile("/usr/share/system-installer/modules/systemd_boot_config.py",
                  "/mnt/systemd_boot_config.py")
         check_call(["arch-chroot", "/mnt", "python3",
@@ -296,4 +302,4 @@ def install(settings):
     except FileNotFoundError:
         pass
     __update__(100)
-    eprint("\t###\tinstaller.py CLOSED\t###\t")
+    common.eprint("\t###\tinstaller.py CLOSED\t###\t")

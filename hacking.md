@@ -49,24 +49,24 @@ Project Layout
 System Installer is designed to be as modular as possible. While it still has a long way to go, there are 2 main modules:
 
 - UI Module
- 	- Located at /usr/share/system-installer/UI
+ 	- Located at `/usr/share/system-installer/UI`
  	- Essential Functions:
- 		- UI.error.show_error()
+ 		- `UI.error.show_error()`
  			- Takes a markup formatted string
  			- displays string as an error to the user
- 		- UI.main.show_main()
+ 		- `UI.main.show_main()`
  			- Takes no arguments
  			- Retreives Settings from user
  			- Returns either a dictionary of settings, or a file path to pull settings from
- 		- UI.confirm.show_confirm()
+ 		- `UI.confirm.show_confirm()`
  			- Takes settings, each entry in the dictionary, as an argument
  			- Displays settings to user, to confirm them for accuracy
  			- Returns a Boolean, True for proceed, False for halt
- 		- UI.progress.show_progress()
+ 		- `UI.progress.show_progress()`
  			- Takes no arguments
  			- Returns `None`
  			- Monitors `/tmp/system-installer.log` and `/tmp/system-installer-progress.log` to show the user what is being done during install and how far along install is.
- 		- UI.success.show_success()
+ 		- `UI.success.show_success()`
  			- Takes settings dictionary as argument
  			- Shows user installation success window
  			- Allows user to dump settings to JSON file for usage with Quick Install later on
@@ -75,15 +75,15 @@ System Installer is designed to be as modular as possible. While it still has a 
  			- Returns `None`
  			
 - Installation Module
-	- Located at /usr/share/system-installer/modules
+	- Located at `/usr/share/system-installer/modules`
 	- The installation module can be further broken down into sub modules, each with it's own segment of installation it works on.
 	- Everything in this module is orchestrated by the `master.py` file
 	- Essential Functions:
-		- modules.master.check_internet()
+		- `modules.master.check_internet()`
 			- Takes no arguments
 			- Checks for internet access
 			- Returns Boolean, True if internet access present, False if not present
-		- modules.master.install()
+		- `modules.master.install()`
 			- Takes two arguments: settings dictionary, modules.master.check_internet() return value
 			- Handles installation procedure
 			- Returns `None`
@@ -93,17 +93,54 @@ System Installer is designed to be as modular as possible. While it still has a 
 The UI module is the most replaceable module. As long as the necessary functions are available to `engine.py`, it can easily be replaced with a Qt UI, a GTK UI that looks totally different, or something else!
 
 
- 
+Settings
+---
+
+Settings are defined in `/etc/system-installer/default.json`
+
+ - `squashfs_location`
+   - Location of the squashfs file to unpack
+ - `distro`
+   - Name of the distro `system-installer` is running on. Use thise for branding.
+ - `report_to`
+   - Email address to send installation reports to
+     - Must be a valid email address
+     - Installation reporting is opt-in only
+ - `ping servers`
+   - URLs to ping to check for internet access
+   - DO NOT use IP addresses.
+     - While IP addresses will work, DNS resolution will not be checked if they are used
+   - Optimal with 2 - 4 URLS
+ - `ping count`
+   - Number of times to ping each URL in `ping servers`
+     - Higher numbers increase the likelyhood of internet working correctly
+     - Lower numbers decrese installation time on slow internet connections
+   - Optimal when 2 or 3
+ - `partitioning`
+   - Partitioning layout when using automatic partitioning
+   - This is the ONLY entry here that is optional. If `partitioning` is not defined, an internally stored default will be used instead.
+   - Entries that must be defined
+     - `EFI`
+     - `ROOT`
+     - `HOME`
+     - `min root size`
+     - `mdswh`
+   - `EFI`, `ROOT`, and `HOME` configuration entries
+     - `START` and `END` define the start and end points of the partitions
+     - `fs` filesystem type to use for the partition, not honored for `EFI`
+     - All of supported entries must be defined in each of `ROOT`, `HOME`, or `EFI`
+   - `min root size` must be an integer that dictates the minimum size of the root partition in MiB
+   - `mdswh` stands for 'minimum drive size with home', and is the size smallest drive you can install Drauger OS to and have a seperate `/home` partition on the same drive.
  
 Notable files for hacking
 ---
  
 ```
-
 /usr/share/system-installer/installer.py
 /usr/share/system-installer/modules/master.py
 /usr/share/system-installer/modules/install_extras.sh
 /usr/share/system-installer/modules/manual-partitioner.sh
 /usr/share/system-installer/modules/systemd_boot_config.py
+/etc/system-installer/default.json
 
 ```
