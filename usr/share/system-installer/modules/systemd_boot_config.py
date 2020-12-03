@@ -43,7 +43,7 @@ def systemd_boot_config(root):
         mkdir("/etc/kernel/postrm.d")
     except FileExistsError:
         eprint("postrm.d already exists")
-    uuid = check_output(["blkid", "-s", "PARTUUID", "-o", "value", root]).decode()[0:-1]
+    uuid = check_output(["blkid", "-s", "PARTUUID", "-o", "value", root]).decode()[:-1]
     # Parse out all the stuff we don't need
     contents = r"""#!/bin/bash
 #
@@ -54,7 +54,7 @@ def systemd_boot_config(root):
 
 
 # The UUID of your disk.
-UUID="%s"
+UUID=$(</etc/systemd-boot/uuid.conf)
 
 # The LUKS volume slug you want to use, which will result in the
 # partition being mounted to /dev/mapper/CHANGEME.
@@ -70,7 +70,7 @@ RECOVERY_FLAGS="ro recovery nomodeset"
 KERNELS=()
 FIND=$(ls -A /boot | grep "vmlinuz-*")
 for each in $FIND; do
-    KERNELS+="/boot/$each"
+    KERNELS+="/boot/$each "
 done
 
 # There has to be at least one kernel.
@@ -90,11 +90,11 @@ mkdir /boot/efi/Drauger_OS
 
 # Copy the latest kernel files to a consistent place so we can keep
 # using the same loader configuration.
-LATEST="$(echo $KERNELS | sed 's/\/boot\/vmlinuz//g' | sed 's/ /\\n/g' | sed 's/.old//g' | sed '/^[[:space:]]*$/d' | sort -nr | head -n1)"
+LATEST="$(echo $KERNELS | sed 's/\/boot\/vmlinuz//g' | sed 's/ /\n/g' | sed 's/.old//g' | sed '/^[[:space:]]*$/d' | sed 's/-//' | sort -Vr | head -n1)"
 LATEST="$(echo $LATEST | sed 's/vmlinuz//')"
-echo -e "\e[2msystemd-boot\e[0m\e[1;32m${LATEST}\e[0m"
+echo -e "\e[2msystemd-boot\e[0m \e[1;32m${LATEST}\e[0m"
 for FILE in config initrd.img System.map vmlinuz; do
-    cp "/boot/${FILE}${LATEST}" "/boot/efi/Drauger_OS/${FILE}"
+    cp "/boot/${FILE}-${LATEST}" "/boot/efi/Drauger_OS/${FILE}"
     cat << EOF > /boot/efi/loader/entries/Drauger_OS.conf
 title   Drauger OS
 linux   /Drauger_OS/vmlinuz
@@ -114,21 +114,21 @@ done
 # Copy any legacy kernels over too, but maintain their version-based
 # names to avoid collisions.
 if [ ${#KERNELS[@]} -gt 1 ]; then
-    LEGACY="$(echo $KERNELS | sed 's/\/boot\/vmlinuz//g' | sed 's/ /\\n/g' | sed 's/.old//g' | sed '/^[[:space:]]*$/d' | sort -nr | sed s/$LATEST//g)"
+    LEGACY="$(echo $KERNELS | sed 's/\/boot\/vmlinuz//g' | sed 's/ /\n/g' | sed 's/.old//g' | sed '/^[[:space:]]*$/d' | sed 's/-//' | sort -Vr | sed s/$LATEST//g)"
     for VERSION in ${LEGACY[@]}; do
-        echo -e "\e[2msystemd-boot\e[0m\e[1;32m${VERSION}\e[0m"
+        echo -e "\e[2msystemd-boot\e[0m \e[1;32m${VERSION}\e[0m"
         for FILE in config initrd.img System.map vmlinuz; do
-            cp "/boot/${FILE}${VERSION}" "/boot/efi/Drauger_OS/${FILE}${VERSION}"
-            cat << EOF > /boot/efi/loader/entries/Drauger_OS${VERSION}.conf
+            cp "/boot/${FILE}-${VERSION}" "/boot/efi/Drauger_OS/${FILE}${VERSION}"
+            cat << EOF > /boot/efi/loader/entries/Drauger_OS-${VERSION}.conf
 title   Drauger OS ${VERSION}
-linux   /Drauger_OS/vmlinuz${VERSION}
-initrd  /Drauger_OS/initrd.img${VERSION}
+linux   /Drauger_OS/vmlinuz-${VERSION}
+initrd  /Drauger_OS/initrd.img-${VERSION}
 options root=PARTUUID=$UUID ${ROOTFLAGS}
 EOF
             cat << EOF > /boot/efi/loader/entries/Drauger_OS_Recovery.conf
 title   Drauger OS ${VERSION} Recovery
-linux   /Drauger_OS/vmlinuz${VERSION}
-initrd  /Drauger_OS/initrd.img${VERSION}
+linux   /Drauger_OS/vmlinuz-${VERSION}
+initrd  /Drauger_OS/initrd.img-${VERSION}
 options root=PARTUUID=$UUID ${RECOVERY_FLAGS}
 EOF
         done
@@ -137,7 +137,7 @@ fi
 
 
 
-# Success!""" % (uuid)
+# Success!"""
     with open("/etc/kernel/postinst.d/zz-update-systemd-boot", "w+") as postinst:
         postinst.write(contents)
     with open("/etc/kernel/postrm.d/zz-update-systemd-boot", "w+") as postrm:
@@ -146,6 +146,9 @@ fi
     chown("/etc/kernel/postrm.d/zz-update-systemd-boot", 0, 0)
     chmod("/etc/kernel/postinst.d/zz-update-systemd-boot", 0o755)
     chmod("/etc/kernel/postrm.d/zz-update-systemd-boot", 0o755)
+    mkdir("/etc/systemd-boot")
+    with open("/etc/systemd-boot/uuid.conf", "w+") as conf:
+        conf.write(uuid)
     eprint("\t###\tsystemd-boot-config.py CLOSED\t###\t")
     return 0
 
