@@ -1,1 +1,1 @@
-auto_partitioner.py
+../auto_partitioner.py
