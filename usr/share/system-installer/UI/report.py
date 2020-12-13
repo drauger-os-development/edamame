@@ -23,13 +23,15 @@
 #
 """Installation Reporting UI"""
 from subprocess import Popen, check_output, PIPE, STDOUT, CalledProcessError
-from os import getenv
+from os import getenv, remove, chmod
 from datetime import datetime
 from shutil import copyfile
+import time
 import json
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
+import UI.get_pass as get_pass
 
 
 class Main(Gtk.Window):
@@ -259,12 +261,22 @@ class Main(Gtk.Window):
         self.show_all()
 
         try:
-            with open(self.path, "r") as mail:
-                send = mail.read()
-            process = Popen(["sendmail", "-froot",
-                             send_to()],
-                            stdout=PIPE, stdin=PIPE, stderr=STDOUT)
-            process.communicate(input=bytes(send, 'utf-8'))
+            # with open(self.path, "r") as mail:
+            #     send = mail.read()
+            password = get_pass.generate_password()
+            # Yes, I know it's bad to store passwords as plain text.
+            # This password is only valid for a limited amount of time, and
+            # will be deleted shortly after the upload is complete.
+            # Bite me.
+            with open("pass.txt", "w") as pass:
+                pass.write(password)
+            chmod("pass.txt", 0o600)
+            # we WILL delete it from memory through
+            # so that it is harder to get ahold of.
+            del password
+            check_output(["rsync", "--password-file", "pass.txt", self.path,
+                          "rsync://download.draugeros.org/reports-upload"])
+            remove("pass.txt")
             Popen(["notify-send",
                    "--icon=/usr/share/icons/Drauger/720x720/Menus/install-drauger.png",
                    r"--app-name='System Installer'", r"Installation Report Sent Successfully!"])
@@ -319,7 +331,7 @@ class Main(Gtk.Window):
     def generate_message(self):
         """write installation report to disk"""
         try:
-            self.path = "/var/mail/installation_report.txt"
+            self.path = "/var/mail/installation_report-%s.dosir" % (time.time())
             with open(self.path, "w+") as message:
                 message.write("Subject: Installation Report " +
                               datetime.now().strftime("%c") + "\n\n")
