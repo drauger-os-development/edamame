@@ -268,8 +268,9 @@ class Main(Gtk.Window):
             # This password is only valid for a limited amount of time, and
             # will be deleted shortly after the upload is complete.
             # Bite me.
-            with open("pass.txt", "w") as pass:
-                pass.write(password)
+            with open("pass.txt", "w") as pswd:
+                pswd.write(password)
+
             chmod("pass.txt", 0o600)
             # we WILL delete it from memory through
             # so that it is harder to get ahold of.
@@ -336,7 +337,7 @@ class Main(Gtk.Window):
                 message.write("Subject: Installation Report " +
                               datetime.now().strftime("%c") + "\n\n")
                 message.write("system-installer Version: ")
-                message.write(check_output(["system-installer", "-v"]))
+                message.write(check_output(["system-installer", "-v"]).decode())
                 message.write("\nCPU INFO:\n")
                 if self.cpu.get_active():
                     message.write(cpu_info() + "\n")
