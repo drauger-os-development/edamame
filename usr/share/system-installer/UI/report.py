@@ -377,8 +377,8 @@ class Main(Gtk.Window):
                 message.write("\n")
                 message.write("CUSTOM MESSAGE:\n")
                 if self.custom.get_active():
-                    message.write(self.text_buffer.get_text(0,
-                                                            self.text_buffer.get_char_count(),
+                    message.write(self.text_buffer.get_text(self.text_buffer.get_start_iter(),
+                                                            self.text_buffer.get_end_iter(),
                                                             False))
                 else:
                     message.write("NONE\n")
