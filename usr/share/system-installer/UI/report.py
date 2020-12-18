@@ -268,16 +268,16 @@ class Main(Gtk.Window):
             # This password is only valid for a limited amount of time, and
             # will be deleted shortly after the upload is complete.
             # Bite me.
-            with open("pass.txt", "w") as pswd:
+            with open("/tmp/pass.txt", "w") as pswd:
                 pswd.write(password)
 
-            chmod("pass.txt", 0o600)
+            chmod("/tmp/pass.txt", 0o600)
             # we WILL delete it from memory through
             # so that it is harder to get ahold of.
             del password
-            check_output(["rsync", "--password-file", "pass.txt", self.path,
+            check_output(["rsync", "--password-file", "/tmp/pass.txt", self.path,
                           "rsync://download.draugeros.org/reports-upload"])
-            remove("pass.txt")
+            remove("/tmp/pass.txt")
             Popen(["notify-send",
                    "--icon=/usr/share/icons/Drauger/720x720/Menus/install-drauger.png",
                    r"--app-name='System Installer'", r"Installation Report Sent Successfully!"])
