@@ -149,8 +149,6 @@ fi
     mkdir("/etc/systemd-boot")
     with open("/etc/systemd-boot/uuid.conf", "w+") as conf:
         conf.write(uuid)
-    # Set default loader
-    check_output(["bootctl", "set-default", "Drauger_OS.conf"])
     eprint("\t###\tsystemd-boot-config.py CLOSED\t###\t")
     return 0
 
