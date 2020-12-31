@@ -38,7 +38,7 @@ def __eprint__(*args, **kwargs):
 
 def install_extras():
     """Install Restrcted Extras from apt"""
-     __eprint__("\t###\tinstall_extras.py STARTED\t###\t")
+    __eprint__("\t###\tinstall_extras.py STARTED\t###\t")
     # Make sure our cache is up to date and open
     cache = apt.cache.Cache()
     cache.update()
@@ -51,7 +51,7 @@ def install_extras():
     # Broadcom wifi cards (my condolences to all users of these infernal things)
     if (("broadcom" in pci) or ("Broadcom" in pci) or ("BROADCOM" in pci)):
         # Newer cards take different drivers from older cards
-        for each in ("BCM43142, "BCM4331", "BCM4360", "BCM4352"):
+        for each in ("BCM43142", "BCM4331", "BCM4360", "BCM4352"):
             if each in pci:
                 install_list = install_list + ["broadcom-sta-dkms", "dkms", "wireless-tools"]
                 break
