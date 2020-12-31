@@ -46,6 +46,7 @@ import modules.systemd_boot_config as systemd_boot_config
 import modules.set_locale as set_locale
 import modules.install_updates as install_updates
 import modules.make_user as mkuser
+import modules.install_extras as install_extras
 from modules.verify_install import verify
 from modules.purge import purge_package
 
@@ -120,23 +121,14 @@ class MainInstallation():
                 eprint("Adding swap failed. Must manually add later")
         __update__(66)
 
-    def __install_extras__(EXTRAS, INTERNET):
-        """Install Restricted Extras and Drivers"""
-        if ((EXTRAS) and (INTERNET)):
-            try:
-                check_call("/install_extras.sh")
-            except PermissionError:
-                chmod("/install_extras.sh", 0o777)
-                check_call("/install_extras.sh")
-        elif not INTERNET:
-            eprint("Cannot install extras. No internet.")
-
     def apt(UPDATES, EXTRAS, INTERNET):
         """Run commands for apt sequentially to avoid front-end lock"""
         # MainInstallation.__install_updates__(UPDATES, INTERNET)
-        install_updates.update_system()
-        MainInstallation.__install_extras__(EXTRAS, INTERNET)
-
+        if ((UPDATES) and (INTERNET)):
+            install_updates.update_system()
+        if ((EXTRAS) and (INTERNET)):
+            install_extras.install_extras()
+            
     def set_passwd(USERNAME, PASSWORD):
         """Set Root password"""
         __update__(84)
