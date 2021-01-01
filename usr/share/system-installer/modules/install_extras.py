@@ -56,7 +56,7 @@ def install_extras():
                 install_list = install_list + ["broadcom-sta-dkms", "dkms", "wireless-tools"]
                 break
         if len(install_list) == 2:
-            for each in ("BCM4311", "BCM4312", "BCM4313", "BCM4321", "BCM4322", "BCM43224", "BCM43225", "BCM43227", "BCM43228")
+            for each in ("BCM4311", "BCM4312", "BCM4313", "BCM4321", "BCM4322", "BCM43224", "BCM43225", "BCM43227", "BCM43228"):
                 if each in pci:
                     install_list = install_list.append("bcmwl-kernel-source")
                     break
