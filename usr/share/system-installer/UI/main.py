@@ -720,7 +720,6 @@ class Main(Gtk.Window):
             parts.connect("changed", self.select_home_part)
             self.grid.attach(parts, 1, 5, 2, 1)
         else:
-            self.grid.remove(parts)
             self.home_setting = "MAKE"
 
         self.show_all()
