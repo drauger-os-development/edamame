@@ -893,8 +893,7 @@ class Main(Gtk.Window):
             self.grid.attach(label, 1, 1, 3, 1)
 
             self.show_all()
-        elif (not path.exists(self.efi.get_text()) or (
-                (self.efi.get_text() == "") and not path.isdir("/sys/firmware/efi"))):
+        elif (not path.exists(self.efi.get_text()) or (self.efi.get_text() == "")) and path.isdir("/sys/firmware/efi"):
             label = Gtk.Label()
             label.set_markup("""
     What are the mount points for the partions you wish to be used?

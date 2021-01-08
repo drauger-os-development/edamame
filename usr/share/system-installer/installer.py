@@ -96,7 +96,7 @@ def install(settings):
     __update__(12)
     # STEP 2: Mount the new partitions
     __mount__(settings["ROOT"], "/mnt")
-    if settings["EFI"] not in ("NULL", None, ""):
+    if settings["EFI"] not in ("NULL", None, "", False):
         try:
             mkdir("/mnt/boot")
         except FileExistsError:
