@@ -275,7 +275,7 @@ class Main(Gtk.Window):
                                         Gtk.ResponseType.ACCEPT))
         dialog.set_action(Gtk.FileChooserAction.SAVE)
         try:
-            if self.network_toggle.get_active():
+            if (self.network_toggle.get_active() or self.wall_toggle.get_active()):
                 dialog.set_current_name("installation-settings.tar.xz")
             else:
                 dialog.set_current_name("installation-settings.json")

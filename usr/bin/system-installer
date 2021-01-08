@@ -26,7 +26,7 @@ from sys import argv, stderr
 from subprocess import check_call
 from os import system, path
 ARGC = len(argv)
-VERSION = "1.6.1-beta6"
+VERSION = "1.6.7-beta6"
 HELP = """
 system-installer, Version %s
 
