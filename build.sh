@@ -16,7 +16,7 @@ mkdir ../"$FOLDER"
 # Instead of compiling, we are building a tar.xz archive of the latest kernel package
 cd usr/share/system-installer/modules
 echo -e "\t###\tDOWNLOADING\t###\t"
-rsync -vr rsync://apt.draugeros.org/aptsync/pool/main/l/linux-5.10.*-xanmod* kernel
+rsync -vr rsync://apt.draugeros.org/aptsync/pool/main/l/linux-5.10.[5-9]-xanmod* kernel
 rsync -vr rsync://apt.draugeros.org/aptsync/pool/main/l/linux-meta kernel
 echo -e "\t###\tDELETING CRUFT\t###\t"
 list=$(ls kernel)
@@ -34,6 +34,7 @@ dep=$(echo "$dep" | sed 's/linux-//g')
 cd linux-meta
 rm -rfv $(ls | grep -v "$dep")
 rm -rfv $(ls | grep "edge")
+rm -rfv $(ls | grep "cacule")
 cd ../..
 # delete empty folders
 find . -type d -empty -print -delete
