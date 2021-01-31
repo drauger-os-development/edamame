@@ -1277,7 +1277,7 @@ Sub-Region""")
         self.grid.attach(self.layout_menu, 2, 3, 3, 1)
 
         varient_label = Gtk.Label()
-        varient_label.set_markup("""Varient: """)
+        varient_label.set_markup("""Variant: """)
         varient_label.set_justify(Gtk.Justification.CENTER)
         self.grid.attach(varient_label, 1, 4, 1, 1)
 
