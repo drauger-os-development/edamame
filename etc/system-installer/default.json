@@ -1,7 +1,7 @@
 {
 	"squashfs_Location":"/run/live/medium/live/filesystem.squashfs",
 	"distro":"Drauger OS",
-	"report_to":"installation-reports@draugeros.org",
+	"report_keys":"https://download.draugeros.org/keys/public_keys.asc",
 	"ping servers":[
 					"https://apt.draugeros.org",
 					"https://ubuntu.com",
@@ -27,4 +27,3 @@
 					"mdswh":128
 					}
 }
-

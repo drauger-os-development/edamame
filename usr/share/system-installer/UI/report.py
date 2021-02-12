@@ -28,10 +28,17 @@ from datetime import datetime
 from shutil import copyfile
 import time
 import json
+import gnupg
 import gi
+import curl
+
+# Configuration required to use some of these libs
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
-import UI.get_pass as get_pass
+try:
+    gpg = gnupg.GPG(gnupghome="/home/live/.gnupg")
+except ValueError:
+    gpg = gnupg.GPG(gnupghome=getenv("HOME") + "/.gnupg")
 
 
 class Main(Gtk.Window):
@@ -261,23 +268,23 @@ class Main(Gtk.Window):
         self.show_all()
 
         try:
-            # with open(self.path, "r") as mail:
-            #     send = mail.read()
-            password = get_pass.generate_password()
-            # Yes, I know it's bad to store passwords as plain text.
-            # This password is only valid for a limited amount of time, and
-            # will be deleted shortly after the upload is complete.
-            # Bite me.
-            with open("/tmp/pass.txt", "w") as pswd:
-                pswd.write(password)
-
-            chmod("/tmp/pass.txt", 0o600)
-            # we WILL delete it from memory through
-            # so that it is harder to get ahold of.
-            del password
-            check_output(["rsync", "--password-file", "/tmp/pass.txt", self.path,
+            # Get keys
+            cURL = curl.Curl()
+            with open("/etc/system-installer/default.json", "r") as config:
+                URL = json.load(config)["report_keys"]
+            cURL.set_url(URL)
+            key = cURL.get().decode()
+            # Import keys
+            result = gpg.import_keys(key)
+            # Encrypt file using newly imported keys
+            with open(self.path, "rb") as signing:
+                signed_data = gpg.encrypt_file(signing, result.fingerprints, always_trust=True)
+            with open(self.path, "w") as signed:
+                signed.write(str(signed_data))
+            # Upload newly encrypted file
+            check_output(["rsync", self.path,
                           "rsync://download.draugeros.org/reports-upload"])
-            remove("/tmp/pass.txt")
+            remove(self.path)
             Popen(["notify-send",
                    "--icon=/usr/share/icons/Drauger/720x720/Menus/install-drauger.png",
                    r"--app-name='System Installer'", r"Installation Report Sent Successfully!"])
