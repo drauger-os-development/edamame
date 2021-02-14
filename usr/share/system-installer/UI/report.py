@@ -292,6 +292,15 @@ class Main(Gtk.Window):
                    "--icon=/usr/share/icons/Drauger/720x720/Menus/install-drauger.png",
                    r"--app-name='System Installer'", r"Installation Report Failed to Send"])
         copyfile(self.path, "/mnt/var/mail/installation_report.txt")
+        self.clear_window()
+
+        label = Gtk.Label()
+        label.set_markup("\n\n\t\tReport Sent Successfully!\t\t\n\n")
+        self.grid.attach(label, 1, 1, 1, 1)
+        self.show_all()
+
+        time.sleep(5)
+
         self.main_menu("clicked")
 
     def preview_message(self, widget):
@@ -564,13 +573,10 @@ def cpu_info():
 
 def disk_info():
     """Get disk info"""
-    info = check_output("lsblk").decode().split("\n")
-    for each in range(len(info) - 1, -1, -1):
-        if "loop" in info[each]:
-            del info[each]
-    if info[-1] == "":
-        del info[-1]
-    info = "\n".join(info)
+    info = json.loads(check_output(["lsblk", "--json", "--output", "name,size,type,mountpoint"]).decode())
+    for each in range(len(info["blockdevices"]) - 1, -1, -1):
+        if "loop" == info["blockdevices"][each]["type"]:
+            del info["blockdevices"][each]
     return info
 
 
