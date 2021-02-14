@@ -284,7 +284,6 @@ class Main(Gtk.Window):
             # Upload newly encrypted file
             check_output(["rsync", self.path,
                           "rsync://download.draugeros.org/reports-upload"])
-            remove(self.path)
             Popen(["notify-send",
                    "--icon=/usr/share/icons/Drauger/720x720/Menus/install-drauger.png",
                    r"--app-name='System Installer'", r"Installation Report Sent Successfully!"])
