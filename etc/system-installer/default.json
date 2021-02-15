@@ -1,7 +1,10 @@
 {
 	"squashfs_Location":"/run/live/medium/live/filesystem.squashfs",
 	"distro":"Drauger OS",
-	"report_keys":"https://download.draugeros.org/keys/public_keys.asc",
+	"report":{
+				"recv_keys": "https://download.draugeros.org/keys/public_keys.asc",
+				"upload": "rsync://download.draugeros.org/reports-upload"
+				},
 	"ping servers":[
 					"https://apt.draugeros.org",
 					"https://ubuntu.com",
