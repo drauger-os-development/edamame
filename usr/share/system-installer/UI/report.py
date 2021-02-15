@@ -270,9 +270,9 @@ class Main(Gtk.Window):
         try:
             # Get keys
             cURL = curl.Curl()
-            with open("/etc/system-installer/default.json", "r") as config:
-                URL = json.load(config)["report_keys"]
-            cURL.set_url(URL)
+            with open("../../../etc/system-installer/default.json", "r") as config:
+                URL = json.load(config)["report"]
+            cURL.set_url(URL["recv_keys"])
             key = cURL.get().decode()
             # Import keys
             result = gpg.import_keys(key)
@@ -352,7 +352,10 @@ class Main(Gtk.Window):
                 message.write("Subject: Installation Report " +
                               datetime.now().strftime("%c") + "\n\n")
                 message.write("system-installer Version: ")
-                message.write(check_output(["system-installer", "-v"]).decode())
+                try:
+                    message.write(check_output(["system-installer", "-v"]).decode())
+                except (FileNotFoundError, CalledProcessError):
+                    message.write("VERSION UNKNOWN. LIKELY TESTING OR MAJOR ERROR.\n")
                 message.write("\nCPU INFO:\n")
                 if self.cpu.get_active():
                     message.write(cpu_info() + "\n")
