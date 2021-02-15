@@ -283,25 +283,37 @@ class Main(Gtk.Window):
                 signed.write(str(signed_data))
             # Upload newly encrypted file
             check_output(["rsync", self.path,
-                          "rsync://download.draugeros.org/reports-upload"])
-            Popen(["notify-send",
-                   "--icon=/usr/share/icons/Drauger/720x720/Menus/install-drauger.png",
-                   r"--app-name='System Installer'", r"Installation Report Sent Successfully!"])
-        except CalledProcessError:
-            Popen(["notify-send",
-                   "--icon=/usr/share/icons/Drauger/720x720/Menus/install-drauger.png",
-                   r"--app-name='System Installer'", r"Installation Report Failed to Send"])
-        copyfile(self.path, "/mnt/var/mail/installation_report.txt")
-        self.clear_window()
+                          URL["upload"]])
 
-        label = Gtk.Label()
-        label.set_markup("\n\n\t\tReport Sent Successfully!\t\t\n\n")
-        self.grid.attach(label, 1, 1, 1, 1)
-        self.show_all()
+            try:
+                copyfile(self.path, "/mnt/var/mail/installation_report.txt")
+            except:
+                pass
 
-        time.sleep(5)
+            self.clear_window()
 
-        self.main_menu("clicked")
+            label = Gtk.Label()
+            label.set_markup("\n\n\t\tReport Sent Successfully!\t\t\n\n")
+            self.grid.attach(label, 1, 1, 2, 1)
+
+            button1 = Gtk.Button.new_with_label("Okay!")
+            button1.connect("clicked", self.main_menu)
+            self.grid.attach(button1, 2, 2, 1, 1)
+
+            self.show_all()
+
+        except:
+            self.clear_window()
+
+            label = Gtk.Label()
+            label.set_markup("\n\n\t\tReport Failed to Send!\n\t\tPlease make sure you have a working internet connection.\t\t\n\n")
+            self.grid.attach(label, 1, 1, 2, 1)
+
+            button1 = Gtk.Button.new_with_label("Okay")
+            button1.connect("clicked", self.main_menu)
+            self.grid.attach(button1, 2, 2, 1, 1)
+
+            self.show_all()
 
     def preview_message(self, widget):
         """Preview Installation Report"""
