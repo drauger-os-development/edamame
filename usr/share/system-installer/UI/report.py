@@ -390,8 +390,7 @@ class Main(Gtk.Window):
                 message.write("\n")
                 message.write("DISK SETUP:\n")
                 if self.disk.get_active():
-                    for each in disk_info():
-                        message.write(each + "\n")
+                    message.write(json.dumps(disk_info(), indent=1) + "\n")
                 else:
                     message.write("OPT OUT\n")
                 message.write("\n")
