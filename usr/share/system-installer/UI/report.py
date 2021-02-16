@@ -592,7 +592,7 @@ def disk_info():
     for each in range(len(info["blockdevices"]) - 1, -1, -1):
         if "loop" == info["blockdevices"][each]["type"]:
             del info["blockdevices"][each]
-    return info
+    return info["blockdevices"]
 
 
 def get_info(cmd):
