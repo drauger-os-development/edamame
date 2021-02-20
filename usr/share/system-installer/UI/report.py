@@ -390,8 +390,7 @@ class Main(Gtk.Window):
                 message.write("\n")
                 message.write("RAM / SWAP INFO:\n")
                 if self.ram.get_active():
-                    for each in get_info("free"):
-                        message.write(each + "\n")
+                    message.write(ram_info() + "\n")
                 else:
                     message.write("OPT OUT\n")
                 message.write("\n")
@@ -440,8 +439,7 @@ class Main(Gtk.Window):
                 message.write("\n")
                 message.write("RAM / SWAP INFO:\n")
                 if self.ram.get_active():
-                    for each in get_info("free"):
-                        message.write(each + "\n")
+                    message.write(ram_info() + "\n")
                 else:
                     message.write("OPT OUT\n")
                 message.write("\n")
@@ -590,6 +588,13 @@ def cpu_info():
     """get CPU info"""
     info = check_output("lscpu").decode().split("\n")
     return info[13]
+
+
+def ram_info():
+    """Get RAM info"""
+    ram_capacity = check_output(["lsmem", "--summary=only"]).decode()
+    swap_capacity = check_output(["swapon", "--show"]).decode()
+    return ram_capacity + "\n" + swap_capacity
 
 
 def disk_info():
