@@ -127,7 +127,8 @@ class Main(Gtk.Window):
     support.
 
     It can also help us know if we need to lighten the grpahical load on our
-    users GPUs based on the age and/or power of these GPUs.
+    users GPUs based on the age and/or power of these GPUs. Or, if we can
+    afford a little eye candy.
 
     As for PCIe info, this can help us ensure support for common Wi-Fi cards is
     built into the kernel, and drivers that aren't needed aren't included. This
@@ -166,6 +167,12 @@ class Main(Gtk.Window):
     understand the neccessity of SWAP, and also what kind of device
     they may be using. That way, we can optimize to run better on laptops\t
     or desktops as needed.
+
+    Right now, all this gives us is the AMOUNT of RAM and SWAP that you
+    have. In the future, we do plan to get RAM type (DDR2, DDR3, etc.),
+    and RAM speed. This will help us better understand the age of your
+    system, how responsive it is, and how well lower end systems can
+    handle eye candy.
     \t""")
         self.grid.attach(label, 1, 2, 2, 1)
 
@@ -199,7 +206,7 @@ class Main(Gtk.Window):
     or manual partitioning systems tells us where to focus our effort.
 
     This can mean we are more likely to catch bugs or add new features
-    in one area or another
+    in one area or another.
     \t""")
         self.grid.attach(label1, 1, 2, 2, 1)
 
