@@ -24,7 +24,7 @@
 """Main Installation UI"""
 from __future__ import print_function
 from subprocess import Popen, check_output, DEVNULL
-from os import getcwd, chdir, path, listdir
+from os import getcwd, chdir, path, listdir, fork
 import sys
 import re
 import json
@@ -56,29 +56,11 @@ def hasspace(input_string):
 
 
 try:
-    CONFIG_DIR = listdir("/etc/system-installer")
-    for each in enumerate(CONFIG_DIR):
-        if CONFIG_DIR[each[0]] == "quick-install-template.json":
-            del CONFIG_DIR[each[0]]
-            if len(CONFIG_DIR) == 1:
-                break
-            for each1 in enumerate(CONFIG_DIR):
-                if CONFIG_DIR[each1[0]] == "default.json":
-                    del CONFIG_DIR[each[0]]
-                    if len(CONFIG_DIR) != 1:
-                        eprint("More than one custom config file in /etc/system-installer is not supported.")
-                        eprint("Please remove all but one and try again.")
-                        eprint("'default.json' and 'quick-install-template.json' may remain though.")
-                        sys.exit(2)
-                    else:
-                        break
-            break
-    with open("/etc/system-installer/%s" % (CONFIG_DIR[0])) as config_file:
+    with open("/etc/system-installer/default.json") as config_file:
         DISTRO = json.loads(config_file.read())["distro"]
 
-
 except FileNotFoundError:
-    eprint("/etc/system-installer does not exist. In testing?")
+    eprint("/etc/system-installer/default.json does not exist. In testing?")
     DISTRO = "Drauger OS"
 
 
@@ -1235,12 +1217,9 @@ Sub-Region""")
         self.grid.attach(model_label, 1, 2, 1, 1)
 
         self.model_menu = Gtk.ComboBoxText.new()
-        pwd = getcwd()
-        chdir("/usr/share/console-setup")
-        layouts = check_output(["./kbdnames-maker"], stderr=DEVNULL)
-        chdir(pwd)
-        layouts = str(layouts)
-        layouts = layouts.split("\\n")
+        with open("/etc/system-installer/keyboards", "r") as file:
+            layouts = file.read()
+        layouts = layouts.split("\n")
         layout_list = []
         for each8 in layouts:
             layout_list.append(each8.split("*"))
@@ -1424,6 +1403,9 @@ Sub-Region""")
 
 def show_main():
     """Show Main UI"""
+    if fork() == 0:
+        make_kbd_names()
+        return
     window = Main()
     window.set_decorated(True)
     window.set_resizable(False)
@@ -1434,6 +1416,17 @@ def show_main():
     data = window.return_data()
     window.exit("clicked")
     return data
+
+def make_kbd_names():
+    """Get Keyboard Names faster"""
+    if path.isfile("/etc/system-installer/keyboards"):
+        # Keyboards file already made. Nothing to do.
+        return
+    chdir("/usr/share/console-setup")
+    layouts = check_output(["./kbdnames-maker"], stderr=DEVNULL).decode()
+    chdir("/etc/system-installer")
+    with open("keyboards", "w+") as file:
+        file.write(layouts)
 
 
 if __name__ == '__main__':
