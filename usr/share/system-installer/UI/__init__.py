@@ -28,4 +28,3 @@ import UI.main as main
 import UI.progress as progress
 import UI.report as report
 import UI.success as success
-import UI.get_pass as get_pass

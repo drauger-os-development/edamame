@@ -28,10 +28,17 @@ from datetime import datetime
 from shutil import copyfile
 import time
 import json
+import gnupg
 import gi
+import curl
+
+# Configuration required to use some of these libs
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
-import UI.get_pass as get_pass
+try:
+    gpg = gnupg.GPG(gnupghome="/home/live/.gnupg")
+except ValueError:
+    gpg = gnupg.GPG(gnupghome=getenv("HOME") + "/.gnupg")
 
 
 class Main(Gtk.Window):
@@ -261,32 +268,52 @@ class Main(Gtk.Window):
         self.show_all()
 
         try:
-            # with open(self.path, "r") as mail:
-            #     send = mail.read()
-            password = get_pass.generate_password()
-            # Yes, I know it's bad to store passwords as plain text.
-            # This password is only valid for a limited amount of time, and
-            # will be deleted shortly after the upload is complete.
-            # Bite me.
-            with open("/tmp/pass.txt", "w") as pswd:
-                pswd.write(password)
+            # Get keys
+            cURL = curl.Curl()
+            with open("../../../etc/system-installer/default.json", "r") as config:
+                URL = json.load(config)["report"]
+            cURL.set_url(URL["recv_keys"])
+            key = cURL.get().decode()
+            # Import keys
+            result = gpg.import_keys(key)
+            # Encrypt file using newly imported keys
+            with open(self.path, "rb") as signing:
+                signed_data = gpg.encrypt_file(signing, result.fingerprints, always_trust=True)
+            with open(self.path, "w") as signed:
+                signed.write(str(signed_data))
+            # Upload newly encrypted file
+            check_output(["rsync", self.path,
+                          URL["upload"]])
 
-            chmod("/tmp/pass.txt", 0o600)
-            # we WILL delete it from memory through
-            # so that it is harder to get ahold of.
-            del password
-            check_output(["rsync", "--password-file", "/tmp/pass.txt", self.path,
-                          "rsync://download.draugeros.org/reports-upload"])
-            remove("/tmp/pass.txt")
-            Popen(["notify-send",
-                   "--icon=/usr/share/icons/Drauger/720x720/Menus/install-drauger.png",
-                   r"--app-name='System Installer'", r"Installation Report Sent Successfully!"])
-        except CalledProcessError:
-            Popen(["notify-send",
-                   "--icon=/usr/share/icons/Drauger/720x720/Menus/install-drauger.png",
-                   r"--app-name='System Installer'", r"Installation Report Failed to Send"])
-        copyfile(self.path, "/mnt/var/mail/installation_report.txt")
-        self.main_menu("clicked")
+            try:
+                copyfile(self.path, "/mnt/var/mail/installation_report.txt")
+            except:
+                pass
+
+            self.clear_window()
+
+            label = Gtk.Label()
+            label.set_markup("\n\n\t\tReport Sent Successfully!\t\t\n\n")
+            self.grid.attach(label, 1, 1, 2, 1)
+
+            button1 = Gtk.Button.new_with_label("Okay!")
+            button1.connect("clicked", self.main_menu)
+            self.grid.attach(button1, 2, 2, 1, 1)
+
+            self.show_all()
+
+        except:
+            self.clear_window()
+
+            label = Gtk.Label()
+            label.set_markup("\n\n\t\tReport Failed to Send!\n\t\tPlease make sure you have a working internet connection.\t\t\n\n")
+            self.grid.attach(label, 1, 1, 2, 1)
+
+            button1 = Gtk.Button.new_with_label("Okay")
+            button1.connect("clicked", self.main_menu)
+            self.grid.attach(button1, 2, 2, 1, 1)
+
+            self.show_all()
 
     def preview_message(self, widget):
         """Preview Installation Report"""
@@ -337,7 +364,10 @@ class Main(Gtk.Window):
                 message.write("Subject: Installation Report " +
                               datetime.now().strftime("%c") + "\n\n")
                 message.write("system-installer Version: ")
-                message.write(check_output(["system-installer", "-v"]).decode())
+                try:
+                    message.write(check_output(["system-installer", "-v"]).decode())
+                except (FileNotFoundError, CalledProcessError):
+                    message.write("VERSION UNKNOWN. LIKELY TESTING OR MAJOR ERROR.\n")
                 message.write("\nCPU INFO:\n")
                 if self.cpu.get_active():
                     message.write(cpu_info() + "\n")
@@ -360,8 +390,7 @@ class Main(Gtk.Window):
                 message.write("\n")
                 message.write("DISK SETUP:\n")
                 if self.disk.get_active():
-                    for each in disk_info():
-                        message.write(each + "\n")
+                    message.write(json.dumps(disk_info(), indent=1) + "\n")
                 else:
                     message.write("OPT OUT\n")
                 message.write("\n")
@@ -558,14 +587,11 @@ def cpu_info():
 
 def disk_info():
     """Get disk info"""
-    info = check_output("lsblk").decode().split("\n")
-    for each in range(len(info) - 1, -1, -1):
-        if "loop" in info[each]:
-            del info[each]
-    if info[-1] == "":
-        del info[-1]
-    info = "\n".join(info)
-    return info
+    info = json.loads(check_output(["lsblk", "--json", "--output", "name,size,type,mountpoint"]).decode())
+    for each in range(len(info["blockdevices"]) - 1, -1, -1):
+        if "loop" == info["blockdevices"][each]["type"]:
+            del info["blockdevices"][each]
+    return info["blockdevices"]
 
 
 def get_info(cmd):

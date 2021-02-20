@@ -204,7 +204,7 @@ SWAP: %s""" % (ROOT, EFI, HOME, SWAP))
         self.grid.attach(self.label28, 3, 17, 1, 1)
 
         self.label29 = Gtk.Label()
-        self.label29.set_markup(""" Keyboard Varient:   """)
+        self.label29.set_markup(""" Keyboard Variant:   """)
         self.label29.set_justify(Gtk.Justification.CENTER)
         self.grid.attach(self.label29, 1, 18, 1, 1)
 
