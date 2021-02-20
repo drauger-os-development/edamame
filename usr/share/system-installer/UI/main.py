@@ -72,9 +72,9 @@ DEFAULT = """
     <b>PARTITIONING</b>
 
     The %s System Installer uses Gparted to allow the user to set up their
-    partitions. It is advised to account for this if installing next to another
-    OS. If using automatic partitoning, it will take up the entirety of the
-    drive told to use. Loss of data from usage of this tool is entirely at the
+    partitions manually. It is advised to account for this if installing next to
+    another OS. If using automatic partitoning, it will take up the entirety of
+    the drive told to use. Loss of data from usage of this tool is entirely at the
     fault of the user. You have been warned.
 
     <b>BETA WARNING</b>
