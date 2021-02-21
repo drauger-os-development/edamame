@@ -47,14 +47,6 @@ def has_special_character(input_string):
     return True
 
 
-def hasspace(input_string):
-    """Check for spaces"""
-    for each3 in input_string:
-        if each3.isspace():
-            return True
-    return False
-
-
 try:
     with open("/etc/system-installer/default.json") as config_file:
         DISTRO = json.loads(config_file.read())["distro"]
@@ -411,7 +403,7 @@ class Main(Gtk.Window):
             except TypeError:
                 pass
             self.grid.attach(label5, 1, 7, 2, 1)
-        elif hasspace(self.username_setting):
+        elif " " in self.username_setting:
             label5 = Gtk.Label()
             label5.set_markup("Username contains space")
             label5.set_justify(Gtk.Justification.CENTER)
@@ -438,7 +430,7 @@ class Main(Gtk.Window):
             except TypeError:
                 pass
             self.grid.attach(label5, 1, 7, 2, 1)
-        elif hasspace(self.compname_setting):
+        elif " " in self.compname_setting:
             label5 = Gtk.Label()
             label5.set_markup("Computer Name contains space")
             label5.set_justify(Gtk.Justification.CENTER)
