@@ -82,6 +82,9 @@ to: contact@draugeros.org   """)
                 for each in enumerate(text):
                     if len(text[each[0]]) > 90:
                         text[each[0]] = text[each[0]][:90]
+                    elif len(text[each[0]]) < 90:
+                        multiplyer = 90 - len(text[each[0]])
+                        text[each[0]] = text[each[0]] + (" " * multiplyer)
                 text = "\n".join(text)
             self.file_contents.set_text(text, len(text))
         except FileNotFoundError:
