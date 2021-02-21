@@ -280,7 +280,11 @@ home: whether to make a home partition, or if one already exists
     part2 = None
     part3 = None
     device = parted.getDevice(root)
-    disk = parted.Disk(device)
+    try:
+        disk = parted.Disk(device)
+    except parted._ped.DiskLabelException:
+        common.eprint("NO PARTITION TABLE EXISTS. MAKING NEW ONE . . .")
+        disk = parted.freshDisk(device, "gpt")
     size = sectors_to_size(device.length, device.sectorSize) * 1000
     if home in ("NULL", "null", None, "MAKE"):
         common.eprint("DELETING PARTITIONS.")
