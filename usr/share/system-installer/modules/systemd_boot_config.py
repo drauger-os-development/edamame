@@ -34,7 +34,7 @@ def eprint(*args, **kwargs):
 
 def systemd_boot_config(root):
     """Configure Systemd-Boot"""
-    eprint("\t###\tsystemd-boot-config.py STARTED\t###\t")
+    eprint("    ###    systemd-boot-config.py STARTED    ###    ")
     try:
         mkdir("/etc/kernel/postinst.d")
     except FileExistsError:
@@ -149,7 +149,7 @@ fi
     mkdir("/etc/systemd-boot")
     with open("/etc/systemd-boot/uuid.conf", "w+") as conf:
         conf.write(uuid)
-    eprint("\t###\tsystemd-boot-config.py CLOSED\t###\t")
+    eprint("    ###    systemd-boot-config.py CLOSED    ###    ")
     return 0
 
 

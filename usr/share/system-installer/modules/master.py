@@ -128,7 +128,7 @@ class MainInstallation():
             install_updates.update_system()
         if ((EXTRAS) and (INTERNET)):
             install_extras.install_extras()
-            
+
     def set_passwd(USERNAME, PASSWORD):
         """Set Root password"""
         __update__(84)
@@ -307,7 +307,7 @@ def setup_lowlevel(efi, root):
     release = check_output(["uname", "--release"]).decode()[0:-1]
     install_kernel(release)
     set_plymouth_theme()
-    eprint("\n\t###\tMAKING INITRAMFS\t###\t")
+    eprint("\n    ###    MAKING INITRAMFS    ###    ")
     check_call(["mkinitramfs", "-o", "/boot/initrd.img-" + release],
                stdout=stderr.buffer)
     install_bootloader(efi, root, release)
@@ -337,7 +337,7 @@ options root=PARTUUID=%s %s""" % (uuid, root_flags))
             eprint("Made standard systemd-boot entry")
         # Raise an exception if we cannot write the entry
         except (PermissionError, IOError):
-            eprint("\t###\tERROR\t###\tCANNOT MAKE STANDARD SYSTEMD-BOOT ENTRY CONFIG FILE\t###ERROR\t###\t")
+            eprint("    ###    ERROR    ###    CANNOT MAKE STANDARD SYSTEMD-BOOT ENTRY CONFIG FILE    ###    ERROR    ###    ")
             raise IOError("Cannot make standard systemd-boot entry config file. Installation will not boot.")
     else:
         eprint("Standard systemd-boot entry checks out")
@@ -354,7 +354,7 @@ options root=PARTUUID=%s %s""" % (uuid, recovery_flags))
             eprint("Made recovery systemd-boot entry")
         # Raise a warning if we cannot write the entry
         except (PermissionError, IOError):
-            eprint("\t###\tWARNING\t###\tCANNOT MAKE RECOVERY SYSTEMD-BOOT ENTRY CONFIG FILE\t###\tWARNING\t###\t")
+            eprint("    ###    WARNING    ###    CANNOT MAKE RECOVERY SYSTEMD-BOOT ENTRY CONFIG FILE    ###    WARNING    ###    ")
             warnings.warn("Cannot make recovery systemd-boot entry config file. Installation will not be recoverable.")
     else:
         eprint("Recovery systemd-boot entry checks out")
@@ -445,22 +445,5 @@ if __name__ == "__main__":
     # set vars
     # for security reasons, these are no longer environmental variables
     SETTINGS = json.loads(argv[1])
-    # settings["LANG"] = argv[1]
-    # settings["TIME_ZONE"] = argv[2]
-    # settings["USERNAME"] = argv[3]
-    # settings["PASSWORD"] = argv[4]
-    # settings["COMPUTER_NAME"] = argv[5]
-    # settings["EXTRAS"] = bool(int(argv[6]))
-    # settings["UPDATES"] = bool(int(argv[7]))
-    # settings["EFI"] = argv[8]
-    # settings["ROOT"] = argv[9]
-    # settings["LOGIN"] = bool(int(argv[10]))
-    # settings["MODEL"] = argv[11]
-    # settings["LAYOUT"] = argv[12]
-    # settings["VARIENT"] = argv[13]
-    # if ARGC == 15:
-        # settings["SWAP"] = argv[14]
-    # else:
-        # settings["SWAP"] = None
 
     install(SETTINGS)

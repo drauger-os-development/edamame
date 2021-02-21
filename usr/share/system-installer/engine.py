@@ -40,7 +40,7 @@ import common
 import auto_partitioner
 
 
-common.eprint("\t###\t%s STARTED\t###\t" % (sys.argv[0]))
+common.eprint("    ###    %s STARTED    ###    " % (sys.argv[0]))
 MEMCHECK = virtual_memory().total
 if (MEMCHECK / 1024 ** 2) < 1024:
     UI.error.show_error("\n\tRAM is less than 1 GB.\t\n")
@@ -117,12 +117,12 @@ if INSTALL:
                     remove("/mnt/" + each)
                 except FileNotFoundError:
                     pass
-        common.eprint("\t###\t%s CLOSED\t###\t" % (sys.argv[0]))
+        common.eprint("    ###    %s CLOSED    ###    " % (sys.argv[0]))
         try:
             copyfile("/tmp/system-installer.log",
                      "/mnt/var/log/system-installer.log")
         except FileNotFoundError:
-            common.eprint("\t###\tLog Not Found. Testing?\t###\t")
+            common.eprint("    ###    Log Not Found. Testing?    ###    ")
             with open("/tmp/system-installer.log", "w+") as log:
                 log.write("""Log was not created during installation.
 This is a stand-in file.
