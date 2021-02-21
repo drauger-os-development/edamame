@@ -136,15 +136,18 @@ def install(settings):
                 shutil.rmtree(each)
             except NotADirectoryError:
                 remove(each)
-    chdir("/mnt/boot")
-    death_row = listdir()
-    for each in death_row:
-        if each != "efi":
-            try:
-                shutil.rmtree(each)
-            except NotADirectoryError:
-                remove(each)
-    chdir("/mnt")
+    try:
+        chdir("/mnt/boot")
+        death_row = listdir()
+        for each in death_row:
+            if each != "efi":
+                try:
+                    shutil.rmtree(each)
+                except NotADirectoryError:
+                    remove(each)
+        chdir("/mnt")
+    except FileNotFoundError:
+        pass
     common.eprint("\t###\tEXTRACTING SQUASHFS\t###\t")
     check_call(["unsquashfs", squashfs])
     common.eprint("\t###\tEXTRACTION COMPLETE\t###\t")
@@ -285,7 +288,10 @@ def install(settings):
         chroot.de_chroot(root_dir, "/mnt")
         shutil.rmtree("/mnt/kernel")
         remove("/mnt/kernel.tar.xz")
-    file_list = listdir("/mnt/boot/efi/loader/entries")
+    try:
+        file_list = listdir("/mnt/boot/efi/loader/entries")
+    except FileNotFoundError:
+        file_list = []
     if ((len(file_list) == 0) and ((settings["EFI"] is None) or
                                    (settings["EFI"] == "") or (settings["EFI"] == "NULL"))):
         common.eprint("\t###\tSYSTEMD-BOOT NOT CONFIGURED. CORRECTING . . .\t###\t")
