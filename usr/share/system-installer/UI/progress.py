@@ -79,6 +79,9 @@ to: contact@draugeros.org   """)
             if len(text.split("\n")) > 10:
                 text = text.split("\n")
                 text = text[-10:]
+                for each in enumerate(text):
+                    if len(text[each[0]]) > 90:
+                        text[each[0]] = text[each[0]][:90]
                 text = "\n".join(text)
             self.file_contents.set_text(text, len(text))
         except FileNotFoundError:
