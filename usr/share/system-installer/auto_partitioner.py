@@ -284,12 +284,18 @@ home: whether to make a home partition, or if one already exists
         disk = parted.Disk(device)
     except parted._ped.DiskLabelException:
         common.eprint("NO PARTITION TABLE EXISTS. MAKING NEW ONE . . .")
-        disk = parted.freshDisk(device, "gpt")
+        if efi:
+            disk = parted.freshDisk(device, "gpt")
+        else:
+            disk = parted.freshDisk(device, "mbr")
     size = sectors_to_size(device.length, device.sectorSize) * 1000
     if home in ("NULL", "null", None, "MAKE"):
         common.eprint("DELETING PARTITIONS.")
         device.clobber()
-        disk = parted.freshDisk(device, "gpt")
+        if efi:
+            disk = parted.freshDisk(device, "gpt")
+        else:
+            disk = parted.freshDisk(device, "mbr")
         disk.commit()
     else:
         common.eprint("HOME PARTITION EXISTS. NOT DELETING PARTITIONS.")
