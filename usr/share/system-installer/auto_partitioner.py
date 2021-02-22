@@ -118,7 +118,6 @@ def __make_efi__(device, start=config["EFI"]["START"],
                  end=config["EFI"]["END"]):
     """Make EFI partition"""
     disk = parted.Disk(device)
-    optimal = device.optimumAlignment
     start_geo = parted.geometry.Geometry(device=device,
                                          start=parted.sizeToSectors(start,
                                                                     "MB",
@@ -137,9 +136,10 @@ def __make_efi__(device, start=config["EFI"]["START"],
                                     device.sectorSize)
     max_size = parted.sizeToSectors(((end - start) + 20), "MB",
                                     device.sectorSize)
-    const = parted.Constraint(startAlign=optimal, endAlign=optimal,
-                              startRange=start_geo, endRange=end_geo, minSize=min_size,
-                              maxSize=max_size)
+    const = parted.Constraint(startAlign=device.optimumAlignment,
+                              endAlign=device.optimumAlignment,
+                              startRange=start_geo, endRange=end_geo,
+                              minSize=min_size, maxSize=max_size)
     geometry = parted.geometry.Geometry(start=start,
                                         length=parted.sizeToSectors(end - start,
                                                                     "MB",
@@ -179,7 +179,6 @@ def __make_root__(device, start=config["ROOT"]["START"],
     except TypeError:
         pass
     disk = parted.Disk(device)
-    optimal = device.optimumAlignment
     start_geo = parted.geometry.Geometry(device=device,
                                          start=parted.sizeToSectors(start - 20,
                                                                     "MB",
@@ -197,7 +196,8 @@ def __make_root__(device, start=config["ROOT"]["START"],
                                     device.sectorSize)
     max_size = parted.sizeToSectors((end - start) + 150, "MB",
                                     device.sectorSize)
-    const = parted.Constraint(startAlign=optimal, endAlign=optimal,
+    const = parted.Constraint(startAlign=device.optimumAlignment,
+                              endAlign=device.optimumAlignment,
                               startRange=start_geo, endRange=end_geo,
                               minSize=min_size,
                               maxSize=max_size)
