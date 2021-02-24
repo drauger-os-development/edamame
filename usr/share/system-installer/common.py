@@ -30,10 +30,10 @@ def unique(starting_list):
     # intilize a null list
     unique_list = []
     # traverse for all elements
-    for x in starting_list:
+    for each in starting_list:
         # check if exists in unique_list or not
-        if x not in unique_list:
-            unique_list.append(x)
+        if each not in unique_list:
+            unique_list.append(each)
     return unique_list
 
 
