@@ -126,15 +126,15 @@ def __make_efi__(device, start=config["EFI"]["START"],
                                                                   "MB",
                                                                   device.sectorSize))
     end_geo = parted.geometry.Geometry(device=device,
-                                       start=parted.sizeToSectors(end - 20,
+                                       start=parted.sizeToSectors(common.real_number(end - 20),
                                                                   "MB",
                                                                   device.sectorSize),
                                        end=parted.sizeToSectors(end + 10,
                                                                 "MB",
                                                                 device.sectorSize))
-    min_size = parted.sizeToSectors(((end - start) - 25), "MB",
+    min_size = parted.sizeToSectors(common.real_number((end - start) - 25), "MB",
                                     device.sectorSize)
-    max_size = parted.sizeToSectors(((end - start) + 20), "MB",
+    max_size = parted.sizeToSectors(common.real_number((end - start) + 20), "MB",
                                     device.sectorSize)
     const = parted.Constraint(startAlign=device.optimumAlignment,
                               endAlign=device.optimumAlignment,
@@ -180,21 +180,21 @@ def __make_root__(device, start=config["ROOT"]["START"],
         pass
     disk = parted.Disk(device)
     start_geo = parted.geometry.Geometry(device=device,
-                                         start=parted.sizeToSectors(start - 20,
+                                         start=parted.sizeToSectors(common.real_number(start - 20),
                                                                     "MB",
                                                                     device.sectorSize),
                                          end=parted.sizeToSectors(start + 20,
                                                                   "MB",
                                                                   device.sectorSize))
     end_geo = parted.geometry.Geometry(device=device,
-                                       start=parted.sizeToSectors(end - 40,
+                                       start=parted.sizeToSectors(common.real_number(end - 40),
                                                                   "MB",
                                                                   device.sectorSize),
                                        end=parted.sizeToSectors(end, "MB",
                                                                 device.sectorSize))
-    min_size = parted.sizeToSectors((end - start) - 150, "MB",
+    min_size = parted.sizeToSectors(common.real_number((end - start) - 150), "MB",
                                     device.sectorSize)
-    max_size = parted.sizeToSectors((end - start) + 150, "MB",
+    max_size = parted.sizeToSectors(common.real_number((end - start) + 150), "MB",
                                     device.sectorSize)
     const = parted.Constraint(startAlign=device.optimumAlignment,
                               endAlign=device.optimumAlignment,
