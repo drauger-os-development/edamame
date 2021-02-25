@@ -242,11 +242,12 @@ def __generate_return_data__(home, efi, part1, part2, part3):
     return parts
 
 
-def __make_root_boot__(disk):
+def __make_root_boot__(device):
     """Make Root partition bootable.
 
 This ONLY works if the root partition is the only partition on the drive
 """
+    disk = parted.Disk(device)
     partitions = disk.getPrimaryPartitions()
     partitions[0].setFlag(parted.PARTITION_BOOT)
     disk.commit()
@@ -299,7 +300,7 @@ home: whether to make a home partition, or if one already exists
             part2 = __make_root__(device, end="100%")
         else:
             part1 = __make_root__(device, start="0%", end="100%")
-            __make_root_boot__(disk)
+            __make_root_boot__(device)
         common.eprint("\t###\tauto_partioner.py CLOSED\t###\t")
         return __generate_return_data__(home, efi, part1, part2, part3)
     # Handled 16GB drives
@@ -318,7 +319,7 @@ home: whether to make a home partition, or if one already exists
             part3 = __make_home__(device, new_start=root_end)
         elif part1 is None:
             part1 = __make_root__(device, start="0%", end=root_end)
-            __make_root_boot__(disk)
+            __make_root_boot__(device)
             part2 = __make_home__(device, new_start=root_end)
         common.eprint("\t###\tauto_partioner.py CLOSED\t###\t")
         return __generate_return_data__(home, efi, part1, part2, part3)
@@ -331,7 +332,7 @@ home: whether to make a home partition, or if one already exists
             part2 = __make_root__(device, end="100%")
         else:
             part1 = __make_root__(device, start="0%", end="100%")
-            __make_root_boot__(disk)
+            __make_root_boot__(device)
         common.eprint("\t###\tauto_partioner.py CLOSED\t###\t")
         return __generate_return_data__(home, efi, part1, part2, part3)
     # This one we need to figure out if the home partiton is on the drive
@@ -344,6 +345,7 @@ home: whether to make a home partition, or if one already exists
         # It IS on the same drive. We need to figure out where at and work
         # around it
         # NOTE: WE NEED TO WORK IN MB ONLY IN THIS SECTION
+        disk = parted.Disk(device)
         data = disk.getFreeSpaceRegions()
         sizes = {}
         for each in data:
@@ -366,7 +368,7 @@ home: whether to make a home partition, or if one already exists
                 if sizes[each].getSize() >= 200:
                     part1 = __make_root__(device, start=sizes[each].start,
                                           end=sizes[each].end)
-                    __make_root_boot__(disk)
+                    __make_root_boot__(device)
                     break
         common.eprint("\t###\tauto_partioner.py CLOSED\t###\t")
         return __generate_return_data__(home, efi, part1, part2, part3)
@@ -377,7 +379,7 @@ home: whether to make a home partition, or if one already exists
             part2 = __make_root__(device)
         else:
             part1 = __make_root__(device, start="0%", end="100%")
-            __make_root_boot__(disk)
+            __make_root_boot__(device)
     part3 = home
     # Figure out what parts are for what
     # Return that data as a dictonary
