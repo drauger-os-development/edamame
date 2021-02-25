@@ -385,3 +385,24 @@ home: whether to make a home partition, or if one already exists
     # Return that data as a dictonary
     common.eprint("\t###\tauto_partioner.py CLOSED\t###\t")
     return __generate_return_data__(home, efi, part1, part2, part3)
+
+
+def make_RAID_array(disks: list, raid_type: int) -> bool:
+    """Make BTRFS RAID Array
+    Supported RAID Types:
+        RAID0: Minimum 2 drives, max performance, no resiliancey
+        RAID1: Minimum 2 drives, max resiliancey, minimum performance
+        RAID5: 3-16 drives, poor resiliancey, great read performance, poor write performance
+        RAID6: Minimum 4 drives. Medium resiliancey, great read performance, worse write performance
+        RAID10: Minimum 4 drives, Medium resiliancey, Great performance
+
+    raid_type should be an int indicating the RAID type desired so:
+        raid_type == 0: use RAID0
+        raid_type == 1: use RAID1
+        etc.
+
+    Any ints other than 0, 1, 5, 6, and 10 will throw a ValueError
+
+    disks should be a list of the disks desired in the RAID array.
+    """
+    return 0
