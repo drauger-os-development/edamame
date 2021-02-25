@@ -224,7 +224,7 @@ def install_kernel(release):
 def install_bootloader(efi, root, release):
     """Determine whether bootloader needs to be systemd-boot (for UEFI) or GRUB (for BIOS)
     and install the correct one."""
-    if efi not in ("NULL", None, ""):
+    if efi not in ("NULL", None, "", False):
         _install_systemd_boot(release, root)
     else:
         _install_grub(root)
