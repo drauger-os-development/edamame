@@ -292,7 +292,7 @@ def install(settings):
         file_list = listdir("/mnt/boot/efi/loader/entries")
     except FileNotFoundError:
         file_list = []
-    if ((len(file_list) == 0) and (settings["EFI"] not in (None, "", "NULL", False)):
+    if ((len(file_list) == 0) and (settings["EFI"] not in (None, "", "NULL", False))):
         common.eprint("    ###    SYSTEMD-BOOT NOT CONFIGURED. CORRECTING . . .    ###    ")
         shutil.copyfile("/usr/share/system-installer/modules/systemd_boot_config.py",
                  "/mnt/systemd_boot_config.py")
