@@ -389,7 +389,7 @@ home: whether to make a home partition, or if one already exists
     return __generate_return_data__(home, efi, part1, part2, part3)
 
 
-def make_raid_array(disks: list, raid_type: int) -> bool:
+def make_raid_array(disks: list, raid_type: int, force=False) -> bool:
     """Make BTRFS RAID Array
     Supported RAID Types:
         RAID0: Minimum 2 drives, max performance, no resiliancey
@@ -418,6 +418,8 @@ def make_raid_array(disks: list, raid_type: int) -> bool:
                        6: "raid6",
                        10: "raid10"}
     command = ["mkfs.btrfs", "-d"]
+    if force:
+        command.insert(1, "-f")
     if raid_type not in raid_types_dict:
         raise ValueError("'%s' not a valid BTRFS RAID type" % (raid_type))
     if raid_type in (0, 1):
