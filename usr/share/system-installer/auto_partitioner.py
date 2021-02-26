@@ -27,6 +27,8 @@ import time
 import subprocess
 import parted
 import common
+import os
+import sys
 
 
 def gb_to_bytes(gb):
@@ -387,7 +389,7 @@ home: whether to make a home partition, or if one already exists
     return __generate_return_data__(home, efi, part1, part2, part3)
 
 
-def make_RAID_array(disks: list, raid_type: int) -> bool:
+def make_raid_array(disks: list, raid_type: int) -> bool:
     """Make BTRFS RAID Array
     Supported RAID Types:
         RAID0: Minimum 2 drives, max performance, no resiliancey
@@ -403,6 +405,41 @@ def make_RAID_array(disks: list, raid_type: int) -> bool:
 
     Any ints other than 0, 1, 5, 6, and 10 will throw a ValueError
 
-    disks should be a list of the disks desired in the RAID array.
+    disks should be a list of the disks desired in the RAID array. A ValueError
+    will be thrown if the list is too short or too long.
+
+    Returns True if array was successfully completed. False otherwise.
+    You can then mount the array by calling `mount' on any of the devices in the
+    disks list.
     """
-    return 0
+    raid_types_dict = {0: "raid0",
+                       1: "raid1",
+                       5: "raid5",
+                       6: "raid6",
+                       10: "raid10"}
+    command = ["mkfs.btrfs", "-d"]
+    if raid_type not in raid_types_dict:
+        raise ValueError("'%s' not a valid BTRFS RAID type" % (raid_type))
+    if raid_type in (0, 1):
+        if len(disks) < 2:
+            raise ValueError("Not enough disks for RAID%s" % (raid_type))
+    elif raid_type == 5:
+        if not (3 <= len(disks) <= 16):
+            raise ValueError("Not enough/Too many disks for RAID5")
+    elif raid_type in (6, 10):
+        if len(disks) < 4:
+            raise ValueError("Not enough disks for RAID%s" % (raid_type))
+    for each in disks:
+        if not os.path.exists(each):
+            raise FileNotFoundError("Device not found: %s" % (each))
+    command.append(raid_types_dict[raid_type])
+    if raid_type not in (0, 5, 6):
+        command.append("-m")
+        command.append(raid_types_dict[raid_type])
+    command = command + disks
+    try:
+        subprocess.check_call(command, stderr=sys.stderr.buffer,
+                              stdout=sys.stderr.buffer)
+        return True
+    except subprocess.CalledProcessError:
+        return False
