@@ -325,13 +325,13 @@ def adv_dump_settings(settings, dump_path, copy_net=True, copy_set=True,
         home = os.getenv("HOME")
         wall_path = []
         with open(home + "/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml", "r") as fb:
-            xml_file = xmltodict.parse(fd.read())
-        for each in test["channel"]["property"][0]["property"][0]["property"]:
+            xml = xmltodict.parse(fb.read())
+        for each in xml["channel"]["property"][0]["property"][0]["property"]:
             for each1 in each["property"][0]["property"]:
                 try:
                     if each1["@name"] == "last-image":
                         wall_path.append(each1["@value"])
-                except AttributeError:
+                except (AttributeError, TypeError):
                     pass
         wall_path_unique = __unique__(wall_path)
         # Copy designated files into "assets"
