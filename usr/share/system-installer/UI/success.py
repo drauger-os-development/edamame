@@ -23,8 +23,8 @@
 #
 """Success Reporting UI"""
 from subprocess import Popen, CalledProcessError, check_output
-from os import remove, listdir, mkdir, chdir, chmod, chown
 from shutil import rmtree, copytree, move, copyfile
+import os
 import sys
 import json
 import tarfile as tar
@@ -150,10 +150,10 @@ class Main(Gtk.Window):
         """Delete Installation from Drive
          This code is dangerous. Be wary
         """
-        delete = listdir("/mnt")
+        delete = os.listdir("/mnt")
         for each in delete:
             try:
-                remove("/mnt/" + each)
+               os.remove("/mnt/" + each)
             except IsADirectoryError:
                 rmtree("/mnt/" + each)
         self.exit("clicked")
@@ -309,9 +309,9 @@ def adv_dump_settings(settings, dump_path, copy_net=True, copy_set=True,
        Network settings to tar bar for later use
     """
     # Make our directory layout
-    mkdir("/tmp/working_dir")
-    mkdir("/tmp/working_dir/settings")
-    mkdir("/tmp/working_dir/assets")
+    os.mkdir("/tmp/working_dir")
+    os.mkdir("/tmp/working_dir/settings")
+    os.mkdir("/tmp/working_dir/assets")
     # dump our installation settings and grab our network settings too
     if copy_set:
         dump_settings(settings,
@@ -341,7 +341,7 @@ def adv_dump_settings(settings, dump_path, copy_net=True, copy_set=True,
             # then, dump the list of screens to assets/screens.list
             # when read in, this will make it so that the wallpaper is used on
             # all the same screens as before
-            mkdir("/tmp/working_dir/assets/master")
+            os.mkdir("/tmp/working_dir/assets/master")
             with open("/tmp/working_dir/assets/screens.list", w) as screens_list:
                 json.dump(monitors, screens_list)
             file_type = wall_path[0].split("/")[-1].split(".")[-1]
@@ -352,20 +352,20 @@ def adv_dump_settings(settings, dump_path, copy_net=True, copy_set=True,
             # This has a trade-off of taking up more disk space in the tar ball
             # But, it should work out okay
             for each in range(wall_path):
-                mkdir("/tmp/working_dir/assets/" + monitors[each])
+                os.mkdir("/tmp/working_dir/assets/" + monitors[each])
                 file_type = wall_path[each].split("/")[-1].split(".")[-1]
                 copyfile(wall_path[each],
                          "/tmp/working_dir/assets/" + monitors[each] + "/wallpaper." + file_type)
     # make our tar ball, with XZ compression
-    chdir("/tmp/working_dir")
+    os.chdir("/tmp/working_dir")
     tar_file = tar.open(name=dump_path.split("/")[-1], mode="w:xz")
     tar_file.add(name="settings")
     tar_file.add(name="assets")
     tar_file.close()
     # copy it to the desired location
     move(dump_path.split("/")[-1], dump_path)
-    chmod(dump_path, 0o740)
-    chown(dump_path, 1000, 1000)
+    os.chmod(dump_path, 0o740)
+    os.chown(dump_path, 1000, 1000)
     # clean up
     rmtree("/tmp/working_dir")
 
