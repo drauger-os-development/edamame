@@ -27,7 +27,7 @@ for each in $list; do
 	done
 done
 meta=$(echo kernel/linux-meta/$(ls kernel/linux-meta | sort -Vr | head -1))
-dep=$(dpkg-deb --field $meta Depends | sed 's/,/ /g' | awk '{print $1}' | sed 's/-headers//g')
+dep=$(dpkg-deb --field $meta Depends | sed 's/,/ /g' | awk '{print $1}' | sed 's/-headers//g' | sed 's/-image//g')
 cd kernel
 rm -rfv $(ls | grep -Ev "^linux-meta$|^$dep\$")
 dep=$(echo "$dep" | sed 's/linux-//g')
