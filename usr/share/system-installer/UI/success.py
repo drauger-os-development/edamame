@@ -318,8 +318,13 @@ def adv_dump_settings(settings, dump_path, copy_net=True, copy_set=True,
         dump_settings(settings,
                       "/tmp/working_dir/settings/installation-settings.json")
     if copy_net:
+        # /etc/NetworkManager/system-connections has perms 755, so we can see the files in it
+        # but those files have permissions 600, and we don't own them, so we can't read them.
+        # Must temporarily change them to 644 so we can read them
+        subprocess.check_call("echo 'toor' | sudo -S chmod 644 /etc/NetworkManager/system-connections/*", shell=True)
         copytree("/etc/NetworkManager/system-connections",
                  "/tmp/working_dir/settings/network-settings")
+        subprocess.check_call("echo 'toor' | sudo -S chmod 600 /etc/NetworkManager/system-connections/*", shell=True)
     if copy_wall:
         # Grab wallpaper
         home = os.getenv("HOME")
@@ -350,7 +355,7 @@ def adv_dump_settings(settings, dump_path, copy_net=True, copy_set=True,
             # We have different wallpapers on different screens
             # This has a trade-off of taking up more disk space in the tar ball
             # But, it should work out okay
-            for each in range(wall_path):
+            for each in range(len(wall_path)):
                 os.mkdir("/tmp/working_dir/assets/" + monitors[each])
                 file_type = wall_path[each].split("/")[-1].split(".")[-1]
                 copyfile(wall_path[each],
