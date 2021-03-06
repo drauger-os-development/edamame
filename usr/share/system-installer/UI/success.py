@@ -22,8 +22,8 @@
 #
 #
 """Success Reporting UI"""
-from subprocess import Popen, CalledProcessError, check_output
 from shutil import rmtree, copytree, move, copyfile
+import subprocess
 import os
 import sys
 import json
@@ -195,7 +195,7 @@ class Main(Gtk.Window):
         """Unfunction to add PPAs"""
         self.grid.remove(self.grid.get_child_at(1, 1))
         try:
-            Popen(["add-apt-repository", "--yes", "PPA:%s" %
+            subprocess.Popen(["add-apt-repository", "--yes", "PPA:%s" %
                    ((self.ppa_entry.get_text()).lower())])
 
             label = Gtk.Label()
@@ -203,7 +203,7 @@ class Main(Gtk.Window):
 \t<b>%s added successfully!</b>\t\n""" % (self.ppa_entry.get_text()))
             label.set_justify(Gtk.Justification.CENTER)
             self.grid.attach(label, 1, 1, 2, 1)
-        except CalledProcessError:
+        except subprocess.CalledProcessError:
             label = Gtk.Label()
             label.set_markup("""\n\tWhat PPAs would you like to add?\t
 \t<b>adding %s failed.</b>\t\n""" % (self.ppa_entry.get_text()))
@@ -413,7 +413,7 @@ def show_success(settings):
 
 def __reboot__(button):
     """Reboot the system"""
-    Popen(["/sbin/reboot"])
+    subprocess.Popen(["/sbin/reboot"])
     sys.exit(0)
 
 
