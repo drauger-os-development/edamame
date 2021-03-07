@@ -331,20 +331,19 @@ def adv_dump_settings(settings, dump_path, copy_net=True, copy_set=True,
                                   shell=True)
     if copy_wall:
         # Grab wallpaper
-        monitors = subprocess.check_output(["xrandr", "--listmonitors"]).decode("utf-8")
-        monitors = monitors.split("\n")[1:]
-        for each in enumerate(monitors):
-            if monitors[each[0]] == []:
-                del monitors[each[0]]
-            monitors[each[0]] = monitors[each[0]].split(" ")[-1]
-        for each in range(len(monitors) - 1, -1, -1):
-            if monitors[each] == "":
-                del monitors[each]
+        home = os.getenv("HOME")
         wall_path = []
-        for each in monitors:
-            wall_path.append(subprocess.check_output(["xfconf-query", "--channel",
-                                           "xfce4-desktop", "--property",
-                                           "/backdrop/screen0/monitor" + each + "/workspace0/last-image"]).decode("utf-8"))
+        monitors = []
+        with open(home + "/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml", "r") as fb:
+            xml = xmltodict.parse(fb.read())
+        for each in xml["channel"]["property"][0]["property"][0]["property"]:
+            monitors.append(each["@name"])
+            for each1 in each["property"][0]["property"]:
+                try:
+                    if each1["@name"] == "last-image":
+                        wall_path.append(each1["@value"])
+                except (AttributeError, TypeError):
+                    pass
         wall_path_unique = __unique__(wall_path)
         # Copy designated files into "assets"
         if len(wall_path_unique) == 1:
@@ -354,7 +353,8 @@ def adv_dump_settings(settings, dump_path, copy_net=True, copy_set=True,
             # all the same screens as before
             os.mkdir("/tmp/working_dir/assets/master")
             with open("/tmp/working_dir/assets/screens.list", w) as screens_list:
-                json.dump(monitors, screens_list)
+                for each in monitors:
+                    screens_list.write(each + "\n")
             file_type = wall_path[0].split("/")[-1].split(".")[-1]
             copyfile(wall_path[0],
                      "/tmp/working_dir/assets/master/wallpaper." + file_type)
