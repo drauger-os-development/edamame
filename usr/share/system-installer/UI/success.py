@@ -334,11 +334,12 @@ def adv_dump_settings(settings, dump_path, copy_net=True, copy_set=True,
         monitors = subprocess.check_output(["xrandr", "--listmonitors"]).decode("utf-8")
         monitors = monitors.split("\n")[1:]
         for each in enumerate(monitors):
-            monitors[each[0]] = monitors[each[0]].split(" ")
-            del monitors[0]
-            del monitors[-1]
-        for each in enumerate(monitors):
-            monitors[each[0]] = monitors[each[0]][-1]
+            if monitors[each[0]] == []:
+                del monitors[each[0]]
+            monitors[each[0]] = monitors[each[0]].split(" ")[-1]
+        for each in range(len(monitors) - 1, -1, -1):
+            if monitors[each] == "":
+                del monitors[each]
         wall_path = []
         for each in monitors:
             wall_path.append(subprocess.check_output(["xfconf-query", "--channel",
