@@ -26,9 +26,9 @@ Configure newly installed system from within a chroot
 """
 from __future__ import print_function
 from sys import argv, stderr
-from subprocess import Popen, PIPE, check_output, check_call, CalledProcessError
+import subprocess
 import multiprocessing
-from os import remove, mkdir, environ, symlink, chmod, listdir, path
+import os
 from shutil import rmtree, copyfile
 from inspect import getfullargspec
 from time import sleep
@@ -60,7 +60,7 @@ def __update__(percentage):
         with open("/tmp/system-installer-progress.log", "w+") as progress:
             progress.write(str(percentage))
     except PermissionError:
-        chmod("/tmp/system-installer-progress.log", 0o666)
+        os.chmod("/tmp/system-installer-progress.log", 0o666)
         with open("/tmp/system-installer-progress.log", "w+") as progress:
             progress.write(str(percentage))
 
@@ -73,7 +73,8 @@ class MainInstallation():
             args = []
             for each in args_list:
                 args.append(settings[each])
-            globals()[each1] = multiprocessing.Process(target=process_new, args=args)
+            globals()[each1] = multiprocessing.Process(target=process_new,
+                                                       args=args)
             globals()[each1].start()
         while len(processes_to_do) > 0:
             for each in range(len(processes_to_do) - 1, -1, -1):
@@ -93,13 +94,13 @@ class MainInstallation():
         """Set system hostname"""
         eprint("Setting hostname to %s" % (COMPUTER_NAME))
         try:
-            remove("/etc/hostname")
+            os.remove("/etc/hostname")
         except FileNotFoundError:
             pass
         with open("/etc/hostname", "w+") as hostname:
             hostname.write(COMPUTER_NAME)
         try:
-            remove("/etc/hosts")
+            os.remove("/etc/hosts")
         except FileNotFoundError:
             pass
         with open("/etc/hosts", "w+") as hosts:
@@ -132,10 +133,17 @@ class MainInstallation():
     def set_passwd(USERNAME, PASSWORD):
         """Set Root password"""
         __update__(84)
-        process = Popen("chpasswd", stdout=stderr.buffer, stdin=PIPE, stderr=PIPE)
+        process = subprocess.Popen("chpasswd",
+                                   stdout=stderr.buffer,
+                                   stdin=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
         process.communicate(input=bytes(r"root:%s" % (PASSWORD), "utf-8"))
-        process = Popen("chpasswd", stdout=stderr.buffer, stdin=PIPE, stderr=PIPE)
-        process.communicate(input=bytes(r"%s:%s" % (USERNAME, PASSWORD), "utf-8"))
+        process = subprocess.Popen("chpasswd",
+                                   stdout=stderr.buffer,
+                                   stdin=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+        process.communicate(input=bytes(r"%s:%s" % (USERNAME, PASSWORD),
+                                        "utf-8"))
         __update__(85)
 
     def lightdm_config(LOGIN, USERNAME):
@@ -150,7 +158,7 @@ class MainInstallation():
         for each1 in enumerate(kcd):
             kcd[each1[0]] = kcd[each1[0]].split()
         try:
-            remove("/etc/default/keyboard")
+            os.remove("/etc/default/keyboard")
         except FileNotFoundError:
             pass
         xkbm = ""
@@ -172,16 +180,16 @@ XKBOPTIONS=\"\"
 BACKSPACE=\"guess\"
 """ % (xkbm, xkbl, xkbv))
         __update__(90)
-        Popen(["udevadm", "trigger", "--subsystem-match=input",
+        subprocess.Popen(["udevadm", "trigger", "--subsystem-match=input",
                "--action=change"], stdout=stderr.buffer)
 
     def remove_launcher(USERNAME):
         """Remove system installer desktop launcher"""
         try:
-            remove("/home/live/Desktop/system-installer.desktop")
+            os.remove("/home/live/Desktop/system-installer.desktop")
         except FileNotFoundError:
             try:
-                remove("/home/%s/Desktop/system-installer.desktop" % (USERNAME))
+                os.remove("/home/%s/Desktop/system-installer.desktop" % (USERNAME))
             except FileNotFoundError:
                 try:
                     rmtree("/home/%s/.config/xfce4/panel/launcher-3" % (USERNAME))
@@ -191,7 +199,7 @@ User will need to remove manually.""")
 
 def set_plymouth_theme():
     """Ensure the plymouth theme is set correctly"""
-    Popen(["update-alternatives", "--install",
+    subprocess.Popen(["update-alternatives", "--install",
            "/usr/share/plymouth/themes/default.plymouth",
            "default.plymouth",
            "/usr/share/plymouth/themes/drauger-theme/drauger-theme.plymouth",
@@ -199,9 +207,11 @@ def set_plymouth_theme():
            "/usr/share/plymouth/themes/default.grub", "default.plymouth.grub",
            "/usr/share/plymouth/themes/drauger-theme/drauger-theme.grub"],
           stdout=stderr.buffer)
-    process = Popen(["update-alternatives", "--config",
-                     "default.plymouth"], stdout=stderr.buffer, stdin=PIPE,
-                    stderr=PIPE)
+    process = subprocess.Popen(["update-alternatives", "--config",
+                                "default.plymouth"],
+                               stdout=stderr.buffer,
+                               stdin=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
     process.communicate(input=bytes("2\n", "utf-8"))
     __update__(86)
 
@@ -214,15 +224,18 @@ def install_kernel(release):
     tar_file.extractall()
     tar_file.close()
     eprint("EXTRACTION COMPLETE")
-    check_call(["apt", "purge", "-y", "linux-headers-" + release,
-                "linux-image-" + release], stdout=stderr.buffer)
-    check_call(["apt", "autoremove", "-y", "--purge"], stdout=stderr.buffer)
-    check_call(["dpkg", "-R", "--install", "kernel/"], stdout=stderr.buffer)
+    subprocess.check_call(["apt", "purge", "-y", "linux-headers-" + release,
+                           "linux-image-" + release], stdout=stderr.buffer)
+    subprocess.check_call(["apt", "autoremove", "-y", "--purge"],
+                          stdout=stderr.buffer)
+    subprocess.check_call(["dpkg", "-R", "--install", "kernel/"],
+                          stdout=stderr.buffer)
     rmtree("/kernel")
 
 
 def install_bootloader(efi, root, release):
-    """Determine whether bootloader needs to be systemd-boot (for UEFI) or GRUB (for BIOS)
+    """Determine whether bootloader needs to be systemd-boot (for UEFI)
+    or GRUB (for BIOS)
     and install the correct one."""
     if efi not in ("NULL", None, "", False):
         _install_systemd_boot(release, root)
@@ -242,78 +255,84 @@ def _install_grub(root):
     if root[-1] == "p":
         del root[-1]
     root = "".join(root)
-    check_call(["grub-mkdevicemap", "--verbose"], stdout=stderr.buffer)
-    check_call(["grub-install", "--verbose", "--force", "--target=i386-pc",
-                root], stdout=stderr.buffer)
-    check_call(["grub-mkconfig", "-o", "/boot/grub/grub.cfg"],
+    subprocess.check_call(["grub-mkdevicemap", "--verbose"],
+                          stdout=stderr.buffer)
+    subprocess.check_call(["grub-install", "--verbose", "--force",
+                           "--target=i386-pc", root], stdout=stderr.buffer)
+    subprocess.check_call(["grub-mkconfig", "-o", "/boot/grub/grub.cfg"],
                stdout=stderr.buffer)
 
 def _install_systemd_boot(release, root):
     """set up and install systemd-boot"""
     try:
-        mkdir("/boot/efi")
+        os.mkdir("/boot/efi")
     except FileExistsError:
         pass
-    mkdir("/boot/efi/loader")
-    mkdir("/boot/efi/loader/entries")
-    mkdir("/boot/efi/Drauger_OS")
-    environ["SYSTEMD_RELAX_ESP_CHECKS"] = "1"
+    os.mkdir("/boot/efi/loader")
+    os.mkdir("/boot/efi/loader/entries")
+    os.mkdir("/boot/efi/Drauger_OS")
+    os.environ["SYSTEMD_RELAX_ESP_CHECKS"] = "1"
     with open("/etc/environment", "a") as envi:
         envi.write("export SYSTEMD_RELAX_ESP_CHECKS=1")
     try:
-        check_call(["bootctl", "--path=/boot/efi", "install"], stdout=stderr.buffer)
-    except CalledProcessError as e:
+        subprocess.check_call(["bootctl", "--path=/boot/efi", "install"],
+                              stdout=stderr.buffer)
+    except subprocess.CalledProcessError as e:
         eprint("WARNING: bootctl issued CalledProcessError:")
         eprint(e)
         eprint("Performing manual installation of systemd-boot.")
         try:
-            mkdir("/boot/efi/EFI")
+            os.mkdir("/boot/efi/EFI")
         except FileExistsError:
             pass
         try:
-            mkdir("/boot/efi/EFI/systemd")
+            os.mkdir("/boot/efi/EFI/systemd")
         except FileExistsError:
             pass
         try:
-            mkdir("/boot/efi/EFI/BOOT")
+            os.mkdir("/boot/efi/EFI/BOOT")
         except FileExistsError:
             pass
         try:
-            mkdir("/boot/efi/EFI/Linux")
+            os.mkdir("/boot/efi/EFI/Linux")
         except FileExistsError:
             pass
         try:
-            copyfile("/usr/lib/systemd/boot/efi/systemd-bootx64.efi", "/boot/efi/EFI/BOOT/BOOTX64.EFI")
+            copyfile("/usr/lib/systemd/boot/efi/systemd-bootx64.efi",
+                     "/boot/efi/EFI/BOOT/BOOTX64.EFI")
         except FileExistsError:
             pass
         try:
-            copyfile("/usr/lib/systemd/boot/efi/systemd-bootx64.efi", "/boot/efi/EFI/systemd/systemd-bootx64.efi")
+            copyfile("/usr/lib/systemd/boot/efi/systemd-bootx64.efi",
+                     "/boot/efi/EFI/systemd/systemd-bootx64.efi")
         except FileExistsError:
             pass
     with open("/boot/efi/loader/loader.conf", "w+") as loader_conf:
         loader_conf.write("default Drauger_OS\ntimeout 5\neditor 1")
     try:
-        check_call(["chattr", "-i", "/boot/efi/loader/loader.conf"], stdout=stderr.buffer)
-    except CalledProcessError:
+        subprocess.check_call(["chattr", "-i", "/boot/efi/loader/loader.conf"],
+                              stdout=stderr.buffer)
+    except subprocess.CalledProcessError:
         eprint("CHATTR FAILED ON loader.conf, setting octal permissions to 444")
-        chmod("/boot/efi/loader/loader.conf", 0o444)
+        os.chmod("/boot/efi/loader/loader.conf", 0o444)
     systemd_boot_config.systemd_boot_config(root)
-    check_call("/etc/kernel/postinst.d/zz-update-systemd-boot", stdout=stderr.buffer)
+    subprocess.check_call("/etc/kernel/postinst.d/zz-update-systemd-boot",
+                          stdout=stderr.buffer)
     check_systemd_boot(release, root)
 
 
 def setup_lowlevel(efi, root):
     """Set up kernel and bootloader"""
-    release = check_output(["uname", "--release"]).decode()[0:-1]
+    release = subprocess.check_output(["uname", "--release"]).decode()[0:-1]
     install_kernel(release)
     set_plymouth_theme()
     eprint("\n    ###    MAKING INITRAMFS    ###    ")
-    check_call(["mkinitramfs", "-o", "/boot/initrd.img-" + release],
+    subprocess.check_call(["mkinitramfs", "-o", "/boot/initrd.img-" + release],
                stdout=stderr.buffer)
     install_bootloader(efi, root, release)
     sleep(0.5)
-    symlink("/boot/initrd.img-" + release, "/boot/initrd.img")
-    symlink("/boot/vmlinuz-" + release, "/boot/vmlinuz")
+    os.symlink("/boot/initrd.img-" + release, "/boot/initrd.img")
+    os.symlink("/boot/vmlinuz-" + release, "/boot/vmlinuz")
 
 def check_systemd_boot(release, root):
     """Ensure systemd-boot was configured correctly"""
@@ -321,11 +340,11 @@ def check_systemd_boot(release, root):
     root_flags = "quiet splash"
     recovery_flags = "ro recovery nomodeset"
     # Get Root UUID
-    uuid = check_output(["blkid", "-s", "PARTUUID",
+    uuid = subprocess.check_output(["blkid", "-s", "PARTUUID",
                          "-o", "value", root]).decode()[0:-1]
 
     # Check for standard boot config
-    if not path.exists("/boot/efi/loader/entries/Drauger_OS.conf"):
+    if not os.path.exists("/boot/efi/loader/entries/Drauger_OS.conf"):
         # Write standard boot conf if it doesn't exist
         eprint("Standard Systemd-boot entry non-existant")
         try:
@@ -342,7 +361,7 @@ options root=PARTUUID=%s %s""" % (uuid, root_flags))
     else:
         eprint("Standard systemd-boot entry checks out")
     # Check for recovery boot config
-    if not path.exists("/boot/efi/loader/entries/Drauger_OS_Recovery.conf"):
+    if not os.path.exists("/boot/efi/loader/entries/Drauger_OS_Recovery.conf"):
         eprint("Recovery Systemd-boot entry non-existant")
         try:
             # Write recovery boot conf if it doesn't exist
@@ -360,7 +379,7 @@ options root=PARTUUID=%s %s""" % (uuid, recovery_flags))
         eprint("Recovery systemd-boot entry checks out")
 
     # Make sure we have our kernel image, config file, initrd, and System map
-    files = listdir("/boot")
+    files = os.listdir("/boot")
     vmlinuz = []
     config = []
     initrd = []
@@ -384,25 +403,25 @@ options root=PARTUUID=%s %s""" % (uuid, recovery_flags))
     sysmap = sorted(sysmap)[-1]
     # Copy the latest files into place
     # Also, rename them so that systemd-boot can find them
-    if not path.exists("/boot/efi/Drauger_OS/vmlinuz"):
+    if not os.path.exists("/boot/efi/Drauger_OS/vmlinuz"):
         eprint("vmlinuz non-existant")
         copyfile("/boot/" + vmlinuz, "/boot/efi/Drauger_OS/vmlinuz")
         eprint("vmlinuz copied")
     else:
         eprint("vmlinuz checks out")
-    if not path.exists("/boot/efi/Drauger_OS/config"):
+    if not os.path.exists("/boot/efi/Drauger_OS/config"):
         eprint("config non-existant")
         copyfile("/boot/" + config, "/boot/efi/Drauger_OS/config")
         eprint("config copied")
     else:
         eprint("Config checks out")
-    if not path.exists("/boot/efi/Drauger_OS/initrd.img"):
+    if not os.path.exists("/boot/efi/Drauger_OS/initrd.img"):
         eprint("initrd.img non-existant")
         copyfile("/boot/" + initrd, "/boot/efi/Drauger_OS/initrd.img")
         eprint("initrd.img copied")
     else:
         eprint("initrd.img checks out")
-    if not path.exists("/boot/efi/Drauger_OS/System.map"):
+    if not os.path.exists("/boot/efi/Drauger_OS/System.map"):
         eprint("System.map non-existant")
         copyfile("/boot/" + sysmap, "/boot/efi/Drauger_OS/System.map")
         eprint("System.map copied")
