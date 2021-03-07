@@ -428,13 +428,28 @@ options root=PARTUUID=%s %s""" % (uuid, recovery_flags))
     else:
         eprint("System.map checks out")
 
+def _check_for_laptop():
+    """Check if the device we are installing is a laptop.
+    Returns True if it is a laptop, returns False otherwise.
+    """
+    try:
+        subprocess.check_call(["laptop-detect"])
+    except subprocess.CalledProcessError:
+        return False
+    return True
 
 
+def handle_laptops():
+    """Remove the battery icon from the panel on desktops"""
+    if not _check_for_laptop():
+        eprint("DESKTOP DETECTED. EDITING PANEL ACCORDINGLY.")
+        os.remove("/home/live/.config/xfce4/panel/battery-12.rc")
 
 
 def install(settings):
     """Entry point for installation procedure"""
     __update__(39)
+    handle_laptops()
     processes_to_do = dir(MainInstallation)
     for each in range(len(processes_to_do) - 1, -1, -1):
         if processes_to_do[each][0] == "_":
