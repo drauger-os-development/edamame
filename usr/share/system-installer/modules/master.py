@@ -431,19 +431,6 @@ options root=PARTUUID=%s %s""" % (uuid, recovery_flags))
 
 
 
-def make_num(string):
-    try:
-        return int(string)
-    except ValueError:
-        return float(string)
-
-# def verify_install(username, password):
-    # """Fix possible bugs post-installation"""
-    # try:
-        # check_call(["/verify_install.sh", username, password], stdout=stderr.buffer)
-    # except PermissionError:
-        # chmod("/verify_install.sh", 0o777)
-        # check_call(["/verify_install.sh", username, password], stdout=stderr.buffer)
 
 def install(settings):
     """Entry point for installation procedure"""
