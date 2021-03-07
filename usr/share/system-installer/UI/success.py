@@ -321,10 +321,14 @@ def adv_dump_settings(settings, dump_path, copy_net=True, copy_set=True,
         # /etc/NetworkManager/system-connections has perms 755, so we can see the files in it
         # but those files have permissions 600, and we don't own them, so we can't read them.
         # Must temporarily change them to 644 so we can read them
-        subprocess.check_call("echo 'toor' | sudo -S chmod 644 /etc/NetworkManager/system-connections/*", shell=True)
-        copytree("/etc/NetworkManager/system-connections",
-                 "/tmp/working_dir/settings/network-settings")
-        subprocess.check_call("echo 'toor' | sudo -S chmod 600 /etc/NetworkManager/system-connections/*", shell=True)
+        net_connections = "/etc/NetworkManager/system-connections"
+        if len(os.listdir(net_connections)) > 0:
+            subprocess.check_call("echo 'toor' | sudo -S chmod 644 " + net_connections + "/*",
+                                  shell=True)
+            copytree("/etc/NetworkManager/system-connections",
+                     "/tmp/working_dir/settings/network-settings")
+            subprocess.check_call("echo 'toor' | sudo -S chmod 600 " + net_connections + "/*",
+                                  shell=True)
     if copy_wall:
         # Grab wallpaper
         home = os.getenv("HOME")
