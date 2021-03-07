@@ -331,8 +331,8 @@ def adv_dump_settings(settings, dump_path, copy_net=True, copy_set=True,
                                   shell=True)
     if copy_wall:
         # Grab wallpaper
-        monitors = check_output(["xrandr", "--listmonitors"]).decode("utf-8")
         monitors = monitors.split("\n")
+        monitors = subprocess.check_output(["xrandr", "--listmonitors"]).decode("utf-8")
         for each in enumerate(monitors):
             monitors[each[0]] = monitors[each[0]].split(" ")
             del monitors[0]
