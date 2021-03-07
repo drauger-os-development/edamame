@@ -331,17 +331,19 @@ def adv_dump_settings(settings, dump_path, copy_net=True, copy_set=True,
                                   shell=True)
     if copy_wall:
         # Grab wallpaper
-        home = os.getenv("HOME")
+        monitors = check_output(["xrandr", "--listmonitors"]).decode("utf-8")
+        monitors = monitors.split("\n")
+        for each in enumerate(monitors):
+            monitors[each[0]] = monitors[each[0]].split(" ")
+            del monitors[0]
+            del monitors[-1]
+        for each in enumerate(monitors):
+            monitors[each[0]] = monitors[each[0]][-1]
         wall_path = []
-        with open(home + "/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml", "r") as fb:
-            xml = xmltodict.parse(fb.read())
-        for each in xml["channel"]["property"][0]["property"][0]["property"]:
-            for each1 in each["property"][0]["property"]:
-                try:
-                    if each1["@name"] == "last-image":
-                        wall_path.append(each1["@value"])
-                except (AttributeError, TypeError):
-                    pass
+        for each in monitors:
+            wall_path.append(subprocess.check_output(["xfconf-query", "--channel",
+                                           "xfce4-desktop", "--property",
+                                           "/backdrop/screen0/monitor" + each + "/workspace0/last-image"]).decode("utf-8"))
         wall_path_unique = __unique__(wall_path)
         # Copy designated files into "assets"
         if len(wall_path_unique) == 1:
