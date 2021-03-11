@@ -245,11 +245,11 @@ class Main(Gtk.Window):
         """Main Menu"""
         self.clear_window()
 
-        label = Gtk.Label()
-        label.set_markup("""
+        self.label = Gtk.Label()
+        self.label.set_markup("""
         Feel free to complete any of the below segments in any order.\t
         However, all segments must be completed.\n""")
-        self.grid.attach(label, 2, 1, 2, 1)
+        self.grid.attach(self.label, 2, 1, 2, 1)
 
         completion_label = Gtk.Label()
         completion_label.set_markup("""<b>COMPLETION</b>""")
@@ -1379,7 +1379,6 @@ Sub-Region""")
         """Exit"""
         Gtk.main_quit("delete-event")
         self.destroy()
-        print(1)
         return 1
 
     def clear_window(self):
