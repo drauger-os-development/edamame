@@ -53,6 +53,8 @@ def __get_file_version__():
     version = common.unique(files)[0]
     if version[:6] == "linux-":
         version = version[6:]
+    if version[-2:] == "-0":
+        version = version[:-2]
     return version
 
 
