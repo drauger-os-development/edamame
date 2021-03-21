@@ -50,21 +50,15 @@ def __get_file_version__():
             if files[each][-1] == "amd64.deb":
                 del files[each][-1]
             files[each] = files[each][0]
-    return common.unique(files)[0]
+    version = common.unique(files)[0]
+    if version[:6] == "linux-":
+        version = version[6:]
+    return version
 
 
 def __get_installed_version__():
     """Get kernel version using `uname'"""
-    release = subprocess.check_output(["uname",
-                                       "--release"]).decode("utf-8")[:-1]
-    version = subprocess.check_output(["uname",
-                                       "--kernel-version"]).decode("utf-8")[:-1]
-    version = version.split(" ")[0]
-    if version[0] == "#":
-        version = version[1:]
-    version = "%s-%s" % (release, version)
-    version = version.split("~")[0]
-    return version
+    return subprocess.check_output(["uname", "--release"]).decode("utf-8")[:-1]
 
 
 def check_kernel_versions():
