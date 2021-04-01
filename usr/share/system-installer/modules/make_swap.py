@@ -25,7 +25,7 @@
 from __future__ import print_function
 from sys import stderr
 from math import sqrt
-from subprocess import Popen, check_call
+import subprocess
 from os import chmod
 from time import sleep
 from psutil import virtual_memory
@@ -37,7 +37,7 @@ def eprint(*args, **kwargs):
 
 def make_swap():
     """Make swap File"""
-    eprint("\t###\tmake_swap.py STARTED\t###\t")
+    eprint("    ###    make_swap.py STARTED    ###    ")
     mem = virtual_memory()
     # get data we need to get total system memory
     swap = mem.total
@@ -60,11 +60,11 @@ def make_swap():
     print("60")
     chmod("/.swapfile", 0o600)
     print("62")
-    check_call(["mkswap", "/.swapfile"])
+    subprocess.check_call(["mkswap", "/.swapfile"], stdout=stderr.buffer)
     sleep(0.1)
     print("64")
-    Popen(["swapon", "/.swapfile"])
-    eprint("\t###\tmake_swap.py CLOSED\t###\t")
+    subprocess.Popen(["swapon", "/.swapfile"])
+    eprint("    ###    make_swap.py CLOSED    ###    ")
 
 if __name__ == '__main__':
     make_swap()

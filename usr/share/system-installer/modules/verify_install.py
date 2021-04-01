@@ -38,7 +38,7 @@ def __eprint__(*args, **kwargs):
 
 def verify(username, password):
     """Verify installation success"""
-    __eprint__("\t###\tverify_install.py STARTED\t###\t")
+    __eprint__("    ###    verify_install.py STARTED    ###    ")
     home_contents = listdir("/home")
     cache = apt.cache.Cache()
     cache.open()
@@ -61,4 +61,4 @@ def verify(username, password):
     cache.commit()
     purge.autoremove(cache)
     cache.close()
-    __eprint__("\t###\tverify_install.py CLOSED\t###\t")
+    __eprint__("    ###    verify_install.py CLOSED    ###    ")

@@ -38,7 +38,7 @@ def __eprint__(*args, **kwargs):
 
 def install_extras():
     """Install Restrcted Extras from apt"""
-    __eprint__("\t###\tinstall_extras.py STARTED\t###\t")
+    __eprint__("    ###    install_extras.py STARTED    ###    ")
     # Make sure our cache is up to date and open
     cache = apt.cache.Cache()
     cache.update()
@@ -88,7 +88,7 @@ def install_extras():
     cache.close()
     # Blacklist Nouveau if we installed the Nvidia drivers
     if NVIDIA:
-        __eprint__("\t###\tNVIDIA DRIVERS MAY HAVE BEEN INSTALLED. DISABLING NOUVEAU.\t###\t")
+        __eprint__("    ###    NVIDIA DRIVERS MAY HAVE BEEN INSTALLED. DISABLING NOUVEAU.    ###    ")
         with open("/etc/modprobe.d/blacklist-nvidia-nouveau.conf", "w+") as blacklist:
             blacklist.write("blacklist nouveau\noptions nouveau modeset=0\n")
-    __eprint__("\t###\tinstall_extras.py CLOSED\t###\t")
+    __eprint__("    ###    install_extras.py CLOSED    ###    ")

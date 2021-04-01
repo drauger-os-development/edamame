@@ -35,7 +35,7 @@ def eprint(*args, **kwargs):
 
 def set_locale(lang_set):
     """Figure out locale code for a given language name"""
-    eprint("\t###\tset_locale.py STARTED\t###\t")
+    eprint("    ###    set_locale.py STARTED    ###    ")
     print(40)
     # figure out what LANG to set
     with open("/etc/locale.gen", "r") as locale_file:
@@ -58,7 +58,7 @@ def set_locale(lang_set):
             del data[each]
     _setlocale(data[0])
 
-    eprint("\t###\tset_locale.py STOPPED\t###\t")
+    eprint("    ###    set_locale.py STOPPED    ###    ")
 
 
 def _setlocale(locale):

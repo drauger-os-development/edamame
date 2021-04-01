@@ -39,32 +39,28 @@ def __get_file_version__():
     files = tar_file.getnames()
     tar_file.close()
     for each in range(len(files) - 1, -1, -1):
-        if files[each] in ("kernel", "kernel/linux-meta-xanmod"):
+        if files[each] in ("kernel", "kernel/linux-meta"):
             del files[each]
             continue
         else:
             files[each] = files[each].split("/")[-1]
             files[each] = files[each].split("_")
             if files[each][0] == "linux-xanmod":
-                del files[each]
-            else:
-                try:
-                    files[each] = files[each][1]
-                except IndexError:
-                    del files[each]
-    return common.unique(files)[0]
+                del files[each][0]
+            if files[each][-1] == "amd64.deb":
+                del files[each][-1]
+            files[each] = files[each][0]
+    version = common.unique(files)[0]
+    if version[:6] == "linux-":
+        version = version[6:]
+    if version[-2:] == "-0":
+        version = version[:-2]
+    return version
 
 
 def __get_installed_version__():
     """Get kernel version using `uname'"""
-    release = subprocess.check_output(["uname",
-                                       "--release"]).decode("utf-8")[:-1]
-    version = subprocess.check_output(["uname",
-                                       "--kernel-version"]).decode("utf-8")[:-1]
-    version = version.split(" ")[0]
-    if version[0] == "#":
-        version = version[1:]
-    return "%s-%s" % (release, version)
+    return subprocess.check_output(["uname", "--release"]).decode("utf-8")[:-1]
 
 
 def check_kernel_versions():

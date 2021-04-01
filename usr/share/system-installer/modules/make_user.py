@@ -54,7 +54,7 @@ def make_user(username):
     This function is also responsible for setting up a user's home directory
     as well as their groups.
     """
-    eprint("\t###\tmake_user.py STARTED\t###\t")
+    eprint("    ###    make_user.py STARTED    ###    ")
     new_home = "/home/" + username
     if os.path.exists(new_home):
         eprint("Original home folder found. Substituting it in . . .")
@@ -104,4 +104,4 @@ def make_user(username):
     os.chown(new_home, 1000, 1000)
     os.chmod(new_home, 0o755)
     set_wallpaper.set_wallpaper(username)
-    eprint("\t###\tmake_user.py CLOSED\t###\t")
+    eprint("    ###    make_user.py CLOSED    ###    ")

@@ -36,11 +36,11 @@ def eprint(*args, **kwargs):
 
 def set_wallpaper(username):
     """Set wallpaper. Wallpapers to set must be in /user-data"""
-    eprint("\t###\tset_wallpaper.py STARTED\t###\t")
+    eprint("    ###    set_wallpaper.py STARTED    ###    ")
     if not path.isdir("/user-data"):
         eprint("""/user-data does not exist.
 Not using Advanced Quick Install's Wallpaper functionality.""")
-        eprint("\t###\tset_wallpaper.py CLOSED\t###\t")
+        eprint("    ###    set_wallpaper.py CLOSED    ###    ")
         return
     ls = listdir("/user-data")
     screens = []
@@ -81,4 +81,4 @@ Not using Advanced Quick Install's Wallpaper functionality.""")
                         "--type", "string", "-s",
                         "/home/" + username + "/.config/" + file_name])
 
-    eprint("\t###\tset_wallpaper.py CLOSED\t###\t")
+    eprint("    ###    set_wallpaper.py CLOSED    ###    ")

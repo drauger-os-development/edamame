@@ -45,10 +45,10 @@ def _link(location):
 
 def set_time(time_zone):
     """Set time zone and hardware clock"""
-    eprint("\t###\tset_time.py STARTED\t###\t")
+    eprint("    ###    set_time.py STARTED    ###    ")
     _link(time_zone)
     system("hwclock --systohc")
-    eprint("\t###\tset_time.py CLOSED\t###\t")
+    eprint("    ###    set_time.py CLOSED    ###    ")
 
 
 if __name__ == '__main__':

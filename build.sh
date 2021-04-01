@@ -16,7 +16,7 @@ mkdir ../"$FOLDER"
 # Instead of compiling, we are building a tar.xz archive of the latest kernel package
 cd usr/share/system-installer/modules
 echo -e "\t###\tDOWNLOADING\t###\t"
-rsync -vr rsync://apt.draugeros.org/aptsync/pool/main/l/linux-5.10.[1-2][6-9]-xanmod* kernel
+rsync -vr rsync://apt.draugeros.org/aptsync/pool/main/l/linux-5.11.1[1-9]-xanmod* kernel
 rsync -vr rsync://apt.draugeros.org/aptsync/pool/main/l/linux-meta kernel
 echo -e "\t###\tDELETING CRUFT\t###\t"
 list=$(ls kernel)
@@ -27,7 +27,7 @@ for each in $list; do
 	done
 done
 meta=$(echo kernel/linux-meta/$(ls kernel/linux-meta | sort -Vr | head -1))
-dep=$(dpkg-deb --field $meta Depends | sed 's/,/ /g' | awk '{print $1}' | sed 's/-headers//g')
+dep=$(dpkg-deb --field $meta Depends | sed 's/,/ /g' | awk '{print $1}' | sed 's/-headers//g' | sed 's/-image//g')
 cd kernel
 rm -rfv $(ls | grep -Ev "^linux-meta$|^$dep\$")
 dep=$(echo "$dep" | sed 's/linux-//g')

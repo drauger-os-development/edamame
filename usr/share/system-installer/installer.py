@@ -81,7 +81,7 @@ def install(settings):
     You can read in /etc/system-installer/quick-install-template.json with
     json.loads()["DATA"] to see an example of acceptable settings
     """
-    common.eprint("\t###\tinstaller.py STARTED\t###\t")
+    common.eprint("    ###    installer.py STARTED    ###    ")
     work_dir = "/tmp/quick-install_working-dir"
     # STEP 1: Partion and format the drive ( if needed )
     if settings["AUTO_PART"]:
@@ -123,7 +123,7 @@ def install(settings):
     with open("/etc/system-installer/default.json", "r") as config:
         squashfs = json.loads(config.read())["squashfs_Location"]
     if not path.exists(squashfs):
-        common.eprint("\n\tSQUASHFS FILE DOES NOT EXIST\t\n")
+        common.eprint("\n    SQUASHFS FILE DOES NOT EXIST    \n")
         UI.error.show_error("\n\tSQUASHFS FILE DOES NOT EXIST\t\n")
     __update__(17)
     chdir("/mnt")
@@ -136,18 +136,21 @@ def install(settings):
                 shutil.rmtree(each)
             except NotADirectoryError:
                 remove(each)
-    chdir("/mnt/boot")
-    death_row = listdir()
-    for each in death_row:
-        if each != "efi":
-            try:
-                shutil.rmtree(each)
-            except NotADirectoryError:
-                remove(each)
-    chdir("/mnt")
-    common.eprint("\t###\tEXTRACTING SQUASHFS\t###\t")
+    try:
+        chdir("/mnt/boot")
+        death_row = listdir()
+        for each in death_row:
+            if each != "efi":
+                try:
+                    shutil.rmtree(each)
+                except NotADirectoryError:
+                    remove(each)
+        chdir("/mnt")
+    except FileNotFoundError:
+        pass
+    common.eprint("    ###    EXTRACTING SQUASHFS    ###    ")
     check_call(["unsquashfs", squashfs])
-    common.eprint("\t###\tEXTRACTION COMPLETE\t###\t")
+    common.eprint("    ###    EXTRACTION COMPLETE    ###    ")
     file_list = listdir("/mnt/squashfs-root")
     for each in file_list:
         try:
@@ -174,7 +177,7 @@ def install(settings):
             "/tmp/system-installer-progress.log")
     __update__(32)
     # STEP 4: Update fstab
-    common.eprint("\t###\tUpdating FSTAB\t###\t")
+    common.eprint("    ###    Updating FSTAB    ###    ")
     remove("/mnt/etc/fstab")
     fstab_contents = check_output(["genfstab", "-U", "/mnt"]).decode()
     with open("/mnt/etc/fstab", "w+") as fstab:
@@ -274,7 +277,7 @@ def install(settings):
         if "vmlinuz" not in file_list[each]:
             del file_list[each]
     if len(file_list) == 0:
-        common.eprint("\t###\tKERNEL NOT INSTALLED. CORRECTING . . .\t###\t")
+        common.eprint("    ###    KERNEL NOT INSTALLED. CORRECTING . . .    ###    ")
         shutil.copyfile("/usr/share/system-installer/modules/kernel.tar.xz",
                  "/mnt/kernel.tar.xz")
         root_dir = chroot.arch_chroot("/mnt")
@@ -285,10 +288,12 @@ def install(settings):
         chroot.de_chroot(root_dir, "/mnt")
         shutil.rmtree("/mnt/kernel")
         remove("/mnt/kernel.tar.xz")
-    file_list = listdir("/mnt/boot/efi/loader/entries")
-    if ((len(file_list) == 0) and ((settings["EFI"] is None) or
-                                   (settings["EFI"] == "") or (settings["EFI"] == "NULL"))):
-        common.eprint("\t###\tSYSTEMD-BOOT NOT CONFIGURED. CORRECTING . . .\t###\t")
+    try:
+        file_list = listdir("/mnt/boot/efi/loader/entries")
+    except FileNotFoundError:
+        file_list = []
+    if ((len(file_list) == 0) and (settings["EFI"] not in (None, "", "NULL", False))):
+        common.eprint("    ###    SYSTEMD-BOOT NOT CONFIGURED. CORRECTING . . .    ###    ")
         shutil.copyfile("/usr/share/system-installer/modules/systemd_boot_config.py",
                  "/mnt/systemd_boot_config.py")
         check_call(["arch-chroot", "/mnt", "python3",
@@ -302,4 +307,4 @@ def install(settings):
     except FileNotFoundError:
         pass
     __update__(100)
-    common.eprint("\t###\tinstaller.py CLOSED\t###\t")
+    common.eprint("    ###    installer.py CLOSED    ###    ")

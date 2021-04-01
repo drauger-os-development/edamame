@@ -22,11 +22,12 @@
 #
 #
 """Success Reporting UI"""
-from subprocess import Popen, CalledProcessError, check_output
-from os import remove, listdir, mkdir, chdir, chmod, chown
 from shutil import rmtree, copytree, move, copyfile
+import subprocess
+import os
 import sys
 import json
+import xmltodict
 import tarfile as tar
 import gi
 gi.require_version('Gtk', '3.0')
@@ -150,10 +151,10 @@ class Main(Gtk.Window):
         """Delete Installation from Drive
          This code is dangerous. Be wary
         """
-        delete = listdir("/mnt")
+        delete = os.listdir("/mnt")
         for each in delete:
             try:
-                remove("/mnt/" + each)
+               os.remove("/mnt/" + each)
             except IsADirectoryError:
                 rmtree("/mnt/" + each)
         self.exit("clicked")
@@ -194,7 +195,7 @@ class Main(Gtk.Window):
         """Unfunction to add PPAs"""
         self.grid.remove(self.grid.get_child_at(1, 1))
         try:
-            Popen(["add-apt-repository", "--yes", "PPA:%s" %
+            subprocess.Popen(["add-apt-repository", "--yes", "PPA:%s" %
                    ((self.ppa_entry.get_text()).lower())])
 
             label = Gtk.Label()
@@ -202,7 +203,7 @@ class Main(Gtk.Window):
 \t<b>%s added successfully!</b>\t\n""" % (self.ppa_entry.get_text()))
             label.set_justify(Gtk.Justification.CENTER)
             self.grid.attach(label, 1, 1, 2, 1)
-        except CalledProcessError:
+        except subprocess.CalledProcessError:
             label = Gtk.Label()
             label.set_markup("""\n\tWhat PPAs would you like to add?\t
 \t<b>adding %s failed.</b>\t\n""" % (self.ppa_entry.get_text()))
@@ -309,31 +310,40 @@ def adv_dump_settings(settings, dump_path, copy_net=True, copy_set=True,
        Network settings to tar bar for later use
     """
     # Make our directory layout
-    mkdir("/tmp/working_dir")
-    mkdir("/tmp/working_dir/settings")
-    mkdir("/tmp/working_dir/assets")
+    os.mkdir("/tmp/working_dir")
+    os.mkdir("/tmp/working_dir/settings")
+    os.mkdir("/tmp/working_dir/assets")
     # dump our installation settings and grab our network settings too
     if copy_set:
         dump_settings(settings,
                       "/tmp/working_dir/settings/installation-settings.json")
     if copy_net:
-        copytree("/etc/NetworkManager/system-connections",
-                 "/tmp/working_dir/settings/network-settings")
+        # /etc/NetworkManager/system-connections has perms 755, so we can see the files in it
+        # but those files have permissions 600, and we don't own them, so we can't read them.
+        # Must temporarily change them to 644 so we can read them
+        net_connections = "/etc/NetworkManager/system-connections"
+        if len(os.listdir(net_connections)) > 0:
+            subprocess.check_call("echo 'toor' | sudo -S chmod 644 " + net_connections + "/*",
+                                  shell=True)
+            copytree("/etc/NetworkManager/system-connections",
+                     "/tmp/working_dir/settings/network-settings")
+            subprocess.check_call("echo 'toor' | sudo -S chmod 600 " + net_connections + "/*",
+                                  shell=True)
     if copy_wall:
-        # Grab wallpaper from xfconf
-        monitors = check_output(["xrandr", "--listmonitors"]).decode("utf-8")
-        monitors = monitors.split("\n")
-        for each in enumerate(monitors):
-            monitors[each[0]] = monitors[each[0]].split(" ")
-        del monitors[0]
-        del monitors[-1]
-        for each in enumerate(monitors):
-            monitors[each[0]] = monitors[each[0]][-1]
+        # Grab wallpaper
+        home = os.getenv("HOME")
         wall_path = []
-        for each in monitors:
-            wall_path.append(check_output(["xfconf-query", "--channel", "xfce4-desktop",
-                                           "--property",
-                                           "/backdrop/screen0/monitor" + each + "/workspace0/last-image"]).decode("utf-8"))
+        monitors = []
+        with open(home + "/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml", "r") as fb:
+            xml = xmltodict.parse(fb.read())
+        for each in xml["channel"]["property"][0]["property"][0]["property"]:
+            monitors.append(each["@name"])
+            for each1 in each["property"][0]["property"]:
+                try:
+                    if each1["@name"] == "last-image":
+                        wall_path.append(each1["@value"])
+                except (AttributeError, TypeError):
+                    pass
         wall_path_unique = __unique__(wall_path)
         # Copy designated files into "assets"
         if len(wall_path_unique) == 1:
@@ -341,9 +351,10 @@ def adv_dump_settings(settings, dump_path, copy_net=True, copy_set=True,
             # then, dump the list of screens to assets/screens.list
             # when read in, this will make it so that the wallpaper is used on
             # all the same screens as before
-            mkdir("/tmp/working_dir/assets/master")
+            os.mkdir("/tmp/working_dir/assets/master")
             with open("/tmp/working_dir/assets/screens.list", w) as screens_list:
-                json.dump(monitors, screens_list)
+                for each in monitors:
+                    screens_list.write(each + "\n")
             file_type = wall_path[0].split("/")[-1].split(".")[-1]
             copyfile(wall_path[0],
                      "/tmp/working_dir/assets/master/wallpaper." + file_type)
@@ -351,21 +362,21 @@ def adv_dump_settings(settings, dump_path, copy_net=True, copy_set=True,
             # We have different wallpapers on different screens
             # This has a trade-off of taking up more disk space in the tar ball
             # But, it should work out okay
-            for each in range(wall_path):
-                mkdir("/tmp/working_dir/assets/" + monitors[each])
+            for each in range(len(wall_path)):
+                os.mkdir("/tmp/working_dir/assets/" + monitors[each])
                 file_type = wall_path[each].split("/")[-1].split(".")[-1]
                 copyfile(wall_path[each],
                          "/tmp/working_dir/assets/" + monitors[each] + "/wallpaper." + file_type)
     # make our tar ball, with XZ compression
-    chdir("/tmp/working_dir")
+    os.chdir("/tmp/working_dir")
     tar_file = tar.open(name=dump_path.split("/")[-1], mode="w:xz")
     tar_file.add(name="settings")
     tar_file.add(name="assets")
     tar_file.close()
     # copy it to the desired location
     move(dump_path.split("/")[-1], dump_path)
-    chmod(dump_path, 0o740)
-    chown(dump_path, 1000, 1000)
+    os.chmod(dump_path, 0o740)
+    os.chown(dump_path, 1000, 1000)
     # clean up
     rmtree("/tmp/working_dir")
 
@@ -414,7 +425,7 @@ def show_success(settings):
 
 def __reboot__(button):
     """Reboot the system"""
-    Popen(["/sbin/reboot"])
+    subprocess.Popen(["/sbin/reboot"])
     sys.exit(0)
 
 

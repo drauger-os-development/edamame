@@ -37,7 +37,7 @@ def __eprint__(*args, **kwargs):
 
 def update_system():
     """update system through package manager"""
-    __eprint__("\t###\tinstall_updates.py STARTED\t###\t")
+    __eprint__("    ###    install_updates.py STARTED    ###    ")
     cache = apt.cache.Cache()
     cache.update()
     cache.open()
@@ -45,4 +45,4 @@ def update_system():
     cache.commit()
     purge.autoremove(cache)
     cache.close()
-    __eprint__("\t###\tinstall_updates.py CLOSED\t###\t")
+    __eprint__("    ###    install_updates.py CLOSED    ###    ")

@@ -30,13 +30,27 @@ def unique(starting_list):
     # intilize a null list
     unique_list = []
     # traverse for all elements
-    for x in starting_list:
+    for each in starting_list:
         # check if exists in unique_list or not
-        if x not in unique_list:
-            unique_list.append(x)
+        if each not in unique_list:
+            unique_list.append(each)
     return unique_list
 
 
 def eprint(*args, **kwargs):
     """Make it easier for us to print to stderr"""
     print(*args, file=sys.stderr, **kwargs)
+
+
+def real_number(num):
+    """Take an int or float and return an int that is 0 or higher
+
+    This DOES NOT return absolute value. Any negative numbers will return 0.
+    Passing in anything other than an int or float will raise a TypeError
+    Valid floats that are passed are truncated, not rounded.
+    """
+    if not isinstance(num, (int, float)):
+        raise TypeError("Not a valid int or float")
+    if num >= 0:
+        return int(num)
+    return 0

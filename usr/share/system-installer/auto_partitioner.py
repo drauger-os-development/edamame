@@ -27,6 +27,8 @@ import time
 import subprocess
 import parted
 import common
+import os
+import sys
 
 
 def gb_to_bytes(gb):
@@ -118,7 +120,6 @@ def __make_efi__(device, start=config["EFI"]["START"],
                  end=config["EFI"]["END"]):
     """Make EFI partition"""
     disk = parted.Disk(device)
-    optimal = device.optimumAlignment
     start_geo = parted.geometry.Geometry(device=device,
                                          start=parted.sizeToSectors(start,
                                                                     "MB",
@@ -127,19 +128,20 @@ def __make_efi__(device, start=config["EFI"]["START"],
                                                                   "MB",
                                                                   device.sectorSize))
     end_geo = parted.geometry.Geometry(device=device,
-                                       start=parted.sizeToSectors(end - 20,
+                                       start=parted.sizeToSectors(common.real_number(end - 20),
                                                                   "MB",
                                                                   device.sectorSize),
                                        end=parted.sizeToSectors(end + 10,
                                                                 "MB",
                                                                 device.sectorSize))
-    min_size = parted.sizeToSectors(((end - start) - 25), "MB",
+    min_size = parted.sizeToSectors(common.real_number((end - start) - 25), "MB",
                                     device.sectorSize)
-    max_size = parted.sizeToSectors(((end - start) + 20), "MB",
+    max_size = parted.sizeToSectors(common.real_number((end - start) + 20), "MB",
                                     device.sectorSize)
-    const = parted.Constraint(startAlign=optimal, endAlign=optimal,
-                              startRange=start_geo, endRange=end_geo, minSize=min_size,
-                              maxSize=max_size)
+    const = parted.Constraint(startAlign=device.optimumAlignment,
+                              endAlign=device.optimumAlignment,
+                              startRange=start_geo, endRange=end_geo,
+                              minSize=min_size, maxSize=max_size)
     geometry = parted.geometry.Geometry(start=start,
                                         length=parted.sizeToSectors(end - start,
                                                                     "MB",
@@ -179,25 +181,25 @@ def __make_root__(device, start=config["ROOT"]["START"],
     except TypeError:
         pass
     disk = parted.Disk(device)
-    optimal = device.optimumAlignment
     start_geo = parted.geometry.Geometry(device=device,
-                                         start=parted.sizeToSectors(start - 20,
+                                         start=parted.sizeToSectors(common.real_number(start - 20),
                                                                     "MB",
                                                                     device.sectorSize),
                                          end=parted.sizeToSectors(start + 20,
                                                                   "MB",
                                                                   device.sectorSize))
     end_geo = parted.geometry.Geometry(device=device,
-                                       start=parted.sizeToSectors(end - 40,
+                                       start=parted.sizeToSectors(common.real_number(end - 40),
                                                                   "MB",
                                                                   device.sectorSize),
                                        end=parted.sizeToSectors(end, "MB",
                                                                 device.sectorSize))
-    min_size = parted.sizeToSectors((end - start) - 150, "MB",
+    min_size = parted.sizeToSectors(common.real_number((end - start) - 150), "MB",
                                     device.sectorSize)
-    max_size = parted.sizeToSectors((end - start) + 150, "MB",
+    max_size = parted.sizeToSectors(common.real_number((end - start) + 150), "MB",
                                     device.sectorSize)
-    const = parted.Constraint(startAlign=optimal, endAlign=optimal,
+    const = parted.Constraint(startAlign=device.optimumAlignment,
+                              endAlign=device.optimumAlignment,
                               startRange=start_geo, endRange=end_geo,
                               minSize=min_size,
                               maxSize=max_size)
@@ -242,11 +244,12 @@ def __generate_return_data__(home, efi, part1, part2, part3):
     return parts
 
 
-def __make_root_boot__(disk):
+def __make_root_boot__(device):
     """Make Root partition bootable.
 
 This ONLY works if the root partition is the only partition on the drive
 """
+    disk = parted.Disk(device)
     partitions = disk.getPrimaryPartitions()
     partitions[0].setFlag(parted.PARTITION_BOOT)
     disk.commit()
@@ -280,7 +283,11 @@ home: whether to make a home partition, or if one already exists
     part2 = None
     part3 = None
     device = parted.getDevice(root)
-    disk = parted.Disk(device)
+    try:
+        disk = parted.Disk(device)
+    except parted._ped.DiskLabelException:
+        common.eprint("NO PARTITION TABLE EXISTS. MAKING NEW ONE . . .")
+        disk = parted.freshDisk(device, "gpt")
     size = sectors_to_size(device.length, device.sectorSize) * 1000
     if home in ("NULL", "null", None, "MAKE"):
         common.eprint("DELETING PARTITIONS.")
@@ -295,7 +302,7 @@ home: whether to make a home partition, or if one already exists
             part2 = __make_root__(device, end="100%")
         else:
             part1 = __make_root__(device, start="0%", end="100%")
-            __make_root_boot__(disk)
+            __make_root_boot__(device)
         common.eprint("\t###\tauto_partioner.py CLOSED\t###\t")
         return __generate_return_data__(home, efi, part1, part2, part3)
     # Handled 16GB drives
@@ -314,7 +321,7 @@ home: whether to make a home partition, or if one already exists
             part3 = __make_home__(device, new_start=root_end)
         elif part1 is None:
             part1 = __make_root__(device, start="0%", end=root_end)
-            __make_root_boot__(disk)
+            __make_root_boot__(device)
             part2 = __make_home__(device, new_start=root_end)
         common.eprint("\t###\tauto_partioner.py CLOSED\t###\t")
         return __generate_return_data__(home, efi, part1, part2, part3)
@@ -327,7 +334,7 @@ home: whether to make a home partition, or if one already exists
             part2 = __make_root__(device, end="100%")
         else:
             part1 = __make_root__(device, start="0%", end="100%")
-            __make_root_boot__(disk)
+            __make_root_boot__(device)
         common.eprint("\t###\tauto_partioner.py CLOSED\t###\t")
         return __generate_return_data__(home, efi, part1, part2, part3)
     # This one we need to figure out if the home partiton is on the drive
@@ -340,6 +347,7 @@ home: whether to make a home partition, or if one already exists
         # It IS on the same drive. We need to figure out where at and work
         # around it
         # NOTE: WE NEED TO WORK IN MB ONLY IN THIS SECTION
+        disk = parted.Disk(device)
         data = disk.getFreeSpaceRegions()
         sizes = {}
         for each in data:
@@ -362,7 +370,7 @@ home: whether to make a home partition, or if one already exists
                 if sizes[each].getSize() >= 200:
                     part1 = __make_root__(device, start=sizes[each].start,
                                           end=sizes[each].end)
-                    __make_root_boot__(disk)
+                    __make_root_boot__(device)
                     break
         common.eprint("\t###\tauto_partioner.py CLOSED\t###\t")
         return __generate_return_data__(home, efi, part1, part2, part3)
@@ -373,9 +381,67 @@ home: whether to make a home partition, or if one already exists
             part2 = __make_root__(device)
         else:
             part1 = __make_root__(device, start="0%", end="100%")
-            __make_root_boot__(disk)
+            __make_root_boot__(device)
     part3 = home
     # Figure out what parts are for what
     # Return that data as a dictonary
     common.eprint("\t###\tauto_partioner.py CLOSED\t###\t")
     return __generate_return_data__(home, efi, part1, part2, part3)
+
+
+def make_raid_array(disks: list, raid_type: int, force=False) -> bool:
+    """Make BTRFS RAID Array
+    Supported RAID Types:
+        RAID0: Minimum 2 drives, max performance, no resiliancey
+        RAID1: Minimum 2 drives, max resiliancey, minimum performance
+        RAID5: 3-16 drives, poor resiliancey, great read performance, poor write performance
+        RAID6: Minimum 4 drives. Medium resiliancey, great read performance, worse write performance
+        RAID10: Minimum 4 drives, Medium resiliancey, Great performance
+
+    raid_type should be an int indicating the RAID type desired so:
+        raid_type == 0: use RAID0
+        raid_type == 1: use RAID1
+        etc.
+
+    Any ints other than 0, 1, 5, 6, and 10 will throw a ValueError
+
+    disks should be a list of the disks desired in the RAID array. A ValueError
+    will be thrown if the list is too short or too long.
+
+    Returns True if array was successfully completed. False otherwise.
+    You can then mount the array by calling `mount' on any of the devices in the
+    disks list.
+    """
+    raid_types_dict = {0: "raid0",
+                       1: "raid1",
+                       5: "raid5",
+                       6: "raid6",
+                       10: "raid10"}
+    command = ["mkfs.btrfs", "-d"]
+    if force:
+        command.insert(1, "-f")
+    if raid_type not in raid_types_dict:
+        raise ValueError("'%s' not a valid BTRFS RAID type" % (raid_type))
+    if raid_type in (0, 1):
+        if len(disks) < 2:
+            raise ValueError("Not enough disks for RAID%s" % (raid_type))
+    elif raid_type == 5:
+        if not (3 <= len(disks) <= 16):
+            raise ValueError("Not enough/Too many disks for RAID5")
+    elif raid_type in (6, 10):
+        if len(disks) < 4:
+            raise ValueError("Not enough disks for RAID%s" % (raid_type))
+    for each in disks:
+        if not os.path.exists(each):
+            raise FileNotFoundError("Device not found: %s" % (each))
+    command.append(raid_types_dict[raid_type])
+    if raid_type not in (0, 5, 6):
+        command.append("-m")
+        command.append(raid_types_dict[raid_type])
+    command = command + disks
+    try:
+        subprocess.check_call(command, stderr=sys.stderr.buffer,
+                              stdout=sys.stderr.buffer)
+        return True
+    except subprocess.CalledProcessError:
+        return False
