@@ -35,6 +35,9 @@ def eprint(*args, **kwargs):
 def systemd_boot_config(root):
     """Configure Systemd-Boot"""
     eprint("    ###    systemd-boot-config.py STARTED    ###    ")
+    file_list = ["/etc/kernel/postinst.d/zz-update-systemd-boot",
+                 "/etc/kernel/postrm.d/zz-update-systemd-boot",
+                 "/etc/initramfs/post-update.d/zz-update-systemd-boot"]
     try:
         mkdir("/etc/kernel/postinst.d")
     except FileExistsError:
@@ -138,14 +141,11 @@ fi
 
 
 # Success!"""
-    with open("/etc/kernel/postinst.d/zz-update-systemd-boot", "w+") as postinst:
-        postinst.write(contents)
-    with open("/etc/kernel/postrm.d/zz-update-systemd-boot", "w+") as postrm:
-        postrm.write(contents)
-    chown("/etc/kernel/postinst.d/zz-update-systemd-boot", 0, 0)
-    chown("/etc/kernel/postrm.d/zz-update-systemd-boot", 0, 0)
-    chmod("/etc/kernel/postinst.d/zz-update-systemd-boot", 0o755)
-    chmod("/etc/kernel/postrm.d/zz-update-systemd-boot", 0o755)
+    for each in file_list:
+        with open(each, "w+") as file:
+            file.write(contents)
+        chown(each, 0, 0)
+        chmod(each, 0o755)
     mkdir("/etc/systemd-boot")
     with open("/etc/systemd-boot/uuid.conf", "w+") as conf:
         conf.write(uuid)
