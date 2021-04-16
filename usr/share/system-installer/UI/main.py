@@ -107,7 +107,7 @@ class Main(Gtk.Window):
         self.login_setting = ""
         self.model_setting = ""
         self.layout_setting = ""
-        self.varient_setting = ""
+        self.variant_setting = ""
         self.data = {}
 
         self.langs = {'Afar': "aa", 'Afrikaans': "af", 'Aragonese': "an",
@@ -369,7 +369,7 @@ class Main(Gtk.Window):
         self.show_all()
 
     def onnext2clicked(self, button):
-        """Password, Username, and hostname Checker"""
+        """Password, Username, and Hostname Checker"""
         self.password_setting = self.password.get_text()
         pass2 = self.passconf.get_text()
         self.username_setting = self.username.get_text()
@@ -461,7 +461,7 @@ class Main(Gtk.Window):
 
         label = Gtk.Label()
         label.set_markup("""
-    Would you like to let %s automaticly partition a drive for installation?\t
+    Would you like to let %s automatically partition a drive for installation?\t
     Or, would you like to manually partition space for it?\t
 
     <b>NOTE</b>
@@ -542,7 +542,7 @@ class Main(Gtk.Window):
             self.disks.set_active_id(self.root_setting)
         self.grid.attach(self.disks, 1, 2, 3, 1)
 
-        home_part = Gtk.CheckButton.new_with_label("Seperate home partition")
+        home_part = Gtk.CheckButton.new_with_label("Separate home partition")
         if ((self.home_setting != "") and (self.home_setting != "NULL")):
             home_part.set_active(True)
         home_part.connect("toggled", self.auto_home_setup)
@@ -639,7 +639,7 @@ class Main(Gtk.Window):
 
 
     def auto_home_setup(self, widget):
-        """Handle preexisting vs making a new home directory"""
+        """Handle pre-existing vs making a new home directory"""
         if widget.get_active():
             pre_exist = Gtk.CheckButton.new_with_label("Pre-existing")
             pre_exist.connect("toggled", self.auto_home_setup2)
@@ -656,7 +656,7 @@ class Main(Gtk.Window):
         self.show_all()
 
     def auto_home_setup2(self, widget):
-        """Provide options for prexisting home partitions"""
+        """Provide options for pre-existing home partitions"""
         if widget.get_active() == 1:
             dev = []
             for each5 in enumerate(self.device):
@@ -743,8 +743,8 @@ class Main(Gtk.Window):
 
         label = Gtk.Label()
         label.set_markup("""
-    What are the mount points for the partions you wish to be used?
-    Leave empty the partions you don't want.
+    What are the mount points for the partitions you wish to be used?
+    Leave empty the partitions you don't want.
     <b> / MUST BE USED </b>
     """)
         label.set_justify(Gtk.Justification.LEFT)
@@ -816,8 +816,8 @@ class Main(Gtk.Window):
                 self.root.get_text()[0:5] != "/dev/")):
             label = Gtk.Label()
             label.set_markup("""
-    What are the mount points for the partions you wish to be used?
-    Leave empty the partions you don't want.
+    What are the mount points for the partitions you wish to be used?
+    Leave empty the partitions you don't want.
     <b> / MUST BE USED </b>
 
     / NOT SET
@@ -833,8 +833,8 @@ class Main(Gtk.Window):
         elif not path.exists(self.root.get_text()):
             label = Gtk.Label()
             label.set_markup("""
-    What are the mount points for the partions you wish to be used?
-    Leave empty the partions you don't want.
+    What are the mount points for the partitions you wish to be used?
+    Leave empty the partitions you don't want.
     <b> / MUST BE USED </b>
 
     Not a Valid Device on /
@@ -852,8 +852,8 @@ class Main(Gtk.Window):
                 self.efi.get_text()[0:5] != "/dev/")) and path.isdir("/sys/firmware/efi")):
             label = Gtk.Label()
             label.set_markup("""
-    What are the mount points for the partions you wish to be used?
-    Leave empty the partions you don't want.
+    What are the mount points for the partitions you wish to be used?
+    Leave empty the partitions you don't want.
     <b> / MUST BE USED </b>
 
     You are using EFI, therefore an EFI partition
@@ -870,8 +870,8 @@ class Main(Gtk.Window):
         elif (not path.exists(self.efi.get_text()) or (self.efi.get_text() == "")) and path.isdir("/sys/firmware/efi"):
             label = Gtk.Label()
             label.set_markup("""
-    What are the mount points for the partions you wish to be used?
-    Leave empty the partions you don't want.
+    What are the mount points for the partitions you wish to be used?
+    Leave empty the partitions you don't want.
     <b> / MUST BE USED </b>
 
     Not a Valid Device on /boot/efi
@@ -888,8 +888,8 @@ class Main(Gtk.Window):
                 self.home.get_text()[0:5] != "/dev/")):
             label = Gtk.Label()
             label.set_markup("""
-    What are the mount points for the partions you wish to be used?
-    Leave empty the partions you don't want.
+    What are the mount points for the partitions you wish to be used?
+    Leave empty the partitions you don't want.
     <b> / MUST BE USED </b>
 
     Please input a valid device path for HOME partition.
@@ -906,8 +906,8 @@ class Main(Gtk.Window):
                 self.home.get_text() != "")):
             label = Gtk.Label()
             label.set_markup("""
-    What are the mount points for the partions you wish to be used?
-    Leave empty the partions you don't want.
+    What are the mount points for the partitions you wish to be used?
+    Leave empty the partitions you don't want.
     <b> / MUST BE USED </b>
 
     Not a Valid Device on /home
@@ -925,8 +925,8 @@ class Main(Gtk.Window):
                     self.swap.get_text().upper() != "FILE")):
             label = Gtk.Label()
             label.set_markup("""
-    What are the mount points for the partions you wish to be used?
-    Leave empty the partions you don't want.
+    What are the mount points for the partitions you wish to be used?
+    Leave empty the partitions you don't want.
     <b> / MUST BE USED </b>
 
     SWAP must be set to a valid partition path, "FILE", or
@@ -945,8 +945,8 @@ class Main(Gtk.Window):
                     self.swap.get_text() != "")):
             label = Gtk.Label()
             label.set_markup("""
-    What are the mount points for the partions you wish to be used?
-    Leave empty the partions you don't want.
+    What are the mount points for the partitions you wish to be used?
+    Leave empty the partitions you don't want.
     <b> / MUST BE USED </b>
 
     Not a Valid Device on SWAP
@@ -962,8 +962,8 @@ class Main(Gtk.Window):
         else:
             label = Gtk.Label()
             label.set_markup("""
-    What are the mount points for the partions you wish to be used?
-    Leave empty the partions you don't want.
+    What are the mount points for the partitions you wish to be used?
+    Leave empty the partitions you don't want.
     <b> / MUST BE USED </b>
     """)
             label.set_justify(Gtk.Justification.LEFT)
@@ -1036,7 +1036,7 @@ class Main(Gtk.Window):
 
         label2 = Gtk.Label()
         label2.set_markup("""
-        Automaticly login upon boot up. Does <b>NOT</b> require internet.""")
+        Automatically login upon boot up. Does <b>NOT</b> require internet.""")
         label2.set_justify(Gtk.Justification.LEFT)
         self.grid.attach(label2, 2, 6, 1, 1)
 
@@ -1086,7 +1086,7 @@ class Main(Gtk.Window):
         label2 = Gtk.Label()
         label2.set_markup("""
 
-Langauge""")
+Language""")
         label2.set_justify(Gtk.Justification.LEFT)
         self.grid.attach(label2, 2, 2, 1, 1)
 
@@ -1244,24 +1244,24 @@ Sub-Region""")
             self.layout_menu.append(each8, each8)
         if self.layout_setting != "":
             self.layout_menu.set_active_id(self.layout_setting)
-        self.layout_menu.connect("changed", self.varient_narrower)
+        self.layout_menu.connect("changed", self.variant_narrower)
         self.grid.attach(self.layout_menu, 2, 3, 3, 1)
 
-        varient_label = Gtk.Label()
-        varient_label.set_markup("""Variant: """)
-        varient_label.set_justify(Gtk.Justification.CENTER)
-        self.grid.attach(varient_label, 1, 4, 1, 1)
+        variant_label = Gtk.Label()
+        variant_label.set_markup("""Variant: """)
+        variant_label.set_justify(Gtk.Justification.CENTER)
+        self.grid.attach(variant_label, 1, 4, 1, 1)
 
-        self.varient_menu = Gtk.ComboBoxText.new()
-        self.varients = []
+        self.variant_menu = Gtk.ComboBoxText.new()
+        self.variants = []
         for each8 in enumerate(layout_list):
             if layout_list[each8[0]][0] == "variant":
-                self.varients.append(layout_list[each8[0]][-1])
-        for each8 in self.varients:
-            self.varient_menu.append(each8, each8)
-        if self.varient_setting != "":
-            self.varient_menu.set_active_id(self.varient_setting)
-        self.grid.attach(self.varient_menu, 2, 4, 3, 1)
+                self.variants.append(layout_list[each8[0]][-1])
+        for each8 in self.variants:
+            self.variant_menu.append(each8, each8)
+        if self.variant_setting != "":
+            self.variant_menu.set_active_id(self.variant_setting)
+        self.grid.attach(self.variant_menu, 2, 4, 3, 1)
 
         button1 = Gtk.Button.new_with_label("Okay -->")
         button1.connect("clicked", self.on_keyboard_completed)
@@ -1277,24 +1277,24 @@ Sub-Region""")
 
         self.show_all()
 
-    def varient_narrower(self, widget):
-        """Narrow down possible keyboard varients"""
+    def variant_narrower(self, widget):
+        """Narrow down possible keyboard variants"""
         term = self.layout_menu.get_active_id()
-        self.varient_menu.remove_all()
+        self.variant_menu.remove_all()
 
-        varient_len = len(self.varients) - 1
-        local_varients = []
-        for each9 in self.varients:
-            local_varients.append(each9)
-        while varient_len >= 0:
-            if not term in self.varients[varient_len]:
-                del local_varients[varient_len]
-            varient_len = varient_len - 1
+        variant_len = len(self.variants) - 1
+        local_variants = []
+        for each9 in self.variants:
+            local_variants.append(each9)
+        while variant_len >= 0:
+            if not term in self.variants[variant_len]:
+                del local_variants[variant_len]
+            variant_len = variant_len - 1
 
-        for each9 in local_varients:
-            self.varient_menu.append(each9, each9)
-        if self.varient_setting != "":
-            self.varient_menu.set_active_id(self.varient_setting)
+        for each9 in local_variants:
+            self.variant_menu.append(each9, each9)
+        if self.variant_setting != "":
+            self.variant_menu.set_active_id(self.variant_setting)
 
         self.show_all()
 
@@ -1311,12 +1311,12 @@ Sub-Region""")
             self.layout_setting = ""
         else:
             self.layout_setting = "English (US)"
-        if self.varient_menu.get_active_id() is not None:
-            self.varient_setting = self.varient_menu.get_active_id()
+        if self.variant_menu.get_active_id() is not None:
+            self.variant_setting = self.variant_menu.get_active_id()
         elif "kernel keymap" in self.model_setting:
-            self.varient_setting = ""
+            self.variant_setting = ""
         else:
-            self.varient_setting = "euro"
+            self.variant_setting = "euro"
         global KEYBOARD_COMPLETION
         KEYBOARD_COMPLETION = "COMPLETED"
 
@@ -1339,7 +1339,7 @@ Sub-Region""")
                       ) or (PART_COMPLETION != "COMPLETED"
                            ) or (USER_COMPLETION != "COMPLETED")):
             self.label.set_markup("""
-        Feel free to complete any of the below segments in any order.\t
+        Feel free to complete the segments below in any order.\t
         However, all segments must be completed.
 
         <b>One or more segments have not been completed</b>
@@ -1358,7 +1358,7 @@ Sub-Region""")
                   self.username_setting, self.compname_setting,
                   self.password_setting, self.extras_setting,
                   self.updates_setting, self.login_setting, self.model_setting,
-                  self.layout_setting, self.varient_setting):
+                  self.layout_setting, self.variant_setting):
             self.data = 1
         else:
             self.data = {"AUTO_PART": bool(self.auto_part_setting),
@@ -1373,7 +1373,7 @@ Sub-Region""")
                          "LOGIN": bool(self.login_setting),
                          "MODEL": self.model_setting,
                          "LAYOUT": self.layout_setting,
-                         "VARIENT": self.varient_setting}
+                         "VARIANT": self.variant_setting}
 
     def exit(self, button):
         """Exit"""
