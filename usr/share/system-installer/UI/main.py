@@ -114,36 +114,29 @@ class Main(Gtk.Window):
                       'Arabic': "ar", 'Asturian': "ast", 'Belarusian': "be",
                       'Bulgarian': "bg", 'Breton': "br", 'Bosnian': "bs",
                       'Catalan': "ca", 'Czech': "cs", 'Welsh': "cy",
-                      "Danish": 'da',
-                      "German": 'de', "Greek": 'el', "English": 'en',
-                      "Esperanto": 'eo',
-                      "Spanish": 'es', "Estonian": 'et', "Basque": 'eu',
-                      "Finnish": 'fi', "Faroese": 'fo', "French": 'fr',
-                      "Irish": 'ga',
+                      "Danish": 'da', "German": 'de', "Greek": 'el',
+                      "English": 'en', "Esperanto": 'eo', "Spanish": 'es',
+                      "Estonian": 'et', "Basque": 'eu', "Finnish": 'fi',
+                      "Faroese": 'fo', "French": 'fr', "Irish": 'ga',
                       "Gaelic": 'gd', "Galician": 'gl', "Manx": 'gv',
-                      "Hebrew": 'he',
-                      "Croatian": 'hr', "Upper Sorbian": 'hsb',
-                      "Hungarian": 'hu',
-                      "Indonesian": 'id', "Icelandic": 'is', "Italian": 'it',
-                      "Japanese": 'ja', "Kashmiri": 'ka', "Kazakh": 'kk',
-                      "Greenlandic": 'kl', "Korean": 'ko', "Kurdish": 'ku',
-                      "Cornish": 'kw', 'Bhili': "bhb",
+                      "Hebrew": 'he', "Croatian": 'hr', "Upper Sorbian": 'hsb',
+                      "Hungarian": 'hu', "Indonesian": 'id', "Icelandic": 'is',
+                      "Italian": 'it', "Japanese": 'ja', "Kashmiri": 'ka',
+                      "Kazakh": 'kk', "Greenlandic": 'kl', "Korean": 'ko',
+                      "Kurdish": 'ku', "Cornish": 'kw', 'Bhili': "bhb",
                       "Ganda": 'lg', "Lithuanian": 'lt', "Latvian": 'lv',
                       "Malagasy": 'mg', "Maori": 'mi', "Macedonian": 'mk',
                       "Malay": 'ms', "Maltese": 'mt', "Min Nan Chinese": 'nan',
                       "North Ndebele": 'nb', "Dutch": 'nl',
-                      "Norwegian Nynorsk": 'nn',
-                      "Occitan": 'oc', "Oromo": 'om', "Polish": 'pl',
-                      "Portuguese": 'pt', "Romanian": 'ro', "Russian": 'ru',
-                      "Slovak": 'sk', "Slovenian": 'sl', "Northern Sami": 'so',
-                      "Albanian": 'sq', "Serbian": 'sr', "Sotho": 'st',
-                      "Swedish": 'sv',
-                      "Tulu": 'tcy', "Tajik": 'tg', "Thai": 'th',
-                      "Tagalog": 'tl',
+                      "Norwegian Nynorsk": 'nn', "Occitan": 'oc', "Oromo": 'om',
+                      "Polish": 'pl', "Portuguese": 'pt', "Romanian": 'ro',
+                      "Russian": 'ru', "Slovak": 'sk', "Slovenian": 'sl',
+                      "Northern Sami": 'so', "Albanian": 'sq', "Serbian": 'sr',
+                      "Sotho": 'st', "Swedish": 'sv', "Tulu": 'tcy',
+                      "Tajik": 'tg', "Thai": 'th', "Tagalog": 'tl',
                       "Turkish": 'tr', "Uighur": 'ug', "Ukrainian": 'uk',
-                      "Uzbek": 'uz',
-                      "Walloon": 'wa', "Xhosa": 'xh', "Yiddish": 'yi',
-                      "Chinese": 'zh', "Zulu": 'zu'}
+                      "Uzbek": 'uz', "Walloon": 'wa', "Xhosa": 'xh',
+                      "Yiddish": 'yi', "Chinese": 'zh', "Zulu": 'zu'}
 
         # Open initial window
         self.reset("clicked")
@@ -172,18 +165,22 @@ class Main(Gtk.Window):
     An example of one of these can be found at /etc/system-installer/quick-install-template.json\t
     """)
         label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
         self.grid.attach(label, 1, 1, 3, 1)
 
         button4 = Gtk.Button.new_with_label("Select Config File")
         button4.connect("clicked", self.select_config)
+        button4 = self._set_default_margins(button4)
         self.grid.attach(button4, 3, 2, 1, 1)
 
         button3 = Gtk.Button.new_with_label("<-- Back")
         button3.connect("clicked", self.reset)
+        button3 = self._set_default_margins(button3)
         self.grid.attach(button3, 2, 2, 1, 1)
 
         button2 = Gtk.Button.new_with_label("Exit")
         button2.connect("clicked", self.exit)
+        button2 = self._set_default_margins(button2)
         self.grid.attach(button2, 1, 2, 1, 1)
 
         self.show_all()
@@ -196,18 +193,22 @@ class Main(Gtk.Window):
         label = Gtk.Label()
         label.set_markup(DEFAULT)
         label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
         self.grid.attach(label, 1, 1, 3, 1)
 
         button1 = Gtk.Button.new_with_label("Okay -->")
         button1.connect("clicked", self.main_menu)
+        button1 = self._set_default_margins(button1)
         self.grid.attach(button1, 3, 2, 1, 1)
 
         button2 = Gtk.Button.new_with_label("Exit")
         button2.connect("clicked", self.exit)
+        button2 = self._set_default_margins(button2)
         self.grid.attach(button2, 1, 2, 1, 1)
 
         button3 = Gtk.Button.new_with_label("Quick Install")
         button3.connect("clicked", self.quick_install_warning)
+        button3 = self._set_default_margins(button3)
         self.grid.attach(button3, 2, 2, 1, 1)
 
         self.show_all()
@@ -257,58 +258,72 @@ class Main(Gtk.Window):
         self.label.set_markup("""
         Feel free to complete any of the below segments in any order.\t
         However, all segments must be completed.\n""")
+        self.label = self._set_default_margins(self.label)
         self.grid.attach(self.label, 2, 1, 2, 1)
 
         completion_label = Gtk.Label()
         completion_label.set_markup("""<b>COMPLETION</b>""")
+        completion_label = self._set_default_margins(completion_label)
         self.grid.attach(completion_label, 2, 2, 1, 1)
 
         button8 = Gtk.Button.new_with_label("Keyboard")
         button8.connect("clicked", self.keyboard)
+        button8 = self._set_default_margins(button8)
         self.grid.attach(button8, 3, 3, 1, 1)
 
         label_keyboard = Gtk.Label()
         label_keyboard.set_markup(KEYBOARD_COMPLETION)
+        label_keyboard = self._set_default_margins(label_keyboard)
         self.grid.attach(label_keyboard, 2, 3, 1, 1)
 
         button4 = Gtk.Button.new_with_label("Locale and Time")
         button4.connect("clicked", self.locale)
+        button4 = self._set_default_margins(button4)
         self.grid.attach(button4, 3, 4, 1, 1)
 
         label_locale = Gtk.Label()
         label_locale.set_markup(LOCALE_COMPLETION)
+        label_locale = self._set_default_margins(label_locale)
         self.grid.attach(label_locale, 2, 4, 1, 1)
 
         button5 = Gtk.Button.new_with_label("Options")
         button5.connect("clicked", self.options)
+        button5 = self._set_default_margins(button5)
         self.grid.attach(button5, 3, 5, 1, 1)
 
         label_options = Gtk.Label()
         label_options.set_markup(OPTIONS_COMPLETION)
+        label_options = self._set_default_margins(label_options)
         self.grid.attach(label_options, 2, 5, 1, 1)
 
         button6 = Gtk.Button.new_with_label("Partitioning")
         button6.connect("clicked", self.partitioning)
+        button6 = self._set_default_margins(button6)
         self.grid.attach(button6, 3, 6, 1, 1)
 
         label_part = Gtk.Label()
         label_part.set_markup(PART_COMPLETION)
+        label_part = self._set_default_margins(label_part)
         self.grid.attach(label_part, 2, 6, 1, 1)
 
         button7 = Gtk.Button.new_with_label("User Settings")
         button7.connect("clicked", self.user)
+        button7 = self._set_default_margins(button7)
         self.grid.attach(button7, 3, 7, 1, 1)
 
         label_user = Gtk.Label()
         label_user.set_markup(USER_COMPLETION)
+        label_user = self._set_default_margins(label_user)
         self.grid.attach(label_user, 2, 7, 1, 1)
 
         button1 = Gtk.Button.new_with_label("DONE")
         button1.connect("clicked", self.done)
+        button1 = self._set_default_margins(button1)
         self.grid.attach(button1, 4, 8, 1, 1)
 
         button2 = Gtk.Button.new_with_label("Exit")
         button2.connect("clicked", self.exit)
+        button2 = self._set_default_margins(button2)
         self.grid.attach(button2, 1, 8, 1, 1)
 
         self.show_all()
@@ -322,57 +337,69 @@ class Main(Gtk.Window):
     <b>Set Up Main User</b>
         """)
         label.set_justify(Gtk.Justification.CENTER)
+        label = self._set_default_margins(label)
         self.grid.attach(label, 1, 1, 3, 1)
 
         label1 = Gtk.Label()
         label1.set_markup("    Username:   ")
         label1.set_justify(Gtk.Justification.RIGHT)
+        label1 = self._set_default_margins(label1)
         self.grid.attach(label1, 1, 3, 2, 1)
 
         self.username = Gtk.Entry()
         self.username.set_text(self.username_setting)
+        self.username = self._set_default_margins(self.username)
         self.grid.attach(self.username, 3, 3, 1, 1)
 
         label2 = Gtk.Label()
         label2.set_markup("    Computer\'s Name:   ")
         label2.set_justify(Gtk.Justification.RIGHT)
+        label2 = self._set_default_margins(label2)
         self.grid.attach(label2, 1, 4, 2, 1)
 
         self.compname = Gtk.Entry()
         self.compname.set_text(self.compname_setting)
+        self.compname = self._set_default_margins(self.compname)
         self.grid.attach(self.compname, 3, 4, 1, 1)
 
         label3 = Gtk.Label()
         label3.set_markup("    Password:   ")
         label3.set_justify(Gtk.Justification.RIGHT)
+        label3 = self._set_default_margins(label3)
         self.grid.attach(label3, 1, 5, 2, 1)
 
         self.password = Gtk.Entry()
         self.password.set_visibility(False)
         self.password.set_text(self.password_setting)
+        self.password = self._set_default_margins(self.password)
         self.grid.attach(self.password, 3, 5, 1, 1)
 
         label4 = Gtk.Label()
         label4.set_markup("    Confirm Pasword:    ")
         label4.set_justify(Gtk.Justification.RIGHT)
+        label4 = self._set_default_margins(label4)
         self.grid.attach(label4, 1, 6, 2, 1)
 
         self.passconf = Gtk.Entry()
         self.passconf.set_visibility(False)
         self.passconf.set_text(self.password_setting)
+        self.passconf = self._set_default_margins(self.passconf)
         self.grid.attach(self.passconf, 3, 6, 1, 1)
 
         button1 = Gtk.Button.new_with_label("Okay -->")
         button1.connect("clicked", self.onnext2clicked)
+        button1 = self._set_default_margins(button1)
         self.grid.attach(button1, 3, 8, 1, 1)
 
         button2 = Gtk.Button.new_with_label("Exit")
         button2.connect("clicked", self.exit)
+        button2 = self._set_default_margins(button2)
         self.grid.attach(button2, 2, 8, 1, 1)
 
-        button1 = Gtk.Button.new_with_label("<-- Back")
-        button1.connect("clicked", self.main_menu)
-        self.grid.attach(button1, 1, 8, 1, 1)
+        button3 = Gtk.Button.new_with_label("<-- Back")
+        button3.connect("clicked", self.main_menu)
+        button3 = self._set_default_margins(button3)
+        self.grid.attach(button3, 1, 8, 1, 1)
 
         self.show_all()
 
@@ -387,75 +414,83 @@ class Main(Gtk.Window):
             label5 = Gtk.Label()
             label5.set_markup("Passwords do not match")
             label5.set_justify(Gtk.Justification.CENTER)
+            label5 = self._set_default_margins(label5)
             try:
                 self.grid.remove(self.grid.get_child_at(1, 7))
             except TypeError:
                 pass
-            self.grid.attach(label5, 1, 7, 2, 1)
+            self.grid.attach(label5, 1, 7, 3, 1)
         elif len(self.password_setting) < 4:
             label5 = Gtk.Label()
             label5.set_markup("Password is less than 4 characters")
+            label5 = self._set_default_margins(label5)
             self.grid.remove(label5)
             label5.set_justify(Gtk.Justification.CENTER)
             try:
                 self.grid.remove(self.grid.get_child_at(1, 7))
             except TypeError:
                 pass
-            self.grid.attach(label5, 1, 7, 2, 1)
+            self.grid.attach(label5, 1, 7, 3, 1)
         elif has_special_character(self.username_setting):
             label5 = Gtk.Label()
             label5.set_markup("Username contains special characters")
             label5.set_justify(Gtk.Justification.CENTER)
+            label5 = self._set_default_margins(label5)
             try:
                 self.grid.remove(self.grid.get_child_at(1, 7))
             except TypeError:
                 pass
-            self.grid.attach(label5, 1, 7, 2, 1)
+            self.grid.attach(label5, 1, 7, 3, 1)
         elif " " in self.username_setting:
             label5 = Gtk.Label()
             label5.set_markup("Username contains space")
             label5.set_justify(Gtk.Justification.CENTER)
+            label5 = self._set_default_margins(label5)
             try:
                 self.grid.remove(self.grid.get_child_at(1, 7))
             except TypeError:
                 pass
-            self.grid.attach(label5, 1, 7, 2, 1)
+            self.grid.attach(label5, 1, 7, 3, 1)
         elif len(self.username_setting) < 1:
             label5 = Gtk.Label()
             label5.set_markup("Username empty")
             label5.set_justify(Gtk.Justification.CENTER)
+            label5 = self._set_default_margins(label5)
             try:
                 self.grid.remove(self.grid.get_child_at(1, 7))
             except TypeError:
                 pass
-            self.grid.attach(label5, 1, 7, 2, 1)
+            self.grid.attach(label5, 1, 7, 3, 1)
         elif has_special_character(self.compname_setting):
             label5 = Gtk.Label()
             label5.set_markup("Computer Name contains non-hyphen special character")
             label5.set_justify(Gtk.Justification.CENTER)
+            label5 = self._set_default_margins(label5)
             try:
                 self.grid.remove(self.grid.get_child_at(1, 7))
             except TypeError:
                 pass
-            self.grid.attach(label5, 1, 7, 2, 1)
+            self.grid.attach(label5, 1, 7, 3, 1)
         elif " " in self.compname_setting:
             label5 = Gtk.Label()
             label5.set_markup("Computer Name contains space")
             label5.set_justify(Gtk.Justification.CENTER)
+            label5 = self._set_default_margins(label5)
             try:
                 self.grid.remove(self.grid.get_child_at(1, 7))
             except TypeError:
                 pass
-            self.grid.attach(label5, 1, 7, 2, 1)
+            self.grid.attach(label5, 1, 7, 3, 1)
         elif len(self.compname_setting) < 1:
             label5 = Gtk.Label()
             label5.set_markup("Computer Name is empty")
             label5.set_justify(Gtk.Justification.CENTER)
+            label5 = self._set_default_margins(label5)
             try:
                 self.grid.remove(self.grid.get_child_at(1, 7))
             except TypeError:
                 pass
-            self.grid.attach(label5, 1, 7, 2, 1)
+            self.grid.attach(label5, 1, 7, 3, 1)
         else:
             global USER_COMPLETION
             USER_COMPLETION = "COMPLETED"
@@ -478,23 +513,28 @@ class Main(Gtk.Window):
     now.\t
     """ % (DISTRO))
         label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
         self.grid.attach(label, 1, 1, 7, 1)
 
         link = Gtk.Button.new_with_label("Manual Partitioning")
         link.connect("clicked", self.opengparted)
+        link = self._set_default_margins(link)
         self.grid.attach(link, 5, 5, 1, 1)
 
         button1 = Gtk.Button.new_with_label("Automatic Partitioning")
         button1.connect("clicked", self.auto_partition)
+        button1 = self._set_default_margins(button1)
         self.grid.attach(button1, 7, 5, 1, 1)
 
         button2 = Gtk.Button.new_with_label("Exit")
         button2.connect("clicked", self.exit)
+        button2 = self._set_default_margins(button2)
         self.grid.attach(button2, 3, 5, 1, 1)
 
-        button1 = Gtk.Button.new_with_label("<-- Back")
-        button1.connect("clicked", self.main_menu)
-        self.grid.attach(button1, 1, 5, 1, 1)
+        button3 = Gtk.Button.new_with_label("<-- Back")
+        button3.connect("clicked", self.main_menu)
+        button3 = self._set_default_margins(button3)
+        self.grid.attach(button3, 1, 5, 1, 1)
 
         self.show_all()
 
