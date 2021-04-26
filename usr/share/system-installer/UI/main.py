@@ -148,6 +148,14 @@ class Main(Gtk.Window):
         # Open initial window
         self.reset("clicked")
 
+    def _set_default_margins(self, widget):
+        """Set default margin size"""
+        widget.set_margin_start(10)
+        widget.set_margin_end(10)
+        widget.set_margin_top(10)
+        widget.set_margin_bottom(10)
+        return widget
+
     def quick_install_warning(self, button):
         """Quick Install Mode Entry Point"""
         self.clear_window()
@@ -1376,6 +1384,28 @@ Sub-Region""")
                          "VARIENT": self.varient_setting}
 
     def exit(self, button):
+        """Exit dialog"""
+        self.clear_window()
+
+        label = Gtk.Label()
+        label.set_markup("""\n<b>Are you sure you want to exit?</b>""")
+        label.set_justify(Gtk.Justification.CENTER)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 1, 1, 2, 1)
+
+        yes = Gtk.Button.new_with_label("Exit")
+        yes.connect("clicked", self._exit)
+        yes = self._set_default_margins(yes)
+        self.grid.attach(yes, 1, 2, 1, 1)
+
+        no = Gtk.Button.new_with_label("Return")
+        no.connect("clicked", self.main_menu)
+        no = self._set_default_margins(no)
+        self.grid.attach(no, 2, 2, 1, 1)
+
+        self.show_all()
+
+    def _exit(self, button):
         """Exit"""
         Gtk.main_quit("delete-event")
         self.destroy()
@@ -1401,7 +1431,7 @@ def show_main():
     window.set_decorated(True)
     window.set_resizable(False)
     window.set_position(Gtk.WindowPosition.CENTER)
-    window.connect("delete-event", Main.exit)
+    window.connect("delete-event", Main._exit)
     window.show_all()
     Gtk.main()
     data = window.return_data()
