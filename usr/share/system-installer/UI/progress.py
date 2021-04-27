@@ -53,12 +53,14 @@ class Main(Gtk.ApplicationWindow):
 the log file (located at /tmp/system-installer.log)
 to: contact@draugeros.org   """)
         self.label.set_justify(Gtk.Justification.CENTER)
+        self.label = self._set_default_margins(self.label)
         self.grid.attach(self.label, 1, 1, 1, 1)
 
 
         self.progress = Gtk.ProgressBar()
         self.progress.set_fraction(0)
         self.progress.set_show_text(True)
+        self.progress = self._set_default_margins(self.progress)
         self.grid.attach(self.progress, 1, 3, 1, 1)
 
         self.file_contents = Gtk.TextBuffer()
@@ -66,9 +68,18 @@ to: contact@draugeros.org   """)
         self.text.set_editable(False)
         self.text.set_cursor_visible(False)
         self.text.set_monospace(True)
+        self.text = self._set_default_margins(self.text)
         self.grid.attach(self.text, 1, 5, 1, 1)
 
         self.source_id = GLib.timeout_add(33, self.pulse)
+
+    def _set_default_margins(self, widget):
+        """Set default margin size"""
+        widget.set_margin_start(10)
+        widget.set_margin_end(10)
+        widget.set_margin_top(10)
+        widget.set_margin_bottom(10)
+        return widget
 
     def read_file(self):
         """Read Progress log"""

@@ -89,16 +89,8 @@ try:
             SETTINGS = SETTINGS["DATA"]
 except TypeError:
     pass
-INSTALL = UI.confirm.show_confirm(SETTINGS["AUTO_PART"], SETTINGS["ROOT"],
-                                  SETTINGS["EFI"], SETTINGS["HOME"],
-                                  SETTINGS["SWAP"], SETTINGS["LANG"],
-                                  SETTINGS["TIME_ZONE"], SETTINGS["USERNAME"],
-                                  SETTINGS["PASSWORD"],
-                                  SETTINGS["COMPUTER_NAME"],
-                                  SETTINGS["EXTRAS"], SETTINGS["UPDATES"],
-                                  SETTINGS["LOGIN"], SETTINGS["MODEL"],
-                                  SETTINGS["LAYOUT"],
-                                  SETTINGS["VARIENT"])
+# Confirm whether settings are correct or not
+INSTALL = UI.confirm.show_confirm(SETTINGS)
 if INSTALL:
     try:
         # fork() to get proper multi-threading needs

@@ -55,6 +55,7 @@ class Main(Gtk.Window):
         self.label = Gtk.Label()
         self.label.set_markup("<b>" + self.display + "</b>")
         self.label.set_justify(Gtk.Justification.CENTER)
+        self.label = self._set_default_margins(self.label)
         self.grid.attach(self.label, 1, 1, 3, 1)
 
         self.label2 = Gtk.Label()
@@ -63,17 +64,28 @@ class Main(Gtk.Window):
     you can send an installation report below.
     """)
         self.label2.set_justify(Gtk.Justification.CENTER)
+        self.label2 = self._set_default_margins(self.label2)
         self.grid.attach(self.label2, 1, 2, 3, 1)
 
         self.button2 = Gtk.Button.new_with_label("Exit")
         self.button2.connect("clicked", self.exit)
+        self.button2 = self._set_default_margins(self.button2)
         self.grid.attach(self.button2, 1, 3, 1, 1)
 
         self.button = Gtk.Button.new_with_label("Send Installation report")
         self.button.connect("clicked", self.main)
+        self.button = self._set_default_margins(self.button)
         self.grid.attach(self.button, 3, 3, 1, 1)
 
         self.show_all()
+
+    def _set_default_margins(self, widget):
+        """Set default margin size"""
+        widget.set_margin_start(10)
+        widget.set_margin_end(10)
+        widget.set_margin_top(10)
+        widget.set_margin_bottom(10)
+        return widget
 
     def clear_window(self):
         """Clear window of everything"""

@@ -69,6 +69,14 @@ class Main(Gtk.Window):
             self.scrolling = False
             self.set_default_size(-1, -1)
 
+    def _set_default_margins(self, widget):
+        """Set default margin size"""
+        widget.set_margin_start(10)
+        widget.set_margin_end(10)
+        widget.set_margin_top(10)
+        widget.set_margin_bottom(10)
+        return widget
+
     def cpu_toggle(self, widget):
         """Toggle sending CPU info"""
         if widget.get_active():
@@ -83,6 +91,7 @@ class Main(Gtk.Window):
         label = Gtk.Label()
         label.set_markup("""
     <b>Why to report CPU info</b>\t""")
+        label = self._set_default_margins(label)
         self.grid.attach(label, 1, 1, 2, 1)
 
         label1 = Gtk.Label()
@@ -96,10 +105,12 @@ class Main(Gtk.Window):
     certain security measures enabled, or if we can disable some for better
     performance with little to no risk to security.
     \t""")
+        label1 = self._set_default_margins(label1)
         self.grid.attach(label1, 1, 2, 2, 1)
 
         button1 = Gtk.Button.new_with_label("<-- Back")
         button1.connect("clicked", self.main)
+        button1 = self._set_default_margins(button1)
         self.grid.attach(button1, 1, 12, 1, 1)
 
         self.show_all()
@@ -118,6 +129,7 @@ class Main(Gtk.Window):
         label = Gtk.Label()
         label.set_markup("""
     <b>Why to report GPU / PCIe info</b>\t""")
+        label = self._set_default_margins(label)
         self.grid.attach(label, 1, 1, 2, 1)
 
         label1 = Gtk.Label()
@@ -135,10 +147,12 @@ class Main(Gtk.Window):
     can save space on your system, as well as speed up updates and increase \t
     hardware support.
     \t""")
+        label1 = self._set_default_margins(label1)
         self.grid.attach(label1, 1, 2, 2, 1)
 
         button1 = Gtk.Button.new_with_label("<-- Back")
         button1.connect("clicked", self.main)
+        button1 = self._set_default_margins(button1)
         self.grid.attach(button1, 1, 12, 1, 1)
         self.show_all()
 
@@ -156,6 +170,7 @@ class Main(Gtk.Window):
         label = Gtk.Label()
         label.set_markup("""
     <b>Why to report RAM/SWAP info</b>\t""")
+        label = self._set_default_margins(label)
         self.grid.attach(label, 1, 1, 2, 1)
 
         label1 = Gtk.Label()
@@ -174,10 +189,12 @@ class Main(Gtk.Window):
     system, how responsive it is, and how well lower end systems can
     handle eye candy.
     \t""")
+        label1 = self._set_default_margins(label1)
         self.grid.attach(label, 1, 2, 2, 1)
 
         button1 = Gtk.Button.new_with_label("<-- Back")
         button1.connect("clicked", self.main)
+        button1 = self._set_default_margins(button1)
         self.grid.attach(button1, 1, 12, 1, 1)
 
         self.show_all()
@@ -196,6 +213,7 @@ class Main(Gtk.Window):
         label = Gtk.Label()
         label.set_markup("""
     <b>Why to report Disk and Partitioning info</b>\t""")
+        label = self._set_default_margins(label)
         self.grid.attach(label, 1, 1, 2, 1)
 
         label1 = Gtk.Label()
@@ -208,10 +226,12 @@ class Main(Gtk.Window):
     This can mean we are more likely to catch bugs or add new features
     in one area or another.
     \t""")
+        label1 = self._set_default_margins(label1)
         self.grid.attach(label1, 1, 2, 2, 1)
 
         button1 = Gtk.Button.new_with_label("<-- Back")
         button1.connect("clicked", self.main)
+        button1 = self._set_default_margins(button1)
         self.grid.attach(button1, 1, 12, 1, 1)
 
         self.show_all()
@@ -230,6 +250,7 @@ class Main(Gtk.Window):
         label = Gtk.Label()
         label.set_markup("""
     <b>Why to send the Installation Log</b>\t""")
+        label = self._set_default_margins(label)
         self.grid.attach(label, 1, 1, 2, 1)
 
         label1 = Gtk.Label()
@@ -245,10 +266,12 @@ class Main(Gtk.Window):
 
     <b>If you send nothing else, please send this.</b>
     \t""")
+        label1 = self._set_default_margins(label1)
         self.grid.attach(label1, 1, 2, 2, 1)
 
         button1 = Gtk.Button.new_with_label("<-- Back")
         button1.connect("clicked", self.main)
+        button1 = self._set_default_margins(button1)
         self.grid.attach(button1, 1, 12, 1, 1)
 
         self.show_all()
@@ -271,6 +294,7 @@ class Main(Gtk.Window):
 
         label = Gtk.Label()
         label.set_markup("\n\n\t\tSending Report. Please Wait . . .\t\t\n\n")
+        label = self._set_default_margins(label)
         self.grid.attach(label, 1, 1, 1, 1)
         self.show_all()
 
@@ -301,10 +325,12 @@ class Main(Gtk.Window):
 
             label = Gtk.Label()
             label.set_markup("\n\n\t\tReport Sent Successfully!\t\t\n\n")
+            label = self._set_default_margins(label)
             self.grid.attach(label, 1, 1, 2, 1)
 
             button1 = Gtk.Button.new_with_label("Okay!")
             button1.connect("clicked", self.main_menu)
+            button1 = self._set_default_margins(button1)
             self.grid.attach(button1, 2, 2, 1, 1)
 
             self.show_all()
@@ -314,10 +340,12 @@ class Main(Gtk.Window):
 
             label = Gtk.Label()
             label.set_markup("\n\n\t\tReport Failed to Send!\n\t\tPlease make sure you have a working internet connection.\t\t\n\n")
+            label = self._set_default_margins(label)
             self.grid.attach(label, 1, 1, 2, 1)
 
             button1 = Gtk.Button.new_with_label("Okay")
             button1.connect("clicked", self.main_menu)
+            button1 = self._set_default_margins(button1)
             self.grid.attach(button1, 2, 2, 1, 1)
 
             self.show_all()
@@ -351,14 +379,17 @@ class Main(Gtk.Window):
         # self.custom_message.set_editable(False)
         self.custom_message = Gtk.Label()
         self.custom_message.set_text(text)
+        self.custom_message = self._set_default_margins(self.custom_message)
         self.grid.attach(self.custom_message, 1, 1, 4, 4)
 
         button1 = Gtk.Button.new_with_label("Send Report")
         button1.connect("clicked", self.send_report)
+        button1 = self._set_default_margins(button1)
         self.grid.attach(button1, 4, 5, 1, 1)
 
         button2 = Gtk.Button.new_with_label("Abort")
         button2.connect("clicked", self.main_menu)
+        button2 = self._set_default_margins(button2)
         self.grid.attach(button2, 1, 5, 1, 1)
 
         self.show_all()
@@ -489,6 +520,7 @@ If you would like a response, please leave:
                 self.custom_message = Gtk.TextView.new_with_buffer(self.text_buffer)
                 self.custom_message.set_editable(True)
                 self.custom_message.set_accepts_tab(True)
+                self.custom_message = self._set_default_margins(self.custom_message)
                 self.grid.attach(self.custom_message, 1, 8, 8, 4)
 
         else:
@@ -504,51 +536,62 @@ If you would like a response, please leave:
             self.cpu = Gtk.CheckButton.new_with_label("CPU Info")
             self.cpu.set_active(self.cpu_setting)
             self.cpu.connect("toggled", self.cpu_toggle)
+            self.cpu = self._set_default_margins(self.cpu)
             self.grid.attach(self.cpu, 2, 2, 2, 1)
 
             cpu_explain = Gtk.Button.new_from_icon_name("info", 3)
             cpu_explain.connect("clicked", self.cpu_explaination)
+            cpu_explain = self._set_default_margins(cpu_explain)
             self.grid.attach(cpu_explain, 4, 2, 1, 1)
 
             self.gpu = Gtk.CheckButton.new_with_label("GPU/PCIe Info")
             self.gpu.set_active(self.gpu_setting)
             self.gpu.connect("toggled", self.gpu_toggle)
+            self.gpu = self._set_default_margins(self.gpu)
             self.grid.attach(self.gpu, 2, 3, 2, 1)
 
             gpu_explain = Gtk.Button.new_from_icon_name("info", 3)
             gpu_explain.connect("clicked", self.gpu_explaination)
+            gpu_explain = self._set_default_margins(gpu_explain)
             self.grid.attach(gpu_explain, 4, 3, 1, 1)
 
             self.ram = Gtk.CheckButton.new_with_label("RAM/SWAP Info")
             self.ram.set_active(self.ram_setting)
             self.ram.connect("toggled", self.ram_toggle)
+            self.ram = self._set_default_margins(self.ram)
             self.grid.attach(self.ram, 2, 4, 2, 1)
 
             ram_explain = Gtk.Button.new_from_icon_name("info", 3)
             ram_explain.connect("clicked", self.ram_explaination)
+            ram_explain = self._set_default_margins(ram_explain)
             self.grid.attach(ram_explain, 4, 4, 1, 1)
 
             self.disk = Gtk.CheckButton.new_with_label("Disk/Partitioning Info")
             self.disk.set_active(self.disk_setting)
             self.disk.connect("toggled", self.disk_toggle)
+            self.disk = self._set_default_margins(self.disk)
             self.grid.attach(self.disk, 2, 5, 2, 1)
 
             disk_explain = Gtk.Button.new_from_icon_name("info", 3)
             disk_explain.connect("clicked", self.disk_explaination)
+            disk_explain = self._set_default_margins(disk_explain)
             self.grid.attach(disk_explain, 4, 5, 1, 1)
 
             self.log = Gtk.CheckButton.new_with_label("Installation Log")
             self.log.set_active(self.log_setting)
             self.log.connect("toggled", self.log_toggle)
+            self.log = self._set_default_margins(self.log)
             self.grid.attach(self.log, 2, 6, 2, 1)
 
             log_explain = Gtk.Button.new_from_icon_name("info", 3)
             log_explain.connect("clicked", self.log_explaination)
+            log_explain = self._set_default_margins(log_explain)
             self.grid.attach(log_explain, 4, 6, 1, 1)
 
             self.custom = Gtk.CheckButton.new_with_label("Custom Message")
             self.custom.set_active(self.custom_setting)
             self.custom.connect("toggled", self.message_accept)
+            self.custom = self._set_default_margins(self.custom)
             self.grid.attach(self.custom, 2, 7, 2, 1)
 
             if hasattr(self, 'text_buffer'):
@@ -556,6 +599,7 @@ If you would like a response, please leave:
 
             button2 = Gtk.Button.new_with_label("Preview Message")
             button2.connect("clicked", self.message_handler)
+            button2 = self._set_default_margins(button2)
             self.grid.attach(button2, 5, 12, 4, 1)
 
             self.show_all()
@@ -570,15 +614,18 @@ If you would like a response, please leave:
         label = Gtk.Label()
         label.set_markup("""
         Send installation and hardware report\t""")
+        label = self._set_default_margins(label)
         self.grid.attach(label, 1, 1, 3, 1)
 
         self.opt = Gtk.Switch()
         self.opt.set_state(self.opt_setting)
         self.opt.connect("state-set", self.toggle_ui)
+        self.opt = self._set_default_margins(self.opt)
         self.grid.attach(self.opt, 5, 1, 1, 1)
 
         button1 = Gtk.Button.new_with_label("<-- Back")
         button1.connect("clicked", self.main_menu)
+        button1 = self._set_default_margins(button1)
         self.grid.attach(button1, 1, 12, 1, 1)
 
         self.show_all()
