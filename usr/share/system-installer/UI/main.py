@@ -137,6 +137,15 @@ class Main(Gtk.Window):
                       "Turkish": 'tr', "Uighur": 'ug', "Ukrainian": 'uk',
                       "Uzbek": 'uz', "Walloon": 'wa', "Xhosa": 'xh',
                       "Yiddish": 'yi', "Chinese": 'zh', "Zulu": 'zu'}
+        self.raid_def = {"RAID0": {"min_drives": 2,
+                                 "desc": "Max performance, Least Reliability",
+                                 "raid_num": 0,},
+                       "RAID1": {"min_drives": 2,
+                                 "desc": "Least Performance, Max Reliability",
+                                 "raid_num": 1},
+                       "RAID10": {"min_drives": 4,
+                                  "desc": "Balanced Performance and Reliability",
+                                  "raid_num": 10}}
 
         # Open initial window
         self.reset("clicked")
@@ -582,7 +591,6 @@ class Main(Gtk.Window):
     Which drive would you like to install to?\t
     """)
         label.set_justify(Gtk.Justification.LEFT)
-        self.grid.attach(label, 1, 1, 3, 1)
         label = self._set_default_margins(label)
         self.grid.attach(label, 2, 1, 3, 1)
 
@@ -605,10 +613,14 @@ class Main(Gtk.Window):
         self.grid.attach(home_part, 3, 3, 2, 1)
 
         button1 = Gtk.Button.new_with_label("Okay -->")
-        button1.connect("clicked", self.onnext6clicked)
-        self.grid.attach(button1, 4, 6, 1, 1)
+        button1.connect("clicked", self.confirm_auto_part)
         button1 = self._set_default_margins(button1)
         self.grid.attach(button1, 5, 6, 1, 1)
+
+        button5 = Gtk.Button.new_with_label("Make RAID Array")
+        button5.connect("clicked", self.define_array)
+        button5 = self._set_default_margins(button5)
+        self.grid.attach(button5, 4, 6, 1, 1)
 
         button4 = Gtk.Button.new_with_label("Make Space")
         button4.connect("clicked", self.make_space)
@@ -626,6 +638,213 @@ class Main(Gtk.Window):
         self.grid.attach(button3, 1, 6, 1, 1)
 
         self.show_all()
+
+    def define_array(self, widget, error=None):
+        """Define btrfs RAID Array settings"""
+        self.clear_window()
+
+        dev = []
+        for each2 in enumerate(self.devices):
+            if "loop" in self.devices[each2[0]]["name"]:
+                continue
+            else:
+                dev.append(self.devices[each2[0]])
+        devices = []
+        for each4 in dev:
+            devices.append(each4)
+        devices = [x for x in devices if x != []]
+        for each4 in devices:
+            if each4["name"] == "sr0":
+                devices.remove(each4)
+
+        for each in range(len(devices) - 1, -1, -1):
+            if devices[each]["name"] == self.data["ROOT"]:
+                del devices[each]
+
+        if self.data["raid_array"]["raid_type"] == None:
+            loops = 2
+        else:
+            loops = self.raid_def[self.data["raid_array"]["raid_type"]]["min_drives"]
+
+        label = Gtk.Label()
+        label.set_markup("""<b>Define RAID Array</b>
+RAID Arrays can only be used as your home partition.""")
+        label.set_justify(Gtk.Justification.CENTER)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 1, 1, 3, 1)
+
+        label1 = Gtk.Label()
+        if error is None:
+            label1.set_markup("""Please Select which RAID Type to use and which
+drives to use for the RAID array.""")
+        elif error == "type_not_set":
+            label1.set_markup("""You must select a RAID Type to proceed.""")
+        elif error == "disk_not_set":
+            label1.set_markup("""You do not have enough drives set for this RAID
+Type. Minimum drives is: %s""" % (loops))
+        label1.set_justify(Gtk.Justification.CENTER)
+        label1 = self._set_default_margins(label1)
+        self.grid.attach(label1, 1, 2, 3, 1)
+
+        label2 = Gtk.Label()
+        label2.set_markup("RAID Type: ")
+        label2.set_justify(Gtk.Justification.CENTER)
+        label2 = self._set_default_margins(label2)
+        self.grid.attach(label2, 1, 3, 1, 1)
+
+        raid_type = Gtk.ComboBoxText.new()
+        for each in self.raid_def:
+            raid_type.append(each,
+                              "%s: %s" % (each, self.raid_def[each]["desc"]))
+        raid_type = self._set_default_margins(raid_type)
+        raid_type.set_active_id(self.data["raid_array"]["raid_type"])
+        raid_type.connect("changed", self._change_raid_type)
+        self.grid.attach(raid_type, 2, 3, 2, 1)
+
+        for each in range(loops):
+            label = Gtk.Label()
+            label.set_markup("Drive %s" % (each + 1))
+            label.set_justify(Gtk.Justification.CENTER)
+            label = self._set_default_margins(label)
+            self.grid.attach(label, 1, 4 + each, 1, 1)
+
+            device_drop_down = Gtk.ComboBoxText.new()
+            for each4 in devices:
+                skip = False
+                for each1 in self.data["raid_array"]["disks"]:
+                    if each4["name"] == self.data["raid_array"]["disks"][each1]:
+                        if str(each + 1) != each1:
+                            skip = True
+                if skip:
+                    continue
+                device_drop_down.append("%s" % (each4["name"]),
+                                  "%s    Size: %s" % (each4["name"],
+                                                      each4["size"]))
+
+            device_drop_down.set_active_id(self.data["raid_array"]["disks"][str(each + 1)])
+            if (each + 1) == 1:
+                device_drop_down.connect("changed", self._assign_raid_disk_1)
+            elif (each + 1) == 2:
+                device_drop_down.connect("changed", self._assign_raid_disk_2)
+            elif (each + 1) == 3:
+                device_drop_down.connect("changed", self._assign_raid_disk_3)
+            elif (each + 1) == 4:
+                device_drop_down.connect("changed", self._assign_raid_disk_4)
+            device_drop_down = self._set_default_margins(device_drop_down)
+            self.grid.attach(device_drop_down, 2, 4 + each, 2, 1)
+
+        button1 = Gtk.Button.new_with_label("Done")
+        button1.connect("clicked", self.confirm_raid_array)
+        button1 = self._set_default_margins(button1)
+        self.grid.attach(button1, 3, 9, 1, 1)
+
+        button2 = Gtk.Button.new_with_label("Exit")
+        button2.connect("clicked", self.exit)
+        button2 = self._set_default_margins(button2)
+        self.grid.attach(button2, 1, 9, 1, 1)
+
+        button3 = Gtk.Button.new_with_label("<-- Back to Main Menu")
+        button3.connect("clicked", self.main_menu)
+        button3 = self._set_default_margins(button3)
+        self.grid.attach(button3, 2, 9, 1, 1)
+
+
+        self.show_all()
+
+    # I know there is a better way to assign disks than this, or at least a
+    # Better way to define these functions. But this was the simplest way I can
+    # Think to do it right now. In the future, I want to add the ability to
+    # increase RAID Array size, but that will have to include some more dynamic
+    # programming that I just don't know how to do or care to learn right now
+    # considering it's 1 AM at time of writing
+
+    def _assign_raid_disk_1(self, widget):
+        """Assign RAID Disk 1"""
+        self.data["raid_array"]["disks"]["1"] = widget.get_active_id()
+        self.define_array("clicked")
+
+    def _assign_raid_disk_2(self, widget):
+        """Assign RAID Disk 2"""
+        self.data["raid_array"]["disks"]["2"] = widget.get_active_id()
+        self.define_array("clicked")
+
+    def _assign_raid_disk_3(self, widget):
+        """Assign RAID Disk 3"""
+        self.data["raid_array"]["disks"]["3"] = widget.get_active_id()
+        self.define_array("clicked")
+
+    def _assign_raid_disk_4(self, widget):
+        """Assign RAID Disk 4"""
+        self.data["raid_array"]["disks"]["4"] = widget.get_active_id()
+        self.define_array("clicked")
+
+    def _change_raid_type(self, widget):
+        """Set RAID type"""
+        self.data["raid_array"]["raid_type"] = widget.get_active_id()
+        if self.data["raid_array"]["raid_type"].lower() in ("raid0", "raid1"):
+            self.data["raid_array"]["disks"]["3"] = None
+            self.data["raid_array"]["disks"]["4"] = None
+        self.define_array("clicked")
+
+    def confirm_raid_array(self, widget):
+        """Confirm RAID settings and modify other installer settings as necessary"""
+        if self.data["raid_array"]["raid_type"] == None:
+            self.define_array("clicked", error="type_not_set")
+            return
+        else:
+            count = 0
+            for each in self.data["raid_array"]["disks"]:
+                if self.data["raid_array"]["disks"][each] != None:
+                    count += 1
+            if count < self.raid_def[self.data["raid_array"]["raid_type"]]["min_drives"]:
+                self.define_array("clicked", error="disk_not_set")
+                return
+
+        self.clear_window()
+
+        label = Gtk.Label()
+        label.set_markup("<b>Are you sure you want to make this RAID Array?</b>")
+        label.set_justify(Gtk.Justification.CENTER)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 1, 1, 3, 1)
+
+        label1 = Gtk.Label()
+        label1.set_markup("<b>RAID Type:</b> %s" % (self.data["raid_array"]["raid_type"]))
+        label1.set_justify(Gtk.Justification.CENTER)
+        label1 = self._set_default_margins(label1)
+        self.grid.attach(label1, 1, 2, 3, 1)
+
+        for each in self.data["raid_array"]["disks"]:
+            if self.data["raid_array"]["disks"][each] is None:
+                continue
+            label = Gtk.Label()
+            label.set_markup("""<b>Drive %s:</b> %s""" % (each,
+                                                          self.data["raid_array"]["disks"][each]))
+            label.set_justify(Gtk.Justification.CENTER)
+            label = self._set_default_margins(label)
+            self.grid.attach(label, 1, 2 + int(each), 3, 1)
+
+        button1 = Gtk.Button.new_with_label("Confirm")
+        button1.connect("clicked", self.cement_raid_array)
+        button1 = self._set_default_margins(button1)
+        self.grid.attach(button1, 3, 9, 1, 1)
+
+        button2 = Gtk.Button.new_with_label("Exit")
+        button2.connect("clicked", self.exit)
+        button2 = self._set_default_margins(button2)
+        self.grid.attach(button2, 1, 9, 1, 1)
+
+        button3 = Gtk.Button.new_with_label("<-- Back")
+        button3.connect("clicked", self.define_array)
+        button3 = self._set_default_margins(button3)
+        self.grid.attach(button3, 2, 9, 1, 1)
+
+        self.show_all()
+
+    def cement_raid_array(self, widget):
+        """Set alternate settings so that the RAID Array can be handled internally"""
+        self.data["HOME"] = self.data["raid_array"]["disks"]["1"]
+        self.auto_partition("clicked")
 
     def make_space(self, widget, drive=None):
         """Window for making space on an installed drive"""
