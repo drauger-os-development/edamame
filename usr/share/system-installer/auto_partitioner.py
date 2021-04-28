@@ -255,6 +255,15 @@ This ONLY works if the root partition is the only partition on the drive
     disk.commit()
 
 
+def clobber_disk(device):
+    """Reset drive"""
+    common.eprint("DELETING PARTITIONS.")
+    device.clobber()
+    disk = parted.freshDisk(device, "gpt")
+    disk.commit()
+    return disk
+
+
 def delete_part(part_path):
     """Delete partiton indicated by path"""
     if "nvme" in part_path:
@@ -267,7 +276,7 @@ def delete_part(part_path):
     disk.commit()
 
 
-def partition(root, efi, home):
+def partition(root, efi, home, raid_array):
     """Partition drive 'root' for Linux installation
 
 root: needs to be path to installation drive (i.e.: /dev/sda, /dev/nvme0n1)
@@ -278,10 +287,30 @@ home: whether to make a home partition, or if one already exists
         'MAKE':                  Make a home partition on the installation drive
         (some partition path):   path to a partition to be used as home directory
 """
+    # Initial set up for partitioning
     common.eprint("\t###\tauto_partioner.py STARTED\t###\t")
     part1 = None
     part2 = None
     part3 = None
+    if raid_array["raid_type"] != None:
+        if raid_array["raid_type"].lower() == "raid0":
+            raid_array["raid_type"] = 0
+        elif raid_array["raid_type"].lower() == "raid1":
+            raid_array["raid_type"] = 1
+        elif raid_array["raid_type"].lower() == "raid10":
+            raid_array["raid_type"] = 10
+        for each in raid_array["disks"]:
+            if each in ("1", "2"):
+                if raid_array["disks"][each] == None:
+                    # Invalid RAID array. Do not create.
+                    raid_array["raid_type"] = None
+    # We double check this to ensure we are working with valid RAID arrays
+    if raid_array["raid_type"] != None:
+        disks = []
+        for each in raid_array["disks"]:
+            if raid_array["disks"][each] != None:
+                disks.append(raid_array["disks"][each])
+        raid_array["disks"] = disks
     device = parted.getDevice(root)
     try:
         disk = parted.Disk(device)
@@ -289,11 +318,20 @@ home: whether to make a home partition, or if one already exists
         common.eprint("NO PARTITION TABLE EXISTS. MAKING NEW ONE . . .")
         disk = parted.freshDisk(device, "gpt")
     size = sectors_to_size(device.length, device.sectorSize) * 1000
-    if home in ("NULL", "null", None, "MAKE"):
-        common.eprint("DELETING PARTITIONS.")
-        device.clobber()
-        disk = parted.freshDisk(device, "gpt")
-        disk.commit()
+    if ((home in ("NULL", "null",
+                  None, "MAKE")) and (raid_array["raid_type"] == None)):
+        disk = clobber_disk(device)
+    elif raid_array["raid_type"] != None:
+        disk = clobber_disk(device)
+        common.eprint("CREATING RAID ARRAY")
+        common.eprint("RAID TYPE: %s" % (raid_array["raid_type"]))
+        if not make_raid_array(raid_array["disks"], raid_array["raid_type"]):
+            common.eprint("INITIAL RAID ARRAY CREATION FAILED. FORCING . . .")
+            if not make_raid_array(raid_array["disks"], raid_array["raid_type"],
+                               force=True):
+                common.eprint("FORCED RAID ARRAY CREATION FAILED. BAD DRIVE?")
+                common.eprint("FALLING BACK TO NO HOME PARTITION.")
+                home = None
     else:
         common.eprint("HOME PARTITION EXISTS. NOT DELETING PARTITIONS.")
     if size == LIMITER:

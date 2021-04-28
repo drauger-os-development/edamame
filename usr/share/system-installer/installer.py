@@ -67,6 +67,10 @@ def install(settings):
         HOME : device path as str
         EFI : device path
         SWAP : device path or 'FILE'
+        raid_array : dict containing the following values:
+            raid_type : raid type (0, 1, 10) as str. e.g.: "RAID10", if not used, None
+            disks : disk of numbers 1-4 as keys, with their values being the disks
+                    to use for the RAID array. If not used, None.
         LANG : language as str
         TIME_ZONE : 'Region/SubRegion' as str
         USERNAME : str
@@ -87,7 +91,8 @@ def install(settings):
     if settings["AUTO_PART"]:
         partitioning = auto_partitioner.partition(settings["ROOT"],
                                                   settings["EFI"],
-                                                  settings["HOME"])
+                                                  settings["HOME"],
+                                                  settings["raid_array"])
         settings["ROOT"] = partitioning["ROOT"]
         settings["EFI"] = partitioning["EFI"]
         settings["HOME"] = partitioning["HOME"]
