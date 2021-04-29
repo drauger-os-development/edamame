@@ -24,14 +24,13 @@
 """Main installation Engine"""
 from __future__ import print_function
 import sys
-from subprocess import check_output, Popen
-from os import path, listdir, remove, fork, kill
+import subprocess
+from os import path, listdir, remove, kill
 import json
 import tarfile as tar
-import multiprocessing
-from psutil import virtual_memory
 from shutil import copyfile, copytree
 import traceback
+from psutil import virtual_memory
 import UI
 import installer
 import check_internet
@@ -98,7 +97,7 @@ if INSTALL:
         # PROGRESS = threading.Thread(target=UI.progress.show_progress)
         # PROGRESS.start()
         # otherwise, we are parent and should continue
-        process = Popen("/usr/share/system-installer/progress.py")
+        process = subprocess.Popen("/usr/share/system-installer/progress.py")
         pid = process.pid
         SETTINGS["INTERNET"] = check_internet.has_internet()
         installer.install(SETTINGS)
@@ -121,8 +120,8 @@ This is a stand-in file.
 """)
             copyfile("/tmp/system-installer.log",
                      "/mnt/var/log/system-installer.log")
-        Popen(["su", "live", "-c",
-               "/usr/share/system-installer/success.py \'%s\'" % (json.dumps(SETTINGS))])
+        subprocess.Popen(["su", "live", "-c",
+                          "/usr/share/system-installer/success.py \'%s\'" % (json.dumps(SETTINGS))])
         kill(pid, 15)
         # PROGRESS.terminate()
         # PROGRESS.join()

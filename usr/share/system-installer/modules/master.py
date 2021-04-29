@@ -33,9 +33,9 @@ from shutil import rmtree, copyfile
 from inspect import getfullargspec
 from time import sleep
 import json
-import urllib3
 import warnings
 import tarfile as tar
+
 
 
 # import our own programs
@@ -181,7 +181,7 @@ BACKSPACE=\"guess\"
 """ % (xkbm, xkbl, xkbv))
         __update__(90)
         subprocess.Popen(["udevadm", "trigger", "--subsystem-match=input",
-               "--action=change"], stdout=stderr.buffer)
+                          "--action=change"], stdout=stderr.buffer)
 
     def remove_launcher(USERNAME):
         """Remove system installer desktop launcher"""
@@ -200,13 +200,13 @@ User will need to remove manually.""")
 def set_plymouth_theme():
     """Ensure the plymouth theme is set correctly"""
     subprocess.Popen(["update-alternatives", "--install",
-           "/usr/share/plymouth/themes/default.plymouth",
-           "default.plymouth",
-           "/usr/share/plymouth/themes/drauger-theme/drauger-theme.plymouth",
-           "100", "--slave",
-           "/usr/share/plymouth/themes/default.grub", "default.plymouth.grub",
-           "/usr/share/plymouth/themes/drauger-theme/drauger-theme.grub"],
-          stdout=stderr.buffer)
+                      "/usr/share/plymouth/themes/default.plymouth",
+                      "default.plymouth",
+                      "/usr/share/plymouth/themes/drauger-theme/drauger-theme.plymouth",
+                      "100", "--slave",
+                      "/usr/share/plymouth/themes/default.grub", "default.plymouth.grub",
+                      "/usr/share/plymouth/themes/drauger-theme/drauger-theme.grub"],
+                     stdout=stderr.buffer)
     process = subprocess.Popen(["update-alternatives", "--config",
                                 "default.plymouth"],
                                stdout=stderr.buffer,
@@ -260,7 +260,7 @@ def _install_grub(root):
     subprocess.check_call(["grub-install", "--verbose", "--force",
                            "--target=i386-pc", root], stdout=stderr.buffer)
     subprocess.check_call(["grub-mkconfig", "-o", "/boot/grub/grub.cfg"],
-               stdout=stderr.buffer)
+                          stdout=stderr.buffer)
 
 def _install_systemd_boot(release, root):
     """set up and install systemd-boot"""
@@ -328,7 +328,7 @@ def setup_lowlevel(efi, root):
     set_plymouth_theme()
     eprint("\n    ###    MAKING INITRAMFS    ###    ")
     subprocess.check_call(["mkinitramfs", "-o", "/boot/initrd.img-" + release],
-               stdout=stderr.buffer)
+                          stdout=stderr.buffer)
     install_bootloader(efi, root, release)
     sleep(0.5)
     os.symlink("/boot/initrd.img-" + release, "/boot/initrd.img")
@@ -341,7 +341,7 @@ def check_systemd_boot(release, root):
     recovery_flags = "ro recovery nomodeset"
     # Get Root UUID
     uuid = subprocess.check_output(["blkid", "-s", "PARTUUID",
-                         "-o", "value", root]).decode()[0:-1]
+                                    "-o", "value", root]).decode()[0:-1]
 
     # Check for standard boot config
     if not os.path.exists("/boot/efi/loader/entries/Drauger_OS.conf"):
