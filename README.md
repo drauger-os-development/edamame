@@ -10,34 +10,34 @@ System Installer for Drauger OS.
 
 [Click here for notes on hacking on `system-installer`](https://github.com/drauger-os-development/system-installer/blob/master/hacking.md)
 
-`system-installer` currently works only on Drauger OS, but may be adapted to work on other Debian-based OSs later. 
+`system-installer` currently works only on Drauger OS, but may be adapted to work on other Debian-based OSs later.
 
 
- Notable features
----
+## Notable features
+
 
  * Add PPAs inside the installer, post installation
  * Quick-install config file support
  * One of the *fastest* installation utilities in Linux today (2-to-3 minutes (ish)) on a quad-core CPU with 4 GB of RAM and decent, reliable internet)
- 
- 
- Development
- ---
- 
+
+
+## Development
+
+
  Interested in helping out with development? Great! Check out the notes on how to get started with development [here](https://github.com/drauger-os-development/system-installer/blob/master/development.md).
- 
- Other Notes
- ---
- 
-# `system-installer` requires `systemd`
+
+## Other Notes
+
+
+### `system-installer` requires `systemd`
 This drawback is in place for a number of reasons:
  * `systemd-boot` is easier and more reliable to install on UEFI than GRUB
  * `systemd` makes setting up everything from keyboard to language to time significantly easier
  * `systemd` is present on most Linux systems
- 
-# `system-installer` uses `GRUB` on `BIOS`, `systemd-boot` on `UEFI`
+
+### `system-installer` uses `GRUB` on `BIOS`, `systemd-boot` on `UEFI`
  * `systemd-boot` does not support BIOS
  * `GRUB` is a pain on UEFI
 
-# ~40 MB *.deb
-The *.deb is currently ~40 MB because it packs a kernel to install inside the *.deb file.
+### +40 MB *.deb
+The *.deb is currently +40 MB because it packs a kernel to install inside the *.deb file.

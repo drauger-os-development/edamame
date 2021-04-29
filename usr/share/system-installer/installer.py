@@ -22,7 +22,6 @@
 #
 #
 """Main module controling the installation process"""
-from __future__ import print_function
 from subprocess import Popen, check_output, check_call, CalledProcessError
 from os import mkdir, path, chdir, listdir, remove, symlink, chmod
 import shutil
