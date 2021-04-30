@@ -71,7 +71,7 @@ class Main(Gtk.Window):
 
         label5 = Gtk.Label()
 
-        if AUTO_PART == "True":
+        if settings["AUTO_PART"] == True:
             label5.set_markup("""AUTO PARTITIONING ENABLED\t
 INSTALLATION DRIVE: %s""" % (ROOT))
         else:

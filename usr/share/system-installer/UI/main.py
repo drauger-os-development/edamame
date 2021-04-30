@@ -1538,7 +1538,7 @@ Sub-Region""")
         self.grid.attach(model_label, 1, 2, 1, 1)
 
         self.model_menu = Gtk.ComboBoxText.new()
-        with open("/etc/system-installer/keyboards", "r") as file:
+        with open("/etc/system-installer/keyboards.json", "r") as file:
             keyboards = json.load(file)
         layout_list = keyboards["layouts"]
         model = keyboards["models"]
@@ -1556,8 +1556,8 @@ Sub-Region""")
         self.grid.attach(layout_label, 1, 3, 1, 1)
 
         self.layout_menu = Gtk.ComboBoxText.new()
-        for each8 in layouts:
-            self.layout_menu.append(layouts[each8], each8)
+        for each8 in layout_list:
+            self.layout_menu.append(layout_list[each8], each8)
         if self.layout_setting != "":
             self.layout_menu.set_active_id(self.layout_setting)
         self.layout_menu.connect("changed", self.varient_narrower)
@@ -1571,9 +1571,10 @@ Sub-Region""")
         self.grid.attach(varient_label, 1, 4, 1, 1)
 
         self.varient_menu = Gtk.ComboBoxText.new()
-        self.varients = keyboards["variants"]
+        self.varients = keyboards["varints"]
         for each8 in self.varients:
-            self.varient_menu.append(self.varients[each8], each8)
+            for each9 in self.varients[each8]:
+                self.varient_menu.append(self.varients[each8][each9], each9)
         if self.varient_setting != "":
             self.varient_menu.set_active_id(self.varient_setting)
         self.varient_menu = self._set_default_margins(self.varient_menu)
@@ -1601,17 +1602,8 @@ Sub-Region""")
         term = self.layout_menu.get_active_id()
         self.varient_menu.remove_all()
 
-        varient_len = len(self.varients) - 1
-        local_varients = []
-        for each9 in self.varients:
-            local_varients.append(each9)
-        while varient_len >= 0:
-            if not term in self.varients[varient_len]:
-                del local_varients[varient_len]
-            varient_len = varient_len - 1
-
-        for each9 in local_varients:
-            self.varient_menu.append(each9, each9)
+        for each9 in self.varients[term]:
+            self.varient_menu.append(self.varients[term][each9], each9)
         if self.varient_setting != "":
             self.varient_menu.set_active_id(self.varient_setting)
         self.varient_menu = self._set_default_margins(self.varient_menu)
@@ -1734,9 +1726,7 @@ Sub-Region""")
 
 def show_main():
     """Show Main UI"""
-    if fork() == 0:
-        make_kbd_names()
-        return
+    make_kbd_names()
     window = Main()
     window.set_decorated(True)
     window.set_resizable(False)
@@ -1750,7 +1740,7 @@ def show_main():
 
 def make_kbd_names():
     """Get Keyboard Names faster"""
-    if path.isfile("/etc/system-installer/keyboards"):
+    if path.isfile("/etc/system-installer/keyboards.json"):
         # Keyboards file already made. Nothing to do.
         return
     with open("/usr/share/console-setup/KeyboardNames.pl") as file:
@@ -1758,7 +1748,6 @@ def make_kbd_names():
     data = data.split("\n")
     for each in range(len(data) - 1, -1, -1):
         data[each] = data[each].replace(" =>", ":")
-        data[each] = data[each].replace("(", "{")
         data[each] = data[each].replace(");", "},")
         data[each] = data[each].replace("'", '"')
         data[each] = data[each].replace("\\", "")
@@ -1772,6 +1761,9 @@ def make_kbd_names():
             del data[each]
         elif "#!/" in data[each]:
             data[each] = "{"
+        elif "(" in data[each]:
+            if data[each][-1] == "(":
+                data[each] = data[each].replace("(", "{")
         if "}" in data[each]:
             data[each - 1] = data[each - 1][:-1]
     while True:
