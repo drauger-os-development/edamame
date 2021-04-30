@@ -1539,21 +1539,11 @@ Sub-Region""")
 
         self.model_menu = Gtk.ComboBoxText.new()
         with open("/etc/system-installer/keyboards", "r") as file:
-            layouts = file.read()
-        layouts = layouts.split("\n")
-        layout_list = []
-        for each8 in layouts:
-            layout_list.append(each8.split("*"))
-        for each8 in enumerate(layout_list):
-            del layout_list[each8[0]][0]
-        del layout_list[-1]
-        model = []
-        for each8 in enumerate(layout_list):
-            if layout_list[each8[0]][0] == "model":
-                model.append(layout_list[each8[0]][-1])
-        model = sorted(model)
+            keyboards = json.load(file)
+        layout_list = keyboards["layouts"]
+        model = keyboards["models"]
         for each8 in model:
-            self.model_menu.append(each8, each8)
+            self.model_menu.append(model[each8], each8)
         if self.model_setting != "":
             self.model_menu.set_active_id(self.model_setting)
         self.model_menu = self._set_default_margins(self.model_menu)
@@ -1566,13 +1556,8 @@ Sub-Region""")
         self.grid.attach(layout_label, 1, 3, 1, 1)
 
         self.layout_menu = Gtk.ComboBoxText.new()
-        layouts = []
-        for each8 in enumerate(layout_list):
-            if layout_list[each8[0]][0] == "layout":
-                layouts.append(layout_list[each8[0]][-1])
-        layouts = sorted(layouts)
         for each8 in layouts:
-            self.layout_menu.append(each8, each8)
+            self.layout_menu.append(layouts[each8], each8)
         if self.layout_setting != "":
             self.layout_menu.set_active_id(self.layout_setting)
         self.layout_menu.connect("changed", self.varient_narrower)
@@ -1586,12 +1571,9 @@ Sub-Region""")
         self.grid.attach(varient_label, 1, 4, 1, 1)
 
         self.varient_menu = Gtk.ComboBoxText.new()
-        self.varients = []
-        for each8 in enumerate(layout_list):
-            if layout_list[each8[0]][0] == "variant":
-                self.varients.append(layout_list[each8[0]][-1])
+        self.varients = keyboards["variants"]
         for each8 in self.varients:
-            self.varient_menu.append(each8, each8)
+            self.varient_menu.append(self.varients[each8], each8)
         if self.varient_setting != "":
             self.varient_menu.set_active_id(self.varient_setting)
         self.varient_menu = self._set_default_margins(self.varient_menu)
@@ -1771,11 +1753,37 @@ def make_kbd_names():
     if path.isfile("/etc/system-installer/keyboards"):
         # Keyboards file already made. Nothing to do.
         return
-    chdir("/usr/share/console-setup")
-    layouts = check_output(["./kbdnames-maker"], stderr=DEVNULL).decode()
+    with open("/usr/share/console-setup/KeyboardNames.pl") as file:
+        data = file.read()
+    data = data.split("\n")
+    for each in range(len(data) - 1, -1, -1):
+        data[each] = data[each].replace(" =>", ":")
+        data[each] = data[each].replace("(", "{")
+        data[each] = data[each].replace(");", "},")
+        data[each] = data[each].replace("'", '"')
+        data[each] = data[each].replace("\\", "")
+        if "%variants" in data[each]:
+            data[each] = '"varints": {'
+        elif "%layouts" in data[each]:
+            data[each] = '"layouts": {'
+        elif "%models" in data[each]:
+            data[each] = '"models": {'
+        elif (("package" in data[each]) or ("1;" in data[each])):
+            del data[each]
+        elif "#!/" in data[each]:
+            data[each] = "{"
+        if "}" in data[each]:
+            data[each - 1] = data[each - 1][:-1]
+    while True:
+        if data[-1] == "":
+            del data[-1]
+        else:
+            data[-1] = "}}"
+            break
+    data = "\n".join(data)
     chdir("/etc/system-installer")
-    with open("keyboards", "w+") as file:
-        file.write(layouts)
+    with open("keyboards.json", "w+") as file:
+        file.write(data)
 
 
 if __name__ == '__main__':
