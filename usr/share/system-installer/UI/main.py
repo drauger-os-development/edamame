@@ -92,23 +92,15 @@ class Main(Gtk.Window):
         self.set_icon_name("system-installer")
 
         # Initialize setting values
-        self.lang_setting = ""
-        self.time_zone = ""
-        self.username_setting = ""
-        self.compname_setting = ""
-        self.password_setting = ""
-        self.extras_setting = ""
-        self.updates_setting = ""
-        self.login_setting = ""
-        self.model_setting = ""
-        self.layout_setting = ""
-        self.varient_setting = ""
         self.data = {"AUTO_PART": "", "HOME": "", "ROOT": "", "EFI": "",
-                     "SWAP": "",
-                     "raid_array": {"raid_type": None, "disks": {"1": None,
-                                                                 "2": None,
-                                                                 "3": None,
-                                                                 "4": None}}}
+                     "SWAP": "", "LANG": "", "TIME_ZONE": "", "USERNAME": "",
+                     "PASSWORD": "", "COMPUTER_NAME": "", "EXTRAS": "",
+                     "UPDATES": "", "LOGIN": "", "MODEL": "", "LAYOUT": "",
+                     "VARIENT": "", "raid_array": {"raid_type": None,
+                                                   "disks": {"1": None,
+                                                             "2": None,
+                                                             "3": None,
+                                                             "4": None}}}
 
         self.langs = {'Afar': "aa", 'Afrikaans': "af", 'Aragonese': "an",
                       'Arabic': "ar", 'Asturian': "ast", 'Belarusian': "be",
@@ -356,7 +348,7 @@ class Main(Gtk.Window):
         self.grid.attach(label1, 1, 3, 2, 1)
 
         self.username = Gtk.Entry()
-        self.username.set_text(self.username_setting)
+        self.username.set_text(self.data["USERNAME"])
         self.username = self._set_default_margins(self.username)
         self.grid.attach(self.username, 3, 3, 1, 1)
 
@@ -367,7 +359,7 @@ class Main(Gtk.Window):
         self.grid.attach(label2, 1, 4, 2, 1)
 
         self.compname = Gtk.Entry()
-        self.compname.set_text(self.compname_setting)
+        self.compname.set_text(self.data["COMPUTER_NAME"])
         self.compname = self._set_default_margins(self.compname)
         self.grid.attach(self.compname, 3, 4, 1, 1)
 
@@ -379,7 +371,7 @@ class Main(Gtk.Window):
 
         self.password = Gtk.Entry()
         self.password.set_visibility(False)
-        self.password.set_text(self.password_setting)
+        self.password.set_text(self.data["PASSWORD"])
         self.password = self._set_default_margins(self.password)
         self.grid.attach(self.password, 3, 5, 1, 1)
 
@@ -391,7 +383,7 @@ class Main(Gtk.Window):
 
         self.passconf = Gtk.Entry()
         self.passconf.set_visibility(False)
-        self.passconf.set_text(self.password_setting)
+        self.passconf.set_text(self.data["PASSWORD"])
         self.passconf = self._set_default_margins(self.passconf)
         self.grid.attach(self.passconf, 3, 6, 1, 1)
 
@@ -414,12 +406,12 @@ class Main(Gtk.Window):
 
     def onnext2clicked(self, button):
         """Password, Username, and hostname Checker"""
-        self.password_setting = self.password.get_text()
+        self.data["PASSWORD"] = self.password.get_text()
         pass2 = self.passconf.get_text()
-        self.username_setting = self.username.get_text()
-        self.username_setting = self.username_setting.lower()
-        self.compname_setting = self.compname.get_text()
-        if self.password_setting != pass2:
+        self.data["USERNAME"] = self.username.get_text()
+        self.data["USERNAME"] = self.data["USERNAME"].lower()
+        self.data["COMPUTER_NAME"] = self.compname.get_text()
+        if self.data["PASSWORD"] != pass2:
             label5 = Gtk.Label()
             label5.set_markup("Passwords do not match")
             label5.set_justify(Gtk.Justification.CENTER)
@@ -429,7 +421,7 @@ class Main(Gtk.Window):
             except TypeError:
                 pass
             self.grid.attach(label5, 1, 7, 3, 1)
-        elif len(self.password_setting) < 4:
+        elif len(self.data["PASSWORD"]) < 4:
             label5 = Gtk.Label()
             label5.set_markup("Password is less than 4 characters")
             label5 = self._set_default_margins(label5)
@@ -440,7 +432,7 @@ class Main(Gtk.Window):
             except TypeError:
                 pass
             self.grid.attach(label5, 1, 7, 3, 1)
-        elif has_special_character(self.username_setting):
+        elif has_special_character(self.data["USERNAME"]):
             label5 = Gtk.Label()
             label5.set_markup("Username contains special characters")
             label5.set_justify(Gtk.Justification.CENTER)
@@ -450,7 +442,7 @@ class Main(Gtk.Window):
             except TypeError:
                 pass
             self.grid.attach(label5, 1, 7, 3, 1)
-        elif " " in self.username_setting:
+        elif " " in self.data["USERNAME"]:
             label5 = Gtk.Label()
             label5.set_markup("Username contains space")
             label5.set_justify(Gtk.Justification.CENTER)
@@ -460,7 +452,7 @@ class Main(Gtk.Window):
             except TypeError:
                 pass
             self.grid.attach(label5, 1, 7, 3, 1)
-        elif len(self.username_setting) < 1:
+        elif len(self.data["USERNAME"]) < 1:
             label5 = Gtk.Label()
             label5.set_markup("Username empty")
             label5.set_justify(Gtk.Justification.CENTER)
@@ -470,7 +462,7 @@ class Main(Gtk.Window):
             except TypeError:
                 pass
             self.grid.attach(label5, 1, 7, 3, 1)
-        elif has_special_character(self.compname_setting):
+        elif has_special_character(self.data["COMPUTER_NAME"]):
             label5 = Gtk.Label()
             label5.set_markup("Computer Name contains non-hyphen special character")
             label5.set_justify(Gtk.Justification.CENTER)
@@ -480,7 +472,7 @@ class Main(Gtk.Window):
             except TypeError:
                 pass
             self.grid.attach(label5, 1, 7, 3, 1)
-        elif " " in self.compname_setting:
+        elif " " in self.data["COMPUTER_NAME"]:
             label5 = Gtk.Label()
             label5.set_markup("Computer Name contains space")
             label5.set_justify(Gtk.Justification.CENTER)
@@ -490,7 +482,7 @@ class Main(Gtk.Window):
             except TypeError:
                 pass
             self.grid.attach(label5, 1, 7, 3, 1)
-        elif len(self.compname_setting) < 1:
+        elif len(self.data["COMPUTER_NAME"]) < 1:
             label5 = Gtk.Label()
             label5.set_markup("Computer Name is empty")
             label5.set_justify(Gtk.Justification.CENTER)
@@ -1338,7 +1330,7 @@ Type. Minimum drives is: %s""" % (loops))
         self.grid.attach(label1, 1, 2, 2, 1)
 
         self.extras = Gtk.CheckButton.new_with_label("Install Restricted Extras")
-        if self.extras_setting == 1:
+        if self.data["EXTRAS"] == 1:
             self.extras.set_active(True)
         self.extras = self._set_default_margins(self.extras)
         self.grid.attach(self.extras, 1, 3, 2, 1)
@@ -1351,7 +1343,7 @@ Type. Minimum drives is: %s""" % (loops))
         self.grid.attach(label2, 1, 4, 2, 1)
 
         self.updates = Gtk.CheckButton.new_with_label("Update before reboot")
-        if self.updates_setting == 1:
+        if self.data["UPDATES"] == 1:
             self.updates.set_active(True)
         self.updates = self._set_default_margins(self.updates)
         self.grid.attach(self.updates, 1, 5, 2, 1)
@@ -1364,7 +1356,7 @@ Type. Minimum drives is: %s""" % (loops))
         self.grid.attach(label2, 1, 6, 2, 1)
 
         self.login = Gtk.CheckButton.new_with_label("Enable Auto-Login")
-        if self.login_setting == 1:
+        if self.data["LOGIN"] == 1:
             self.login.set_active(True)
         self.login = self._set_default_margins(self.login)
         self.grid.attach(self.login, 1, 7, 2, 1)
@@ -1384,17 +1376,17 @@ Type. Minimum drives is: %s""" % (loops))
     def options_next(self, button):
         """Set update and extras settings"""
         if self.extras.get_active():
-            self.extras_setting = 1
+            self.data["EXTRAS"] = 1
         else:
-            self.extras_setting = 0
+            self.data["EXTRAS"] = 0
         if self.updates.get_active():
-            self.updates_setting = 1
+            self.data["UPDATES"] = 1
         else:
-            self.updates_setting = 0
+            self.data["UPDATES"] = 0
         if self.login.get_active():
-            self.login_setting = 1
+            self.data["LOGIN"] = 1
         else:
-            self.login_setting = 0
+            self.data["LOGIN"] = 0
         global OPTIONS_COMPLETION
         OPTIONS_COMPLETION = "COMPLETED"
         self.main_menu("clicked")
@@ -1422,8 +1414,8 @@ Langauge""")
         for each in self.langs:
             self.lang_menu.append(self.langs[each], each)
         self.lang_menu.append("other", "Other, User will need to set up manually.")
-        if self.lang_setting != "":
-            self.lang_menu.set_active_id(self.lang_setting)
+        if self.data["LANG"] != "":
+            self.lang_menu.set_active_id(self.data["LANG"])
         self.lang_menu = self._set_default_margins(self.lang_menu)
         self.grid.attach(self.lang_menu, 2, 3, 1, 1)
 
@@ -1435,7 +1427,7 @@ Region""")
         label3 = self._set_default_margins(label3)
         self.grid.attach(label3, 2, 4, 1, 1)
 
-        time_zone = self.time_zone.split("/")
+        time_zone = self.data["TIME_ZONE"].split("/")
         self.time_menu = Gtk.ComboBoxText.new()
         zones = ["Africa", "America", "Antarctica", "Arctic", "Asia",
                  "Atlantic", "Australia", "Brazil", "Canada", "Chile",
@@ -1492,7 +1484,7 @@ Sub-Region""")
         self.sub_region = Gtk.ComboBoxText.new()
         for each7 in zones:
             self.sub_region.append(each7, each7)
-        time_zone = self.time_zone.split("/")
+        time_zone = self.data["TIME_ZONE"].split("/")
         if len(time_zone) > 1:
             self.sub_region.set_active_id(time_zone[1])
         self.sub_region = self._set_default_margins(self.sub_region)
@@ -1503,17 +1495,17 @@ Sub-Region""")
     def on_locale_completed(self, button):
         """Set default language and time zone if user did not set them"""
         if self.lang_menu.get_active_id() is not None:
-            self.lang_setting = self.lang_menu.get_active_id()
+            self.data["LANG"] = self.lang_menu.get_active_id()
         else:
-            self.lang_setting = "en"
+            self.data["LANG"] = "en"
 
         if ((self.time_menu.get_active_id() is not None) and (
                 self.sub_region.get_active_id() is not None)):
-            self.time_zone = self.time_menu.get_active_id()
-            self.time_zone = self.time_zone + "/"
-            self.time_zone = self.time_zone + self.sub_region.get_active_id()
+            self.data["TIME_ZONE"] = self.time_menu.get_active_id()
+            self.data["TIME_ZONE"] = self.data["TIME_ZONE"] + "/"
+            self.data["TIME_ZONE"] = self.data["TIME_ZONE"] + self.sub_region.get_active_id()
         else:
-            self.time_zone = "America/New_York"
+            self.data["TIME_ZONE"] = "America/New_York"
 
         global LOCALE_COMPLETION
         LOCALE_COMPLETION = "COMPLETED"
@@ -1544,8 +1536,8 @@ Sub-Region""")
         model = keyboards["models"]
         for each8 in model:
             self.model_menu.append(model[each8], each8)
-        if self.model_setting != "":
-            self.model_menu.set_active_id(self.model_setting)
+        if self.data["MODEL"] != "":
+            self.model_menu.set_active_id(self.data["MODEL"])
         self.model_menu = self._set_default_margins(self.model_menu)
         self.grid.attach(self.model_menu, 2, 2, 3, 1)
 
@@ -1558,8 +1550,8 @@ Sub-Region""")
         self.layout_menu = Gtk.ComboBoxText.new()
         for each8 in layout_list:
             self.layout_menu.append(layout_list[each8], each8)
-        if self.layout_setting != "":
-            self.layout_menu.set_active_id(self.layout_setting)
+        if self.data["LAYOUT"] != "":
+            self.layout_menu.set_active_id(self.data["LAYOUT"])
         self.layout_menu.connect("changed", self.varient_narrower)
         self.layout_menu = self._set_default_margins(self.layout_menu)
         self.grid.attach(self.layout_menu, 2, 3, 3, 1)
@@ -1575,8 +1567,8 @@ Sub-Region""")
         for each8 in self.varients:
             for each9 in self.varients[each8]:
                 self.varient_menu.append(self.varients[each8][each9], each9)
-        if self.varient_setting != "":
-            self.varient_menu.set_active_id(self.varient_setting)
+        if self.data["VARIENT"] != "":
+            self.varient_menu.set_active_id(self.data["VARIENT"])
         self.varient_menu = self._set_default_margins(self.varient_menu)
         self.grid.attach(self.varient_menu, 2, 4, 3, 1)
 
@@ -1604,8 +1596,8 @@ Sub-Region""")
 
         for each9 in self.varients[term]:
             self.varient_menu.append(self.varients[term][each9], each9)
-        if self.varient_setting != "":
-            self.varient_menu.set_active_id(self.varient_setting)
+        if self.data["VARIENT"] != "":
+            self.varient_menu.set_active_id(self.data["VARIENT"])
         self.varient_menu = self._set_default_margins(self.varient_menu)
 
         self.show_all()
@@ -1614,21 +1606,21 @@ Sub-Region""")
     def on_keyboard_completed(self, button):
         """Set default keyboard layout if user did not specify one"""
         if self.model_menu.get_active_id() is not None:
-            self.model_setting = self.model_menu.get_active_id()
+            self.data["MODEL"] = self.model_menu.get_active_id()
         else:
-            self.model_setting = "Generic 105-key PC (intl.)"
+            self.data["MODEL"] = "Generic 105-key PC (intl.)"
         if self.layout_menu.get_active_id() is not None:
-            self.layout_setting = self.layout_menu.get_active_id()
-        elif "kernel keymap" in self.model_setting:
-            self.layout_setting = ""
+            self.data["LAYOUT"] = self.layout_menu.get_active_id()
+        elif "kernel keymap" in self.data["MODEL"]:
+            self.data["LAYOUT"] = ""
         else:
-            self.layout_setting = "English (US)"
+            self.data["LAYOUT"] = "English (US)"
         if self.varient_menu.get_active_id() is not None:
-            self.varient_setting = self.varient_menu.get_active_id()
-        elif "kernel keymap" in self.model_setting:
-            self.varient_setting = ""
+            self.data["VARIENT"] = self.varient_menu.get_active_id()
+        elif "kernel keymap" in self.data["MODEL"]:
+            self.data["VARIENT"] = ""
         else:
-            self.varient_setting = "euro"
+            self.data["VARIENT"] = "euro"
         global KEYBOARD_COMPLETION
         KEYBOARD_COMPLETION = "COMPLETED"
 
@@ -1667,23 +1659,15 @@ Sub-Region""")
         self.destroy()
         if "" in (self.data["EFI"], self.data["SWAP"],
                   self.data["ROOT"], self.data["AUTO_PART"],
-                  self.lang_setting, self.username_setting,
-                  self.compname_setting, self.password_setting,
-                  self.extras_setting, self.updates_setting, self.login_setting,
-                  self.model_setting, self.layout_setting, self.varient_setting):
+                  self.data["LANG"], self.data["USERNAME"],
+                  self.data["COMPUTER_NAME"], self.data["PASSWORD"],
+                  self.data["EXTRAS"], self.data["UPDATES"], self.data["LOGIN"],
+                  self.data["MODEL"], self.data["LAYOUT"], self.data["VARIENT"]):
             self.data = 1
         else:
-            self.data = {"LANG": self.lang_setting,
-                         "TIME_ZONE": self.time_zone,
-                         "USERNAME": self.username_setting,
-                         "PASSWORD": self.password_setting,
-                         "COMPUTER_NAME": self.compname_setting,
-                         "EXTRAS": bool(self.extras_setting),
-                         "UPDATES": bool(self.updates_setting),
-                         "LOGIN": bool(self.login_setting),
-                         "MODEL": self.model_setting,
-                         "LAYOUT": self.layout_setting,
-                         "VARIENT": self.varient_setting}
+            self.data["EXTRAS"] = bool(self.data["EXTRAS"])
+            self.data["UPDATES"] = bool(self.data["UPDATES"])
+            self.data["LOGIN"] = bool(self.data["LOGIN"])
 
     def exit(self, button):
         """Exit dialog"""
