@@ -396,11 +396,11 @@ class Main(Gtk.Window):
 
     def generate_message(self):
         """write installation report to disk"""
+        report_code = time.time()
         try:
-            self.path = "/var/mail/installation_report-%s.dosir" % (time.time())
+            self.path = "/var/mail/installation_report-%s.dosir" % (report_code)
             with open(self.path, "w+") as message:
-                message.write("Subject: Installation Report " +
-                              datetime.now().strftime("%c") + "\n\n")
+                message.write("Installation Report Code: %s\n\n" % (report_code))
                 message.write("system-installer Version: ")
                 try:
                     message.write(check_output(["system-installer", "-v"]).decode())
