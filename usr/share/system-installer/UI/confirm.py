@@ -278,11 +278,6 @@ HOME:      %s""" % (settings["HOME"])
         widget.set_margin_bottom(10)
         return widget
 
-    def onexitclicked(self, button):
-        """set install to true"""
-        self.install = False
-        self.exit("clicked")
-
     def exit(self, button):
         """exit"""
         Gtk.main_quit("delete-event")
