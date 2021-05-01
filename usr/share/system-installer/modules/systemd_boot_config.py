@@ -46,6 +46,14 @@ def systemd_boot_config(root):
         mkdir("/etc/kernel/postrm.d")
     except FileExistsError:
         eprint("postrm.d already exists")
+    try:
+        mkdir("/etc/initramfs")
+    except FileExistsError:
+        eprint("/etc/initramfs already exists")
+    try:
+        mkdir("/etc/initramfs/post-update.d")
+    except FileExistsError:
+        eprint("/etc/initramfs/post-update.d already exists")
     uuid = check_output(["blkid", "-s", "PARTUUID", "-o", "value", root]).decode()[:-1]
     # Parse out all the stuff we don't need
     contents = r"""#!/bin/bash
