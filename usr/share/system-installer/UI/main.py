@@ -1695,6 +1695,7 @@ Sub-Region""")
         """Exit"""
         Gtk.main_quit("delete-event")
         self.destroy()
+        self.data = 1
         return 1
 
     def clear_window(self):
@@ -1720,6 +1721,7 @@ def show_main():
     Gtk.main()
     data = window.return_data()
     window.exit("clicked")
+    window.destroy()
     return data
 
 def make_kbd_names():

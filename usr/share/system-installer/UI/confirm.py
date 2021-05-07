@@ -72,12 +72,8 @@ class Main(Gtk.Window):
         label5 = Gtk.Label()
 
         if settings["AUTO_PART"] == True:
-            label5.set_markup("""AUTO PARTITIONING ENABLED\t
+            label = """AUTO PARTITIONING ENABLED\t
 INSTALLATION DRIVE: %s""" % (settings["ROOT"]))
-        else:
-            label = """ROOT: %s
-EFI:       %s
-SWAP:      %s""" % (settings["ROOT"], settings["EFI"], settings["SWAP"])
             if settings["raid_array"]["raid_type"] != None:
                 label = label + """
 RAID Type: %s
@@ -93,8 +89,14 @@ Drive 4:   %s""" % (settings["raid_array"]["disks"]["3"],
             else:
                 label = label + """
 HOME:      %s""" % (settings["HOME"])
-            label5.set_markup(label)
+        else:
+            label = """ROOT: %s
+EFI:       %s
+SWAP:      %s
+HOME:      %s""" % (settings["ROOT"], settings["EFI"],
+                    settings["SWAP"], settings["HOME"])
 
+        label5.set_markup(label)
         label5.set_justify(Gtk.Justification.LEFT)
         label5 = self._set_default_margins(label5)
         self.grid.attach(label5, 3, 4, 1, 1)

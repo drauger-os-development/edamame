@@ -457,12 +457,12 @@ def handle_laptops():
 def install(settings):
     """Entry point for installation procedure"""
     __update__(39)
-    handle_laptops()
     processes_to_do = dir(MainInstallation)
     for each in range(len(processes_to_do) - 1, -1, -1):
         if processes_to_do[each][0] == "_":
             del processes_to_do[each]
     MainInstallation(processes_to_do, settings)
+    handle_laptops()
     setup_lowlevel(settings["EFI"], settings["ROOT"])
     verify(settings["USERNAME"], settings["PASSWORD"])
     if "PURGE" in settings:
