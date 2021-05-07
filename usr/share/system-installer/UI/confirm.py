@@ -73,7 +73,7 @@ class Main(Gtk.Window):
 
         if settings["AUTO_PART"] == True:
             label = """AUTO PARTITIONING ENABLED\t
-INSTALLATION DRIVE: %s""" % (settings["ROOT"]))
+INSTALLATION DRIVE: %s""" % (settings["ROOT"])
             if settings["raid_array"]["raid_type"] != None:
                 label = label + """
 RAID Type: %s
