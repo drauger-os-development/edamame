@@ -273,10 +273,10 @@ def install(settings):
             pass
         except IsADirectoryError:
             shutil.rmtree("/mnt/" + each)
-    __update__(89)
+    __update__(92)
     remove("/mnt/etc/resolv.conf")
     shutil.move("/mnt/etc/resolv.conf.save", "/mnt/etc/resolv.conf")
-    __update__(98)
+    __update__(96)
     file_list = listdir("/mnt/boot")
     for each in range(len(file_list) - 1, -1, -1):
         if "vmlinuz" not in file_list[each]:

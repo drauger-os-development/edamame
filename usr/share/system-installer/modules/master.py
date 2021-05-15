@@ -76,11 +76,19 @@ class MainInstallation():
             globals()[each1] = multiprocessing.Process(target=process_new,
                                                        args=args)
             globals()[each1].start()
+        offset = 39
+        ending = 51
+        iterator = round(ending / len(processes_to_do))
+        # We COULD set point equal to iterator, but we don't want the iterator to change,
+        # so re-doing the math is safer, albiet slower.
+        point = round(ending / len(processes_to_do))
         while len(processes_to_do) > 0:
             for each in range(len(processes_to_do) - 1, -1, -1):
                 if not globals()[processes_to_do[each]].is_alive():
                     globals()[processes_to_do[each]].join()
                     del processes_to_do[each]
+                    __update__(point + offset)
+                    point += offset
 
     def time_set(TIME_ZONE):
         """Set system time"""
@@ -105,7 +113,6 @@ class MainInstallation():
             pass
         with open("/etc/hosts", "w+") as hosts:
             hosts.write("127.0.0.1 %s" % (COMPUTER_NAME))
-        __update__(48)
 
     def make_user(USERNAME):
         """Set up main user"""
@@ -120,7 +127,6 @@ class MainInstallation():
                     fstab.write("/.swapfile\tswap\tswap\tdefaults\t0\t0")
             except IOError:
                 eprint("Adding swap failed. Must manually add later")
-        __update__(66)
 
     def apt(UPDATES, EXTRAS, INTERNET):
         """Run commands for apt sequentially to avoid front-end lock"""
@@ -132,7 +138,6 @@ class MainInstallation():
 
     def set_passwd(USERNAME, PASSWORD):
         """Set Root password"""
-        __update__(84)
         process = subprocess.Popen("chpasswd",
                                    stdout=stderr.buffer,
                                    stdin=subprocess.PIPE,
@@ -144,7 +149,6 @@ class MainInstallation():
                                    stderr=subprocess.PIPE)
         process.communicate(input=bytes(r"%s:%s" % (USERNAME, PASSWORD),
                                         "utf-8"))
-        __update__(85)
 
     def lightdm_config(LOGIN, USERNAME):
         """Set autologin setting for lightdm"""
@@ -179,7 +183,6 @@ XKBOPTIONS=\"\"
 
 BACKSPACE=\"guess\"
 """ % (xkbm, xkbl, xkbv))
-        __update__(90)
         subprocess.Popen(["udevadm", "trigger", "--subsystem-match=input",
                           "--action=change"], stdout=stderr.buffer)
 
@@ -213,7 +216,6 @@ def set_plymouth_theme():
                                stdin=subprocess.PIPE,
                                stderr=subprocess.PIPE)
     process.communicate(input=bytes("2\n", "utf-8"))
-    __update__(86)
 
 def install_kernel(release):
     """Install kernel from kernel.tar.xz"""
@@ -326,6 +328,7 @@ def setup_lowlevel(efi, root):
     release = subprocess.check_output(["uname", "--release"]).decode()[0:-1]
     install_kernel(release)
     set_plymouth_theme()
+    __update__(91)
     eprint("\n    ###    MAKING INITRAMFS    ###    ")
     subprocess.check_call(["mkinitramfs", "-o", "/boot/initrd.img-" + release],
                           stdout=stderr.buffer)
@@ -459,7 +462,6 @@ def handle_laptops():
 
 def install(settings):
     """Entry point for installation procedure"""
-    __update__(39)
     processes_to_do = dir(MainInstallation)
     for each in range(len(processes_to_do) - 1, -1, -1):
         if processes_to_do[each][0] == "_":
