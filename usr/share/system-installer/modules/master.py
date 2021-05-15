@@ -443,7 +443,10 @@ def handle_laptops():
     """Remove the battery icon from the panel on desktops"""
     if not _check_for_laptop():
         eprint("DESKTOP DETECTED. EDITING PANEL ACCORDINGLY.")
-        os.remove("/home/live/.config/xfce4/panel/battery-12.rc")
+        try:
+            os.remove("/home/live/.config/xfce4/panel/battery-12.rc")
+        except FileNotFoundError:
+            pass
         with open("/home/live/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml", "r") as file:
             xml = file.read().split("\n")
         for each in range(len(xml) - 1, -1, -1):
