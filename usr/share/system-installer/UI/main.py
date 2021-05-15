@@ -575,6 +575,7 @@ class Main(Gtk.Window):
             for each1 in self.data["raid_array"]["disks"]:
                 if devices[each]["name"] == self.data["raid_array"]["disks"][each1]:
                     del devices[each]
+                    break
 
         # Now we have to make a GUI using them . . .
 
