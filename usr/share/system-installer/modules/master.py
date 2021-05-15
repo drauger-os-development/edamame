@@ -442,21 +442,21 @@ def _check_for_laptop():
     return True
 
 
-def handle_laptops():
+def handle_laptops(username):
     """Remove the battery icon from the panel on desktops"""
     if not _check_for_laptop():
         eprint("DESKTOP DETECTED. EDITING PANEL ACCORDINGLY.")
         try:
-            os.remove("/home/live/.config/xfce4/panel/battery-12.rc")
+            os.remove("/home/" + username + "/.config/xfce4/panel/battery-12.rc")
         except FileNotFoundError:
             pass
-        with open("/home/live/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml", "r") as file:
+        with open("/home/" + username + "/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml", "r") as file:
             xml = file.read().split("\n")
         for each in range(len(xml) - 1, -1, -1):
             if "battery" in xml[each]:
                 del xml[each]
         xml = "\n".join(xml)
-        with open("/home/live/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml", "w") as file:
+        with open("/home/" + username + "/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml", "w") as file:
             file.write(xml)
 
 
@@ -467,7 +467,7 @@ def install(settings):
         if processes_to_do[each][0] == "_":
             del processes_to_do[each]
     MainInstallation(processes_to_do, settings)
-    handle_laptops()
+    handle_laptops(settings["USERNAME"])
     setup_lowlevel(settings["EFI"], settings["ROOT"])
     verify(settings["USERNAME"], settings["PASSWORD"])
     if "PURGE" in settings:
