@@ -190,7 +190,7 @@ class Main(Gtk.Window):
     handle eye candy.
     \t""")
         label1 = self._set_default_margins(label1)
-        self.grid.attach(label, 1, 2, 2, 1)
+        self.grid.attach(label1, 1, 2, 2, 1)
 
         button1 = Gtk.Button.new_with_label("<-- Back")
         button1.connect("clicked", self.main)
