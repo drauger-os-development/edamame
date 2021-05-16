@@ -3,7 +3,7 @@
 #
 #  success.py
 #
-#  Copyright 2020 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2021 Thomas Castleman <contact@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ from gi.repository import Gtk
 import UI.report as report
 
 
-class Main(Gtk.Window):
+class Main(report.Main):
     """Success UI Class"""
     def __init__(self, settings):
         """Initialize data"""
@@ -430,25 +430,6 @@ def __unique__(starting_list):
         if x not in unique_list:
             unique_list.append(x)
     return(unique_list)
-
-Main.main = report.Main.main
-Main.toggle_ui = report.Main.toggle_ui
-Main.message_accept = report.Main.message_accept
-Main.message_handler = report.Main.message_handler
-Main.generate_message = report.Main.generate_message
-Main.preview_message = report.Main.preview_message
-Main.send_report = report.Main.send_report
-Main.cpu_explaination = report.Main.cpu_explaination
-Main.cpu_toggle = report.Main.cpu_toggle
-Main.disk_explaination = report.Main.disk_explaination
-Main.disk_toggle = report.Main.disk_toggle
-Main.generate_message = report.Main.generate_message
-Main.gpu_explaination = report.Main.gpu_explaination
-Main.gpu_toggle = report.Main.gpu_toggle
-Main.log_explaination = report.Main.log_explaination
-Main.log_toggle = report.Main.log_toggle
-Main.ram_explaination = report.Main.ram_explaination
-Main.ram_toggle = report.Main.ram_toggle
 
 
 def show_success(settings):
