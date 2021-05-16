@@ -505,7 +505,7 @@ class Main(Gtk.Window):
 
         label = Gtk.Label()
         label.set_markup("""
-    Would you like to let %s automaticly partition a drive for installation?\t
+    Would you like to let %s automatically partition a drive for installation?\t
     Or, would you like to manually partition space for it?\t
 
     <b>NOTE</b>
@@ -598,7 +598,7 @@ class Main(Gtk.Window):
         self.disks.connect("changed", self._set_root_part)
         self.grid.attach(self.disks, 2, 2, 3, 1)
 
-        home_part = Gtk.CheckButton.new_with_label("Seperate home partition")
+        home_part = Gtk.CheckButton.new_with_label("Separate home partition")
         if ((self.data["HOME"] != "") and (self.data["HOME"] != "NULL")):
             home_part.set_active(True)
         home_part.connect("toggled", self.auto_home_setup)
@@ -1030,8 +1030,8 @@ Type. Minimum drives is: %s""" % (loops))
 
         label = Gtk.Label()
         label.set_markup("""
-    What are the mount points for the partions you wish to be used?
-    Leave empty the partions you don't want.
+    What are the mount points for the partitions you wish to be used?
+    Leave empty the partitions you don't want.
     <b> / MUST BE USED </b>
     """)
         label.set_justify(Gtk.Justification.LEFT)
@@ -1117,8 +1117,8 @@ Type. Minimum drives is: %s""" % (loops))
                 self.root.get_text()[0:5] != "/dev/")):
             label = Gtk.Label()
             label.set_markup("""
-    What are the mount points for the partions you wish to be used?
-    Leave empty the partions you don't want.
+    What are the mount points for the partitions you wish to be used?
+    Leave empty the partitions you don't want.
     <b> / MUST BE USED </b>
 
     / NOT SET
@@ -1135,8 +1135,8 @@ Type. Minimum drives is: %s""" % (loops))
         elif not path.exists(self.root.get_text()):
             label = Gtk.Label()
             label.set_markup("""
-    What are the mount points for the partions you wish to be used?
-    Leave empty the partions you don't want.
+    What are the mount points for the partitions you wish to be used?
+    Leave empty the partitions you don't want.
     <b> / MUST BE USED </b>
 
     Not a Valid Device on /
@@ -1155,8 +1155,8 @@ Type. Minimum drives is: %s""" % (loops))
                 self.efi.get_text()[0:5] != "/dev/")) and path.isdir("/sys/firmware/efi")):
             label = Gtk.Label()
             label.set_markup("""
-    What are the mount points for the partions you wish to be used?
-    Leave empty the partions you don't want.
+    What are the mount points for the partitions you wish to be used?
+    Leave empty the partitions you don't want.
     <b> / MUST BE USED </b>
 
     You are using EFI, therefore an EFI partition
@@ -1174,8 +1174,8 @@ Type. Minimum drives is: %s""" % (loops))
         elif (not path.exists(self.efi.get_text()) or (self.efi.get_text() == "")) and path.isdir("/sys/firmware/efi"):
             label = Gtk.Label()
             label.set_markup("""
-    What are the mount points for the partions you wish to be used?
-    Leave empty the partions you don't want.
+    What are the mount points for the partitions you wish to be used?
+    Leave empty the partitions you don't want.
     <b> / MUST BE USED </b>
 
     Not a Valid Device on /boot/efi
@@ -1193,8 +1193,8 @@ Type. Minimum drives is: %s""" % (loops))
                 self.home.get_text()[0:5] != "/dev/")):
             label = Gtk.Label()
             label.set_markup("""
-    What are the mount points for the partions you wish to be used?
-    Leave empty the partions you don't want.
+    What are the mount points for the partitions you wish to be used?
+    Leave empty the partitions you don't want.
     <b> / MUST BE USED </b>
 
     Please input a valid device path for HOME partition.
@@ -1212,8 +1212,8 @@ Type. Minimum drives is: %s""" % (loops))
                 self.home.get_text() != "")):
             label = Gtk.Label()
             label.set_markup("""
-    What are the mount points for the partions you wish to be used?
-    Leave empty the partions you don't want.
+    What are the mount points for the partitions you wish to be used?
+    Leave empty the partitions you don't want.
     <b> / MUST BE USED </b>
 
     Not a Valid Device on /home
@@ -1232,8 +1232,8 @@ Type. Minimum drives is: %s""" % (loops))
                     self.swap.get_text().upper() != "FILE")):
             label = Gtk.Label()
             label.set_markup("""
-    What are the mount points for the partions you wish to be used?
-    Leave empty the partions you don't want.
+    What are the mount points for the partitions you wish to be used?
+    Leave empty the partitions you don't want.
     <b> / MUST BE USED </b>
 
     SWAP must be set to a valid partition path, "FILE", or
@@ -1253,8 +1253,8 @@ Type. Minimum drives is: %s""" % (loops))
                     self.swap.get_text() != "")):
             label = Gtk.Label()
             label.set_markup("""
-    What are the mount points for the partions you wish to be used?
-    Leave empty the partions you don't want.
+    What are the mount points for the partitions you wish to be used?
+    Leave empty the partitions you don't want.
     <b> / MUST BE USED </b>
 
     Not a Valid Device on SWAP
@@ -1271,8 +1271,8 @@ Type. Minimum drives is: %s""" % (loops))
         else:
             label = Gtk.Label()
             label.set_markup("""
-    What are the mount points for the partions you wish to be used?
-    Leave empty the partions you don't want.
+    What are the mount points for the partitions you wish to be used?
+    Leave empty the partitions you don't want.
     <b> / MUST BE USED </b>
     """)
             label.set_justify(Gtk.Justification.LEFT)
@@ -1351,7 +1351,7 @@ Type. Minimum drives is: %s""" % (loops))
 
         label2 = Gtk.Label()
         label2.set_markup("""
-        Automaticly login upon boot up. Does <b>NOT</b> require internet.""")
+        Automatically login upon boot up. Does <b>NOT</b> require internet.""")
         label2.set_justify(Gtk.Justification.LEFT)
         label2 = self._set_default_margins(label2)
         self.grid.attach(label2, 1, 6, 2, 1)
@@ -1406,7 +1406,7 @@ Type. Minimum drives is: %s""" % (loops))
         label2 = Gtk.Label()
         label2.set_markup("""
 
-Langauge""")
+Language""")
         label2.set_justify(Gtk.Justification.LEFT)
         label2 = self._set_default_margins(label2)
         self.grid.attach(label2, 2, 2, 1, 1)
