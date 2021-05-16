@@ -88,7 +88,7 @@ class MainInstallation():
                     globals()[processes_to_do[each]].join()
                     del processes_to_do[each]
                     __update__(point + offset)
-                    point += offset
+                    point += iterator
 
     def time_set(TIME_ZONE):
         """Set system time"""
