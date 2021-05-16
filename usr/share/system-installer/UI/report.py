@@ -299,6 +299,11 @@ class Main(Gtk.Window):
         self.show_all()
 
         try:
+            copyfile(self.path, "/mnt/var/mail/installation_report.txt")
+        except:
+            pass
+
+        try:
             # Get keys
             cURL = curl.Curl()
             with open("../../../etc/system-installer/default.json", "r") as config:
@@ -315,11 +320,6 @@ class Main(Gtk.Window):
             # Upload newly encrypted file
             check_output(["rsync", self.path,
                           URL["upload"]])
-
-            try:
-                copyfile(self.path, "/mnt/var/mail/installation_report.txt")
-            except:
-                pass
 
             self.clear_window()
 
