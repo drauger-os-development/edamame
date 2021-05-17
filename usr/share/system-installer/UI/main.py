@@ -23,11 +23,11 @@
 #
 """Main Installation UI"""
 from __future__ import print_function
-from subprocess import Popen, check_output, DEVNULL
-from os import getcwd, chdir, path, listdir, fork
 import sys
 import re
 import json
+from subprocess import Popen, check_output, DEVNULL
+from os import chdir, path, listdir
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
@@ -130,14 +130,14 @@ class Main(Gtk.Window):
                       "Uzbek": 'uz', "Walloon": 'wa', "Xhosa": 'xh',
                       "Yiddish": 'yi', "Chinese": 'zh', "Zulu": 'zu'}
         self.raid_def = {"RAID0": {"min_drives": 2,
-                                 "desc": "Max performance, Least Reliability",
-                                 "raid_num": 0,},
-                       "RAID1": {"min_drives": 2,
-                                 "desc": "Least Performance, Max Reliability",
-                                 "raid_num": 1},
-                       "RAID10": {"min_drives": 4,
-                                  "desc": "Balanced Performance and Reliability",
-                                  "raid_num": 10}}
+                                   "desc": "Max performance, Least Reliability",
+                                   "raid_num": 0,},
+                         "RAID1": {"min_drives": 2,
+                                   "desc": "Least Performance, Max Reliability",
+                                   "raid_num": 1},
+                         "RAID10": {"min_drives": 4,
+                                    "desc": "Balanced Performance and Reliability",
+                                    "raid_num": 10}}
 
         # Open initial window
         self.reset("clicked")
@@ -546,14 +546,13 @@ class Main(Gtk.Window):
 
         # Get a list of disks and their capacity
         self.devices = json.loads(check_output(["lsblk", "-n", "-i", "--json",
-                                               "-o", "NAME,SIZE,TYPE"]).decode())
+                                                "-o", "NAME,SIZE,TYPE"]).decode())
         self.devices = self.devices["blockdevices"]
         dev = []
         for each2 in enumerate(self.devices):
             if "loop" in self.devices[each2[0]]["name"]:
                 continue
-            else:
-                dev.append(self.devices[each2[0]])
+            dev.append(self.devices[each2[0]])
         devices = []
         for each4 in dev:
             devices.append(each4)
@@ -640,8 +639,7 @@ class Main(Gtk.Window):
         for each2 in enumerate(self.devices):
             if "loop" in self.devices[each2[0]]["name"]:
                 continue
-            else:
-                dev.append(self.devices[each2[0]])
+            dev.append(self.devices[each2[0]])
         devices = []
         for each4 in dev:
             devices.append(each4)
@@ -654,7 +652,7 @@ class Main(Gtk.Window):
             if devices[each]["name"] == self.data["ROOT"]:
                 del devices[each]
 
-        if self.data["raid_array"]["raid_type"] == None:
+        if self.data["raid_array"]["raid_type"] is None:
             loops = 2
         else:
             loops = self.raid_def[self.data["raid_array"]["raid_type"]]["min_drives"]
@@ -688,7 +686,7 @@ Type. Minimum drives is: %s""" % (loops))
         raid_type = Gtk.ComboBoxText.new()
         for each in self.raid_def:
             raid_type.append(each,
-                              "%s: %s" % (each, self.raid_def[each]["desc"]))
+                             "%s: %s" % (each, self.raid_def[each]["desc"]))
         raid_type = self._set_default_margins(raid_type)
         raid_type.set_active_id(self.data["raid_array"]["raid_type"])
         raid_type.connect("changed", self._change_raid_type)
@@ -711,8 +709,8 @@ Type. Minimum drives is: %s""" % (loops))
                 if skip:
                     continue
                 device_drop_down.append("%s" % (each4["name"]),
-                                  "%s    Size: %s" % (each4["name"],
-                                                      each4["size"]))
+                                        "%s    Size: %s" % (each4["name"],
+                                                            each4["size"]))
 
             device_drop_down.set_active_id(self.data["raid_array"]["disks"][str(each + 1)])
             if (each + 1) == 1:
@@ -781,17 +779,16 @@ Type. Minimum drives is: %s""" % (loops))
 
     def confirm_raid_array(self, widget):
         """Confirm RAID settings and modify other installer settings as necessary"""
-        if self.data["raid_array"]["raid_type"] == None:
+        if self.data["raid_array"]["raid_type"] is None:
             self.define_array("clicked", error="type_not_set")
             return
-        else:
-            count = 0
-            for each in self.data["raid_array"]["disks"]:
-                if self.data["raid_array"]["disks"][each] != None:
-                    count += 1
-            if count < self.raid_def[self.data["raid_array"]["raid_type"]]["min_drives"]:
-                self.define_array("clicked", error="disk_not_set")
-                return
+        count = 0
+        for each in self.data["raid_array"]["disks"]:
+            if self.data["raid_array"]["disks"][each] is not None:
+                count += 1
+        if count < self.raid_def[self.data["raid_array"]["raid_type"]]["min_drives"]:
+            self.define_array("clicked", error="disk_not_set")
+            return
 
         self.clear_window()
 
@@ -941,12 +938,9 @@ Type. Minimum drives is: %s""" % (loops))
         if widget.get_active() == 1:
             dev = []
             for each5 in enumerate(self.device):
-                if "loop" in self.device[each5[0]]:
+                if ("loop" in self.device[each5[0]]) or ("disk" in self.device[each5[0]]):
                     continue
-                elif "disk" in self.device[each5[0]]:
-                    continue
-                else:
-                    dev.append(self.device[each5[0]])
+                dev.append(self.device[each5[0]])
             devices = []
             for each5 in dev:
                 devices.append(each5.split())
@@ -1675,7 +1669,9 @@ Sub-Region""")
         self.clear_window()
 
         label = Gtk.Label()
-        label.set_markup("""\n<b>Are you sure you want to exit?</b>""")
+        label.set_markup("""\n<b>Are you sure you want to exit?</b>
+
+Exiting now will cause all your settings to be lost.""")
         label.set_justify(Gtk.Justification.CENTER)
         label = self._set_default_margins(label)
         self.grid.attach(label, 1, 1, 2, 1)
