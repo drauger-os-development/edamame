@@ -29,10 +29,10 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
 
-
 def eprint(*args, **kwargs):
     """Make it easier for us to print to stderr"""
     print(*args, file=stderr, **kwargs)
+
 
 class Main(Gtk.Window):
     """UI Confirmation Class"""
@@ -71,10 +71,10 @@ class Main(Gtk.Window):
 
         label5 = Gtk.Label()
 
-        if settings["AUTO_PART"] == True:
+        if settings["AUTO_PART"]:
             label = """AUTO PARTITIONING ENABLED\t
 INSTALLATION DRIVE: %s""" % (settings["ROOT"])
-            if settings["raid_array"]["raid_type"] != None:
+            if settings["raid_array"]["raid_type"] is not None:
                 label = label + """
 RAID Type: %s
 Drive 1:   %s
@@ -290,6 +290,7 @@ HOME:      %s""" % (settings["ROOT"], settings["EFI"],
     def return_install(self):
         """Getter for data"""
         return self.install
+
 
 def show_confirm(settings):
     """Show confirmation dialog"""

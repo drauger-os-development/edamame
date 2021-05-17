@@ -31,10 +31,10 @@ from os import remove
 
 window = None
 
+
 class Main(Gtk.ApplicationWindow):
     """Progress UI Window"""
     def __init__(self, app):
-    # def __init__(self):
         """Progress UI main set-up"""
         Gtk.Window.__init__(self, title="System Installer", application=app)
         # Gtk.Window.__init__(self, title="System Installer")
@@ -55,7 +55,6 @@ to: contact@draugeros.org   """)
         self.label.set_justify(Gtk.Justification.CENTER)
         self.label = self._set_default_margins(self.label)
         self.grid.attach(self.label, 1, 1, 1, 1)
-
 
         self.progress = Gtk.ProgressBar()
         self.progress.set_fraction(0)
@@ -130,6 +129,7 @@ to: contact@draugeros.org   """)
         self.read_file()
         return True
 
+
 class Worker(Gtk.Application):
 
     def __init__(self):
@@ -143,6 +143,7 @@ class Worker(Gtk.Application):
         self.win = Main(self)
         self.win.show_all()
 
+
 def show_progress():
     """Show Progress UI"""
     signal.signal(signal.SIGTERM, handle_sig_term)
@@ -150,11 +151,13 @@ def show_progress():
     window = Worker()
     exit_status = window.run(sys.argv)
 
+
 def handle_sig_term(signum, frame):
     print("SIGTERM RECEIVED")
     global window
     window.win.destroy()
     sys.exit()
+
 
 if __name__ == '__main__':
     show_progress()

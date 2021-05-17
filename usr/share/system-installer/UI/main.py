@@ -131,7 +131,7 @@ class Main(Gtk.Window):
                       "Yiddish": 'yi', "Chinese": 'zh', "Zulu": 'zu'}
         self.raid_def = {"RAID0": {"min_drives": 2,
                                    "desc": "Max performance, Least Reliability",
-                                   "raid_num": 0,},
+                                   "raid_num": 0},
                          "RAID1": {"min_drives": 2,
                                    "desc": "Least Performance, Max Reliability",
                                    "raid_num": 1},
@@ -739,7 +739,6 @@ Type. Minimum drives is: %s""" % (loops))
         button3 = self._set_default_margins(button3)
         self.grid.attach(button3, 2, 9, 1, 1)
 
-
         self.show_all()
 
     # I know there is a better way to assign disks than this, or at least a
@@ -778,7 +777,8 @@ Type. Minimum drives is: %s""" % (loops))
         self.define_array("clicked")
 
     def confirm_raid_array(self, widget):
-        """Confirm RAID settings and modify other installer settings as necessary"""
+        """Confirm RAID settings and modify other
+        installer settings as necessary"""
         if self.data["raid_array"]["raid_type"] is None:
             self.define_array("clicked", error="type_not_set")
             return
@@ -1720,6 +1720,7 @@ def show_main():
     window.exit("clicked")
     window.destroy()
     return data
+
 
 def make_kbd_names():
     """Get Keyboard Names faster"""
