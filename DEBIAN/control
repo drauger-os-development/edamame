@@ -1,6 +1,7 @@
 Package: system-installer
-Version: 1.8.2-beta8
+Version: 1.9.0-beta9
 Maintainer: Thomas Castleman <contact@draugeros.org>
+Homepage: https://github.com/drauger-os-development/system-installer
 Section: admin
 Architecture: all
 Priority: important

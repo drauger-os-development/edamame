@@ -12,8 +12,5 @@ List of known bugs
 		- What few systems do have enough drives for this issue to arise are either;
 			- A server (which Drauger OS should not be running on)
 			- A SUPER high-end machine which likely supports UEFI
-			
-- installer.py only supports default.json for now
 
-- Auto Partitioner is broken on BIOS
-	- Have not yet gotten to figuring out how to fix this
+- installer.py only supports default.json for now

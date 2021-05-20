@@ -3,7 +3,7 @@
 #
 #  master.py
 #
-#  Copyright 2020 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2021 Thomas Castleman <contact@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -33,9 +33,9 @@ from shutil import rmtree, copyfile
 from inspect import getfullargspec
 from time import sleep
 import json
-import urllib3
 import warnings
 import tarfile as tar
+
 
 
 # import our own programs
@@ -76,11 +76,19 @@ class MainInstallation():
             globals()[each1] = multiprocessing.Process(target=process_new,
                                                        args=args)
             globals()[each1].start()
+        offset = 39
+        ending = 51
+        iterator = round(ending / len(processes_to_do))
+        # We COULD set point equal to iterator, but we don't want the iterator to change,
+        # so re-doing the math is safer, albiet slower.
+        point = round(ending / len(processes_to_do))
         while len(processes_to_do) > 0:
             for each in range(len(processes_to_do) - 1, -1, -1):
                 if not globals()[processes_to_do[each]].is_alive():
                     globals()[processes_to_do[each]].join()
                     del processes_to_do[each]
+                    __update__(point + offset)
+                    point += iterator
 
     def time_set(TIME_ZONE):
         """Set system time"""
@@ -105,7 +113,6 @@ class MainInstallation():
             pass
         with open("/etc/hosts", "w+") as hosts:
             hosts.write("127.0.0.1 %s" % (COMPUTER_NAME))
-        __update__(48)
 
     def make_user(USERNAME):
         """Set up main user"""
@@ -120,7 +127,6 @@ class MainInstallation():
                     fstab.write("/.swapfile\tswap\tswap\tdefaults\t0\t0")
             except IOError:
                 eprint("Adding swap failed. Must manually add later")
-        __update__(66)
 
     def apt(UPDATES, EXTRAS, INTERNET):
         """Run commands for apt sequentially to avoid front-end lock"""
@@ -132,7 +138,6 @@ class MainInstallation():
 
     def set_passwd(USERNAME, PASSWORD):
         """Set Root password"""
-        __update__(84)
         process = subprocess.Popen("chpasswd",
                                    stdout=stderr.buffer,
                                    stdin=subprocess.PIPE,
@@ -144,7 +149,6 @@ class MainInstallation():
                                    stderr=subprocess.PIPE)
         process.communicate(input=bytes(r"%s:%s" % (USERNAME, PASSWORD),
                                         "utf-8"))
-        __update__(85)
 
     def lightdm_config(LOGIN, USERNAME):
         """Set autologin setting for lightdm"""
@@ -179,9 +183,8 @@ XKBOPTIONS=\"\"
 
 BACKSPACE=\"guess\"
 """ % (xkbm, xkbl, xkbv))
-        __update__(90)
         subprocess.Popen(["udevadm", "trigger", "--subsystem-match=input",
-               "--action=change"], stdout=stderr.buffer)
+                          "--action=change"], stdout=stderr.buffer)
 
     def remove_launcher(USERNAME):
         """Remove system installer desktop launcher"""
@@ -200,20 +203,19 @@ User will need to remove manually.""")
 def set_plymouth_theme():
     """Ensure the plymouth theme is set correctly"""
     subprocess.Popen(["update-alternatives", "--install",
-           "/usr/share/plymouth/themes/default.plymouth",
-           "default.plymouth",
-           "/usr/share/plymouth/themes/drauger-theme/drauger-theme.plymouth",
-           "100", "--slave",
-           "/usr/share/plymouth/themes/default.grub", "default.plymouth.grub",
-           "/usr/share/plymouth/themes/drauger-theme/drauger-theme.grub"],
-          stdout=stderr.buffer)
+                      "/usr/share/plymouth/themes/default.plymouth",
+                      "default.plymouth",
+                      "/usr/share/plymouth/themes/drauger-theme/drauger-theme.plymouth",
+                      "100", "--slave",
+                      "/usr/share/plymouth/themes/default.grub", "default.plymouth.grub",
+                      "/usr/share/plymouth/themes/drauger-theme/drauger-theme.grub"],
+                     stdout=stderr.buffer)
     process = subprocess.Popen(["update-alternatives", "--config",
                                 "default.plymouth"],
                                stdout=stderr.buffer,
                                stdin=subprocess.PIPE,
                                stderr=subprocess.PIPE)
     process.communicate(input=bytes("2\n", "utf-8"))
-    __update__(86)
 
 def install_kernel(release):
     """Install kernel from kernel.tar.xz"""
@@ -260,7 +262,7 @@ def _install_grub(root):
     subprocess.check_call(["grub-install", "--verbose", "--force",
                            "--target=i386-pc", root], stdout=stderr.buffer)
     subprocess.check_call(["grub-mkconfig", "-o", "/boot/grub/grub.cfg"],
-               stdout=stderr.buffer)
+                          stdout=stderr.buffer)
 
 def _install_systemd_boot(release, root):
     """set up and install systemd-boot"""
@@ -326,9 +328,10 @@ def setup_lowlevel(efi, root):
     release = subprocess.check_output(["uname", "--release"]).decode()[0:-1]
     install_kernel(release)
     set_plymouth_theme()
+    __update__(91)
     eprint("\n    ###    MAKING INITRAMFS    ###    ")
     subprocess.check_call(["mkinitramfs", "-o", "/boot/initrd.img-" + release],
-               stdout=stderr.buffer)
+                          stdout=stderr.buffer)
     install_bootloader(efi, root, release)
     sleep(0.5)
     os.symlink("/boot/initrd.img-" + release, "/boot/initrd.img")
@@ -341,7 +344,7 @@ def check_systemd_boot(release, root):
     recovery_flags = "ro recovery nomodeset"
     # Get Root UUID
     uuid = subprocess.check_output(["blkid", "-s", "PARTUUID",
-                         "-o", "value", root]).decode()[0:-1]
+                                    "-o", "value", root]).decode()[0:-1]
 
     # Check for standard boot config
     if not os.path.exists("/boot/efi/loader/entries/Drauger_OS.conf"):
@@ -439,30 +442,32 @@ def _check_for_laptop():
     return True
 
 
-def handle_laptops():
+def handle_laptops(username):
     """Remove the battery icon from the panel on desktops"""
     if not _check_for_laptop():
         eprint("DESKTOP DETECTED. EDITING PANEL ACCORDINGLY.")
-        os.remove("/home/live/.config/xfce4/panel/battery-12.rc")
-        with open("/home/live/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml", "r") as file:
+        try:
+            os.remove("/home/" + username + "/.config/xfce4/panel/battery-12.rc")
+        except FileNotFoundError:
+            pass
+        with open("/home/" + username + "/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml", "r") as file:
             xml = file.read().split("\n")
         for each in range(len(xml) - 1, -1, -1):
             if "battery" in xml[each]:
                 del xml[each]
         xml = "\n".join(xml)
-        with open("/home/live/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml", "w") as file:
+        with open("/home/" + username + "/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml", "w") as file:
             file.write(xml)
 
 
 def install(settings):
     """Entry point for installation procedure"""
-    __update__(39)
-    handle_laptops()
     processes_to_do = dir(MainInstallation)
     for each in range(len(processes_to_do) - 1, -1, -1):
         if processes_to_do[each][0] == "_":
             del processes_to_do[each]
     MainInstallation(processes_to_do, settings)
+    handle_laptops(settings["USERNAME"])
     setup_lowlevel(settings["EFI"], settings["ROOT"])
     verify(settings["USERNAME"], settings["PASSWORD"])
     if "PURGE" in settings:

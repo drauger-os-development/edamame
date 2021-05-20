@@ -3,7 +3,7 @@
 #
 #  make_swap.py
 #
-#  Copyright 2020 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2021 Thomas Castleman <contact@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -46,7 +46,6 @@ def make_swap():
     # testing says once you hit the same number of threads
     # the CPU has, there's no more you can get
     swap = round((swap + sqrt((swap / 1024 ** 3)) * 1024 ** 3))
-    print(57)
     # you would think having a larger string would help,
     # but past a certain point it does not
     multiplyer = 10000
@@ -57,12 +56,9 @@ def make_swap():
         for i in range(round(swap / (multiplyer * load_balancer))):
             swapfile.write(master_string * (multiplyer * load_balancer))
             swapfile.flush()
-    print("60")
     chmod("/.swapfile", 0o600)
-    print("62")
     subprocess.check_call(["mkswap", "/.swapfile"], stdout=stderr.buffer)
     sleep(0.1)
-    print("64")
     subprocess.Popen(["swapon", "/.swapfile"])
     eprint("    ###    make_swap.py CLOSED    ###    ")
 

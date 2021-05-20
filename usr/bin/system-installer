@@ -3,7 +3,7 @@
 #
 #  system-installer
 #
-#  Copyright 2020 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2021 Thomas Castleman <contact@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ from sys import argv, stderr
 from subprocess import check_call
 from os import system, path
 ARGC = len(argv)
-VERSION = "1.8.2-beta8"
+VERSION = "1.9.0-beta9"
 HELP = """
 system-installer, Version %s
 
@@ -57,7 +57,7 @@ if ARGC > 1:
 else:
     check_call(["/usr/bin/xhost", "+si:localuser:root"])
     print(Y + "RUNNING LOG LOCATED AT /tmp/system-installer.log" + NC)
-    exit_code = system("echo 'toor' | sudo -S /usr/share/system-installer/engine.py 2>/tmp/system-installer.log")
+    exit_code = system("echo 'toor' | sudo -S /usr/share/system-installer/engine.py 2>/tmp/system-installer.log 1>&2")
     if ((exit_code == 256) and (not path.exists("/tmp/system-installer.log"))):
         eprint("Error accessing /usr/share/system-installer/engine.py: No such file or directory")
         with open("/tmp/system-installer.log", "w+") as log_file:

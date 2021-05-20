@@ -3,7 +3,7 @@
 #
 #  error.py
 #
-#  Copyright 2020 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2021 Thomas Castleman <contact@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ from gi.repository import Gtk
 import UI.report as report
 
 
-class Main(Gtk.Window):
+class Main(report.Main):
     """UI Error Class"""
     def __init__(self, display):
         """set up Error UI"""
@@ -55,6 +55,7 @@ class Main(Gtk.Window):
         self.label = Gtk.Label()
         self.label.set_markup("<b>" + self.display + "</b>")
         self.label.set_justify(Gtk.Justification.CENTER)
+        self.label = self._set_default_margins(self.label)
         self.grid.attach(self.label, 1, 1, 3, 1)
 
         self.label2 = Gtk.Label()
@@ -63,17 +64,28 @@ class Main(Gtk.Window):
     you can send an installation report below.
     """)
         self.label2.set_justify(Gtk.Justification.CENTER)
+        self.label2 = self._set_default_margins(self.label2)
         self.grid.attach(self.label2, 1, 2, 3, 1)
 
         self.button2 = Gtk.Button.new_with_label("Exit")
         self.button2.connect("clicked", self.exit)
+        self.button2 = self._set_default_margins(self.button2)
         self.grid.attach(self.button2, 1, 3, 1, 1)
 
         self.button = Gtk.Button.new_with_label("Send Installation report")
         self.button.connect("clicked", self.main)
+        self.button = self._set_default_margins(self.button)
         self.grid.attach(self.button, 3, 3, 1, 1)
 
         self.show_all()
+
+    def _set_default_margins(self, widget):
+        """Set default margin size"""
+        widget.set_margin_start(10)
+        widget.set_margin_end(10)
+        widget.set_margin_top(10)
+        widget.set_margin_bottom(10)
+        return widget
 
     def clear_window(self):
         """Clear window of everything"""
@@ -92,26 +104,6 @@ class Main(Gtk.Window):
         Gtk.main_quit("delete-event")
         self.destroy()
         return 0
-
-
-Main.main = report.Main.main
-Main.toggle_ui = report.Main.toggle_ui
-Main.message_accept = report.Main.message_accept
-Main.message_handler = report.Main.message_handler
-Main.generate_message = report.Main.generate_message
-Main.preview_message = report.Main.preview_message
-Main.send_report = report.Main.send_report
-Main.cpu_explaination = report.Main.cpu_explaination
-Main.cpu_toggle = report.Main.cpu_toggle
-Main.disk_explaination = report.Main.disk_explaination
-Main.disk_toggle = report.Main.disk_toggle
-Main.generate_message = report.Main.generate_message
-Main.gpu_explaination = report.Main.gpu_explaination
-Main.gpu_toggle = report.Main.gpu_toggle
-Main.log_explaination = report.Main.log_explaination
-Main.log_toggle = report.Main.log_toggle
-Main.ram_explaination = report.Main.ram_explaination
-Main.ram_toggle = report.Main.ram_toggle
 
 
 def show_error(display):

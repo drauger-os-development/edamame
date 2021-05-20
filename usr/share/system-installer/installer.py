@@ -22,7 +22,6 @@
 #
 #
 """Main module controling the installation process"""
-from __future__ import print_function
 from subprocess import Popen, check_output, check_call, CalledProcessError
 from os import mkdir, path, chdir, listdir, remove, symlink, chmod
 import shutil
@@ -67,6 +66,10 @@ def install(settings):
         HOME : device path as str
         EFI : device path
         SWAP : device path or 'FILE'
+        raid_array : dict containing the following values:
+            raid_type : raid type (0, 1, 10) as str. e.g.: "RAID10", if not used, None
+            disks : disk of numbers 1-4 as keys, with their values being the disks
+                    to use for the RAID array. If not used, None.
         LANG : language as str
         TIME_ZONE : 'Region/SubRegion' as str
         USERNAME : str
@@ -87,7 +90,8 @@ def install(settings):
     if settings["AUTO_PART"]:
         partitioning = auto_partitioner.partition(settings["ROOT"],
                                                   settings["EFI"],
-                                                  settings["HOME"])
+                                                  settings["HOME"],
+                                                  settings["raid_array"])
         settings["ROOT"] = partitioning["ROOT"]
         settings["EFI"] = partitioning["EFI"]
         settings["HOME"] = partitioning["HOME"]
@@ -171,7 +175,7 @@ def install(settings):
         except IsADirectoryError:
             shutil.copytree("/boot/" + each, "/mnt/boot/" + each)
     shutil.copyfile("/tmp/system-installer-progress.log",
-             "/mnt/tmp/system-installer-progress.log")
+                    "/mnt/tmp/system-installer-progress.log")
     remove("/tmp/system-installer-progress.log")
     symlink("/mnt/tmp/system-installer-progress.log",
             "/tmp/system-installer-progress.log")
@@ -193,7 +197,8 @@ def install(settings):
             continue
         common.eprint("/usr/share/system-installer/modules/%s --> /mnt/%s" %
                       (each, each))
-        shutil.copyfile("/usr/share/system-installer/modules/" + each, "/mnt/" + each)
+        shutil.copyfile("/usr/share/system-installer/modules/" + each,
+                        "/mnt/" + each)
     __update__(35)
     # STEP 6: Run Master script inside chroot
     # don't run it as a background process so we know when it gets done
@@ -242,20 +247,20 @@ def install(settings):
     # Copy live system networking settings into installed system
     shutil.rmtree("/mnt/etc/NetworkManager/system-connections")
     shutil.copytree("/etc/NetworkManager/system-connections",
-             "/mnt/etc/NetworkManager/system-connections")
+                    "/mnt/etc/NetworkManager/system-connections")
     if path.exists(work_dir) and path.exists(work_dir + "/assets"):
         ls = listdir(work_dir + "/assets")
         mkdir("/mnt/user-data")
         if "master" in ls:
             file_type = listdir(work_dir + "/assets/master")[0].split("/")[-1].split(".")[-1]
             shutil.copyfile(work_dir + "/assets/master/wallpaper." + file_type,
-                     "/mnt/user-data/wallpaper." + file_type)
+                            "/mnt/user-data/wallpaper." + file_type)
             shutil.copyfile(work_dir + "/assets/screens.list",
-                     "/mnt/user-data/screens.list")
+                            "/mnt/user-data/screens.list")
         else:
             for each in ls:
                 shutil.copytree(work_dir + "/assets/" + each,
-                         "/mnt/user-data/" + each)
+                                "/mnt/user-data/" + each)
     real_root = chroot.arch_chroot("/mnt")
     modules.master.install(settings)
     chroot.de_chroot(real_root, "/mnt")
@@ -268,10 +273,10 @@ def install(settings):
             pass
         except IsADirectoryError:
             shutil.rmtree("/mnt/" + each)
-    __update__(89)
+    __update__(92)
     remove("/mnt/etc/resolv.conf")
     shutil.move("/mnt/etc/resolv.conf.save", "/mnt/etc/resolv.conf")
-    __update__(98)
+    __update__(96)
     file_list = listdir("/mnt/boot")
     for each in range(len(file_list) - 1, -1, -1):
         if "vmlinuz" not in file_list[each]:
@@ -279,7 +284,7 @@ def install(settings):
     if len(file_list) == 0:
         common.eprint("    ###    KERNEL NOT INSTALLED. CORRECTING . . .    ###    ")
         shutil.copyfile("/usr/share/system-installer/modules/kernel.tar.xz",
-                 "/mnt/kernel.tar.xz")
+                        "/mnt/kernel.tar.xz")
         root_dir = chroot.arch_chroot("/mnt")
         tar_file = tar.open("kernel.tar.xz")
         tar_file.extractall()
@@ -295,7 +300,7 @@ def install(settings):
     if ((len(file_list) == 0) and (settings["EFI"] not in (None, "", "NULL", False))):
         common.eprint("    ###    SYSTEMD-BOOT NOT CONFIGURED. CORRECTING . . .    ###    ")
         shutil.copyfile("/usr/share/system-installer/modules/systemd_boot_config.py",
-                 "/mnt/systemd_boot_config.py")
+                        "/mnt/systemd_boot_config.py")
         check_call(["arch-chroot", "/mnt", "python3",
                     "/systemd_boot_config.py", settings["ROOT"]])
         check_call(["arch-chroot", "/mnt",
@@ -303,7 +308,7 @@ def install(settings):
         remove("/mnt/systemd_boot_config.py")
     try:
         shutil.rmtree("/mnt/home/" + settings["USERNAME"] +
-               "/.config/xfce4/panel/launcher-3")
+                      "/.config/xfce4/panel/launcher-3")
     except FileNotFoundError:
         pass
     __update__(100)

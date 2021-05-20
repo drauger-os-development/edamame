@@ -36,7 +36,6 @@ def eprint(*args, **kwargs):
 def set_locale(lang_set):
     """Figure out locale code for a given language name"""
     eprint("    ###    set_locale.py STARTED    ###    ")
-    print(40)
     # figure out what LANG to set
     with open("/etc/locale.gen", "r") as locale_file:
         data = locale_file.read()
@@ -83,11 +82,8 @@ def _setlocale(locale):
     contents = "\n".join(contents)
     with open("/etc/locale.gen", "w+") as new_gen:
         new_gen.write(contents)
-    print(41)
     check_call(["locale-gen"], stdout=stderr.buffer)
-    print(42)
     check_call(["update-locale", "LANG=%s.UTF-8" % (locale), "LANGUAGE"])
-    print(43)
 
 
 if __name__ == '__main__':

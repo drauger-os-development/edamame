@@ -3,7 +3,7 @@
 #
 #  success.py
 #
-#  Copyright 2020 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2021 Thomas Castleman <contact@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -32,10 +32,13 @@ import tarfile as tar
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
-import UI.report as report
+try:
+    import UI.report as report
+except ModuleNotFoundError:
+    import report
 
 
-class Main(Gtk.Window):
+class Main(report.Main):
     """Success UI Class"""
     def __init__(self, settings):
         """Initialize data"""
@@ -54,6 +57,14 @@ class Main(Gtk.Window):
         self.settings = settings
         self.main_menu("clicked")
 
+    def _set_default_margins(self, widget):
+        """Set default margin size"""
+        widget.set_margin_start(10)
+        widget.set_margin_end(10)
+        widget.set_margin_top(10)
+        widget.set_margin_bottom(10)
+        return widget
+
     def main_menu(self, widget):
         """Main Success Window"""
         self.clear_window()
@@ -65,22 +76,27 @@ class Main(Gtk.Window):
 \tPlease consider sending an installtion report to our team,
 \tusing the "Send Installation Report" button below.\t\n\n""")
         label.set_justify(Gtk.Justification.CENTER)
+        label = self._set_default_margins(label)
         self.grid.attach(label, 1, 1, 4, 1)
 
         button1 = Gtk.Button.new_with_label("Restart System")
         button1.connect("clicked", __reboot__)
+        button1 = self._set_default_margins(button1)
         self.grid.attach(button1, 2, 6, 1, 1)
 
         button2 = Gtk.Button.new_with_label("Exit")
         button2.connect("clicked", self.exit)
+        button2 = self._set_default_margins(button2)
         self.grid.attach(button2, 1, 6, 1, 1)
 
         button3 = Gtk.Button.new_with_label("Advanced")
         button3.connect("clicked", self.onadvclicked)
+        button3 = self._set_default_margins(button3)
         self.grid.attach(button3, 3, 6, 1, 1)
 
         button4 = Gtk.Button.new_with_label("Send Installation Report")
         button4.connect("clicked", self.main)
+        button4 = self._set_default_margins(button4)
         self.grid.attach(button4, 4, 6, 1, 1)
 
         self.show_all()
@@ -97,26 +113,32 @@ class Main(Gtk.Window):
 
  """)
         label.set_justify(Gtk.Justification.CENTER)
+        label = self._set_default_margins(label)
         self.grid.attach(label, 1, 1, 3, 1)
 
         button1 = Gtk.Button.new_with_label("Dump Settings to File")
         button1.connect("clicked", self.dump_settings_dialog)
+        button1 = self._set_default_margins(button1)
         self.grid.attach(button1, 3, 6, 1, 1)
 
         button2 = Gtk.Button.new_with_label("Delete Installation")
         button2.connect("clicked", self.ondeletewarn)
+        button2 = self._set_default_margins(button2)
         self.grid.attach(button2, 1, 6, 1, 1)
 
         button3 = Gtk.Button.new_with_label("Add PPA")
         button3.connect("clicked", self.add_ppa)
+        button3 = self._set_default_margins(button3)
         self.grid.attach(button3, 2, 6, 1, 1)
 
         button4 = Gtk.Button.new_with_label("Exit")
         button4.connect("clicked", self.exit)
+        button4 = self._set_default_margins(button4)
         self.grid.attach(button4, 3, 7, 1, 1)
 
         button5 = Gtk.Button.new_with_label("<-- Back")
         button5.connect("clicked", self.main_menu)
+        button5 = self._set_default_margins(button5)
         self.grid.attach(button5, 1, 7, 1, 1)
 
         self.show_all()
@@ -131,19 +153,23 @@ class Main(Gtk.Window):
 \tNo data will be recoverable.\t
 """)
         label.set_justify(Gtk.Justification.CENTER)
+        label = self._set_default_margins(label)
         self.grid.attach(label, 1, 1, 3, 1)
 
         button5 = Gtk.Button.new_with_label("DELETE")
         button5.connect("clicked", self.delete_install)
+        button5 = self._set_default_margins(button5)
         self.grid.attach(button5, 2, 2, 1, 1)
 
         button4 = Gtk.Button.new_with_label("Exit")
         button4.connect("clicked", self.exit)
+        button4 = self._set_default_margins(button4)
         self.grid.attach(button4, 3, 2, 1, 1)
 
-        button5 = Gtk.Button.new_with_label("<-- Back")
-        button5.connect("clicked", self.onadvclicked)
-        self.grid.attach(button5, 1, 2, 1, 1)
+        button6 = Gtk.Button.new_with_label("<-- Back")
+        button6.connect("clicked", self.onadvclicked)
+        button6 = self._set_default_margins(button6)
+        self.grid.attach(button6, 1, 2, 1, 1)
 
         self.show_all()
 
@@ -166,27 +192,33 @@ class Main(Gtk.Window):
         label = Gtk.Label()
         label.set_markup("""\n\tWhat PPAs would you like to add?\t\n""")
         label.set_justify(Gtk.Justification.CENTER)
+        label = self._set_default_margins(label)
         self.grid.attach(label, 1, 1, 3, 1)
 
         label1 = Gtk.Label()
         label1.set_markup("""\tPPA:""")
         label1.set_justify(Gtk.Justification.RIGHT)
+        label1 = self._set_default_margins(label1)
         self.grid.attach(label1, 1, 2, 1, 1)
 
         self.ppa_entry = Gtk.Entry()
         self.ppa_entry.set_visibility(True)
+        self.ppa_entry = self._set_default_margins(self.ppa_entry)
         self.grid.attach(self.ppa_entry, 2, 2, 1, 1)
 
         button4 = Gtk.Button.new_with_label("Add PPA")
         button4.connect("clicked", self.add_ppa_backend)
+        button4 = self._set_default_margins(button4)
         self.grid.attach(button4, 2, 3, 1, 1)
 
-        button4 = Gtk.Button.new_with_label("Exit")
-        button4.connect("clicked", self.exit)
-        self.grid.attach(button4, 3, 3, 1, 1)
+        button6 = Gtk.Button.new_with_label("Exit")
+        button6.connect("clicked", self.exit)
+        button6 = self._set_default_margins(button6)
+        self.grid.attach(button6, 3, 3, 1, 1)
 
         button5 = Gtk.Button.new_with_label("<-- Back")
         button5.connect("clicked", self.onadvclicked)
+        button5 = self._set_default_margins(button5)
         self.grid.attach(button5, 1, 3, 1, 1)
 
         self.show_all()
@@ -202,12 +234,15 @@ class Main(Gtk.Window):
             label.set_markup("""\n\tWhat PPAs would you like to add?\t
 \t<b>%s added successfully!</b>\t\n""" % (self.ppa_entry.get_text()))
             label.set_justify(Gtk.Justification.CENTER)
+            label = self._set_default_margins(label)
             self.grid.attach(label, 1, 1, 2, 1)
+
         except subprocess.CalledProcessError:
             label = Gtk.Label()
             label.set_markup("""\n\tWhat PPAs would you like to add?\t
 \t<b>adding %s failed.</b>\t\n""" % (self.ppa_entry.get_text()))
             label.set_justify(Gtk.Justification.CENTER)
+            label = self._set_default_margins(label)
             self.grid.attach(label, 1, 1, 2, 1)
 
         self.ppa_entry.set_text("")
@@ -238,30 +273,37 @@ class Main(Gtk.Window):
 
         label = Gtk.Label()
         label.set_markup("""\n\tSelect what you would like included in your Quick Install file.\t\n""")
+        label = self._set_default_margins(label)
         self.grid.attach(label, 1, 1, 4, 1)
 
         self.settings_toggle = Gtk.CheckButton.new_with_label("Installation Settings")
         self.settings_toggle.set_active(True)
+        self.settings_toggle = self._set_default_margins(self.settings_toggle)
         self.grid.attach(self.settings_toggle, 1, 2, 4, 1)
 
         self.network_toggle = Gtk.CheckButton.new_with_label("Network Settings")
         self.network_toggle.set_active(True)
+        self.network_toggle = self._set_default_margins(self.network_toggle)
         self.grid.attach(self.network_toggle, 1, 3, 4, 1)
 
         self.wall_toggle = Gtk.CheckButton.new_with_label("Wallpaper")
         self.wall_toggle.set_active(False)
+        self.wall_toggle = self._set_default_margins(self.wall_toggle)
         self.grid.attach(self.wall_toggle, 1, 4, 4, 1)
 
         button4 = Gtk.Button.new_with_label("Exit")
         button4.connect("clicked", self.exit)
+        button4 = self._set_default_margins(button4)
         self.grid.attach(button4, 4, 6, 1, 1)
 
         button5 = Gtk.Button.new_with_label("<-- Back")
         button5.connect("clicked", self.onadvclicked)
+        button5 = self._set_default_margins(button5)
         self.grid.attach(button5, 1, 6, 1, 1)
 
         button3 = Gtk.Button.new_with_label("DUMP")
         button3.connect("clicked", self.dump_settings_file_dialog)
+        button3 = self._set_default_margins(button3)
         self.grid.attach(button3, 1, 5, 4, 1)
 
         self.show_all()
@@ -391,25 +433,6 @@ def __unique__(starting_list):
         if x not in unique_list:
             unique_list.append(x)
     return(unique_list)
-
-Main.main = report.Main.main
-Main.toggle_ui = report.Main.toggle_ui
-Main.message_accept = report.Main.message_accept
-Main.message_handler = report.Main.message_handler
-Main.generate_message = report.Main.generate_message
-Main.preview_message = report.Main.preview_message
-Main.send_report = report.Main.send_report
-Main.cpu_explaination = report.Main.cpu_explaination
-Main.cpu_toggle = report.Main.cpu_toggle
-Main.disk_explaination = report.Main.disk_explaination
-Main.disk_toggle = report.Main.disk_toggle
-Main.generate_message = report.Main.generate_message
-Main.gpu_explaination = report.Main.gpu_explaination
-Main.gpu_toggle = report.Main.gpu_toggle
-Main.log_explaination = report.Main.log_explaination
-Main.log_toggle = report.Main.log_toggle
-Main.ram_explaination = report.Main.ram_explaination
-Main.ram_toggle = report.Main.ram_toggle
 
 
 def show_success(settings):
