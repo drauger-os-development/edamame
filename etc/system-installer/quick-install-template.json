@@ -15,7 +15,16 @@
 		"LOGIN":false,
 		"MODEL":"Acer laptop",
 		"LAYOUT":"English(US)",
-		"VARIENT":"English(US) - English(US, euro on 5)"
+		"VARIENT":"English(US) - English(US, euro on 5)",
+		"raid_array": {
+		"raid_type": null,
+		"disks": {
+			"1": null,
+			"2": null,
+			"3": null,
+			"4": null
+			}
+		}
 	},
 	"COMMENTS":["Any comments, put in this 'comment' field",
 	"Everything must follow JSON syntax still but you can write a comment at least.",
