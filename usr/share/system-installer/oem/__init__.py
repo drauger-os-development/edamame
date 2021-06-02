@@ -22,3 +22,5 @@
 #
 #
 """OEM installation Logic"""
+import oem.post_install as post_install
+import oem.pre_install as pre_install

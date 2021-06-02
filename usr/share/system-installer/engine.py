@@ -3,7 +3,7 @@
 #
 #  engine.py
 #
-#  Copyright 2020 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2021 Thomas Castleman <contact@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@ import check_internet
 import check_kernel_versions
 import common
 import auto_partitioner
+import oem
 
 
 common.eprint("    ###    %s STARTED    ###    " % (sys.argv[0]))
@@ -54,7 +55,7 @@ if len(DISK) < 1:
     sys.exit(2)
 if not check_kernel_versions.check_kernel_versions():
     UI.error.show_error("""
-\tKernel Version Mismatch.\t
+\t<b>Kernel Version Mismatch.</b>\t
 \tPlease reboot and retry installation.\t
 \tIf your problem persists, please create an issue on our Github.\t
 """)
@@ -64,6 +65,14 @@ SETTINGS = UI.main.show_main()
 try:
     if ((SETTINGS == 1) or (len(SETTINGS) == 0)):
         sys.exit(1)
+    elif SETTINGS == 2:
+        UI.error.show_error("""
+\t<b>Unknown Error</b>\t
+\tWe're sorry. An unknown error has occured.\t
+\tPlease reboot and retry installation.\t
+\tIf your problem persists, please create an issue on our Github.\t
+""")
+        sys.exit(2)
     elif path.exists(SETTINGS):
         if SETTINGS.split("/")[-1][-5:] == ".json":
             with open(SETTINGS, "r") as quick_install_file:
@@ -85,18 +94,19 @@ try:
             except FileNotFoundError:
                 pass
         if "DATA" in SETTINGS:
+            # Parse out just the data. Ignore everything else.
             SETTINGS = SETTINGS["DATA"]
+        if "OEM" in SETTINGS:
+            # This is an OEM installation. Parts will be skipped now and handled later.
+            # Other parts will be automated
+
 except TypeError:
     pass
 # Confirm whether settings are correct or not
 INSTALL = UI.confirm.show_confirm(SETTINGS)
 if INSTALL:
     try:
-        # fork() to get proper multi-threading needs
-        # PROGRESS = multiprocessing.Process(target=UI.progress.show_progress)
-        # PROGRESS = threading.Thread(target=UI.progress.show_progress)
-        # PROGRESS.start()
-        # otherwise, we are parent and should continue
+        # Run the progress bar in the background
         process = subprocess.Popen("/usr/share/system-installer/progress.py")
         pid = process.pid
         SETTINGS["INTERNET"] = check_internet.has_internet()
@@ -123,8 +133,6 @@ This is a stand-in file.
         subprocess.Popen(["su", "live", "-c",
                           "/usr/share/system-installer/success.py \'%s\'" % (json.dumps(SETTINGS))])
         kill(pid, 15)
-        # PROGRESS.terminate()
-        # PROGRESS.join()
     except Exception as error:
         kill(pid, 15)
         common.eprint("\nAn Error has occured:\n%s\n" % (error))
