@@ -44,8 +44,9 @@ def verify(username, password):
     cache.open()
     if username == "OEM":
         username = "live"
-    if (("system-installer" in cache) and cache["system-installer"].is_installed):
-        cache["system-installer"].mark_delete()
+    else:
+        if (("system-installer" in cache) and cache["system-installer"].is_installed):
+            cache["system-installer"].mark_delete()
     if path.isdir("/home/home/live"):
         move("/home/home/live", "/home/" + username)
     try:
