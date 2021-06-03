@@ -96,10 +96,10 @@ try:
         if "DATA" in SETTINGS:
             # Parse out just the data. Ignore everything else.
             SETTINGS = SETTINGS["DATA"]
-        if "OEM" in SETTINGS:
+        if "OEM" in SETTINGS.values():
             # This is an OEM installation. Parts will be skipped now and handled later.
             # Other parts will be automated
-            additional_settings = oem.pre_install.main.show_main()
+            additional_settings = oem.pre_install.show_main()
             for each in additional_settings:
                 SETTINGS[each] = additional_settings[each]
 

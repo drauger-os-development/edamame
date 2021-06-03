@@ -222,7 +222,7 @@ class Main(Gtk.Window):
     def oem_startup(self, widget):
         """Start up OEM installation"""
         self.data = "/etc/system-installer/oem-install.json"
-        self.exit("clicked")
+        self.complete()
 
     def select_config(self, widget):
         """Quick Install File Selection Window"""
