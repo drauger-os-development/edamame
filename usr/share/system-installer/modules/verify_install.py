@@ -51,8 +51,7 @@ def verify(username, password):
     try:
         remove("/home/" + username + "/Desktop/system-installer.desktop")
     except FileNotFoundError:
-        try:
-            pass
+        pass
     if path.isfile("/etc/kernel/postinst.d/zz-update-systemd-boot"):
         with cache.actiongroup():
             for each in cache:
