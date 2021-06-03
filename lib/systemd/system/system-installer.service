@@ -3,7 +3,7 @@ Description=system-installer auto-start service
 
 [Service]
 Type=simple
-ExecStart=/usr/share/system-installer/engine.py --systemd-launch
+ExecStart=/usr/bin/system-installer --systemd-launch
 
 [Install]
 WantedBy=graphical.target
