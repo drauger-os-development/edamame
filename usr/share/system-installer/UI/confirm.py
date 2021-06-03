@@ -74,7 +74,7 @@ class Main(Gtk.Window):
         if settings["AUTO_PART"]:
             label = """AUTO PARTITIONING ENABLED\t
 INSTALLATION DRIVE: %s""" % (settings["ROOT"])
-            if settings["raid_array"]["raid_type"] is not None:
+            if settings["raid_array"]["raid_type"] not in ("OEM", None):
                 label = label + """
 RAID Type: %s
 Drive 1:   %s

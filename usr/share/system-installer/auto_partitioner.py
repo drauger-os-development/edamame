@@ -292,7 +292,7 @@ home: whether to make a home partition, or if one already exists
     part1 = None
     part2 = None
     part3 = None
-    if raid_array["raid_type"] is not None:
+    if raid_array["raid_type"] not in (None, "OEM"):
         if raid_array["raid_type"].lower() == "raid0":
             raid_array["raid_type"] = 0
         elif raid_array["raid_type"].lower() == "raid1":

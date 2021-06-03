@@ -42,6 +42,8 @@ def verify(username, password):
     home_contents = listdir("/home")
     cache = apt.cache.Cache()
     cache.open()
+    if username == "OEM":
+        username = "live"
     if (("system-installer" in cache) and cache["system-installer"].is_installed):
         cache["system-installer"].mark_delete()
     if path.isdir("/home/home/live"):
@@ -50,8 +52,6 @@ def verify(username, password):
         remove("/home/" + username + "/Desktop/system-installer.desktop")
     except FileNotFoundError:
         try:
-            rmtree("/home/" + username + "/.config/xfce4/panel/launcher-3")
-        except FileNotFoundError:
             pass
     if path.isfile("/etc/kernel/postinst.d/zz-update-systemd-boot"):
         with cache.actiongroup():
