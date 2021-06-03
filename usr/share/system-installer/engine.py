@@ -30,7 +30,7 @@ import json
 import tarfile as tar
 from shutil import copyfile, copytree
 import traceback
-from psutil import virtual_memory
+import psutil
 import UI
 import installer
 import check_internet
@@ -41,7 +41,23 @@ import oem
 
 
 common.eprint("    ###    %s STARTED    ###    " % (sys.argv[0]))
-MEMCHECK = virtual_memory().total
+if len(sys.argv) > 1:
+    if sys.argv[1] == "--systemd-launch":
+        # OEM post-install configuration, on-boot installation, and more
+        # are handled here
+        with open("/proc/cmdline", "r") as cmdline_file:
+            cmdline = cmdline_file.read()[:-1].split(" ")
+        if "system-installer" not in cmdline:
+            # Not wanted to be running ootb
+            sys.exit(0)
+        # Kill Xfce4 Panel, makes this more emersive
+        for proc in psutil.process_iter():
+            # check whether the process name matches
+            if proc.name() == "xfce4-panel":
+                proc.kill()
+        if "post-install" in cmdline:
+            # OEM post installation configuration
+MEMCHECK = psutil.virtual_memory().total
 if (MEMCHECK / 1024 ** 2) < 1024:
     UI.error.show_error("\n\tRAM is less than 1 GB.\t\n")
     sys.exit(2)

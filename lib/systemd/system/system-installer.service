@@ -1,0 +1,9 @@
+[Unit]
+Description=system-installer auto-start service
+
+[Service]
+Type=simple
+ExecStart=/usr/share/system-installer/engine.py --systemd-launch
+
+[Install]
+WantedBy=graphical.target
