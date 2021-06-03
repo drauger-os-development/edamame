@@ -99,6 +99,9 @@ try:
         if "OEM" in SETTINGS:
             # This is an OEM installation. Parts will be skipped now and handled later.
             # Other parts will be automated
+            additional_settings = oem.pre_install.main.show_main()
+            for each in additional_settings:
+                SETTINGS[each] = additional_settings[each]
 
 except TypeError:
     pass

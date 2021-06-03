@@ -46,21 +46,6 @@ def has_special_character(input_string):
     return True
 
 
-try:
-    with open("/etc/system-installer/default.json") as config_file:
-        DISTRO = json.loads(config_file.read())["distro"]
-
-except FileNotFoundError:
-    eprint("/etc/system-installer/default.json does not exist. In testing?")
-    DISTRO = "Drauger OS"
-
-KEYBOARD_COMPLETION = "TO DO"
-USER_COMPLETION = "TO DO"
-PART_COMPLETION = "TO DO"
-LOCALE_COMPLETION = "TO DO"
-OPTIONS_COMPLETION = "TO DO"
-
-
 class Main(Gtk.Window):
     """Main UI Window"""
     def __init__(self):
@@ -71,15 +56,12 @@ class Main(Gtk.Window):
         self.set_icon_name("system-installer")
 
         # Initialize setting values
-        self.data = {"AUTO_PART": "", "HOME": "", "ROOT": "", "EFI": "",
-                     "SWAP": "", "LANG": "", "TIME_ZONE": "", "USERNAME": "",
-                     "PASSWORD": "", "COMPUTER_NAME": "", "EXTRAS": "",
-                     "UPDATES": "", "LOGIN": "", "MODEL": "", "LAYOUT": "",
-                     "VARIENT": "", "raid_array": {"raid_type": None,
-                                                   "disks": {"1": None,
-                                                             "2": None,
-                                                             "3": None,
-                                                             "4": None}}}
+        self.data = {"HOME": "", "ROOT": "", "EFI": "",
+                     "raid_array": {"raid_type": None,
+                                    "disks": {"1": None,
+                                              "2": None,
+                                              "3": None,
+                                              "4": None}}}
 
         self.raid_def = {"RAID0": {"min_drives": 2,
                                    "desc": "Max performance, Least Reliability",
@@ -92,7 +74,7 @@ class Main(Gtk.Window):
                                     "raid_num": 10}}
 
         # Open initial window
-        self.reset("clicked")
+        self.auto_partition("clicked")
 
     def _set_default_margins(self, widget):
         """Set default margin size"""
@@ -102,161 +84,9 @@ class Main(Gtk.Window):
         widget.set_margin_bottom(10)
         return widget
 
-    def reset(self, button):
-        """Main Splash Window"""
-        global DEFAULT
-        self.clear_window()
-
-        label = Gtk.Label()
-        label.set_markup(DEFAULT)
-        label.set_justify(Gtk.Justification.LEFT)
-        label = self._set_default_margins(label)
-        self.grid.attach(label, 1, 1, 4, 1)
-
-        button1 = Gtk.Button.new_with_label("Normal Installation")
-        button1.connect("clicked", self.main_menu)
-        button1 = self._set_default_margins(button1)
-        self.grid.attach(button1, 4, 2, 1, 1)
-
-        button2 = Gtk.Button.new_with_label("Exit")
-        button2.connect("clicked", self.exit)
-        button2 = self._set_default_margins(button2)
-        self.grid.attach(button2, 1, 2, 1, 1)
-
-        button3 = Gtk.Button.new_with_label("Quick Installation")
-        button3.connect("clicked", self.quick_install_warning)
-        button3 = self._set_default_margins(button3)
-        self.grid.attach(button3, 2, 2, 1, 1)
-
-        button4 = Gtk.Button.new_with_label("OEM Installation")
-        button4.connect("clicked", self.oem_startup)
-        button4 = self._set_default_margins(button4)
-        self.grid.attach(button4, 3, 2, 1, 1)
-
-        self.show_all()
-
-    def main_menu(self, button):
-        """Main Menu"""
-        self.clear_window()
-
-        self.label = Gtk.Label()
-        self.label.set_markup("""
-        Feel free to complete any of the below segments in any order.\t
-        However, all segments must be completed.\n""")
-        self.label = self._set_default_margins(self.label)
-        self.grid.attach(self.label, 2, 1, 2, 1)
-
-        completion_label = Gtk.Label()
-        completion_label.set_markup("""<b>COMPLETION</b>""")
-        completion_label = self._set_default_margins(completion_label)
-        self.grid.attach(completion_label, 2, 2, 1, 1)
-
-        button8 = Gtk.Button.new_with_label("Keyboard")
-        button8.connect("clicked", self.keyboard)
-        button8 = self._set_default_margins(button8)
-        self.grid.attach(button8, 3, 3, 1, 1)
-
-        label_keyboard = Gtk.Label()
-        label_keyboard.set_markup(KEYBOARD_COMPLETION)
-        label_keyboard = self._set_default_margins(label_keyboard)
-        self.grid.attach(label_keyboard, 2, 3, 1, 1)
-
-        button4 = Gtk.Button.new_with_label("Locale and Time")
-        button4.connect("clicked", self.locale)
-        button4 = self._set_default_margins(button4)
-        self.grid.attach(button4, 3, 4, 1, 1)
-
-        label_locale = Gtk.Label()
-        label_locale.set_markup(LOCALE_COMPLETION)
-        label_locale = self._set_default_margins(label_locale)
-        self.grid.attach(label_locale, 2, 4, 1, 1)
-
-        button5 = Gtk.Button.new_with_label("Options")
-        button5.connect("clicked", self.options)
-        button5 = self._set_default_margins(button5)
-        self.grid.attach(button5, 3, 5, 1, 1)
-
-        label_options = Gtk.Label()
-        label_options.set_markup(OPTIONS_COMPLETION)
-        label_options = self._set_default_margins(label_options)
-        self.grid.attach(label_options, 2, 5, 1, 1)
-
-        button6 = Gtk.Button.new_with_label("Partitioning")
-        button6.connect("clicked", self.partitioning)
-        button6 = self._set_default_margins(button6)
-        self.grid.attach(button6, 3, 6, 1, 1)
-
-        label_part = Gtk.Label()
-        label_part.set_markup(PART_COMPLETION)
-        label_part = self._set_default_margins(label_part)
-        self.grid.attach(label_part, 2, 6, 1, 1)
-
-        button7 = Gtk.Button.new_with_label("User Settings")
-        button7.connect("clicked", self.user)
-        button7 = self._set_default_margins(button7)
-        self.grid.attach(button7, 3, 7, 1, 1)
-
-        label_user = Gtk.Label()
-        label_user.set_markup(USER_COMPLETION)
-        label_user = self._set_default_margins(label_user)
-        self.grid.attach(label_user, 2, 7, 1, 1)
-
-        button1 = Gtk.Button.new_with_label("DONE")
-        button1.connect("clicked", self.done)
-        button1 = self._set_default_margins(button1)
-        self.grid.attach(button1, 4, 8, 1, 1)
-
-        button2 = Gtk.Button.new_with_label("Exit")
-        button2.connect("clicked", self.exit)
-        button2 = self._set_default_margins(button2)
-        self.grid.attach(button2, 1, 8, 1, 1)
-
-        self.show_all()
-
-    def partitioning(self, button):
-        """Partitioning Main Window"""
-        self.clear_window()
-
-        label = Gtk.Label()
-        label.set_markup("""
-    Would you like to let %s automatically partition a drive for installation?\t
-    Or, would you like to manually partition space for it?\t
-
-    <b>NOTE</b>
-    Auto partitioning takes up an entire drive. If you are uncomfortable with\t
-    this, please either manually partition your drive, or abort installation
-    now.\t
-    """ % (DISTRO))
-        label.set_justify(Gtk.Justification.LEFT)
-        label = self._set_default_margins(label)
-        self.grid.attach(label, 1, 1, 7, 1)
-
-        link = Gtk.Button.new_with_label("Manual Partitioning")
-        link.connect("clicked", self.opengparted)
-        link = self._set_default_margins(link)
-        self.grid.attach(link, 5, 5, 1, 1)
-
-        button1 = Gtk.Button.new_with_label("Automatic Partitioning")
-        button1.connect("clicked", self.auto_partition)
-        button1 = self._set_default_margins(button1)
-        self.grid.attach(button1, 7, 5, 1, 1)
-
-        button2 = Gtk.Button.new_with_label("Exit")
-        button2.connect("clicked", self.exit)
-        button2 = self._set_default_margins(button2)
-        self.grid.attach(button2, 3, 5, 1, 1)
-
-        button3 = Gtk.Button.new_with_label("<-- Back")
-        button3.connect("clicked", self.main_menu)
-        button3 = self._set_default_margins(button3)
-        self.grid.attach(button3, 1, 5, 1, 1)
-
-        self.show_all()
-
     def auto_partition(self, button):
         """Auto Partitioning Settings Window"""
         self.clear_window()
-        self.data["AUTO_PART"] = True
 
         # Get a list of disks and their capacity
         self.devices = json.loads(check_output(["lsblk", "-n", "-i", "--json",
@@ -321,27 +151,17 @@ class Main(Gtk.Window):
         button1 = Gtk.Button.new_with_label("Okay -->")
         button1.connect("clicked", self.confirm_auto_part)
         button1 = self._set_default_margins(button1)
-        self.grid.attach(button1, 5, 6, 1, 1)
+        self.grid.attach(button1, 4, 6, 1, 1)
 
         button5 = Gtk.Button.new_with_label("Make RAID Array")
         button5.connect("clicked", self.define_array)
         button5 = self._set_default_margins(button5)
-        self.grid.attach(button5, 4, 6, 1, 1)
-
-        button4 = Gtk.Button.new_with_label("Make Space")
-        button4.connect("clicked", self.make_space)
-        button4 = self._set_default_margins(button4)
-        self.grid.attach(button4, 3, 6, 1, 1)
+        self.grid.attach(button5, 3, 6, 1, 1)
 
         button2 = Gtk.Button.new_with_label("Exit")
         button2.connect("clicked", self.exit)
         button2 = self._set_default_margins(button2)
         self.grid.attach(button2, 2, 6, 1, 1)
-
-        button3 = Gtk.Button.new_with_label("<-- Back")
-        button3.connect("clicked", self.partitioning)
-        button3 = self._set_default_margins(button3)
-        self.grid.attach(button3, 1, 6, 1, 1)
 
         self.show_all()
 
@@ -448,8 +268,8 @@ Type. Minimum drives is: %s""" % (loops))
         button2 = self._set_default_margins(button2)
         self.grid.attach(button2, 1, 9, 1, 1)
 
-        button3 = Gtk.Button.new_with_label("<-- Back to Main Menu")
-        button3.connect("clicked", self.main_menu)
+        button3 = Gtk.Button.new_with_label("<-- Back")
+        button3.connect("clicked", self.auto_partition)
         button3 = self._set_default_margins(button3)
         self.grid.attach(button3, 2, 9, 1, 1)
 
@@ -630,7 +450,6 @@ Type. Minimum drives is: %s""" % (loops))
             self.data["EFI"] = False
         if self.data["HOME"] == "":
             self.data["HOME"] = "NULL"
-        self.data["SWAP"] = "FILE"
         if self.disks.get_active_id() is None:
             try:
                 self.grid.remove(self.grid.get_child_at(1, 1))
@@ -648,52 +467,15 @@ Type. Minimum drives is: %s""" % (loops))
             self.show_all()
         else:
             self.data["ROOT"] = self.disks.get_active_id()
-            global PART_COMPLETION
-            PART_COMPLETION = "COMPLETED"
-            self.main_menu("clicked")
+            self.complete("clicked")
 
-    def done(self, button):
-        """Check to see if each segment has been completed
-        If it hasn't, print a warning, else
-        Print out the value of stuffs and exit
-        """
-        global KEYBOARD_COMPLETION
-        global LOCALE_COMPLETION
-        global OPTIONS_COMPLETION
-        global PART_COMPLETION
-        global USER_COMPLETION
-        if ((KEYBOARD_COMPLETION != "COMPLETED"
-            ) or (LOCALE_COMPLETION != "COMPLETED"
-                 ) or (OPTIONS_COMPLETION != "COMPLETED"
-                      ) or (PART_COMPLETION != "COMPLETED"
-                           ) or (USER_COMPLETION != "COMPLETED")):
-            self.label.set_markup("""
-        Feel free to complete any of the below segments in any order.\t
-        However, all segments must be completed.
-
-        <b>One or more segments have not been completed</b>
-        Please complete these segments, then try again.
-        Or, exit installation.\n""")
-        else:
-            self.complete()
-        self.show_all()
-
-    def complete(self):
+    def complete(self, widget):
         """Set settings var"""
         Gtk.main_quit("delete-event")
         self.destroy()
-        if isinstance(self.data, str):
-            if os.path.isfile(self.data):
-                return
-            else:
-                self.data = 1
-        elif isinstance(self.data, dict):
+        if isinstance(self.data, dict):
             if "" in self.data.values():
                 self.data = 1
-            else:
-                self.data["EXTRAS"] = bool(self.data["EXTRAS"])
-                self.data["UPDATES"] = bool(self.data["UPDATES"])
-                self.data["LOGIN"] = bool(self.data["LOGIN"])
         else:
             self.data = 1
 
@@ -715,7 +497,7 @@ Exiting now will cause all your settings to be lost.""")
         self.grid.attach(yes, 1, 2, 1, 1)
 
         no = Gtk.Button.new_with_label("Return")
-        no.connect("clicked", self.main_menu)
+        no.connect("clicked", self.auto_partition)
         no = self._set_default_margins(no)
         self.grid.attach(no, 2, 2, 1, 1)
 
@@ -756,4 +538,4 @@ def show_main():
 
 
 if __name__ == '__main__':
-    show_main()
+    print(show_main())
