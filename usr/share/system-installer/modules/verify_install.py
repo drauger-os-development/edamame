@@ -46,19 +46,19 @@ def verify(username):
     else:
         if (("system-installer" in cache) and cache["system-installer"].is_installed):
             cache["system-installer"].mark_delete()
+        if path.isfile("/etc/kernel/postinst.d/zz-update-systemd-boot"):
+            if username != "OEM":
+                with cache.actiongroup():
+                    for each in cache:
+                        if (("grub" in each.name) and each.is_installed):
+                            each.mark_delete()
+        cache.commit()
+        purge.autoremove(cache)
     if path.isdir("/home/home/live"):
         move("/home/home/live", "/home/" + username)
     try:
         remove("/home/" + username + "/Desktop/system-installer.desktop")
     except FileNotFoundError:
         pass
-    if path.isfile("/etc/kernel/postinst.d/zz-update-systemd-boot"):
-        if username != "OEM":
-            with cache.actiongroup():
-                for each in cache:
-                    if (("grub" in each.name) and each.is_installed):
-                        each.mark_delete()
-    cache.commit()
-    purge.autoremove(cache)
     cache.close()
     __eprint__("    ###    verify_install.py CLOSED    ###    ")
