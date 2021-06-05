@@ -61,7 +61,7 @@ if len(sys.argv) > 1:
         for proc in psutil.process_iter():
             # check whether the process name matches
             if proc.name() == "xfce4-panel":
-                proc.kill()
+                proc.terminate()
 MEMCHECK = psutil.virtual_memory().total
 if (MEMCHECK / 1024 ** 2) < 1024:
     UI.error.show_error("\n\tRAM is less than 1 GB.\t\n")
