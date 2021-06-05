@@ -33,6 +33,8 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
+import configure
+
 
 def eprint(*args, **kwargs):
     """Make it easier for us to print to stderr"""
@@ -73,10 +75,6 @@ class Main(Gtk.Window):
         self.grid = Gtk.Grid(orientation=Gtk.Orientation.VERTICAL)
         self.add(self.grid)
         self.set_icon_name("system-installer")
-
-        self.data = {"LANG": "", "TIME_ZONE": "", "USERNAME": "",
-                     "PASSWORD": "", "COMPUTER_NAME": "", "LOGIN": "",
-                     "MODEL": "", "LAYOUT": "", "VARIENT": ""}
 
         self.langs = {'Afar': "aa", 'Afrikaans': "af", 'Aragonese': "an",
                       'Arabic': "ar", 'Asturian': "ast", 'Belarusian': "be",
@@ -133,6 +131,8 @@ class Main(Gtk.Window):
         button1 = self._set_default_margins(button1)
         self.grid.attach(button1, 4, 2, 1, 1)
 
+        self.set_position(Gtk.WindowPosition.CENTER)
+
         self.show_all()
 
     def user(self, button):
@@ -154,7 +154,6 @@ class Main(Gtk.Window):
         self.grid.attach(label1, 1, 3, 2, 1)
 
         self.username = Gtk.Entry()
-        self.username.set_text(self.data["USERNAME"])
         self.username = self._set_default_margins(self.username)
         self.grid.attach(self.username, 3, 3, 1, 1)
 
@@ -165,7 +164,7 @@ class Main(Gtk.Window):
         self.grid.attach(label2, 1, 4, 2, 1)
 
         self.compname = Gtk.Entry()
-        self.compname.set_text(self.data["COMPUTER_NAME"])
+        self.compname.set_text("drauger-oem-system")
         self.compname = self._set_default_margins(self.compname)
         self.grid.attach(self.compname, 3, 4, 1, 1)
 
@@ -177,7 +176,6 @@ class Main(Gtk.Window):
 
         self.password = Gtk.Entry()
         self.password.set_visibility(False)
-        self.password.set_text(self.data["PASSWORD"])
         self.password = self._set_default_margins(self.password)
         self.grid.attach(self.password, 3, 5, 1, 1)
 
@@ -189,25 +187,31 @@ class Main(Gtk.Window):
 
         self.passconf = Gtk.Entry()
         self.passconf.set_visibility(False)
-        self.passconf.set_text(self.data["PASSWORD"])
         self.passconf = self._set_default_margins(self.passconf)
         self.grid.attach(self.passconf, 3, 6, 1, 1)
+
+        self.login = Gtk.CheckButton.new_with_label("Enable Auto-Login")
+        self.login.set_active(True)
+        self.login = self._set_default_margins(self.login)
+        self.grid.attach(self.login, 2, 7, 2, 1)
 
         button1 = Gtk.Button.new_with_label("Okay -->")
         button1.connect("clicked", self.on_user_completed)
         button1 = self._set_default_margins(button1)
         self.grid.attach(button1, 3, 8, 1, 1)
 
+        self.set_position(Gtk.WindowPosition.CENTER)
+
         self.show_all()
 
     def on_user_completed(self, button):
         """Password, Username, and hostname Checker"""
-        self.data["PASSWORD"] = self.password.get_text()
+        password = self.password.get_text()
         pass2 = self.passconf.get_text()
-        self.data["USERNAME"] = self.username.get_text()
-        self.data["USERNAME"] = self.data["USERNAME"].lower()
-        self.data["COMPUTER_NAME"] = self.compname.get_text()
-        if self.data["PASSWORD"] != pass2:
+        username = self.username.get_text()
+        username = username.lower()
+        comp_name = self.compname.get_text()
+        if password != pass2:
             label5 = Gtk.Label()
             label5.set_markup("Passwords do not match")
             label5.set_justify(Gtk.Justification.CENTER)
@@ -217,7 +221,7 @@ class Main(Gtk.Window):
             except TypeError:
                 pass
             self.grid.attach(label5, 1, 7, 3, 1)
-        elif len(self.data["PASSWORD"]) < 4:
+        elif len(password) < 4:
             label5 = Gtk.Label()
             label5.set_markup("Password is less than 4 characters")
             label5 = self._set_default_margins(label5)
@@ -228,7 +232,7 @@ class Main(Gtk.Window):
             except TypeError:
                 pass
             self.grid.attach(label5, 1, 7, 3, 1)
-        elif has_special_character(self.data["USERNAME"]):
+        elif has_special_character(username):
             label5 = Gtk.Label()
             label5.set_markup("Username contains special characters")
             label5.set_justify(Gtk.Justification.CENTER)
@@ -238,7 +242,7 @@ class Main(Gtk.Window):
             except TypeError:
                 pass
             self.grid.attach(label5, 1, 7, 3, 1)
-        elif " " in self.data["USERNAME"]:
+        elif " " in username:
             label5 = Gtk.Label()
             label5.set_markup("Username contains space")
             label5.set_justify(Gtk.Justification.CENTER)
@@ -248,7 +252,7 @@ class Main(Gtk.Window):
             except TypeError:
                 pass
             self.grid.attach(label5, 1, 7, 3, 1)
-        elif len(self.data["USERNAME"]) < 1:
+        elif len(username) < 1:
             label5 = Gtk.Label()
             label5.set_markup("Username empty")
             label5.set_justify(Gtk.Justification.CENTER)
@@ -258,7 +262,7 @@ class Main(Gtk.Window):
             except TypeError:
                 pass
             self.grid.attach(label5, 1, 7, 3, 1)
-        elif has_special_character(self.data["COMPUTER_NAME"]):
+        elif has_special_character(comp_name):
             label5 = Gtk.Label()
             label5.set_markup("Computer Name contains non-hyphen special character")
             label5.set_justify(Gtk.Justification.CENTER)
@@ -268,7 +272,7 @@ class Main(Gtk.Window):
             except TypeError:
                 pass
             self.grid.attach(label5, 1, 7, 3, 1)
-        elif " " in self.data["COMPUTER_NAME"]:
+        elif " " in comp_name:
             label5 = Gtk.Label()
             label5.set_markup("Computer Name contains space")
             label5.set_justify(Gtk.Justification.CENTER)
@@ -278,7 +282,7 @@ class Main(Gtk.Window):
             except TypeError:
                 pass
             self.grid.attach(label5, 1, 7, 3, 1)
-        elif len(self.data["COMPUTER_NAME"]) < 1:
+        elif len(comp_name) < 1:
             label5 = Gtk.Label()
             label5.set_markup("Computer Name is empty")
             label5.set_justify(Gtk.Justification.CENTER)
@@ -290,6 +294,8 @@ class Main(Gtk.Window):
             self.grid.attach(label5, 1, 7, 3, 1)
         else:
             self.complete()
+
+        self.set_position(Gtk.WindowPosition.CENTER)
 
         self.show_all()
 
@@ -316,8 +322,6 @@ Language""")
         for each in self.langs:
             self.lang_menu.append(self.langs[each], each)
         self.lang_menu.append("other", "Other, User will need to set up manually.")
-        if self.data["LANG"] != "":
-            self.lang_menu.set_active_id(self.data["LANG"])
         self.lang_menu = self._set_default_margins(self.lang_menu)
         self.grid.attach(self.lang_menu, 2, 3, 1, 1)
 
@@ -329,15 +333,12 @@ Region""")
         label3 = self._set_default_margins(label3)
         self.grid.attach(label3, 2, 4, 1, 1)
 
-        time_zone = self.data["TIME_ZONE"].split("/")
         self.time_menu = Gtk.ComboBoxText.new()
         zones = ["Africa", "America", "Antarctica", "Arctic", "Asia",
                  "Atlantic", "Australia", "Brazil", "Canada", "Chile",
                  "Europe", "Indian", "Mexico", "Pacific", "US"]
         for each6 in zones:
             self.time_menu.append(each6, each6)
-        if len(time_zone) > 0:
-            self.time_menu.set_active_id(time_zone[0])
         self.time_menu.connect("changed", self.update_subregion)
         self.time_menu = self._set_default_margins(self.time_menu)
         self.grid.attach(self.time_menu, 2, 5, 1, 1)
@@ -360,6 +361,7 @@ Sub-Region""")
         self.grid.attach(button1, 4, 8, 1, 1)
 
         self.update_subregion(self.time_menu)
+        self.set_position(Gtk.WindowPosition.CENTER)
 
         self.show_all()
 
@@ -387,17 +389,25 @@ Sub-Region""")
     def on_locale_completed(self, button):
         """Set default language and time zone if user did not set them"""
         if self.lang_menu.get_active_id() is not None:
-            self.data["LANG"] = self.lang_menu.get_active_id()
+            lang = self.lang_menu.get_active_id()
         else:
-            self.data["LANG"] = "en"
+            lang = "en"
 
         if ((self.time_menu.get_active_id() is not None) and (
                 self.sub_region.get_active_id() is not None)):
-            self.data["TIME_ZONE"] = self.time_menu.get_active_id()
-            self.data["TIME_ZONE"] = self.data["TIME_ZONE"] + "/"
-            self.data["TIME_ZONE"] = self.data["TIME_ZONE"] + self.sub_region.get_active_id()
+            tz = self.time_menu.get_active_id()
+            tz = tz + "/"
+            tz = tz + self.sub_region.get_active_id()
         else:
-            self.data["TIME_ZONE"] = "America/New_York"
+            tz = "America/New_York"
+
+        # Usually we watch these processes to make sure they complete and
+        # To close them out cleanly when they get done. However it's unlikely
+        # This system will go long without a reboot after first boot
+        # That will kill this process, if the kernel or Python exiting
+        # Doesn't do it first.
+        multiprocessing.Process(target=configure_locale,
+                                args=[tz, lang]).start()
 
         self.user("clicked")
 
@@ -426,8 +436,6 @@ Sub-Region""")
         model = keyboards["models"]
         for each8 in model:
             self.model_menu.append(model[each8], each8)
-        if self.data["MODEL"] != "":
-            self.model_menu.set_active_id(self.data["MODEL"])
         self.model_menu = self._set_default_margins(self.model_menu)
         self.grid.attach(self.model_menu, 2, 2, 3, 1)
 
@@ -440,8 +448,6 @@ Sub-Region""")
         self.layout_menu = Gtk.ComboBoxText.new()
         for each8 in layout_list:
             self.layout_menu.append(layout_list[each8], each8)
-        if self.data["LAYOUT"] != "":
-            self.layout_menu.set_active_id(self.data["LAYOUT"])
         self.layout_menu.connect("changed", self.varient_narrower)
         self.layout_menu = self._set_default_margins(self.layout_menu)
         self.grid.attach(self.layout_menu, 2, 3, 3, 1)
@@ -457,8 +463,6 @@ Sub-Region""")
         for each8 in self.varients:
             for each9 in self.varients[each8]:
                 self.varient_menu.append(self.varients[each8][each9], each9)
-        if self.data["VARIENT"] != "":
-            self.varient_menu.set_active_id(self.data["VARIENT"])
         self.varient_menu = self._set_default_margins(self.varient_menu)
         self.grid.attach(self.varient_menu, 2, 4, 3, 1)
 
@@ -466,6 +470,8 @@ Sub-Region""")
         button1.connect("clicked", self.on_keyboard_completed)
         button1 = self._set_default_margins(button1)
         self.grid.attach(button1, 4, 6, 1, 1)
+
+        self.set_position(Gtk.WindowPosition.CENTER)
 
         self.show_all()
 
@@ -476,9 +482,9 @@ Sub-Region""")
 
         for each9 in self.varients[term]:
             self.varient_menu.append(self.varients[term][each9], each9)
-        if self.data["VARIENT"] != "":
-            self.varient_menu.set_active_id(self.data["VARIENT"])
         self.varient_menu = self._set_default_margins(self.varient_menu)
+
+        self.set_position(Gtk.WindowPosition.CENTER)
 
         self.show_all()
 
@@ -501,30 +507,10 @@ Sub-Region""")
             else:
                 varient = "euro"
 
+        multiprocessing.Process(target=configure_keyboard,
+                                args=[model, layout, varient]).start()
+
         self.locale("clicked")
-
-
-    def done(self, button):
-        """Check to see if each segment has been completed
-        If it hasn't, print a warning, else
-        Print out the value of stuffs and exit
-        """
-        global KEYBOARD_COMPLETION
-        global LOCALE_COMPLETION
-        global USER_COMPLETION
-        if ((KEYBOARD_COMPLETION != "COMPLETED"
-            ) or (LOCALE_COMPLETION != "COMPLETED"
-                 ) or (USER_COMPLETION != "COMPLETED")):
-            self.label.set_markup("""
-        Feel free to complete any of the below segments in any order.\t
-        However, all segments must be completed.
-
-        <b>One or more segments have not been completed</b>
-        Please complete these segments, then try again.
-        Or, exit installation.\n""")
-        else:
-            self.complete()
-        self.show_all()
 
     def complete(self):
         """Set settings var"""
@@ -544,12 +530,42 @@ def show_main():
     window = Main()
     window.set_decorated(False)
     window.set_resizable(False)
-    window.set_position(Gtk.WindowPosition.CENTER)
     window.show_all()
     Gtk.main()
     window.exit("clicked")
     window.destroy()
     return data
+
+
+def configure_locale(tz, lang):
+    """Configure time zone and lang"""
+    time_proc = multiprocessing.Process(target=configure.set_time.set_time,
+                                        args=[tz])
+    time_proc.start()
+    lang_proc = multiprocessing.Process(target=configure.set_locale.set_locale,
+                                        args=[lang])
+    lang_proc.start()
+    monitor_procs([time_proc, lang_proc])
+
+
+def configure_keyboard(model, layout, varient):
+    """Configure Keyboard"""
+    key_proc = multiprocessing.Process(target=configure.keyboard.configure,
+                                        args=[model, layout, varient])
+    key_proc.start()
+    monitor_procs([key_proc])
+
+
+def monitor_procs(procs_to_monitor):
+    """Monitor Procs"""
+    procs = []
+    for each in procs_to_monitor:
+        procs.append([each, True])
+    while True in [procs[i][1] for i in range(len(procs))]:
+        for each in procs:
+            if ((not each[0].is_alive()) and (each[1] is True)):
+                each.join()
+                each[1] = False
 
 
 def make_kbd_names():

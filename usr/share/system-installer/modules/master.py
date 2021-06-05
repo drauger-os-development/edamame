@@ -479,6 +479,10 @@ def install(settings):
     verify(settings["USERNAME"], settings["PASSWORD"])
     if "PURGE" in settings:
         purge_package(settings["PURGE"])
+    # Mark a system as an OEM installation if necessary
+    if "OEM" in settings.values():
+        with open("/etc/system-installer/oem-post-install.flag", "w") as file:
+            file.write("")
 
 if __name__ == "__main__":
     # get length of argv

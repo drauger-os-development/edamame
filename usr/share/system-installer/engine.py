@@ -55,8 +55,11 @@ if len(sys.argv) > 1:
             # check whether the process name matches
             if proc.name() == "xfce4-panel":
                 proc.kill()
-        if "post-install" in cmdline:
+        if path.exists("/etc/system-installer/oem-post-install.flag"):
             # OEM post installation configuration
+            oem.post_install.UI.show_main()
+            remove("/etc/system-installer/oem-post-install.flag")
+            sys.exit(0)
 MEMCHECK = psutil.virtual_memory().total
 if (MEMCHECK / 1024 ** 2) < 1024:
     UI.error.show_error("\n\tRAM is less than 1 GB.\t\n")
