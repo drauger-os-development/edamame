@@ -40,6 +40,10 @@ import auto_partitioner
 import oem
 
 
+def restart_xfce_panel():
+    """Restart Xfce4-panel"""
+    subprocess.Popen(["xfce4-panel"])
+
 common.eprint("    ###    %s STARTED    ###    " % (sys.argv[0]))
 boot_time = False
 if len(sys.argv) > 1:
@@ -157,6 +161,8 @@ This is a stand-in file.
         subprocess.Popen(["su", "live", "-c",
                           "/usr/share/system-installer/success.py \'%s\'" % (json.dumps(SETTINGS))])
         kill(pid, 15)
+        if boot_time:
+            restart_xfce_panel()
     except Exception as error:
         kill(pid, 15)
         common.eprint("\nAn Error has occured:\n%s\n" % (error))
@@ -166,4 +172,6 @@ This is a stand-in file.
         UI.error.show_error("""\n\tError detected.\t
 \tPlease see /tmp/system-installer.log for details.\t\n""")
 else:
+    if boot_time:
+        restart_xfce_panel()
     sys.exit(1)
