@@ -24,8 +24,8 @@
 """Verify that installation completed correctly"""
 from __future__ import print_function
 from sys import stderr
-from os import listdir, path, remove
-from shutil import move, rmtree
+from os import path, remove
+from shutil import move
 import apt
 
 import modules.purge as purge
@@ -36,10 +36,9 @@ def __eprint__(*args, **kwargs):
     print(*args, file=stderr, **kwargs)
 
 
-def verify(username, password):
+def verify(username):
     """Verify installation success"""
     __eprint__("    ###    verify_install.py STARTED    ###    ")
-    home_contents = listdir("/home")
     cache = apt.cache.Cache()
     cache.open()
     if username == "OEM":
@@ -54,10 +53,11 @@ def verify(username, password):
     except FileNotFoundError:
         pass
     if path.isfile("/etc/kernel/postinst.d/zz-update-systemd-boot"):
-        with cache.actiongroup():
-            for each in cache:
-                if (("grub" in each.name) and each.is_installed):
-                    each.mark_delete()
+        if username != "OEM":
+            with cache.actiongroup():
+                for each in cache:
+                    if (("grub" in each.name) and each.is_installed):
+                        each.mark_delete()
     cache.commit()
     purge.autoremove(cache)
     cache.close()
