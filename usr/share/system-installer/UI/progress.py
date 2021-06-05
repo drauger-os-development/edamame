@@ -70,6 +70,8 @@ to: contact@draugeros.org   """)
         self.text = self._set_default_margins(self.text)
         self.grid.attach(self.text, 1, 5, 1, 1)
 
+        self.set_position(Gtk.WindowPosition.CENTER)
+
         self.source_id = GLib.timeout_add(33, self.pulse)
 
     def _set_default_margins(self, widget):
@@ -153,7 +155,6 @@ def show_progress():
 
 
 def handle_sig_term(signum, frame):
-    print("SIGTERM RECEIVED")
     global window
     window.win.destroy()
     sys.exit()

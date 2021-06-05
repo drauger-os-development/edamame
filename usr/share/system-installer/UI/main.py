@@ -217,6 +217,8 @@ class Main(Gtk.Window):
         button4 = self._set_default_margins(button4)
         self.grid.attach(button4, 3, 2, 1, 1)
 
+        self.set_position(Gtk.WindowPosition.CENTER)
+
         self.show_all()
 
     def oem_startup(self, widget):
@@ -1719,13 +1721,13 @@ Exiting now will cause all your settings to be lost.""")
         return self.data
 
 
-def show_main():
+def show_main(boot_time=False):
     """Show Main UI"""
     make_kbd_names()
     window = Main()
-    window.set_decorated(True)
+    if not boot_time:
+        window.set_decorated(True)
     window.set_resizable(False)
-    window.set_position(Gtk.WindowPosition.CENTER)
     window.connect("delete-event", Main._exit)
     window.show_all()
     Gtk.main()

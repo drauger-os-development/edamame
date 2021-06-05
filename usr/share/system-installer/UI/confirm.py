@@ -268,6 +268,10 @@ HOME:      %s""" % (settings["ROOT"], settings["EFI"],
         button2 = self._set_default_margins(button2)
         self.grid.attach(button2, 1, 19, 1, 1)
 
+        self.set_position(Gtk.WindowPosition.CENTER)
+
+        self.show_all()
+
     def onnextclicked(self, button):
         """set install to false"""
         self.install = True
@@ -293,12 +297,12 @@ HOME:      %s""" % (settings["ROOT"], settings["EFI"],
         return self.install
 
 
-def show_confirm(settings):
+def show_confirm(settings, boot_time=False):
     """Show confirmation dialog"""
     window = Main(settings)
-    window.set_decorated(True)
+    if not boot_time:
+        window.set_decorated(True)
     window.set_resizable(False)
-    window.set_position(Gtk.WindowPosition.CENTER)
     window.connect("delete-event", Main.exit)
     window.show_all()
     Gtk.main()

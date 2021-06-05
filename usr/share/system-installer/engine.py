@@ -41,6 +41,7 @@ import oem
 
 
 common.eprint("    ###    %s STARTED    ###    " % (sys.argv[0]))
+boot_time = False
 if len(sys.argv) > 1:
     if sys.argv[1] == "--systemd-launch":
         # OEM post-install configuration, on-boot installation, and more
@@ -55,6 +56,7 @@ if len(sys.argv) > 1:
         if "system-installer" not in cmdline:
             # Not wanted to be running ootb
             sys.exit(0)
+        boot_time = True
         # Kill Xfce4 Panel, makes this more emersive
         for proc in psutil.process_iter():
             # check whether the process name matches
@@ -80,7 +82,7 @@ if not check_kernel_versions.check_kernel_versions():
 """)
     sys.exit(2)
 work_dir = "/tmp/quick-install_working-dir"
-SETTINGS = UI.main.show_main()
+SETTINGS = UI.main.show_main(boot_time=boot_time)
 try:
     if ((SETTINGS == 1) or (len(SETTINGS) == 0)):
         sys.exit(1)
@@ -125,7 +127,7 @@ try:
 except TypeError:
     pass
 # Confirm whether settings are correct or not
-INSTALL = UI.confirm.show_confirm(SETTINGS)
+INSTALL = UI.confirm.show_confirm(SETTINGS, boot_time=boot_time)
 if INSTALL:
     try:
         # Run the progress bar in the background
