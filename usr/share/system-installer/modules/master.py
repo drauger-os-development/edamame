@@ -476,7 +476,7 @@ def install(settings):
     MainInstallation(processes_to_do, settings)
     handle_laptops(settings["USERNAME"])
     setup_lowlevel(settings["EFI"], settings["ROOT"])
-    verify(settings["USERNAME"], settings["PASSWORD"])
+    verify(settings["USERNAME"])
     if "PURGE" in settings:
         purge_package(settings["PURGE"])
     # Mark a system as an OEM installation if necessary
