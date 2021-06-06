@@ -3,7 +3,7 @@
 #
 #  progress.py
 #
-#  Copyright 2020 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2021 Thomas Castleman <contact@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ window = None
 
 class Main(Gtk.ApplicationWindow):
     """Progress UI Window"""
-    def __init__(self, app):
+    def __init__(self, app, distro="Linux"):
         """Progress UI main set-up"""
         Gtk.Window.__init__(self, title="System Installer", application=app)
         # Gtk.Window.__init__(self, title="System Installer")
@@ -45,13 +45,14 @@ class Main(Gtk.ApplicationWindow):
         self.set_resizable(False)
         self.set_deletable(False)
         self.set_position(Gtk.WindowPosition.CENTER)
+        self.distro = distro
 
         self.label = Gtk.Label()
         self.label.set_markup("""
-\t<b>Installing Drauger OS to your internal hard drive.</b>\t
+\t<b>Installing %s to your internal hard drive.</b>\t
 \tThis may take some time. If you have an error, please send\t
 the log file (located at /tmp/system-installer.log)
-to: contact@draugeros.org   """)
+to: contact@draugeros.org   """ % (self.distro))
         self.label.set_justify(Gtk.Justification.CENTER)
         self.label = self._set_default_margins(self.label)
         self.grid.attach(self.label, 1, 1, 1, 1)
@@ -133,8 +134,9 @@ to: contact@draugeros.org   """)
 
 
 class Worker(Gtk.Application):
-
-    def __init__(self):
+    """Progress Window Worker"""
+    def __init__(self, distro):
+        self.distro = str(distro)
         Gtk.Application.__init__(self)
         self.win = None
 
@@ -142,15 +144,17 @@ class Worker(Gtk.Application):
         Gtk.Application.do_startup(self)
 
     def do_activate(self):
-        self.win = Main(self)
+        self.win = Main(self, distro=self.distro)
         self.win.show_all()
 
 
 def show_progress():
     """Show Progress UI"""
+    with open("/etc/system-installer/settings.json", "r") as file:
+        distro = json.load(file)["distro"]
     signal.signal(signal.SIGTERM, handle_sig_term)
     global window
-    window = Worker()
+    window = Worker(distro)
     exit_status = window.run(sys.argv)
 
 
