@@ -306,7 +306,7 @@ class Main(Gtk.Window):
         try:
             # Get keys
             cURL = curl.Curl()
-            with open("../../../etc/system-installer/default.json", "r") as config:
+            with open("../../../etc/system-installer/settings.json", "r") as config:
                 URL = json.load(config)["report"]
             cURL.set_url(URL["recv_keys"])
             key = cURL.get().decode()
@@ -666,6 +666,6 @@ def get_info(cmd):
 
 def send_to():
     try:
-        return json.loads("/etc/system-installer/default.json")["report_to"]
+        return json.loads("/etc/system-installer/settings.json")["report_to"]
     except (FileNotFoundError, PermissionError, KeyError):
         return "installation-reports@draugeros.org"

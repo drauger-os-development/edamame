@@ -48,11 +48,11 @@ def has_special_character(input_string):
 
 
 try:
-    with open("/etc/system-installer/default.json") as config_file:
+    with open("/etc/system-installer/settings.json") as config_file:
         DISTRO = json.loads(config_file.read())["distro"]
 
 except FileNotFoundError:
-    eprint("/etc/system-installer/default.json does not exist. In testing?")
+    eprint("/etc/system-installer/settings.json does not exist. In testing?")
     DISTRO = "Drauger OS"
 
 
