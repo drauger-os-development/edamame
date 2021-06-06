@@ -51,7 +51,7 @@ config = {"ROOT": {"START": 201, "END": "40%", "fs": "ext4"},
           "min root size": 19327,
           "mdswh": 128}
 try:
-    with open("/etc/system-installer/default.json", "r") as config_file:
+    with open("/etc/system-installer/settings.json", "r") as config_file:
         config_data = json.load(config_file)
 
     # check to make sure packager left this block in

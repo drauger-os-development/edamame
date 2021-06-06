@@ -41,7 +41,7 @@ def has_internet():
     """Check for internet, using mirrors and ping counts defined in
     the default `system-installer` config file."""
     # Read Mirrors file
-    with open("/etc/system-installer/default.json", "r") as mirrors_file:
+    with open("/etc/system-installer/settings.json", "r") as mirrors_file:
         mirrors = json.load(mirrors_file)
 
     ping_count = mirrors["ping count"]
