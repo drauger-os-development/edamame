@@ -150,8 +150,11 @@ class Worker(Gtk.Application):
 
 def show_progress():
     """Show Progress UI"""
-    with open("/etc/system-installer/settings.json", "r") as file:
-        distro = json.load(file)["distro"]
+    try:
+        with open("/etc/system-installer/settings.json", "r") as file:
+            distro = json.load(file)["distro"]
+    except (FileNotFoundError, KeyError):
+        distro = "Linux"
     signal.signal(signal.SIGTERM, handle_sig_term)
     global window
     window = Worker(distro)

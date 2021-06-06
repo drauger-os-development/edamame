@@ -56,8 +56,11 @@ class Main(report.Main):
         self.custom_setting = False
         self.settings = settings
 
-        with open("/etc/system-installer/settings.json", "r") as file:
-            self.distro = json.load(file)["distro"]
+        try:
+            with open("/etc/system-installer/settings.json", "r") as file:
+                self.distro = json.load(file)["distro"]
+        except (FileNotFoundError, KeyError):
+            self.distro = "Linux"
         self.main_menu("clicked")
 
     def _set_default_margins(self, widget):
