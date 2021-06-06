@@ -55,6 +55,9 @@ class Main(report.Main):
         self.log_setting = False
         self.custom_setting = False
         self.settings = settings
+
+        with open("/etc/system-installer/settings.json", "r") as file:
+            self.distro = json.load(file)["distro"]
         self.main_menu("clicked")
 
     def _set_default_margins(self, widget):
@@ -69,35 +72,50 @@ class Main(report.Main):
         """Main Success Window"""
         self.clear_window()
 
+        text = """
+\t<b>%s has been successfully installed on your computer!</b>\t
+""" % (self.distro)
+        if "OEM" not in self.settings.values():
+            text = text + """\tPlease consider sending an installtion report to our team,
+            \tusing the "Send Installation Report" button below.\t\n\n"""
         label = Gtk.Label()
-        label.set_markup("""
-\t<b>Drauger OS has been successfully installed on your computer!</b>\t
-
-\tPlease consider sending an installtion report to our team,
-\tusing the "Send Installation Report" button below.\t\n\n""")
+        label.set_markup(text)
         label.set_justify(Gtk.Justification.CENTER)
         label = self._set_default_margins(label)
         self.grid.attach(label, 1, 1, 4, 1)
 
-        button1 = Gtk.Button.new_with_label("Restart System")
-        button1.connect("clicked", __reboot__)
+        if "OEM" in self.settings.values():
+            button1 = Gtk.Button.new_with_label("Power Off System")
+            button1.connect("clicked", __poweroff__)
+        else:
+            button1 = Gtk.Button.new_with_label("Restart System")
+            button1.connect("clicked", __reboot__)
         button1 = self._set_default_margins(button1)
-        self.grid.attach(button1, 2, 6, 1, 1)
+        if "OEM" in self.settings.values():
+            self.grid.attach(button1, 4, 6, 1, 1)
+        else:
+            self.grid.attach(button1, 2, 6, 1, 1)
 
         button2 = Gtk.Button.new_with_label("Exit")
         button2.connect("clicked", self.exit)
         button2 = self._set_default_margins(button2)
-        self.grid.attach(button2, 1, 6, 1, 1)
+        if "OEM" in self.settings.values():
+            self.grid.attach(button2, 1, 6, 2, 1)
+        else:
+            self.grid.attach(button2, 1, 6, 1, 1)
 
-        button3 = Gtk.Button.new_with_label("Advanced")
-        button3.connect("clicked", self.onadvclicked)
-        button3 = self._set_default_margins(button3)
-        self.grid.attach(button3, 3, 6, 1, 1)
+        if "OEM" not in self.settings.values():
+            button3 = Gtk.Button.new_with_label("Advanced")
+            button3.connect("clicked", self.onadvclicked)
+            button3 = self._set_default_margins(button3)
+            self.grid.attach(button3, 3, 6, 1, 1)
 
-        button4 = Gtk.Button.new_with_label("Send Installation Report")
-        button4.connect("clicked", self.main)
-        button4 = self._set_default_margins(button4)
-        self.grid.attach(button4, 4, 6, 1, 1)
+            button4 = Gtk.Button.new_with_label("Send Installation Report")
+            button4.connect("clicked", self.main)
+            button4 = self._set_default_margins(button4)
+            self.grid.attach(button4, 4, 6, 1, 1)
+
+        self.set_position(Gtk.WindowPosition.CENTER)
 
         self.show_all()
 
@@ -449,6 +467,12 @@ def show_success(settings):
 def __reboot__(button):
     """Reboot the system"""
     subprocess.Popen(["/sbin/reboot"])
+    sys.exit(0)
+
+
+def __poweroff__(button):
+    """Shutdown the system"""
+    subprocess.Popen(["/sbin/poweroff"])
     sys.exit(0)
 
 
