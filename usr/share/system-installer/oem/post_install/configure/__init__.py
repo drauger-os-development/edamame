@@ -22,8 +22,8 @@
 #
 #
 """Configure OEM Installed System"""
-import configure.auto_login_set as auto_login_set
-import configure.make_user as make_user
-import configure.set_locale as set_locale
-import configure.set_time as set_time
-import configure.keyboard as keyboard
+import post_install.configure.auto_login_set as auto_login_set
+import post_install.configure.make_user as make_user
+import post_install.configure.set_locale as set_locale
+import post_install.configure.set_time as set_time
+import post_install.configure.keyboard as keyboard

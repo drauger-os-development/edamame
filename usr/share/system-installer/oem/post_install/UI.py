@@ -33,7 +33,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
-import configure
+import post_install.configure
 
 
 def eprint(*args, **kwargs):
