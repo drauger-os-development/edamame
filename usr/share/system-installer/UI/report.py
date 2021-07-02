@@ -414,7 +414,7 @@ class Main(Gtk.Window):
                 message.write("\n")
                 message.write("PCIe / GPU INFO:\n")
                 if self.gpu.get_active():
-                    for each in get_info("lspci"):
+                    for each in get_info(["lspci", "-nn"]):
                         message.write(each + "\n")
                 else:
                     message.write("OPT OUT\n")
@@ -463,7 +463,7 @@ class Main(Gtk.Window):
                 message.write("\n")
                 message.write("PCIe / GPU INFO:\n")
                 if self.gpu.get_active():
-                    for each in get_info("lspci"):
+                    for each in get_info(["lspci", "-nn"]):
                         message.write(each + "\n")
                 else:
                     message.write("OPT OUT\n")
