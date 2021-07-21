@@ -22,5 +22,5 @@
 #
 #
 """Configure an OEM installation"""
-import post_install.UI as UI
-import post_install.configure as configure
+import oem.post_install.UI as UI
+import oem.post_install.configure as configure
