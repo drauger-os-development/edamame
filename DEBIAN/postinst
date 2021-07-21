@@ -1,5 +1,0 @@
-#!/bin/bash
-set -e
-if [ "$1" == "configure" ]; then
-	systemctl enable system-installer
-fi
