@@ -26,7 +26,7 @@ from sys import argv, stderr
 from subprocess import check_call
 from os import system, path
 ARGC = len(argv)
-VERSION = "1.9.3-beta9"
+VERSION = "1.9.5-beta9"
 HELP = """
 system-installer, Version %s
 
@@ -50,7 +50,12 @@ def eprint(args, *kwargs, color=R):
 
 def launch(boot_time=False):
     """Launch system-isntaller"""
-    check_call(["/usr/bin/xhost", "+si:localuser:root"])
+    command1 =  ["/usr/bin/xhost"]
+    enable = ["+si:localuser:root"]
+    disable = ["-si:localuser:root"]
+    if boot_time:
+        command1 = ["openvt", "-efwc7", "--"] + command1
+    check_call(command1 + enable)
     print(Y + "RUNNING LOG LOCATED AT /tmp/system-installer.log" + NC)
     command = ["echo 'toor' | sudo -S /usr/share/system-installer/engine.py",
                "2>/tmp/system-installer.log 1>&2"]
@@ -64,7 +69,7 @@ def launch(boot_time=False):
         eprint("Error accessing /usr/share/system-installer/engine.py: No such file or directory")
         with open("/tmp/system-installer.log", "w+") as log_file:
             log_file.write("Error accessing /usr/share/system-installer/engine.py: No such file or directory")
-    check_call(["/usr/bin/xhost", "-si:localuser:root"])
+    check_call(command1 + disable)
 
 
 if ARGC > 1:
