@@ -47,7 +47,7 @@ def restart_xfce_panel():
 common.eprint("    ###    %s STARTED    ###    " % (sys.argv[0]))
 boot_time = False
 if len(sys.argv) > 1:
-    if sys.argv[1] == "--systemd-launch":
+    if sys.argv[1] == "--boot-time":
         # OEM post-install configuration, on-boot installation, and more
         # are handled here
         if path.exists("/etc/system-installer/oem-post-install.flag"):

@@ -53,8 +53,6 @@ def launch(boot_time=False):
     command1 =  ["/usr/bin/xhost"]
     enable = ["+si:localuser:root"]
     disable = ["-si:localuser:root"]
-    if boot_time:
-        command1 = ["openvt", "-efwc7", "--"] + command1
     check_call(command1 + enable)
     print(Y + "RUNNING LOG LOCATED AT /tmp/system-installer.log" + NC)
     command = ["echo 'toor' | sudo -S /usr/share/system-installer/engine.py",
@@ -62,7 +60,7 @@ def launch(boot_time=False):
     if boot_time:
         with open("/tmp/system-installer.log", "w+") as log_file:
             log_file.write("STARTING IN BOOT-TIME MODE")
-        command.insert(1, "--systemd-launch")
+        command.insert(1, "--boot-time")
     command = " ".join(command)
     exit_code = system(command)
     if ((exit_code == 256) and (not path.exists("/tmp/system-installer.log"))):
@@ -77,7 +75,7 @@ if ARGC > 1:
         print("\n%s\n" % (VERSION))
     elif (argv[1] == "-h" or argv[1] == "--help"):
         print(HELP % (VERSION))
-    elif argv[1] == "--systemd-launch":
+    elif argv[1] == "--boot-time":
         launch(boot_time=True)
     else:
         eprint("Option %s not recognized." % (argv[1]))
