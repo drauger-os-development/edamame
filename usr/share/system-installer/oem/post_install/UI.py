@@ -378,9 +378,6 @@ Sub-Region""")
         self.sub_region = Gtk.ComboBoxText.new()
         for each7 in zones:
             self.sub_region.append(each7, each7)
-        time_zone = self.data["TIME_ZONE"].split("/")
-        if len(time_zone) > 1:
-            self.sub_region.set_active_id(time_zone[1])
         self.sub_region = self._set_default_margins(self.sub_region)
         self.grid.attach(self.sub_region, 2, 7, 1, 1)
 
@@ -395,8 +392,7 @@ Sub-Region""")
 
         if ((self.time_menu.get_active_id() is not None) and (
                 self.sub_region.get_active_id() is not None)):
-            tz = self.time_menu.get_active_id()
-            tz = tz + "/"
+            tz = self.time_menu.get_active_id() + "/"
             tz = tz + self.sub_region.get_active_id()
         else:
             tz = "America/New_York"
