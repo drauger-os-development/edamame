@@ -139,19 +139,22 @@ class MainInstallation():
             install_extras.install_extras()
 
     def set_passwd(USERNAME, PASSWORD):
-        """Set Root password"""
-        if PASSWORD != "OEM":
+        """Set password for Root and User"""
+        if PASSWORD == "OEM":
+            PASSWORD = "toor"
+        if USERNAME != "drauger-user":
             process = subprocess.Popen("chpasswd",
                                        stdout=stderr.buffer,
                                        stdin=subprocess.PIPE,
                                        stderr=subprocess.PIPE)
             process.communicate(input=bytes(r"root:%s" % (PASSWORD), "utf-8"))
-            process = subprocess.Popen("chpasswd",
-                                       stdout=stderr.buffer,
-                                       stdin=subprocess.PIPE,
-                                       stderr=subprocess.PIPE)
-            process.communicate(input=bytes(r"%s:%s" % (USERNAME, PASSWORD),
-                                            "utf-8"))
+
+        process = subprocess.Popen("chpasswd",
+                                   stdout=stderr.buffer,
+                                   stdin=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+        process.communicate(input=bytes(r"%s:%s" % (USERNAME, PASSWORD),
+                                        "utf-8"))
 
     def lightdm_config(LOGIN, USERNAME):
         """Set autologin setting for lightdm"""
