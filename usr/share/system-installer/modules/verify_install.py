@@ -41,15 +41,14 @@ def verify(username):
     __eprint__("    ###    verify_install.py STARTED    ###    ")
     cache = apt.cache.Cache()
     cache.open()
-    else:
+    if username != "drauger-user":
         if (("system-installer" in cache) and cache["system-installer"].is_installed):
             cache["system-installer"].mark_delete()
         if path.isfile("/etc/kernel/postinst.d/zz-update-systemd-boot"):
-            if username != "drauger-user":
-                with cache.actiongroup():
-                    for each in cache:
-                        if (("grub" in each.name) and each.is_installed):
-                            each.mark_delete()
+            with cache.actiongroup():
+                for each in cache:
+                    if (("grub" in each.name) and each.is_installed):
+                        each.mark_delete()
         cache.commit()
         purge.autoremove(cache)
     if path.isdir("/home/home/live"):
