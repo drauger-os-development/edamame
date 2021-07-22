@@ -35,8 +35,6 @@ def auto_login_set(login, username):
     """Set Auto-Login Setting for the current user"""
     eprint("    ###    auto_login_set.py started    ###    ")
     new_conf = ""
-    if username == "OEM":
-        username = "live"
     with open("/etc/lightdm/lightdm.conf", "r") as conf:
         new_conf = conf.read()
     remove("/etc/lightdm/lightdm.conf")
