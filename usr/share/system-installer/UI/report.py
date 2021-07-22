@@ -38,7 +38,10 @@ from gi.repository import Gtk
 try:
     gpg = gnupg.GPG(gnupghome="/home/live/.gnupg")
 except ValueError:
-    gpg = gnupg.GPG(gnupghome=getenv("HOME") + "/.gnupg")
+    try:
+        gpg = gnupg.GPG(gnupghome=getenv("HOME") + "/.gnupg")
+    except ValueError:
+        gpg = gnupg.GPG(gnupghome="/home/drauger-user/.gnupg")
 
 
 class Main(Gtk.Window):
