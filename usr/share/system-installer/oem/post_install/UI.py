@@ -147,27 +147,6 @@ class Main(Gtk.Window):
         label = self._set_default_margins(label)
         self.grid.attach(label, 1, 1, 3, 1)
 
-        label1 = Gtk.Label()
-        label1.set_markup("    Username:   ")
-        label1.set_justify(Gtk.Justification.RIGHT)
-        label1 = self._set_default_margins(label1)
-        self.grid.attach(label1, 1, 3, 2, 1)
-
-        self.username = Gtk.Entry()
-        self.username = self._set_default_margins(self.username)
-        self.grid.attach(self.username, 3, 3, 1, 1)
-
-        label2 = Gtk.Label()
-        label2.set_markup("    Computer\'s Name:   ")
-        label2.set_justify(Gtk.Justification.RIGHT)
-        label2 = self._set_default_margins(label2)
-        self.grid.attach(label2, 1, 4, 2, 1)
-
-        self.compname = Gtk.Entry()
-        self.compname.set_text("drauger-oem-system")
-        self.compname = self._set_default_margins(self.compname)
-        self.grid.attach(self.compname, 3, 4, 1, 1)
-
         label3 = Gtk.Label()
         label3.set_markup("    Password:   ")
         label3.set_justify(Gtk.Justification.RIGHT)
@@ -232,67 +211,8 @@ class Main(Gtk.Window):
             except TypeError:
                 pass
             self.grid.attach(label5, 1, 7, 3, 1)
-        elif has_special_character(username):
-            label5 = Gtk.Label()
-            label5.set_markup("Username contains special characters")
-            label5.set_justify(Gtk.Justification.CENTER)
-            label5 = self._set_default_margins(label5)
-            try:
-                self.grid.remove(self.grid.get_child_at(1, 7))
-            except TypeError:
-                pass
-            self.grid.attach(label5, 1, 7, 3, 1)
-        elif " " in username:
-            label5 = Gtk.Label()
-            label5.set_markup("Username contains space")
-            label5.set_justify(Gtk.Justification.CENTER)
-            label5 = self._set_default_margins(label5)
-            try:
-                self.grid.remove(self.grid.get_child_at(1, 7))
-            except TypeError:
-                pass
-            self.grid.attach(label5, 1, 7, 3, 1)
-        elif len(username) < 1:
-            label5 = Gtk.Label()
-            label5.set_markup("Username empty")
-            label5.set_justify(Gtk.Justification.CENTER)
-            label5 = self._set_default_margins(label5)
-            try:
-                self.grid.remove(self.grid.get_child_at(1, 7))
-            except TypeError:
-                pass
-            self.grid.attach(label5, 1, 7, 3, 1)
-        elif has_special_character(comp_name):
-            label5 = Gtk.Label()
-            label5.set_markup("Computer Name contains non-hyphen special character")
-            label5.set_justify(Gtk.Justification.CENTER)
-            label5 = self._set_default_margins(label5)
-            try:
-                self.grid.remove(self.grid.get_child_at(1, 7))
-            except TypeError:
-                pass
-            self.grid.attach(label5, 1, 7, 3, 1)
-        elif " " in comp_name:
-            label5 = Gtk.Label()
-            label5.set_markup("Computer Name contains space")
-            label5.set_justify(Gtk.Justification.CENTER)
-            label5 = self._set_default_margins(label5)
-            try:
-                self.grid.remove(self.grid.get_child_at(1, 7))
-            except TypeError:
-                pass
-            self.grid.attach(label5, 1, 7, 3, 1)
-        elif len(comp_name) < 1:
-            label5 = Gtk.Label()
-            label5.set_markup("Computer Name is empty")
-            label5.set_justify(Gtk.Justification.CENTER)
-            label5 = self._set_default_margins(label5)
-            try:
-                self.grid.remove(self.grid.get_child_at(1, 7))
-            except TypeError:
-                pass
-            self.grid.attach(label5, 1, 7, 3, 1)
         else:
+
             self.complete()
 
         self.set_position(Gtk.WindowPosition.CENTER)
@@ -402,7 +322,7 @@ Sub-Region""")
         # This system will go long without a reboot after first boot
         # That will kill this process, if the kernel or Python exiting
         # Doesn't do it first.
-        multiprocessing.Process(target=oem.post_install.configure_locale,
+        multiprocessing.Process(target=oem.post_install.configure.locale,
                                 args=[tz, lang]).start()
 
         self.user("clicked")
@@ -503,7 +423,7 @@ Sub-Region""")
             else:
                 varient = "euro"
 
-        multiprocessing.Process(target=oem.post_install.configure_keyboard,
+        multiprocessing.Process(target=oem.post_install.configure.keyboard,
                                 args=[model, layout, varient]).start()
 
         self.locale("clicked")

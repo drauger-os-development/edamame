@@ -118,8 +118,7 @@ class MainInstallation():
 
     def make_user(USERNAME):
         """Set up main user"""
-        if USERNAME != "OEM":
-            mkuser.make_user(USERNAME)
+        mkuser.make_user(USERNAME)
 
     def mk_swap(SWAP):
         """Make swap file"""

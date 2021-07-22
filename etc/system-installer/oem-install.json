@@ -6,7 +6,7 @@
 	"EFI": "OEM",
 	"HOME": "OEM",
 	"SWAP": "FILE",
-	"USERNAME": "OEM",
+	"USERNAME": "drauger-user",
 	"PASSWORD": "OEM",
 	"COMPUTER_NAME": "drauger-oem-system",
 	"EXTRAS": true,
