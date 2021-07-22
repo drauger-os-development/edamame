@@ -28,7 +28,7 @@ import re
 import json
 import os
 import multiprocessing
-from subprocess import Popen, check_output, DEVNULL
+import subprocess
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
@@ -326,7 +326,9 @@ Sub-Region""")
         # That will kill this process, if the kernel or Python exiting
         # Doesn't do it first.
         multiprocessing.Process(target=configure.set_locale.set_locale,
-                                args=[tz, lang]).start()
+                                args=[lang]).start()
+        multiprocessing.Process(target=configure.set_time.set_time,
+                                args=[tz]).start()
 
         self.user("clicked")
 
@@ -441,6 +443,13 @@ Sub-Region""")
         children = self.grid.get_children()
         for each0 in children:
             self.grid.remove(each0)
+
+    def exit(self, button):
+        """Exit dialog"""
+        Gtk.main_quit("delete-event")
+        self.destroy()
+        self.data = 1
+        return 1
 
 
 def set_passwd(password, username):
