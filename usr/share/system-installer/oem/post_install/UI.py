@@ -33,7 +33,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
-import oem.post_install.configure
+import oem.post_install.configure as configure
 
 
 def eprint(*args, **kwargs):
@@ -187,9 +187,9 @@ class Main(Gtk.Window):
         """Password, Username, and hostname Checker"""
         password = self.password.get_text()
         pass2 = self.passconf.get_text()
-        username = self.username.get_text()
-        username = username.lower()
-        comp_name = self.compname.get_text()
+        autologin = self.login.get_active()
+        with open("/etc/system-installer/oem-install.json", "r") as file:
+            username = json.load(file)["USERNAME"]
         if password != pass2:
             label5 = Gtk.Label()
             label5.set_markup("Passwords do not match")
@@ -212,7 +212,8 @@ class Main(Gtk.Window):
                 pass
             self.grid.attach(label5, 1, 7, 3, 1)
         else:
-
+            set_passwd(password, username)
+            configure.auto_login_set.auto_login_set(autologin, username)
             self.complete()
 
         self.set_position(Gtk.WindowPosition.CENTER)
@@ -322,7 +323,7 @@ Sub-Region""")
         # This system will go long without a reboot after first boot
         # That will kill this process, if the kernel or Python exiting
         # Doesn't do it first.
-        multiprocessing.Process(target=oem.post_install.configure.locale,
+        multiprocessing.Process(target=configure.locale,
                                 args=[tz, lang]).start()
 
         self.user("clicked")
@@ -423,7 +424,7 @@ Sub-Region""")
             else:
                 varient = "euro"
 
-        multiprocessing.Process(target=oem.post_install.configure.keyboard,
+        multiprocessing.Process(target=configure.keyboard,
                                 args=[model, layout, varient]).start()
 
         self.locale("clicked")
@@ -438,6 +439,20 @@ Sub-Region""")
         children = self.grid.get_children()
         for each0 in children:
             self.grid.remove(each0)
+
+
+def set_passwd(password, username):
+    """Set Root password"""
+    process = subprocess.Popen("chpasswd",
+                               stdout=stderr.buffer,
+                               stdin=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
+    process.communicate(input=bytes(r"root:%s" % (password), "utf-8"))
+    process = subprocess.Popen("chpasswd",
+                               stdout=stderr.buffer,
+                               stdin=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
+    process.communicate(input=bytes(r"%s:%s" % (username, password),"utf-8"))
 
 
 def show_main():
@@ -455,10 +470,10 @@ def show_main():
 
 def configure_locale(tz, lang):
     """Configure time zone and lang"""
-    time_proc = multiprocessing.Process(target=oem.post_install.configure.set_time.set_time,
+    time_proc = multiprocessing.Process(target=configure.set_time.set_time,
                                         args=[tz])
     time_proc.start()
-    lang_proc = multiprocessing.Process(target=oem.post_install.configure.set_locale.set_locale,
+    lang_proc = multiprocessing.Process(target=configure.set_locale.set_locale,
                                         args=[lang])
     lang_proc.start()
     monitor_procs([time_proc, lang_proc])
@@ -466,7 +481,7 @@ def configure_locale(tz, lang):
 
 def configure_keyboard(model, layout, varient):
     """Configure Keyboard"""
-    key_proc = multiprocessing.Process(target=oem.post_install.configure.keyboard.configure,
+    key_proc = multiprocessing.Process(target=configure.keyboard.configure,
                                         args=[model, layout, varient])
     key_proc.start()
     monitor_procs([key_proc])

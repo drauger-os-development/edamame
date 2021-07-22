@@ -26,12 +26,12 @@ from sys import argv, stderr
 from subprocess import check_call
 from os import system, path
 ARGC = len(argv)
-VERSION = "1.9.5-beta9"
+VERSION = "1.9.7-beta9"
 HELP = """
 system-installer, Version %s
 
 \t-h, --help              print this help dialoge.
-\t    --systemd-launch    launch system-installer in boot-time mode.
+\t    --boot-time         launch system-installer in boot-time mode.
 \t-v, --version           print current version.
 
 Pass nothing to start installer.
