@@ -402,7 +402,7 @@ Sub-Region""")
         # This system will go long without a reboot after first boot
         # That will kill this process, if the kernel or Python exiting
         # Doesn't do it first.
-        multiprocessing.Process(target=configure_locale,
+        multiprocessing.Process(target=oem.post_install.configure_locale,
                                 args=[tz, lang]).start()
 
         self.user("clicked")
@@ -503,7 +503,7 @@ Sub-Region""")
             else:
                 varient = "euro"
 
-        multiprocessing.Process(target=configure_keyboard,
+        multiprocessing.Process(target=oem.post_install.configure_keyboard,
                                 args=[model, layout, varient]).start()
 
         self.locale("clicked")
@@ -535,10 +535,10 @@ def show_main():
 
 def configure_locale(tz, lang):
     """Configure time zone and lang"""
-    time_proc = multiprocessing.Process(target=configure.set_time.set_time,
+    time_proc = multiprocessing.Process(target=oem.post_install.configure.set_time.set_time,
                                         args=[tz])
     time_proc.start()
-    lang_proc = multiprocessing.Process(target=configure.set_locale.set_locale,
+    lang_proc = multiprocessing.Process(target=oem.post_install.configure.set_locale.set_locale,
                                         args=[lang])
     lang_proc.start()
     monitor_procs([time_proc, lang_proc])
@@ -546,7 +546,7 @@ def configure_locale(tz, lang):
 
 def configure_keyboard(model, layout, varient):
     """Configure Keyboard"""
-    key_proc = multiprocessing.Process(target=configure.keyboard.configure,
+    key_proc = multiprocessing.Process(target=oem.post_install.configure.keyboard.configure,
                                         args=[model, layout, varient])
     key_proc.start()
     monitor_procs([key_proc])
