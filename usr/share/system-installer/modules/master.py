@@ -450,8 +450,6 @@ def handle_laptops(username):
     """Remove the battery icon from the panel on desktops"""
     if not _check_for_laptop():
         eprint("DESKTOP DETECTED. EDITING PANEL ACCORDINGLY.")
-        if username == "OEM":
-            username = "live"
         try:
             os.remove("/home/" + username + "/.config/xfce4/panel/battery-12.rc")
         except FileNotFoundError:
