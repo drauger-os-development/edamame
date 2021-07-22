@@ -38,6 +38,7 @@ import check_kernel_versions
 import common
 import auto_partitioner
 import oem
+import modules
 
 
 def restart_xfce_panel():
@@ -54,6 +55,7 @@ if len(sys.argv) > 1:
             # OEM post installation configuration
             oem.post_install.UI.show_main()
             remove("/etc/system-installer/oem-post-install.flag")
+            modules.purge.purge_package("system-installer")
             sys.exit(0)
         with open("/proc/cmdline", "r") as cmdline_file:
             cmdline = cmdline_file.read()[:-1].split(" ")

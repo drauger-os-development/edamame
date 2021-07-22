@@ -455,12 +455,12 @@ Sub-Region""")
 def set_passwd(password, username):
     """Set Root password"""
     process = subprocess.Popen("chpasswd",
-                               stdout=stderr.buffer,
+                               stdout=sys.stderr.buffer,
                                stdin=subprocess.PIPE,
                                stderr=subprocess.PIPE)
     process.communicate(input=bytes(r"root:%s" % (password), "utf-8"))
     process = subprocess.Popen("chpasswd",
-                               stdout=stderr.buffer,
+                               stdout=sys.stderr.buffer,
                                stdin=subprocess.PIPE,
                                stderr=subprocess.PIPE)
     process.communicate(input=bytes(r"%s:%s" % (username, password),"utf-8"))
@@ -476,7 +476,6 @@ def show_main():
     Gtk.main()
     window.exit("clicked")
     window.destroy()
-    return data
 
 
 def configure_locale(tz, lang):
