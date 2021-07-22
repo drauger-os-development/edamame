@@ -212,8 +212,10 @@ class Main(Gtk.Window):
                 pass
             self.grid.attach(label5, 1, 7, 3, 1)
         else:
-            set_passwd(password, username)
-            configure.auto_login_set.auto_login_set(autologin, username)
+            multiprocessing.Process(target=set_passwd,
+                                    args=[password, username]).start()
+            multiprocessing.Process(target=configure.auto_login_set.auto_login_set,
+                                    args=[autologin, username]).start()
             self.complete()
 
         self.set_position(Gtk.WindowPosition.CENTER)
@@ -323,7 +325,7 @@ Sub-Region""")
         # This system will go long without a reboot after first boot
         # That will kill this process, if the kernel or Python exiting
         # Doesn't do it first.
-        multiprocessing.Process(target=configure.locale,
+        multiprocessing.Process(target=configure.set_locale.set_locale,
                                 args=[tz, lang]).start()
 
         self.user("clicked")
@@ -424,7 +426,7 @@ Sub-Region""")
             else:
                 varient = "euro"
 
-        multiprocessing.Process(target=configure.keyboard,
+        multiprocessing.Process(target=configure.keyboard.configure,
                                 args=[model, layout, varient]).start()
 
         self.locale("clicked")
