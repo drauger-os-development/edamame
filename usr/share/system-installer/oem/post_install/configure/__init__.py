@@ -23,7 +23,6 @@
 #
 """Configure OEM Installed System"""
 import oem.post_install.configure.auto_login_set as auto_login_set
-import oem.post_install.configure.make_user as make_user
 import oem.post_install.configure.set_locale as set_locale
 import oem.post_install.configure.set_time as set_time
 import oem.post_install.configure.keyboard as keyboard
