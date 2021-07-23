@@ -46,6 +46,8 @@ def restart_xfce_panel():
     subprocess.Popen(["su", "live", "-c", "xfce4-panel"])
 
 common.eprint("    ###    %s STARTED    ###    " % (sys.argv[0]))
+with open("/etc/system-installer/settings.json") as config_file:
+    CONFIG = json.loads(config_file.read())
 boot_time = False
 if len(sys.argv) > 1:
     if sys.argv[1] == "--boot-time":
@@ -56,6 +58,8 @@ if len(sys.argv) > 1:
             oem.post_install.UI.show_main()
             remove("/etc/system-installer/oem-post-install.flag")
             modules.purge.purge_package("system-installer")
+            if "run_post_oem" in CONFIG:
+                subprocess.Popen(CONFIG["run_post_oem"])
             sys.exit(0)
         with open("/proc/cmdline", "r") as cmdline_file:
             cmdline = cmdline_file.read()[:-1].split(" ")
