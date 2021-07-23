@@ -62,7 +62,7 @@ if len(sys.argv) > 1:
                 subprocess.Popen(CONFIG["run_post_oem"])
             sys.exit(0)
         with open("/proc/cmdline", "r") as cmdline_file:
-            cmdline = cmdline_file.read()[:-1].split(" ")
+            cmdline = cmdline_file.read()
         if "system-installer" not in cmdline:
             # Not wanted to be running ootb
             sys.exit(0)
