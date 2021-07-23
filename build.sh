@@ -37,7 +37,10 @@ cd ../linux-meta
 rm -rfv $(ls | grep -v "$dep")
 rm -rfv $(ls | grep "edge")
 rm -rfv $(ls | grep "cacule")
-cd ../..
+cd ..
+dep=$(echo "$dep" | sed 's/xanmod_//g')
+mv linux-upstream "$dep"
+cd ..
 # delete empty folders
 find . -type d -empty -print -delete
 echo -e "\t###\tCOMPRESSING\t###\t"
