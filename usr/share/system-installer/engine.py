@@ -101,6 +101,8 @@ work_dir = "/tmp/quick-install_working-dir"
 SETTINGS = UI.main.show_main(boot_time=boot_time)
 try:
     if ((SETTINGS == 1) or (len(SETTINGS) == 0)):
+        if boot_time:
+            restart_xfce_panel()
         sys.exit(1)
     elif SETTINGS == 2:
         UI.error.show_error("""
