@@ -43,7 +43,7 @@ import modules
 
 def restart_xfce_panel():
     """Restart Xfce4-panel"""
-    subprocess.Popen(["xfce4-panel"])
+    subprocess.Popen(["su", "live", "-c", "xfce4-panel"])
 
 common.eprint("    ###    %s STARTED    ###    " % (sys.argv[0]))
 boot_time = False
@@ -71,6 +71,8 @@ if len(sys.argv) > 1:
 MEMCHECK = psutil.virtual_memory().total
 if (MEMCHECK / 1024 ** 2) < 1024:
     UI.error.show_error("\n\tRAM is less than 1 GB.\t\n")
+    if boot_time:
+        restart_xfce_panel()
     sys.exit(2)
 
 DISK = auto_partitioner.check_disk_state()
@@ -79,6 +81,8 @@ for each in range(len(DISK) - 1, -1, -1):
         del DISK[each]
 if len(DISK) < 1:
     UI.error.show_error("\n\tNo 32 GB or Larger Drives detected\t\n")
+    if boot_time:
+        restart_xfce_panel()
     sys.exit(2)
 if not check_kernel_versions.check_kernel_versions():
     UI.error.show_error("""
@@ -86,6 +90,8 @@ if not check_kernel_versions.check_kernel_versions():
 \tPlease reboot and retry installation.\t
 \tIf your problem persists, please create an issue on our Github.\t
 """)
+    if boot_time:
+        restart_xfce_panel()
     sys.exit(2)
 work_dir = "/tmp/quick-install_working-dir"
 SETTINGS = UI.main.show_main(boot_time=boot_time)
@@ -99,6 +105,8 @@ try:
 \tPlease reboot and retry installation.\t
 \tIf your problem persists, please create an issue on our Github.\t
 """)
+        if boot_time:
+            restart_xfce_panel()
         sys.exit(2)
     elif path.exists(SETTINGS):
         if SETTINGS.split("/")[-1][-5:] == ".json":
@@ -173,6 +181,8 @@ This is a stand-in file.
         print(traceback.format_exc())
         UI.error.show_error("""\n\tError detected.\t
 \tPlease see /tmp/system-installer.log for details.\t\n""")
+        if boot_time:
+            restart_xfce_panel()
 else:
     if boot_time:
         restart_xfce_panel()
