@@ -65,7 +65,8 @@ def launch(boot_time=False):
     try:
         exit_code = subprocess.check_call(command, shell=True)
     except subprocess.CalledProcessError:
-        pass
+        # Assume the worst
+        exit_code = 256
     if boot_time:
         restart_xfce_panel()
     if ((exit_code == 256) and (not path.exists("/tmp/system-installer.log"))):
