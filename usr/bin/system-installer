@@ -23,8 +23,8 @@
 #
 """Command line executable for System Installer"""
 from sys import argv, stderr
-from subprocess import check_call
-from os import system, path
+import subprocess
+from os import path
 ARGC = len(argv)
 VERSION = "1.9.9-beta9"
 HELP = """
@@ -53,7 +53,7 @@ def launch(boot_time=False):
     command1 =  ["/usr/bin/xhost"]
     enable = ["+si:localuser:root"]
     disable = ["-si:localuser:root"]
-    check_call(command1 + enable)
+    subprocess.check_call(command1 + enable)
     print(Y + "RUNNING LOG LOCATED AT /tmp/system-installer.log" + NC)
     command = ["echo 'toor' | sudo -S /usr/share/system-installer/engine.py",
                "2>/tmp/system-installer.log 1>&2"]
@@ -62,12 +62,17 @@ def launch(boot_time=False):
             log_file.write("STARTING IN BOOT-TIME MODE")
         command.insert(1, "--boot-time")
     command = " ".join(command)
-    exit_code = system(command)
+    try:
+        exit_code = subprocess.check_call(command, shell=True)
+    except subprocess.CalledProcessError:
+        pass
+    if boot_time:
+        restart_xfce_panel()
     if ((exit_code == 256) and (not path.exists("/tmp/system-installer.log"))):
         eprint("Error accessing /usr/share/system-installer/engine.py: No such file or directory")
         with open("/tmp/system-installer.log", "w+") as log_file:
             log_file.write("Error accessing /usr/share/system-installer/engine.py: No such file or directory")
-    check_call(command1 + disable)
+    subprocess.check_call(command1 + disable)
 
 
 if ARGC > 1:
