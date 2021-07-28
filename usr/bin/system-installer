@@ -48,6 +48,11 @@ def eprint(args, *kwargs, color=R):
     print(NC, file=stderr)
 
 
+def restart_xfce_panel():
+    """Restart Xfce4-panel"""
+    subprocess.Popen(["xfce4-panel"])
+
+
 def launch(boot_time=False):
     """Launch system-isntaller"""
     command1 =  ["/usr/bin/xhost"]
