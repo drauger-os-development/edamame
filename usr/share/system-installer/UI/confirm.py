@@ -3,7 +3,7 @@
 #
 #  confirm.py
 #
-#  Copyright 2020 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2021 Thomas Castleman <contact@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -74,7 +74,7 @@ class Main(Gtk.Window):
         if settings["AUTO_PART"]:
             label = """AUTO PARTITIONING ENABLED\t
 INSTALLATION DRIVE: %s""" % (settings["ROOT"])
-            if settings["raid_array"]["raid_type"] is not None:
+            if settings["raid_array"]["raid_type"] not in ("OEM", None):
                 label = label + """
 RAID Type: %s
 Drive 1:   %s
@@ -101,161 +101,162 @@ HOME:      %s""" % (settings["ROOT"], settings["EFI"],
         label5 = self._set_default_margins(label5)
         self.grid.attach(label5, 3, 4, 1, 1)
 
-        label6 = Gtk.Label()
-        label6.set_markup("""
+        if "OEM" not in settings.values():
+            label6 = Gtk.Label()
+            label6.set_markup("""
     <b>SYSTEM</b>
         """)
-        label6.set_justify(Gtk.Justification.CENTER)
-        label6 = self._set_default_margins(label6)
-        self.grid.attach(label6, 1, 5, 3, 1)
+            label6.set_justify(Gtk.Justification.CENTER)
+            label6 = self._set_default_margins(label6)
+            self.grid.attach(label6, 1, 5, 3, 1)
 
-        label7 = Gtk.Label()
-        label7.set_markup("""  Language:   """)
-        label7.set_justify(Gtk.Justification.CENTER)
-        label7 = self._set_default_margins(label7)
-        self.grid.attach(label7, 1, 6, 1, 1)
+            label7 = Gtk.Label()
+            label7.set_markup("""  Language:   """)
+            label7.set_justify(Gtk.Justification.CENTER)
+            label7 = self._set_default_margins(label7)
+            self.grid.attach(label7, 1, 6, 1, 1)
 
-        label8 = Gtk.Label()
-        label8.set_markup(settings["LANG"])
-        label8.set_justify(Gtk.Justification.CENTER)
-        label8 = self._set_default_margins(label8)
-        self.grid.attach(label8, 3, 6, 1, 1)
+            label8 = Gtk.Label()
+            label8.set_markup(settings["LANG"])
+            label8.set_justify(Gtk.Justification.CENTER)
+            label8 = self._set_default_margins(label8)
+            self.grid.attach(label8, 3, 6, 1, 1)
 
-        label9 = Gtk.Label()
-        label9.set_markup("""  Time Zone:  """)
-        label9.set_justify(Gtk.Justification.CENTER)
-        label9 = self._set_default_margins(label9)
-        self.grid.attach(label9, 1, 7, 1, 1)
+            label9 = Gtk.Label()
+            label9.set_markup("""  Time Zone:  """)
+            label9.set_justify(Gtk.Justification.CENTER)
+            label9 = self._set_default_margins(label9)
+            self.grid.attach(label9, 1, 7, 1, 1)
 
-        label10 = Gtk.Label()
-        label10.set_markup(settings["TIME_ZONE"])
-        label10.set_justify(Gtk.Justification.CENTER)
-        label10 = self._set_default_margins(label10)
-        self.grid.attach(label10, 3, 7, 1, 1)
+            label10 = Gtk.Label()
+            label10.set_markup(settings["TIME_ZONE"])
+            label10.set_justify(Gtk.Justification.CENTER)
+            label10 = self._set_default_margins(label10)
+            self.grid.attach(label10, 3, 7, 1, 1)
 
-        label11 = Gtk.Label()
-        label11.set_markup("   Computer Name:  ")
-        label11.set_justify(Gtk.Justification.CENTER)
-        label11 = self._set_default_margins(label11)
-        self.grid.attach(label11, 1, 8, 1, 1)
+            label11 = Gtk.Label()
+            label11.set_markup("   Computer Name:  ")
+            label11.set_justify(Gtk.Justification.CENTER)
+            label11 = self._set_default_margins(label11)
+            self.grid.attach(label11, 1, 8, 1, 1)
 
-        label12 = Gtk.Label()
-        label12.set_markup(settings["COMPUTER_NAME"])
-        label12.set_justify(Gtk.Justification.CENTER)
-        label12 = self._set_default_margins(label12)
-        self.grid.attach(label12, 3, 8, 1, 1)
+            label12 = Gtk.Label()
+            label12.set_markup(settings["COMPUTER_NAME"])
+            label12.set_justify(Gtk.Justification.CENTER)
+            label12 = self._set_default_margins(label12)
+            self.grid.attach(label12, 3, 8, 1, 1)
 
-        label13 = Gtk.Label()
-        label13.set_markup("""
+            label13 = Gtk.Label()
+            label13.set_markup("""
     <b>USER</b>
         """)
-        label13.set_justify(Gtk.Justification.CENTER)
-        label13 = self._set_default_margins(label13)
-        self.grid.attach(label13, 1, 9, 3, 1)
+            label13.set_justify(Gtk.Justification.CENTER)
+            label13 = self._set_default_margins(label13)
+            self.grid.attach(label13, 1, 9, 3, 1)
 
-        label14 = Gtk.Label()
-        label14.set_markup(""" Username:   """)
-        label14.set_justify(Gtk.Justification.CENTER)
-        label14 = self._set_default_margins(label14)
-        self.grid.attach(label14, 1, 10, 1, 1)
+            label14 = Gtk.Label()
+            label14.set_markup(""" Username:   """)
+            label14.set_justify(Gtk.Justification.CENTER)
+            label14 = self._set_default_margins(label14)
+            self.grid.attach(label14, 1, 10, 1, 1)
 
-        label15 = Gtk.Label()
-        label15.set_markup(settings["USERNAME"])
-        label15.set_justify(Gtk.Justification.CENTER)
-        label15 = self._set_default_margins(label15)
-        self.grid.attach(label15, 3, 10, 1, 1)
+            label15 = Gtk.Label()
+            label15.set_markup(settings["USERNAME"])
+            label15.set_justify(Gtk.Justification.CENTER)
+            label15 = self._set_default_margins(label15)
+            self.grid.attach(label15, 3, 10, 1, 1)
 
-        label16 = Gtk.Label()
-        label16.set_markup(""" Password:   """)
-        label16.set_justify(Gtk.Justification.CENTER)
-        label16 = self._set_default_margins(label16)
-        self.grid.attach(label16, 1, 11, 1, 1)
+            label16 = Gtk.Label()
+            label16.set_markup(""" Password:   """)
+            label16.set_justify(Gtk.Justification.CENTER)
+            label16 = self._set_default_margins(label16)
+            self.grid.attach(label16, 1, 11, 1, 1)
 
-        label17 = Gtk.Label()
-        label17.set_markup(settings["PASSWORD"])
-        label17.set_justify(Gtk.Justification.CENTER)
-        label17 = self._set_default_margins(label17)
-        self.grid.attach(label17, 3, 11, 1, 1)
+            label17 = Gtk.Label()
+            label17.set_markup(settings["PASSWORD"])
+            label17.set_justify(Gtk.Justification.CENTER)
+            label17 = self._set_default_margins(label17)
+            self.grid.attach(label17, 3, 11, 1, 1)
 
-        label23 = Gtk.Label()
-        label23.set_markup(""" Auto-Login: """)
-        label23.set_justify(Gtk.Justification.CENTER)
-        label23 = self._set_default_margins(label23)
-        self.grid.attach(label23, 1, 12, 1, 1)
+            label23 = Gtk.Label()
+            label23.set_markup(""" Auto-Login: """)
+            label23.set_justify(Gtk.Justification.CENTER)
+            label23 = self._set_default_margins(label23)
+            self.grid.attach(label23, 1, 12, 1, 1)
 
-        label24 = Gtk.Label()
-        label24.set_markup(str(settings["LOGIN"]))
-        label24.set_justify(Gtk.Justification.CENTER)
-        label24 = self._set_default_margins(label24)
-        self.grid.attach(label24, 3, 12, 1, 1)
+            label24 = Gtk.Label()
+            label24.set_markup(str(settings["LOGIN"]))
+            label24.set_justify(Gtk.Justification.CENTER)
+            label24 = self._set_default_margins(label24)
+            self.grid.attach(label24, 3, 12, 1, 1)
 
-        label18 = Gtk.Label()
-        label18.set_markup("""
+            label18 = Gtk.Label()
+            label18.set_markup("""
     <b>OTHER</b>
         """)
-        label18.set_justify(Gtk.Justification.CENTER)
-        label18 = self._set_default_margins(label18)
-        self.grid.attach(label18, 1, 13, 3, 1)
+            label18.set_justify(Gtk.Justification.CENTER)
+            label18 = self._set_default_margins(label18)
+            self.grid.attach(label18, 1, 13, 3, 1)
 
-        label19 = Gtk.Label()
-        label19.set_markup(""" Install Extras: """)
-        label19.set_justify(Gtk.Justification.CENTER)
-        label19 = self._set_default_margins(label19)
-        self.grid.attach(label19, 1, 14, 1, 1)
+            label19 = Gtk.Label()
+            label19.set_markup(""" Install Extras: """)
+            label19.set_justify(Gtk.Justification.CENTER)
+            label19 = self._set_default_margins(label19)
+            self.grid.attach(label19, 1, 14, 1, 1)
 
-        label20 = Gtk.Label()
-        label20.set_markup(str(settings["EXTRAS"]))
-        label20.set_justify(Gtk.Justification.CENTER)
-        label20 = self._set_default_margins(label20)
-        self.grid.attach(label20, 3, 14, 1, 1)
+            label20 = Gtk.Label()
+            label20.set_markup(str(settings["EXTRAS"]))
+            label20.set_justify(Gtk.Justification.CENTER)
+            label20 = self._set_default_margins(label20)
+            self.grid.attach(label20, 3, 14, 1, 1)
 
-        label21 = Gtk.Label()
-        label21.set_markup(""" Install Updates:    """)
-        label21.set_justify(Gtk.Justification.CENTER)
-        label21 = self._set_default_margins(label21)
-        self.grid.attach(label21, 1, 15, 1, 1)
+            label21 = Gtk.Label()
+            label21.set_markup(""" Install Updates:    """)
+            label21.set_justify(Gtk.Justification.CENTER)
+            label21 = self._set_default_margins(label21)
+            self.grid.attach(label21, 1, 15, 1, 1)
 
-        label22 = Gtk.Label()
-        label22.set_markup(str(settings["UPDATES"]))
-        label22.set_justify(Gtk.Justification.CENTER)
-        label22 = self._set_default_margins(label22)
-        self.grid.attach(label22, 3, 15, 1, 1)
+            label22 = Gtk.Label()
+            label22.set_markup(str(settings["UPDATES"]))
+            label22.set_justify(Gtk.Justification.CENTER)
+            label22 = self._set_default_margins(label22)
+            self.grid.attach(label22, 3, 15, 1, 1)
 
-        label25 = Gtk.Label()
-        label25.set_markup(""" Keyboard Model: """)
-        label25.set_justify(Gtk.Justification.CENTER)
-        label25 = self._set_default_margins(label25)
-        self.grid.attach(label25, 1, 16, 1, 1)
+            label25 = Gtk.Label()
+            label25.set_markup(""" Keyboard Model: """)
+            label25.set_justify(Gtk.Justification.CENTER)
+            label25 = self._set_default_margins(label25)
+            self.grid.attach(label25, 1, 16, 1, 1)
 
-        label26 = Gtk.Label()
-        label26.set_markup(settings["MODEL"])
-        label26.set_justify(Gtk.Justification.CENTER)
-        label26 = self._set_default_margins(label26)
-        self.grid.attach(label26, 3, 16, 1, 1)
+            label26 = Gtk.Label()
+            label26.set_markup(settings["MODEL"])
+            label26.set_justify(Gtk.Justification.CENTER)
+            label26 = self._set_default_margins(label26)
+            self.grid.attach(label26, 3, 16, 1, 1)
 
-        label27 = Gtk.Label()
-        label27.set_markup(""" Keyboard Layout:    """)
-        label27.set_justify(Gtk.Justification.CENTER)
-        label27 = self._set_default_margins(label27)
-        self.grid.attach(label27, 1, 17, 1, 1)
+            label27 = Gtk.Label()
+            label27.set_markup(""" Keyboard Layout:    """)
+            label27.set_justify(Gtk.Justification.CENTER)
+            label27 = self._set_default_margins(label27)
+            self.grid.attach(label27, 1, 17, 1, 1)
 
-        label28 = Gtk.Label()
-        label28.set_markup(settings["LAYOUT"])
-        label28.set_justify(Gtk.Justification.CENTER)
-        label28 = self._set_default_margins(label28)
-        self.grid.attach(label28, 3, 17, 1, 1)
+            label28 = Gtk.Label()
+            label28.set_markup(settings["LAYOUT"])
+            label28.set_justify(Gtk.Justification.CENTER)
+            label28 = self._set_default_margins(label28)
+            self.grid.attach(label28, 3, 17, 1, 1)
 
-        label29 = Gtk.Label()
-        label29.set_markup(""" Keyboard Variant:   """)
-        label29.set_justify(Gtk.Justification.CENTER)
-        label29 = self._set_default_margins(label29)
-        self.grid.attach(label29, 1, 18, 1, 1)
+            label29 = Gtk.Label()
+            label29.set_markup(""" Keyboard Variant:   """)
+            label29.set_justify(Gtk.Justification.CENTER)
+            label29 = self._set_default_margins(label29)
+            self.grid.attach(label29, 1, 18, 1, 1)
 
-        label30 = Gtk.Label()
-        label30.set_markup(settings["VARIENT"])
-        label30.set_justify(Gtk.Justification.CENTER)
-        label30 = self._set_default_margins(label30)
-        self.grid.attach(label30, 3, 18, 1, 1)
+            label30 = Gtk.Label()
+            label30.set_markup(settings["VARIENT"])
+            label30.set_justify(Gtk.Justification.CENTER)
+            label30 = self._set_default_margins(label30)
+            self.grid.attach(label30, 3, 18, 1, 1)
 
         button1 = Gtk.Button.new_with_label("INSTALL NOW -->")
         button1.connect("clicked", self.onnextclicked)
@@ -266,6 +267,10 @@ HOME:      %s""" % (settings["ROOT"], settings["EFI"],
         button2.connect("clicked", self.exit)
         button2 = self._set_default_margins(button2)
         self.grid.attach(button2, 1, 19, 1, 1)
+
+        self.set_position(Gtk.WindowPosition.CENTER)
+
+        self.show_all()
 
     def onnextclicked(self, button):
         """set install to false"""
@@ -292,12 +297,12 @@ HOME:      %s""" % (settings["ROOT"], settings["EFI"],
         return self.install
 
 
-def show_confirm(settings):
+def show_confirm(settings, boot_time=False):
     """Show confirmation dialog"""
     window = Main(settings)
-    window.set_decorated(True)
+    if not boot_time:
+        window.set_decorated(True)
     window.set_resizable(False)
-    window.set_position(Gtk.WindowPosition.CENTER)
     window.connect("delete-event", Main.exit)
     window.show_all()
     Gtk.main()

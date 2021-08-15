@@ -3,7 +3,7 @@
 #
 #  engine.py
 #
-#  Copyright 2020 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2021 Thomas Castleman <contact@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -30,17 +30,44 @@ import json
 import tarfile as tar
 from shutil import copyfile, copytree
 import traceback
-from psutil import virtual_memory
+import psutil
 import UI
 import installer
 import check_internet
 import check_kernel_versions
 import common
 import auto_partitioner
-
+import oem
+import modules
 
 common.eprint("    ###    %s STARTED    ###    " % (sys.argv[0]))
-MEMCHECK = virtual_memory().total
+with open("/etc/system-installer/settings.json") as config_file:
+    CONFIG = json.loads(config_file.read())
+boot_time = False
+if len(sys.argv) > 1:
+    if sys.argv[1] == "--boot-time":
+        # OEM post-install configuration, on-boot installation, and more
+        # are handled here
+        if path.exists("/etc/system-installer/oem-post-install.flag"):
+            # OEM post installation configuration
+            oem.post_install.UI.show_main()
+            remove("/etc/system-installer/oem-post-install.flag")
+            modules.purge.purge_package("system-installer")
+            if "run_post_oem" in CONFIG:
+                subprocess.Popen(CONFIG["run_post_oem"])
+            sys.exit(0)
+        with open("/proc/cmdline", "r") as cmdline_file:
+            cmdline = cmdline_file.read()
+        if "system-installer" not in cmdline:
+            # Not wanted to be running ootb
+            sys.exit(0)
+        boot_time = True
+        # Kill Xfce4 Panel, makes this more emersive
+        for proc in psutil.process_iter():
+            # check whether the process name matches
+            if proc.name() == "xfce4-panel":
+                proc.terminate()
+MEMCHECK = psutil.virtual_memory().total
 if (MEMCHECK / 1024 ** 2) < 1024:
     UI.error.show_error("\n\tRAM is less than 1 GB.\t\n")
     sys.exit(2)
@@ -54,16 +81,24 @@ if len(DISK) < 1:
     sys.exit(2)
 if not check_kernel_versions.check_kernel_versions():
     UI.error.show_error("""
-\tKernel Version Mismatch.\t
+\t<b>Kernel Version Mismatch.</b>\t
 \tPlease reboot and retry installation.\t
 \tIf your problem persists, please create an issue on our Github.\t
 """)
     sys.exit(2)
 work_dir = "/tmp/quick-install_working-dir"
-SETTINGS = UI.main.show_main()
+SETTINGS = UI.main.show_main(boot_time=boot_time)
 try:
     if ((SETTINGS == 1) or (len(SETTINGS) == 0)):
         sys.exit(1)
+    elif SETTINGS == 2:
+        UI.error.show_error("""
+\t<b>Unknown Error</b>\t
+\tWe're sorry. An unknown error has occured.\t
+\tPlease reboot and retry installation.\t
+\tIf your problem persists, please create an issue on our Github.\t
+""")
+        sys.exit(2)
     elif path.exists(SETTINGS):
         if SETTINGS.split("/")[-1][-5:] == ".json":
             with open(SETTINGS, "r") as quick_install_file:
@@ -85,18 +120,22 @@ try:
             except FileNotFoundError:
                 pass
         if "DATA" in SETTINGS:
+            # Parse out just the data. Ignore everything else.
             SETTINGS = SETTINGS["DATA"]
+        if "OEM" in SETTINGS.values():
+            # This is an OEM installation. Parts will be skipped now and handled later.
+            # Other parts will be automated
+            additional_settings = oem.pre_install.show_main()
+            for each in additional_settings:
+                SETTINGS[each] = additional_settings[each]
+
 except TypeError:
     pass
 # Confirm whether settings are correct or not
-INSTALL = UI.confirm.show_confirm(SETTINGS)
+INSTALL = UI.confirm.show_confirm(SETTINGS, boot_time=boot_time)
 if INSTALL:
     try:
-        # fork() to get proper multi-threading needs
-        # PROGRESS = multiprocessing.Process(target=UI.progress.show_progress)
-        # PROGRESS = threading.Thread(target=UI.progress.show_progress)
-        # PROGRESS.start()
-        # otherwise, we are parent and should continue
+        # Run the progress bar in the background
         process = subprocess.Popen("/usr/share/system-installer/progress.py")
         pid = process.pid
         SETTINGS["INTERNET"] = check_internet.has_internet()
@@ -123,8 +162,6 @@ This is a stand-in file.
         subprocess.Popen(["su", "live", "-c",
                           "/usr/share/system-installer/success.py \'%s\'" % (json.dumps(SETTINGS))])
         kill(pid, 15)
-        # PROGRESS.terminate()
-        # PROGRESS.join()
     except Exception as error:
         kill(pid, 15)
         common.eprint("\nAn Error has occured:\n%s\n" % (error))

@@ -28,5 +28,6 @@
 						   },
 					"min root size":19327,
 					"mdswh":128
-					}
+				   },
+	"run_post_oem":["/usr/share/drauger-welcome/main_ui.py"]
 }

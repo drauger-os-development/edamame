@@ -1,0 +1,27 @@
+{
+	"LANG": "OEM",
+	"TIME_ZONE": "OEM",
+	"AUTO_PART": true,
+	"ROOT": "OEM",
+	"EFI": "OEM",
+	"HOME": "OEM",
+	"SWAP": "FILE",
+	"USERNAME": "drauger-user",
+	"PASSWORD": "OEM",
+	"COMPUTER_NAME": "drauger-oem-system",
+	"EXTRAS": true,
+	"UPDATES": true,
+	"LOGIN": true,
+	"MODEL": "OEM",
+	"LAYOUT": "OEM",
+	"VARIENT": "OEM",
+	"raid_array": {
+		"raid_type": "OEM",
+		"disks": {
+			"1": null,
+			"2": null,
+			"3": null,
+			"4": null
+			}
+		}
+}

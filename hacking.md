@@ -17,32 +17,32 @@ However, there are some limitations:
  * Anything with "partitioner" in the name in `/usr/share/system-installer/modules` will not be copied into the `chroot`
  * `dpkg` and it's front end `apt` must be present for installation, as they are used for installing the kernel
  * A file, `kernel.7z`, is created upon creation of the *.deb package. This file is necessary as it provides a fall-back kernel for installation when the internet is inaccessible.
- 
- 
+
+
 Installation Procedure
 ---
   1. Obtain user settings - Partition the drive if needed
-   
+
   2. Mount the partitions in the places they will be in the finished system, this includes swap if it is already present.
-  
-  3. Extract the squashfs, the path to which is defined in `/etc/system-installer/default.json`
-  
+
+  3. Extract the squashfs, the path to which is defined in `/etc/system-installer/settings.json`
+
   4. Move the files extracted from the squashfs to the installation directory - this is to circumvent a bug with `unsquashfs` where it won't actually place the files where they are supposed to go. It will instead make a folder named `squashfs-root`, and extract the squashfs there.
-  
+
   5. use the `chroot` function in `chroot.py` to `chroot` into the newly created OS and configure the installation
-  
+
   6. Set up keyboard, time zone, language, username, password, auto-login (if set). Install updates and restricted extras if needed. This is all done in parallel, except things pertaining to the package manager, which is done sequentially.
-  
+
   7. Install the kernel
-  
+
   8. Make an initramfs
-  
+
   9. Set up & configure bootloader
-  
+
     a) GRUB for BIOS
     b) systemd-boot for UEFI
-  
-  
+
+
 Project Layout
 ---
 
@@ -73,7 +73,7 @@ System Installer is designed to be as modular as possible. While it still has a 
  				- Also will grab network settings, wallpaper, and more if requested. A spec for Quick Install formatting will be released later.
  			- All other functions included in this window are at the developer's discretion as nothing else is used elsewhere in System Installer
  			- Returns `None`
- 			
+
 - Installation Module
 	- Located at `/usr/share/system-installer/modules`
 	- The installation module can be further broken down into sub modules, each with it's own segment of installation it works on.
@@ -88,15 +88,14 @@ System Installer is designed to be as modular as possible. While it still has a 
 			- Handles installation procedure
 			- Returns `None`
 			- Should be multi-threaded in order to speed up installation
-				- The stock function is multi-threaded using the `multiprocessing` library
-	
+			- The stock function is multi-threaded using the `multiprocessing` library
 The UI module is the most replaceable module. As long as the necessary functions are available to `engine.py`, it can easily be replaced with a Qt UI, a GTK UI that looks totally different, or something else!
 
 
 Settings
 ---
 
-Settings are defined in `/etc/system-installer/default.json`
+Settings are defined in `/etc/system-installer/settings.json`
 
  - `squashfs_location`
    - Location of the squashfs file to unpack
@@ -132,16 +131,16 @@ Settings are defined in `/etc/system-installer/default.json`
      - All of supported entries must be defined in each of `ROOT`, `HOME`, or `EFI`
    - `min root size` must be an integer that dictates the minimum size of the root partition in MiB
    - `mdswh` stands for 'minimum drive size with home', and is the size smallest drive you can install Drauger OS to and have a seperate `/home` partition on the same drive.
- 
+
 Notable files for hacking
 ---
- 
+
 ```
 /usr/share/system-installer/installer.py
 /usr/share/system-installer/modules/master.py
 /usr/share/system-installer/modules/install_extras.sh
 /usr/share/system-installer/modules/manual-partitioner.sh
 /usr/share/system-installer/modules/systemd_boot_config.py
-/etc/system-installer/default.json
+/etc/system-installer/settings.json
 
 ```

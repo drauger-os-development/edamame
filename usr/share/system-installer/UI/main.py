@@ -26,8 +26,8 @@ from __future__ import print_function
 import sys
 import re
 import json
+import os
 from subprocess import Popen, check_output, DEVNULL
-from os import chdir, path, listdir
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
@@ -48,12 +48,10 @@ def has_special_character(input_string):
 
 
 try:
-    with open("/etc/system-installer/default.json") as config_file:
+    with open("/etc/system-installer/settings.json") as config_file:
         DISTRO = json.loads(config_file.read())["distro"]
-
-except FileNotFoundError:
-    eprint("/etc/system-installer/default.json does not exist. In testing?")
-    DISTRO = "Drauger OS"
+except (FileNotFoundError, KeyError):
+    DISTRO = "Linux"
 
 
 DEFAULT = """
@@ -195,24 +193,36 @@ class Main(Gtk.Window):
         label.set_markup(DEFAULT)
         label.set_justify(Gtk.Justification.LEFT)
         label = self._set_default_margins(label)
-        self.grid.attach(label, 1, 1, 3, 1)
+        self.grid.attach(label, 1, 1, 4, 1)
 
-        button1 = Gtk.Button.new_with_label("Okay -->")
+        button1 = Gtk.Button.new_with_label("Normal Installation")
         button1.connect("clicked", self.main_menu)
         button1 = self._set_default_margins(button1)
-        self.grid.attach(button1, 3, 2, 1, 1)
+        self.grid.attach(button1, 4, 2, 1, 1)
 
         button2 = Gtk.Button.new_with_label("Exit")
         button2.connect("clicked", self.exit)
         button2 = self._set_default_margins(button2)
         self.grid.attach(button2, 1, 2, 1, 1)
 
-        button3 = Gtk.Button.new_with_label("Quick Install")
+        button3 = Gtk.Button.new_with_label("Quick Installation")
         button3.connect("clicked", self.quick_install_warning)
         button3 = self._set_default_margins(button3)
         self.grid.attach(button3, 2, 2, 1, 1)
 
+        button4 = Gtk.Button.new_with_label("OEM Installation")
+        button4.connect("clicked", self.oem_startup)
+        button4 = self._set_default_margins(button4)
+        self.grid.attach(button4, 3, 2, 1, 1)
+
+        self.set_position(Gtk.WindowPosition.CENTER)
+
         self.show_all()
+
+    def oem_startup(self, widget):
+        """Start up OEM installation"""
+        self.data = "/etc/system-installer/oem-install.json"
+        self.complete()
 
     def select_config(self, widget):
         """Quick Install File Selection Window"""
@@ -976,7 +986,7 @@ Type. Minimum drives is: %s""" % (loops))
     def select_home_part(self, widget):
         """Set pre-existing home partition, based on user input"""
         device = widget.get_active_id()
-        if path.exists(device):
+        if os.path.exists(device):
             self.data["HOME"] = device
 
     def _set_root_part(self, widget):
@@ -989,7 +999,7 @@ Type. Minimum drives is: %s""" % (loops))
         """Force User to either pick a drive to install to, abort,
         or backtrack
         """
-        if path.isdir("/sys/firmware/efi"):
+        if os.path.isdir("/sys/firmware/efi"):
             self.data["EFI"] = True
         else:
             self.data["EFI"] = False
@@ -1126,7 +1136,7 @@ Type. Minimum drives is: %s""" % (loops))
             self.grid.attach(label, 1, 1, 3, 1)
 
             self.show_all()
-        elif not path.exists(self.root.get_text()):
+        elif not os.path.exists(self.root.get_text()):
             label = Gtk.Label()
             label.set_markup("""
     What are the mount points for the partitions you wish to be used?
@@ -1146,7 +1156,7 @@ Type. Minimum drives is: %s""" % (loops))
             self.show_all()
 
         elif (((self.efi.get_text() == "") or (
-                self.efi.get_text()[0:5] != "/dev/")) and path.isdir("/sys/firmware/efi")):
+                self.efi.get_text()[0:5] != "/dev/")) and os.path.isdir("/sys/firmware/efi")):
             label = Gtk.Label()
             label.set_markup("""
     What are the mount points for the partitions you wish to be used?
@@ -1165,7 +1175,7 @@ Type. Minimum drives is: %s""" % (loops))
             self.grid.attach(label, 1, 1, 3, 1)
 
             self.show_all()
-        elif (not path.exists(self.efi.get_text()) or (self.efi.get_text() == "")) and path.isdir("/sys/firmware/efi"):
+        elif (not os.path.exists(self.efi.get_text()) or (self.efi.get_text() == "")) and os.path.isdir("/sys/firmware/efi"):
             label = Gtk.Label()
             label.set_markup("""
     What are the mount points for the partitions you wish to be used?
@@ -1202,7 +1212,7 @@ Type. Minimum drives is: %s""" % (loops))
             self.grid.attach(label, 1, 1, 3, 1)
 
             self.show_all()
-        elif (not path.exists(self.home.get_text()) and (
+        elif (not os.path.exists(self.home.get_text()) and (
                 self.home.get_text() != "")):
             label = Gtk.Label()
             label.set_markup("""
@@ -1242,7 +1252,7 @@ Type. Minimum drives is: %s""" % (loops))
             self.grid.attach(label, 1, 1, 3, 1)
 
             self.show_all()
-        elif (not path.exists(self.swap.get_text()) and (
+        elif (not os.path.exists(self.swap.get_text()) and (
                 self.swap.get_text().upper() != "FILE") and (
                     self.swap.get_text() != "")):
             label = Gtk.Label()
@@ -1473,7 +1483,7 @@ Sub-Region""")
         """
         if widget.get_active_id() is None:
             return
-        zones = sorted(listdir("/usr/share/zoneinfo/"
+        zones = sorted(os.listdir("/usr/share/zoneinfo/"
                                + widget.get_active_id()))
         self.grid.remove(self.grid.get_child_at(2, 7))
         self.sub_region = Gtk.ComboBoxText.new()
@@ -1652,17 +1662,20 @@ Sub-Region""")
         """Set settings var"""
         Gtk.main_quit("delete-event")
         self.destroy()
-        if "" in (self.data["EFI"], self.data["SWAP"],
-                  self.data["ROOT"], self.data["AUTO_PART"],
-                  self.data["LANG"], self.data["USERNAME"],
-                  self.data["COMPUTER_NAME"], self.data["PASSWORD"],
-                  self.data["EXTRAS"], self.data["UPDATES"], self.data["LOGIN"],
-                  self.data["MODEL"], self.data["LAYOUT"], self.data["VARIENT"]):
-            self.data = 1
+        if isinstance(self.data, str):
+            if os.path.isfile(self.data):
+                return
+            else:
+                self.data = 1
+        elif isinstance(self.data, dict):
+            if "" in self.data.values():
+                self.data = 1
+            else:
+                self.data["EXTRAS"] = bool(self.data["EXTRAS"])
+                self.data["UPDATES"] = bool(self.data["UPDATES"])
+                self.data["LOGIN"] = bool(self.data["LOGIN"])
         else:
-            self.data["EXTRAS"] = bool(self.data["EXTRAS"])
-            self.data["UPDATES"] = bool(self.data["UPDATES"])
-            self.data["LOGIN"] = bool(self.data["LOGIN"])
+            self.data = 1
 
     def exit(self, button):
         """Exit dialog"""
@@ -1706,13 +1719,13 @@ Exiting now will cause all your settings to be lost.""")
         return self.data
 
 
-def show_main():
+def show_main(boot_time=False):
     """Show Main UI"""
     make_kbd_names()
     window = Main()
-    window.set_decorated(True)
+    if not boot_time:
+        window.set_decorated(True)
     window.set_resizable(False)
-    window.set_position(Gtk.WindowPosition.CENTER)
     window.connect("delete-event", Main._exit)
     window.show_all()
     Gtk.main()
@@ -1724,7 +1737,7 @@ def show_main():
 
 def make_kbd_names():
     """Get Keyboard Names faster"""
-    if path.isfile("/etc/system-installer/keyboards.json"):
+    if os.path.isfile("/etc/system-installer/keyboards.json"):
         # Keyboards file already made. Nothing to do.
         return
     with open("/usr/share/console-setup/KeyboardNames.pl") as file:
@@ -1757,7 +1770,7 @@ def make_kbd_names():
             data[-1] = "}}"
             break
     data = "\n".join(data)
-    chdir("/etc/system-installer")
+    os.chdir("/etc/system-installer")
     with open("keyboards.json", "w+") as file:
         file.write(data)
 

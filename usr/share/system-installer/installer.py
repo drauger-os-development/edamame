@@ -124,7 +124,7 @@ def install(settings):
     __update__(14)
     # STEP 3: Unsquash the sqaushfs and get the files where they need to go
     squashfs = ""
-    with open("/etc/system-installer/default.json", "r") as config:
+    with open("/etc/system-installer/settings.json", "r") as config:
         squashfs = json.loads(config.read())["squashfs_Location"]
     if not path.exists(squashfs):
         common.eprint("\n    SQUASHFS FILE DOES NOT EXIST    \n")

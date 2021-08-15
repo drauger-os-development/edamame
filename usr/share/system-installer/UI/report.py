@@ -38,7 +38,10 @@ from gi.repository import Gtk
 try:
     gpg = gnupg.GPG(gnupghome="/home/live/.gnupg")
 except ValueError:
-    gpg = gnupg.GPG(gnupghome=getenv("HOME") + "/.gnupg")
+    try:
+        gpg = gnupg.GPG(gnupghome=getenv("HOME") + "/.gnupg")
+    except ValueError:
+        gpg = gnupg.GPG(gnupghome="/home/drauger-user/.gnupg")
 
 
 class Main(Gtk.Window):
@@ -306,7 +309,7 @@ class Main(Gtk.Window):
         try:
             # Get keys
             cURL = curl.Curl()
-            with open("../../../etc/system-installer/default.json", "r") as config:
+            with open("../../../etc/system-installer/settings.json", "r") as config:
                 URL = json.load(config)["report"]
             cURL.set_url(URL["recv_keys"])
             key = cURL.get().decode()
@@ -414,7 +417,7 @@ class Main(Gtk.Window):
                 message.write("\n")
                 message.write("PCIe / GPU INFO:\n")
                 if self.gpu.get_active():
-                    for each in get_info("lspci"):
+                    for each in get_info(["lspci", "-nn"]):
                         message.write(each + "\n")
                 else:
                     message.write("OPT OUT\n")
@@ -463,7 +466,7 @@ class Main(Gtk.Window):
                 message.write("\n")
                 message.write("PCIe / GPU INFO:\n")
                 if self.gpu.get_active():
-                    for each in get_info("lspci"):
+                    for each in get_info(["lspci", "-nn"]):
                         message.write(each + "\n")
                 else:
                     message.write("OPT OUT\n")
@@ -666,6 +669,6 @@ def get_info(cmd):
 
 def send_to():
     try:
-        return json.loads("/etc/system-installer/default.json")["report_to"]
+        return json.loads("/etc/system-installer/settings.json")["report_to"]
     except (FileNotFoundError, PermissionError, KeyError):
         return "installation-reports@draugeros.org"

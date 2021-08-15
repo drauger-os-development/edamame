@@ -51,7 +51,7 @@ config = {"ROOT": {"START": 201, "END": "40%", "fs": "ext4"},
           "min root size": 19327,
           "mdswh": 128}
 try:
-    with open("/etc/system-installer/default.json", "r") as config_file:
+    with open("/etc/system-installer/settings.json", "r") as config_file:
         config_data = json.load(config_file)
 
     # check to make sure packager left this block in
@@ -292,7 +292,7 @@ home: whether to make a home partition, or if one already exists
     part1 = None
     part2 = None
     part3 = None
-    if raid_array["raid_type"] is not None:
+    if raid_array["raid_type"] not in (None, "OEM"):
         if raid_array["raid_type"].lower() == "raid0":
             raid_array["raid_type"] = 0
         elif raid_array["raid_type"].lower() == "raid1":

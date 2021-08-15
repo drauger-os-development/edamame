@@ -92,11 +92,13 @@ class MainInstallation():
 
     def time_set(TIME_ZONE):
         """Set system time"""
-        set_time.set_time(TIME_ZONE)
+        if TIME_ZONE != "OEM":
+            set_time.set_time(TIME_ZONE)
 
     def locale_set(LANG):
         """Set system locale"""
-        set_locale.set_locale(LANG)
+        if LANG != "OEM":
+            set_locale.set_locale(LANG)
 
     def set_networking(COMPUTER_NAME):
         """Set system hostname"""
@@ -137,12 +139,16 @@ class MainInstallation():
             install_extras.install_extras()
 
     def set_passwd(USERNAME, PASSWORD):
-        """Set Root password"""
-        process = subprocess.Popen("chpasswd",
-                                   stdout=stderr.buffer,
-                                   stdin=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
-        process.communicate(input=bytes(r"root:%s" % (PASSWORD), "utf-8"))
+        """Set password for Root and User"""
+        if PASSWORD == "OEM":
+            PASSWORD = "toor"
+        if USERNAME != "drauger-user":
+            process = subprocess.Popen("chpasswd",
+                                       stdout=stderr.buffer,
+                                       stdin=subprocess.PIPE,
+                                       stderr=subprocess.PIPE)
+            process.communicate(input=bytes(r"root:%s" % (PASSWORD), "utf-8"))
+
         process = subprocess.Popen("chpasswd",
                                    stdout=stderr.buffer,
                                    stdin=subprocess.PIPE,
@@ -156,35 +162,36 @@ class MainInstallation():
 
     def set_keyboard(MODEL, LAYOUT, VARIENT):
         """Set keyboard model, layout, and varient"""
-        with open("/usr/share/X11/xkb/rules/base.lst", "r") as xkb_conf:
-            kcd = xkb_conf.read()
-        kcd = kcd.split("\n")
-        for each1 in enumerate(kcd):
-            kcd[each1[0]] = kcd[each1[0]].split()
-        try:
-            os.remove("/etc/default/keyboard")
-        except FileNotFoundError:
-            pass
-        xkbm = ""
-        xkbl = ""
-        xkbv = ""
-        for each1 in kcd:
-            if " ".join(each1[1:]) == MODEL:
-                xkbm = each1[0]
-            elif " ".join(each1[1:]) == LAYOUT:
-                xkbl = each1[0]
-            elif " ".join(each1[1:]) == VARIENT:
-                xkbv = each1[0]
-        with open("/etc/default/keyboard", "w+") as xkb_default:
-            xkb_default.write("""XKBMODEL=\"%s\"
+        if MODEL != "OEM":
+            with open("/usr/share/X11/xkb/rules/base.lst", "r") as xkb_conf:
+                kcd = xkb_conf.read()
+            kcd = kcd.split("\n")
+            for each1 in enumerate(kcd):
+                kcd[each1[0]] = kcd[each1[0]].split()
+            try:
+                os.remove("/etc/default/keyboard")
+            except FileNotFoundError:
+                pass
+            xkbm = ""
+            xkbl = ""
+            xkbv = ""
+            for each1 in kcd:
+                if " ".join(each1[1:]) == MODEL:
+                    xkbm = each1[0]
+                elif " ".join(each1[1:]) == LAYOUT:
+                    xkbl = each1[0]
+                elif " ".join(each1[1:]) == VARIENT:
+                    xkbv = each1[0]
+            with open("/etc/default/keyboard", "w+") as xkb_default:
+                xkb_default.write("""XKBMODEL=\"%s\"
 XKBLAYOUT=\"%s\"
 XKBVARIANT=\"%s\"
 XKBOPTIONS=\"\"
 
 BACKSPACE=\"guess\"
 """ % (xkbm, xkbl, xkbv))
-        subprocess.Popen(["udevadm", "trigger", "--subsystem-match=input",
-                          "--action=change"], stdout=stderr.buffer)
+            subprocess.Popen(["udevadm", "trigger", "--subsystem-match=input",
+                              "--action=change"], stdout=stderr.buffer)
 
     def remove_launcher(USERNAME):
         """Remove system installer desktop launcher"""
@@ -469,9 +476,13 @@ def install(settings):
     MainInstallation(processes_to_do, settings)
     handle_laptops(settings["USERNAME"])
     setup_lowlevel(settings["EFI"], settings["ROOT"])
-    verify(settings["USERNAME"], settings["PASSWORD"])
+    verify(settings["USERNAME"])
     if "PURGE" in settings:
         purge_package(settings["PURGE"])
+    # Mark a system as an OEM installation if necessary
+    if "OEM" in settings.values():
+        with open("/etc/system-installer/oem-post-install.flag", "w") as file:
+            file.write("")
 
 if __name__ == "__main__":
     # get length of argv
