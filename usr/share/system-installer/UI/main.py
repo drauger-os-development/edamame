@@ -66,12 +66,7 @@ DEFAULT = """
     another OS. If using automatic partitoning, it will take up the entirety of
     the drive told to use. Loss of data from usage of this tool is entirely at the
     fault of the user. You have been warned.
-
-    <b>BETA WARNING</b>
-
-    The %s System Installer is currently in beta.
-    Expect bugs.
-    """ % (DISTRO, DISTRO, DISTRO)
+    """ % (DISTRO, DISTRO)
 
 KEYBOARD_COMPLETION = "TO DO"
 USER_COMPLETION = "TO DO"
