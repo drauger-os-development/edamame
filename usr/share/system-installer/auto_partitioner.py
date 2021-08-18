@@ -28,6 +28,7 @@ import os
 import sys
 import subprocess
 import parted
+import psutil
 import common
 
 
@@ -72,6 +73,33 @@ try:
     # if not, fall back to internal default
 except FileNotFoundError:
     pass
+
+
+def get_min_root_size(swap=True, ram_size=False, ram_size_unit=True):
+    """Get minimum root partition size as bytes
+
+    When `swap' == True, factor in the ideal size of swap file for
+    the current system's RAM.
+
+    If `ram_size' is not an int or float, RAM of the
+    current system will be used.
+
+    if `ram_size_unit' is True, `ram_size' should be in GB. When `ram_size_unit'
+    is False, `ram_size' should be in bytes.
+    """
+    if swap:
+        if not isinstance(ram_size, (int, float)):
+            mem = psutil.virtual_memory().total
+        else:
+            if ram_size_unit:
+                mem = gb_to_bytes(ram_size)
+            else:
+                mem = ram_size
+        swap_amount = round((mem + ((mem / 1024 ** 3) ** 0.5) * 1024 ** 3))
+    else:
+        swap_amount = 0
+    min_root_size = swap_amount + (config["min root size"] * (1000 ** 2))
+    return min_root_size
 
 
 def check_disk_state():
