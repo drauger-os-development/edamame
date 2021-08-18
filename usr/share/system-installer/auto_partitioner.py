@@ -48,7 +48,7 @@ LIMITER = gb_to_bytes(32)
 config = {"ROOT": {"START": 201, "END": "40%", "fs": "ext4"},
           "HOME": {"START": "40%", "END": "100%", "fs": "ext4"},
           "EFI": {"START": 0, "END": 200},
-          "min root size": 19327,
+          "min root size": 23000,
           "mdswh": 128}
 try:
     with open("/etc/system-installer/settings.json", "r") as config_file:
