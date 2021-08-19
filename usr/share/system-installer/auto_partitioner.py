@@ -362,7 +362,7 @@ home: whether to make a home partition, or if one already exists
                 home = None
     else:
         common.eprint("HOME PARTITION EXISTS. NOT DELETING PARTITIONS.")
-    if size == LIMITER:
+    if size <= LIMITER:
         if efi:
             part1 = __make_efi__(device)
             part2 = __make_root__(device, end="100%")
@@ -380,7 +380,7 @@ home: whether to make a home partition, or if one already exists
         if size >= gb_to_bytes(config["mdswh"]):
             root_end = int((size * 0.35) / (1000 ** 2))
         else:
-            root_end = config["min root size"]
+            root_end = get_min_root_size()
         if (efi and (part1 is None)):
             part1 = __make_efi__(device)
             part2 = __make_root__(device, end=root_end)
