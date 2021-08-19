@@ -3,7 +3,7 @@
 #
 #  installer.py
 #
-#  Copyright 2020 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2021 Thomas Castleman <contact@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -95,6 +95,11 @@ def install(settings):
         settings["ROOT"] = partitioning["ROOT"]
         settings["EFI"] = partitioning["EFI"]
         settings["HOME"] = partitioning["HOME"]
+    else:
+        if settings["EFI"] == "NULL":
+            auto_partitioner.make_part_boot(settings["ROOT"])
+        else:
+            auto_partitioner.make_part_boot(settings["EFI"])
     if path.exists("/tmp/system-installer-progress.log"):
         remove("/tmp/system-installer-progress.log")
     __update__(12)

@@ -3,7 +3,7 @@
 #
 #  auto_partitioner.py
 #
-#  Copyright 2020 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2021 Thomas Castleman <contact@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -280,6 +280,42 @@ This ONLY works if the root partition is the only partition on the drive
     disk = parted.Disk(device)
     partitions = disk.getPrimaryPartitions()
     partitions[0].setFlag(parted.PARTITION_BOOT)
+    disk.commit()
+
+
+def make_part_boot(part_path):
+    """Make a partition bootable.
+
+    This is useful for ensuring that users make their EFI partiton
+    (or root partition in the case of BIOS systems) bootable.
+
+    part_path should be set to the path to the partition device file.
+    So, if a user's EFI partition is the first partition on a SATA or USB
+    interface, part_path should be:
+
+        /dev/sda1
+
+    If the user's EFI partition is the 5th partition on the first NVMe drive on
+    the first NVMe bus:
+
+        /dev/nvme0n1p5
+
+    etc...
+    """
+    # Get root partiton
+    if "nvme" in part_path:
+        root = part_path[:12]
+    else:
+        root = part_path[:8]
+    # get Device
+    device = parted.getDevice(root)
+    # get entire partition table
+    disk = parted.Disk(device)
+    # narrow down to just primary partitions
+    partitions = disk.getPrimaryPartitions()
+    # mark designated partition as bootable
+    partitions[int(part_path[13:])].setFlag(parted.PARTITION_BOOT)
+    # We don't have commitment issues here!
     disk.commit()
 
 
