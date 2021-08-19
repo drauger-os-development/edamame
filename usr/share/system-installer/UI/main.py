@@ -1284,15 +1284,15 @@ Type. Minimum drives is: %s""" % (loops))
             self.data["ROOT"] = self.root.get_text()
 
             self.show_all()
-            if self.efi.get_text() == "":
+            if self.efi.get_text() in ("", " ", None):
                 self.data["EFI"] = "NULL"
             else:
                 self.data["EFI"] = self.efi.get_text()
-            if self.home.get_text() == "":
+            if self.home.get_text() in ("", " ", None):
                 self.data["HOME"] = "NULL"
             else:
                 self.data["HOME"] = self.home.get_text()
-            if ((self.swap.get_text() == "") or (
+            if ((self.swap.get_text() in ("", " ", None)) or (
                     self.swap.get_text().upper() == "FILE")):
                 self.data["SWAP"] = "FILE"
             else:

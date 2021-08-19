@@ -26,7 +26,7 @@ from sys import argv, stderr
 import subprocess
 from os import path
 ARGC = len(argv)
-VERSION = "2.0.1"
+VERSION = "2.0.2"
 HELP = """
 system-installer, Version %s
 
