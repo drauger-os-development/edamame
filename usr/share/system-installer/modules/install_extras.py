@@ -49,7 +49,7 @@ def install_extras():
     # Install list, append extra stuff to this
     install_list = ["ubuntu-restricted-extras", "ubuntu-restricted-addons"]
     # Broadcom wifi cards (my condolences to all users of these infernal things)
-    if (("broadcom" in pci) or ("Broadcom" in pci) or ("BROADCOM" in pci)):
+    if "broadcom" in pci.lower():
         # Newer cards take different drivers from older cards
         for each in ("BCM43142", "BCM4331", "BCM4360", "BCM4352"):
             if each in pci:
@@ -61,7 +61,7 @@ def install_extras():
                     install_list = install_list.append("bcmwl-kernel-source")
                     break
     # Nvidia graphics cards
-    if (("Nvidia" in pci) or ("nvidia" in pci) or ("NVIDIA" in pci)):
+    if "nvidia" in pci.lower():
         drivers = []
         # We have other work we need to do after installing the Nvidia driver
         NVIDIA = True
