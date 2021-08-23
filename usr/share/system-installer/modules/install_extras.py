@@ -45,7 +45,7 @@ def install_extras():
     cache.open()
     NVIDIA = False
     # Check PCI list
-    pci = subprocess.check_output(["lspci"]).decode()
+    pci = subprocess.check_output(["lspci", "-q"]).decode()
     # Install list, append extra stuff to this
     install_list = ["ubuntu-restricted-extras", "ubuntu-restricted-addons"]
     # Broadcom wifi cards (my condolences to all users of these infernal things)
