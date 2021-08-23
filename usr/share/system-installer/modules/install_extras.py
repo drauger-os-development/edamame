@@ -66,18 +66,23 @@ def install_extras():
         # We have other work we need to do after installing the Nvidia driver
         NVIDIA = True
         with cache.actiongroup():
-            for pkg in pkg_name:
-                for each in cache:
-                    if "nvidia-driver-" in each.name:
-                        drivers.append(each.name)
+            for each in cache:
+                if "nvidia-driver-" in each.name:
+                    drivers.append(each.name)
         for each in range(len(drivers) - 1, -1, -1):
-            drivers[each] = int(drivers[each].split("-")[-1])
+            try:
+                drivers[each] = int(drivers[each].split("-")[-1])
+            except ValueError:
+                pass
         # Get the latest Nvidia driver
         largest = drivers[0]
         for each in drivers:
-            if each > largest:
-                largest = each
-        install_list = install_list.append("nvidia-driver-" + str(largest))
+            try:
+                if int(each) > largest:
+                    largest = each
+            except ValueError:
+                pass
+        install_list.append("nvidia-driver-" + str(largest))
     # Install everything we want
     with cache.actiongroup():
         for each in install_list:
