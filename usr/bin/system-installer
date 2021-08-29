@@ -24,9 +24,11 @@
 """Command line executable for System Installer"""
 from sys import argv, stderr
 import subprocess
+import de_control.disable as de_disable
+import de_control.enable as de_enable
 from os import path
 ARGC = len(argv)
-VERSION = "2.0.2"
+VERSION = "2.0.3"
 HELP = """
 system-installer, Version %s
 
@@ -48,15 +50,6 @@ def eprint(args, *kwargs, color=R):
     print(NC, file=stderr)
 
 
-def restart_xfce():
-    """Restart Xfce4-panel"""
-    # restart panel
-    subprocess.Popen(["xfce4-panel"])
-    # bring back desktop icons
-    subprocess.Popen(["xfconf-query", "--channel", "xfce4-desktop",
-                      "--property", "/desktop-icons/style", "--set", "2"])
-
-
 def launch(boot_time=False):
     """Launch system-isntaller"""
     command1 =  ["/usr/bin/xhost"]
@@ -70,9 +63,8 @@ def launch(boot_time=False):
         with open("/tmp/system-installer.log", "w+") as log_file:
             log_file.write("STARTING IN BOOT-TIME MODE")
         command.insert(1, "--boot-time")
-        # Remove desktop icons, more imersive.
-        subprocess.Popen(["xfconf-query", "--channel", "xfce4-desktop",
-                          "--property", "/desktop-icons/style", "--set", "0"])
+        de_enable.immersion()
+
     command = " ".join(command)
     try:
         exit_code = subprocess.check_call(command, shell=True)
@@ -80,7 +72,7 @@ def launch(boot_time=False):
         # Assume the worst
         exit_code = 256
     if boot_time:
-        restart_xfce()
+        de_disable.immersion()
     if ((exit_code == 256) and (not path.exists("/tmp/system-installer.log"))):
         eprint("Error accessing /usr/share/system-installer/engine.py: No such file or directory")
         with open("/tmp/system-installer.log", "w+") as log_file:
