@@ -79,7 +79,7 @@ class Main(report.Main):
 \t<b>%s has been successfully installed on your computer!</b>\t
 """ % (self.distro)
         if "OEM" not in self.settings.values():
-            text = text + """\tPlease consider sending an installtion report to our team,
+            text = text + """\tPlease consider sending an installation report to our team,
             \tusing the "Send Installation Report" button below.\t\n\n"""
         label = Gtk.Label()
         label.set_markup(text)
