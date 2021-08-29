@@ -48,9 +48,13 @@ def eprint(args, *kwargs, color=R):
     print(NC, file=stderr)
 
 
-def restart_xfce_panel():
+def restart_xfce():
     """Restart Xfce4-panel"""
+    # restart panel
     subprocess.Popen(["xfce4-panel"])
+    # bring back desktop icons
+    subprocess.Popen(["xfconf-query", "--channel", "xfce4-desktop",
+                      "--property", "/desktop-icons/style", "--set", "2"])
 
 
 def launch(boot_time=False):
@@ -66,6 +70,9 @@ def launch(boot_time=False):
         with open("/tmp/system-installer.log", "w+") as log_file:
             log_file.write("STARTING IN BOOT-TIME MODE")
         command.insert(1, "--boot-time")
+        # Remove desktop icons, more imersive.
+        subprocess.Popen(["xfconf-query", "--channel", "xfce4-desktop",
+                          "--property", "/desktop-icons/style", "--set", "0"])
     command = " ".join(command)
     try:
         exit_code = subprocess.check_call(command, shell=True)
@@ -73,7 +80,7 @@ def launch(boot_time=False):
         # Assume the worst
         exit_code = 256
     if boot_time:
-        restart_xfce_panel()
+        restart_xfce()
     if ((exit_code == 256) and (not path.exists("/tmp/system-installer.log"))):
         eprint("Error accessing /usr/share/system-installer/engine.py: No such file or directory")
         with open("/tmp/system-installer.log", "w+") as log_file:
