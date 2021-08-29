@@ -1,5 +1,5 @@
 # system-installer
-System Installer for Drauger OS.
+System Installation Utility for Drauger OS.
 
 `system-installer` aims to provide a fast, modular method of installing a Debian-based operating system. As of now, it is not advised for use on systems that Linux new-comers will frequent, due to it's reliance upon `gparted` and the users understanding of how partitioning works.
 
@@ -10,7 +10,7 @@ System Installer for Drauger OS.
 
 [Click here for notes on hacking on `system-installer`](https://github.com/drauger-os-development/system-installer/blob/master/hacking.md)
 
-`system-installer` currently works only on Drauger OS, but may be adapted to work on other Debian-based OSs later.
+`system-installer` currently works only on Drauger OS, but is being adapted to work on other Debian-based OSs as well.
 
 
 ## Notable features
@@ -18,7 +18,7 @@ System Installer for Drauger OS.
 
  * Add PPAs inside the installer, post installation
  * Quick-install config file support
- * One of the *fastest* installation utilities in Linux today (2-to-3 minutes (ish)) on a quad-core CPU with 4 GB of RAM and decent, reliable internet)
+ * One of the *fastest* installation utilities in Linux today (1-to-2.5 minutes (ish)) on a quad-core CPU with 4 GB of RAM and decent, reliable internet)
 
 
 ## Development
