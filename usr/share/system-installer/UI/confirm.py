@@ -53,7 +53,7 @@ class Main(Gtk.Window):
         """)
         label.set_justify(Gtk.Justification.CENTER)
         label = self._set_default_margins(label)
-        self.grid.attach(label, 2, 1, 4, 1)
+        self.grid.attach(label, 1, 1, 8, 1)
 
         label1 = Gtk.Label()
         label1.set_markup("""
@@ -63,43 +63,46 @@ class Main(Gtk.Window):
         label1 = self._set_default_margins(label1)
         self.grid.attach(label1, 1, 2, 2, 1)
 
-        label4 = Gtk.Label()
-        label4.set_markup("""  Partitioning:   """)
-        label4.set_justify(Gtk.Justification.CENTER)
-        label4 = self._set_default_margins(label4)
-        self.grid.attach(label4, 1, 3, 1, 1)
-
         label5 = Gtk.Label()
 
         if settings["AUTO_PART"]:
-            label = """AUTO PARTITIONING ENABLED\t
+            label = """<b>AUTO PARTITIONING ENABLED</b>\t
+
 INSTALLATION DRIVE: %s""" % (settings["ROOT"])
             if settings["raid_array"]["raid_type"] not in ("OEM", None):
                 label = label + """
+
 RAID Type: %s
+
 Drive 1:   %s
+
 Drive 2:   %s""" % (settings["raid_array"]["raid_type"],
                     settings["raid_array"]["disks"]["1"],
                     settings["raid_array"]["disks"]["2"])
                 if settings["raid_array"]["raid_type"].lower() == "raid10":
                     label = label + """
+
 Drive 3:   %s
+
 Drive 4:   %s""" % (settings["raid_array"]["disks"]["3"],
                     settings["raid_array"]["disks"]["4"])
             else:
                 label = label + """
 HOME:      %s""" % (settings["HOME"])
         else:
-            label = """ROOT: %s
+            label = """ROOT:       %s
+
 EFI:       %s
+
 SWAP:      %s
+
 HOME:      %s""" % (settings["ROOT"], settings["EFI"],
                     settings["SWAP"], settings["HOME"])
 
         label5.set_markup(label)
-        label5.set_justify(Gtk.Justification.LEFT)
+        label5.set_justify(Gtk.Justification.CENTER)
         label5 = self._set_default_margins(label5)
-        self.grid.attach(label5, 2, 3, 1, 1)
+        self.grid.attach(label5, 1, 3, 2,(len(label.split("\n")) / 2))
 
         if "OEM" not in settings.values():
             label6 = Gtk.Label()
