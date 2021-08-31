@@ -22,6 +22,14 @@
 #
 #
 """Modify DE/WM settings and configuration"""
+import sys
+import os
+
+
+def __eprint__(*args, **kwargs):
+    """Make it easier for us to print to stderr"""
+    print(*args, file=sys.stderr, **kwargs)
+
 
 def for_desktop(username):
     """Make modifications to the DE/WM to optimize for the DESKTOP
