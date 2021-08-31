@@ -881,7 +881,7 @@ Type. Minimum drives is: %s""" % (loops))
         self.grid.attach(button1, 3, 6, 1, 1)
 
         button3 = Gtk.Button.new_with_label("!!! DELETE !!!")
-        button3.connect("clicked", self.remove_part)
+        button3.connect("clicked", self.confirm_remove_part)
         button3 = self._set_default_margins(button3)
         self.grid.attach(button3, 2, 6, 1, 1)
 
@@ -909,6 +909,39 @@ Type. Minimum drives is: %s""" % (loops))
                                                                               each1["fstype"],
                                                                               int(auto_partitioner.bytes_to_gb(each1["size"]))))
         self.show_all()
+
+    def confirm_remove_part(self, widget):
+        """Confirm removal of designated partition"""
+        self.clear_window()
+
+        label = Gtk.Label()
+        label.set_markup("""
+    <b>Are you sure you want to delete this partition?</b>\t
+    """)
+        label.set_justify(Gtk.Justification.CENTER)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 1, 1, 3, 1)
+
+        label1 = Gtk.Label()
+        label1.set_markup(self.parts.get_active_id())
+        label1.set_justify(Gtk.Justification.CENTER)
+        label1 = self._set_default_margins(label1)
+        self.grid.attach(label1, 1, 2, 1, 1)
+
+        button1 = Gtk.Button.new_with_label("NO")
+        button1.connect("clicked", self.make_space)
+        button1 = self._set_default_margins(button1)
+        self.grid.attach(button1, 3, 6, 1, 1)
+
+        button3 = Gtk.Button.new_with_label("YES")
+        button3.connect("clicked", self.remove_part)
+        button3 = self._set_default_margins(button3)
+        self.grid.attach(button3, 2, 6, 1, 1)
+
+        button2 = Gtk.Button.new_with_label("Exit")
+        button2.connect("clicked", self.exit)
+        button2 = self._set_default_margins(button2)
+        self.grid.attach(button2, 1, 6, 1, 1)
 
     def remove_part(self, widget):
         """Interface for removing partitions"""

@@ -172,13 +172,6 @@ def install(settings):
         mkdir("/mnt/boot")
     except FileExistsError:
         common.eprint("/mnt/boot already created")
-    file_list = listdir("/boot")
-    for each in file_list:
-        try:
-            common.eprint("/boot/" + each + " --> /mnt/boot/" + each)
-            shutil.copyfile("/boot/" + each, "/mnt/boot/" + each)
-        except IsADirectoryError:
-            shutil.copytree("/boot/" + each, "/mnt/boot/" + each)
     shutil.copyfile("/tmp/system-installer-progress.log",
                     "/mnt/tmp/system-installer-progress.log")
     remove("/tmp/system-installer-progress.log")
