@@ -453,7 +453,7 @@ def _check_for_laptop():
 def handle_laptops(username):
     """Remove the battery icon from the panel on desktops"""
     if not _check_for_laptop():
-        de_modify.for_desktop()
+        de_modify.for_desktop(username)
     else:
         de_modify.for_laptop()
 
