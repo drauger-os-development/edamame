@@ -28,7 +28,7 @@ import de_control.disable as de_disable
 import de_control.enable as de_enable
 from os import path
 ARGC = len(argv)
-VERSION = "2.0.6"
+VERSION = "2.0.7"
 HELP = """
 system-installer, Version %s
 
