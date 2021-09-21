@@ -637,7 +637,17 @@ If you would like a response, please leave:
 def cpu_info():
     """get CPU info"""
     info = check_output("lscpu").decode().split("\n")
-    return info[13]
+    output = [info[13], info[7], info[6], info[17], info[23], info[24]]
+    speed_dir = "/sys/devices/system/cpu/cpu0/cpufreq/"
+    if path.exists(speed_dir + "bios_limit"):
+        with open(speed_dir + "bios_limit", "r") as file:
+            speed = int(file.read()) / 1000
+    else:
+        with open(speed_dir + "scaling_max_freq", "r") as file:
+            speed = int(file.read()) / 1000
+    speed = f"CPU base MHz                     { speed }"
+    output.insert(3, speed)
+    return "\n".join(output)
 
 
 def ram_info():
