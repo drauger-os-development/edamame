@@ -75,7 +75,34 @@ except FileNotFoundError:
     pass
 
 
-def get_min_root_size(swap=True, ram_size=False, ram_size_unit=True):
+def size_of_part(part_path, bytes=False):
+    """Get the size of the partition at `part_path`
+
+    If `bytes` is True, return size in bytes.
+    Else, return size in gigabytes.
+    """
+    # Get the root Drive
+    if "nvme" in part_path:
+        root = part_path[:12]
+    else:
+        root = part_path[:8]
+    # connect to that drive's partition table
+    device = parted.getDevice(root)
+    try:
+        disk = parted.Disk(device)
+    except parted._ped.DiskLabelException:
+        raise OSError(f"NO PARTITION TABLE EXISTS ON { root } ")
+    # Grab the right partiton
+    part = disk.getPartitionByPath(part_path)
+    # get size
+    size = part.getSize(unit="b")
+    # size conversion, if necessary
+    if not bytes:
+        size = bytes_to_gb(size)
+    return size
+
+
+def get_min_root_size(swap=True, ram_size=False, ram_size_unit=True, bytes=True):
     """Get minimum root partition size as bytes
 
     When `swap' == True, factor in the ideal size of swap file for
@@ -86,9 +113,12 @@ def get_min_root_size(swap=True, ram_size=False, ram_size_unit=True):
 
     if `ram_size_unit' is True, `ram_size' should be in GB. When `ram_size_unit'
     is False, `ram_size' should be in bytes.
+
+    If `bytes` is True, return size in bytes.
+    Else, return size in gigabytes.
     """
     if swap:
-        if not isinstance(ram_size, (int, float)):
+        if type(ram_size) not in (int, float):
             mem = psutil.virtual_memory().total
         else:
             if ram_size_unit:
@@ -99,6 +129,8 @@ def get_min_root_size(swap=True, ram_size=False, ram_size_unit=True):
     else:
         swap_amount = 0
     min_root_size = swap_amount + (config["min root size"] * (1000 ** 2))
+    if not bytes:
+        min_root_size = bytes_to_gb(min_root_size)
     return min_root_size
 
 

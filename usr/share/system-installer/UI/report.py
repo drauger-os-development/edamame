@@ -23,7 +23,7 @@
 #
 """Installation Reporting UI"""
 from subprocess import Popen, check_output, PIPE, STDOUT, CalledProcessError
-from os import getenv, remove, chmod
+from os import getenv, remove, chmod, path
 from datetime import datetime
 from shutil import copyfile
 import time
@@ -59,6 +59,18 @@ class Main(Gtk.Window):
         self.disk_setting = False
         self.log_setting = False
         self.custom_setting = False
+
+        self.default_message = """
+Write a custom message to our developers and contributors!
+If you would like a response, please leave:
+* Your name (if this is not left we will use your username)
+* A way to get in contact with you through one or more of:
+* Email
+* Telegram
+* Discord
+* Mastodon
+* Twitter
+"""
 
     def clear_window(self):
         """Clear Window"""
@@ -446,9 +458,16 @@ class Main(Gtk.Window):
                 message.write("\n")
                 message.write("CUSTOM MESSAGE:\n")
                 if self.custom.get_active():
-                    message.write(self.text_buffer.get_text(self.text_buffer.get_start_iter(),
-                                                            self.text_buffer.get_end_iter(),
-                                                            False))
+                    custom = self.text_buffer.get_text(self.text_buffer.get_start_iter(),
+                                                       self.text_buffer.get_end_iter(),
+                                                       False))
+                    # Make sure that custom messages are not the default message.
+                    # if they are, just put none so we don't see a bunch of
+                    # trash custom messages
+                    if custom == self.default_message:
+                        message.write("NONE\n")
+                    else:
+                        message.write(custom)
                 else:
                     message.write("NONE\n")
                 message.write("\n.")
@@ -508,18 +527,8 @@ class Main(Gtk.Window):
                 self.grid.attach(self.custom_message, 1, 8, 8, 4)
             else:
                 self.text_buffer = Gtk.TextBuffer()
-                text = """
-Write a custom message to our developers and contributors!
-If you would like a response, please leave:
-    * Your name (if this is not left we will use your username)
-    * A way to get in contact with you through one or more of:
-        * Email
-        * Telegram
-        * Discord
-        * Mastodon
-        * Twitter
-"""
-                self.text_buffer.set_text(text, len(text))
+                self.text_buffer.set_text(self.default_message,
+                                          len(self.default_message))
                 self.custom_message = Gtk.TextView.new_with_buffer(self.text_buffer)
                 self.custom_message.set_editable(True)
                 self.custom_message.set_accepts_tab(True)
@@ -637,7 +646,17 @@ If you would like a response, please leave:
 def cpu_info():
     """get CPU info"""
     info = check_output("lscpu").decode().split("\n")
-    return info[13]
+    output = [info[13], info[7], info[6], info[17], info[23], info[24]]
+    speed_dir = "/sys/devices/system/cpu/cpu0/cpufreq/"
+    if path.exists(speed_dir + "bios_limit"):
+        with open(speed_dir + "bios_limit", "r") as file:
+            speed = int(file.read()) / 1000
+    else:
+        with open(speed_dir + "scaling_max_freq", "r") as file:
+            speed = int(file.read()) / 1000
+    speed = f"CPU base MHz                     { speed }"
+    output.insert(3, speed)
+    return "\n".join(output)
 
 
 def ram_info():
