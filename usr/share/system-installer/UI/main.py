@@ -1225,7 +1225,8 @@ Type. Minimum drives is: %s""" % (loops))
             self.show_all()
             return
         elif ((self.home.get_text() != "") and (
-                self.home.get_text()[0:5] != "/dev/")):
+               self.home.get_text()[0:5] != "/dev/") and (
+               self.home.get_text() != "NULL")):
             label = Gtk.Label()
             label.set_markup("""
     What are the mount points for the partitions you wish to be used?
@@ -1245,7 +1246,8 @@ Type. Minimum drives is: %s""" % (loops))
             self.show_all()
             return
         elif (not os.path.exists(self.home.get_text()) and (
-                self.home.get_text() != "")):
+                self.home.get_text() != "") and (
+                self.home.get_text() != "NULL")):
             label = Gtk.Label()
             label.set_markup("""
     What are the mount points for the partitions you wish to be used?
