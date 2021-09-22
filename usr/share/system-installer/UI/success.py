@@ -42,6 +42,7 @@ class Main(report.Main):
     """Success UI Class"""
     def __init__(self, settings):
         """Initialize data"""
+        super(success.Main, self).__init__()
         Gtk.Window.__init__(self, title="System Installer")
         self.grid = Gtk.Grid(orientation=Gtk.Orientation.VERTICAL)
         self.add(self.grid)

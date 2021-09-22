@@ -346,7 +346,10 @@ def make_part_boot(part_path):
     # narrow down to just primary partitions
     partitions = disk.getPrimaryPartitions()
     # mark designated partition as bootable
-    partitions[int(part_path[13:])].setFlag(parted.PARTITION_BOOT)
+    if "nvme" in part_path:
+        partitions[int(part_path[13:])].setFlag(parted.PARTITION_BOOT)
+    else:
+        partitions[int(part_path[8:])].setFlag(parted.PARTITION_BOOT)
     # We don't have commitment issues here!
     disk.commit()
 

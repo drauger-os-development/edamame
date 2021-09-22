@@ -460,7 +460,7 @@ If you would like a response, please leave:
                 if self.custom.get_active():
                     custom = self.text_buffer.get_text(self.text_buffer.get_start_iter(),
                                                        self.text_buffer.get_end_iter(),
-                                                       False))
+                                                       False)
                     # Make sure that custom messages are not the default message.
                     # if they are, just put none so we don't see a bunch of
                     # trash custom messages
