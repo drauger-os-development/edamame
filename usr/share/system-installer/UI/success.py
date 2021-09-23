@@ -42,19 +42,8 @@ class Main(report.Main):
     """Success UI Class"""
     def __init__(self, settings):
         """Initialize data"""
-        super(success.Main, self).__init__()
-        Gtk.Window.__init__(self, title="System Installer")
-        self.grid = Gtk.Grid(orientation=Gtk.Orientation.VERTICAL)
-        self.add(self.grid)
-        self.set_icon_name("system-installer")
+        super(Main, self).__init__()
         self.scrolling = False
-        self.opt_setting = False
-        self.cpu_setting = False
-        self.gpu_setting = False
-        self.ram_setting = False
-        self.disk_setting = False
-        self.log_setting = False
-        self.custom_setting = False
         self.settings = settings
 
         try:
