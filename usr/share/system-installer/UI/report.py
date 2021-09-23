@@ -320,7 +320,8 @@ If you would like a response, please leave:
         try:
             # Get keys
             cURL = curl.Curl()
-            with open("../../../etc/system-installer/settings.json", "r") as config:
+            with open("../../../etc/system-installer/settings.json",
+                      "r") as config:
                 URL = json.load(config)["report"]
             cURL.set_url(URL["recv_keys"])
             key = cURL.get().decode()
@@ -328,7 +329,8 @@ If you would like a response, please leave:
             result = gpg.import_keys(key)
             # Encrypt file using newly imported keys
             with open(self.path, "rb") as signing:
-                signed_data = gpg.encrypt_file(signing, result.fingerprints, always_trust=True)
+                signed_data = gpg.encrypt_file(signing, result.fingerprints,
+                                               always_trust=True)
             with open(self.path, "w") as signed:
                 signed.write(str(signed_data))
             # Upload newly encrypted file
@@ -353,7 +355,12 @@ If you would like a response, please leave:
             self.clear_window()
 
             label = Gtk.Label()
-            label.set_markup("\n\n\t\tReport Failed to Send!\n\t\tPlease make sure you have a working internet connection.\t\t\n\n")
+            label.set_markup("""
+
+\t\tReport Failed to Send!
+\t\tPlease make sure you have a working internet connection.\t\t
+
+""")
             label = self._set_default_margins(label)
             self.grid.attach(label, 1, 1, 2, 1)
 
@@ -474,10 +481,11 @@ If you would like a response, please leave:
             home = getenv("HOME")
             self.path = home + "/installation_report.txt"
             with open(self.path, "w+") as message:
-                message.write("Installation Report Code: %s\n\n" % (report_code))
+                message.write(f"Installation Report Code: { report_code }\n\n")
                 message.write("system-installer Version: ")
                 try:
-                    message.write(check_output(["system-installer", "-v"]).decode())
+                    message.write(check_output(["system-installer",
+                                                "-v"]).decode())
                 except (FileNotFoundError, CalledProcessError):
                     message.write("VERSION UNKNOWN. LIKELY TESTING OR MAJOR ERROR.\n")
                 message.write("\nCPU INFO:\n")
@@ -668,31 +676,31 @@ def cpu_info():
             if sentenal == 0:
                 if "Model name:" in each:
                     output.append(each)
-                    sentenal+=1
+                    sentenal += 1
             elif sentenal == 1:
                 if "Thread(s) per core:" in each:
                     output.append(each)
-                    sentenal+=1
+                    sentenal += 1
             elif sentenal == 2:
                 if "Core(s) per socket:" in each:
                     output.append(each)
-                    sentenal+=1
+                    sentenal += 1
             elif sentenal == 3:
                 if "CPU max MHz:" in each:
                     output.append(each)
-                    sentenal+=1
+                    sentenal += 1
             elif sentenal == 4:
                 if "L2 cache:" in each:
                     output.append(each)
-                    sentenal+=1
+                    sentenal += 1
             elif sentenal == 5:
                 if "L3 cache:" in each:
                     output.append(each)
-                    sentenal+=1
+                    sentenal += 1
             elif sentenal == 6:
                 if "CPU MHz:" in each:
                     backup_speed = each
-                    sentenal+=1
+                    sentenal += 1
     speed_dir = "/sys/devices/system/cpu/cpu0/cpufreq/"
     if path.exists(speed_dir):
         if path.exists(speed_dir + "bios_limit"):
@@ -717,7 +725,8 @@ def ram_info():
 
 def disk_info():
     """Get disk info"""
-    info = json.loads(check_output(["lsblk", "--json", "--output", "name,size,type,mountpoint"]).decode())
+    info = json.loads(check_output(["lsblk", "--json", "--output",
+                                    "name,size,type,mountpoint"]).decode())
     for each in range(len(info["blockdevices"]) - 1, -1, -1):
         if "loop" == info["blockdevices"][each]["type"]:
             del info["blockdevices"][each]
