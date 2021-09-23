@@ -671,6 +671,7 @@ def cpu_info():
     sentenal = 0
     output = []
     backup_speed = None
+    count = 0
     while sentenal < 7:
         for each in info:
             if sentenal == 0:
@@ -689,18 +690,46 @@ def cpu_info():
                 if "CPU max MHz:" in each:
                     output.append(each)
                     sentenal += 1
+                    count = 0
+                elif count == len(info):
+                    count = 0
+                    sentenal += 1
+                    output.append("CPU max MHz:\t\t\tUnknown")
+                else:
+                    count += 1
             elif sentenal == 4:
                 if "L2 cache:" in each:
                     output.append(each)
                     sentenal += 1
+                    count = 0
+                elif count == len(info):
+                    count = 0
+                    sentenal += 1
+                    output.append("L2 cache:\t\t\tUnknown")
+                else:
+                    count += 1
             elif sentenal == 5:
                 if "L3 cache:" in each:
                     output.append(each)
                     sentenal += 1
+                    count = 0
+                elif count == len(info):
+                    count = 0
+                    sentenal += 1
+                    output.append("L3 cache:\t\t\tUnknown")
+                else:
+                    count += 1
             elif sentenal == 6:
                 if "CPU MHz:" in each:
                     backup_speed = each
                     sentenal += 1
+                    count = 0
+                elif count == len(info):
+                    count = 0
+                    sentenal += 1
+                    backup_speed = "Unknown"
+                else:
+                    count += 1
     speed_dir = "/sys/devices/system/cpu/cpu0/cpufreq/"
     if path.exists(speed_dir):
         if path.exists(speed_dir + "bios_limit"):
