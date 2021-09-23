@@ -295,7 +295,6 @@ If you would like a response, please leave:
         """Exit"""
         Gtk.main_quit("delete-event")
         self.destroy()
-        print(1)
         return 1
 
     def message_handler(self, widget):

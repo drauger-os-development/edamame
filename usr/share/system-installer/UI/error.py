@@ -33,19 +33,9 @@ class Main(report.Main):
     """UI Error Class"""
     def __init__(self, display):
         """set up Error UI"""
+        super(Main, self).__init__()
         self.display = display
-        Gtk.Window.__init__(self, title="System Installer")
-        self.grid = Gtk.Grid(orientation=Gtk.Orientation.VERTICAL)
-        self.add(self.grid)
-        self.set_icon_name("system-installer")
         self.scrolling = False
-        self.opt_setting = False
-        self.cpu_setting = False
-        self.gpu_setting = False
-        self.ram_setting = False
-        self.disk_setting = False
-        self.log_setting = False
-        self.custom_setting = False
         self.main_menu("clicked")
 
     def main_menu(self, widget):
@@ -78,32 +68,6 @@ class Main(report.Main):
         self.grid.attach(self.button, 3, 3, 1, 1)
 
         self.show_all()
-
-    def _set_default_margins(self, widget):
-        """Set default margin size"""
-        widget.set_margin_start(10)
-        widget.set_margin_end(10)
-        widget.set_margin_top(10)
-        widget.set_margin_bottom(10)
-        return widget
-
-    def clear_window(self):
-        """Clear window of everything"""
-        children = self.grid.get_children()
-        for each in children:
-            self.grid.remove(each)
-        if self.scrolling:
-            self.scrolled_window.remove(self.grid)
-            self.remove(self.scrolled_window)
-            self.add(self.grid)
-            self.scrolling = False
-            self.set_default_size(-1, -1)
-
-    def exit(self, button):
-        """Exit"""
-        Gtk.main_quit("delete-event")
-        self.destroy()
-        return 0
 
 
 def show_error(display):
