@@ -102,7 +102,8 @@ def size_of_part(part_path, bytes=False):
     return size
 
 
-def get_min_root_size(swap=True, ram_size=False, ram_size_unit=True, bytes=True):
+def get_min_root_size(swap=True, ram_size=False, ram_size_unit=True,
+                      bytes=True):
     """Get minimum root partition size as bytes
 
     When `swap' == True, factor in the ideal size of swap file for
@@ -194,9 +195,11 @@ def __make_efi__(device, start=config["EFI"]["START"],
                                        end=parted.sizeToSectors(end + 10,
                                                                 "MB",
                                                                 device.sectorSize))
-    min_size = parted.sizeToSectors(common.real_number((end - start) - 25), "MB",
+    min_size = parted.sizeToSectors(common.real_number((end - start) - 25),
+                                    "MB",
                                     device.sectorSize)
-    max_size = parted.sizeToSectors(common.real_number((end - start) + 20), "MB",
+    max_size = parted.sizeToSectors(common.real_number((end - start) + 20),
+                                    "MB",
                                     device.sectorSize)
     const = parted.Constraint(startAlign=device.optimumAlignment,
                               endAlign=device.optimumAlignment,
@@ -254,9 +257,11 @@ def __make_root__(device, start=config["ROOT"]["START"],
                                                                   device.sectorSize),
                                        end=parted.sizeToSectors(end, "MB",
                                                                 device.sectorSize))
-    min_size = parted.sizeToSectors(common.real_number((end - start) - 150), "MB",
+    min_size = parted.sizeToSectors(common.real_number((end - start) - 150),
+                                    "MB",
                                     device.sectorSize)
-    max_size = parted.sizeToSectors(common.real_number((end - start) + 150), "MB",
+    max_size = parted.sizeToSectors(common.real_number((end - start) + 150),
+                                    "MB",
                                     device.sectorSize)
     const = parted.Constraint(startAlign=device.optimumAlignment,
                               endAlign=device.optimumAlignment,
@@ -346,7 +351,10 @@ def make_part_boot(part_path):
     # narrow down to just primary partitions
     partitions = disk.getPrimaryPartitions()
     # mark designated partition as bootable
-    partitions[int(part_path[13:])].setFlag(parted.PARTITION_BOOT)
+    if "nvme" in part_path:
+        partitions[int(part_path[13:])].setFlag(parted.PARTITION_BOOT)
+    else:
+        partitions[int(part_path[8:])].setFlag(parted.PARTITION_BOOT)
     # We don't have commitment issues here!
     disk.commit()
 
@@ -378,10 +386,11 @@ def partition(root, efi, home, raid_array):
 root: needs to be path to installation drive (i.e.: /dev/sda, /dev/nvme0n1)
 efi: booleen indicated whether system was booted with UEFI
 home: whether to make a home partition, or if one already exists
-    Possible values:
-        None, 'NULL':            Do not make a home partition, and one does not already exist
-        'MAKE':                  Make a home partition on the installation drive
-        (some partition path):   path to a partition to be used as home directory
+
+Possible values:
+  None, 'NULL':            Do not make a home partition, and one does not exist
+  'MAKE':                  Make a home partition on the installation drive
+  (some partition path):   path to a partition to be used as home directory
 """
     # Initial set up for partitioning
     common.eprint("\t###\tauto_partioner.py STARTED\t###\t")
