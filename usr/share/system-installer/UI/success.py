@@ -65,6 +65,9 @@ class Main(report.Main):
         """Main Success Window"""
         self.clear_window()
 
+        if hasattr(self, 'text_buffer'):
+            self.text_buffer.set_text("", len=0)
+
         text = """
 \t<b>%s has been successfully installed on your computer!</b>\t
 """ % (self.distro)

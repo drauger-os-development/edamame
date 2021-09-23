@@ -543,17 +543,14 @@ If you would like a response, please leave:
         """Accept Message Input in GUI"""
         if self.custom.get_active():
             self.custom_setting = True
-            if hasattr(self, 'text_buffer'):
-                self.grid.attach(self.custom_message, 1, 8, 8, 4)
-            else:
-                self.text_buffer = Gtk.TextBuffer()
-                self.text_buffer.set_text(self.default_message,
-                                          len(self.default_message))
-                self.custom_message = Gtk.TextView.new_with_buffer(self.text_buffer)
-                self.custom_message.set_editable(True)
-                self.custom_message.set_accepts_tab(True)
-                self.custom_message = self._set_default_margins(self.custom_message)
-                self.grid.attach(self.custom_message, 1, 8, 8, 4)
+            self.text_buffer = Gtk.TextBuffer()
+            self.text_buffer.set_text(self.default_message,
+                                      len(self.default_message))
+            self.custom_message = Gtk.TextView.new_with_buffer(self.text_buffer)
+            self.custom_message.set_editable(True)
+            self.custom_message.set_accepts_tab(True)
+            self.custom_message = self._set_default_margins(self.custom_message)
+            self.grid.attach(self.custom_message, 1, 8, 8, 4)
 
         else:
             self.grid.remove(self.custom_message)

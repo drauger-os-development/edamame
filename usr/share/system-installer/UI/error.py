@@ -42,6 +42,9 @@ class Main(report.Main):
         """Main Menu"""
         self.clear_window()
 
+        if hasattr(self, 'text_buffer'):
+            self.text_buffer.set_text("", len=0)
+
         self.label = Gtk.Label()
         self.label.set_markup("<b>" + self.display + "</b>")
         self.label.set_justify(Gtk.Justification.CENTER)
