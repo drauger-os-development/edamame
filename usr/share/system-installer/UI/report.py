@@ -474,8 +474,12 @@ If you would like a response, please leave:
             home = getenv("HOME")
             self.path = home + "/installation_report.txt"
             with open(self.path, "w+") as message:
-                message.write("Subject: Installation Report " +
-                              datetime.now().strftime("%c") + "\n\n")
+                message.write("Installation Report Code: %s\n\n" % (report_code))
+                message.write("system-installer Version: ")
+                try:
+                    message.write(check_output(["system-installer", "-v"]).decode())
+                except (FileNotFoundError, CalledProcessError):
+                    message.write("VERSION UNKNOWN. LIKELY TESTING OR MAJOR ERROR.\n")
                 message.write("\nCPU INFO:\n")
                 if self.cpu.get_active():
                     message.write(cpu_info() + "\n")
@@ -484,7 +488,7 @@ If you would like a response, please leave:
                 message.write("\n")
                 message.write("PCIe / GPU INFO:\n")
                 if self.gpu.get_active():
-                    for each in get_info(["lspci", "-nn"]):
+                    for each in get_info(["lspci", "-nnq"]):
                         message.write(each + "\n")
                 else:
                     message.write("OPT OUT\n")
@@ -497,23 +501,32 @@ If you would like a response, please leave:
                 message.write("\n")
                 message.write("DISK SETUP:\n")
                 if self.disk.get_active():
-                    for each in disk_info():
-                        message.write(each + "\n")
+                    message.write(json.dumps(disk_info(), indent=1) + "\n")
                 else:
                     message.write("OPT OUT\n")
                 message.write("\n")
                 message.write("INSTALLATION LOG:\n")
                 if self.log.get_active():
-                    with open("/tmp/system-installer.log", "r") as log:
-                        message.write(log.read())
+                    try:
+                        with open("/tmp/system-installer.log", "r") as log:
+                            message.write(log.read())
+                    except FileNotFoundError:
+                        message.write("Log does not exist.")
                 else:
                     message.write("OPT OUT\n")
                 message.write("\n")
                 message.write("CUSTOM MESSAGE:\n")
                 if self.custom.get_active():
-                    message.write(self.text_buffer.get_text(self.text_buffer.get_start_iter(),
-                                                            self.text_buffer.get_end_iter(),
-                                                            False))
+                    custom = self.text_buffer.get_text(self.text_buffer.get_start_iter(),
+                                                       self.text_buffer.get_end_iter(),
+                                                       False)
+                    # Make sure that custom messages are not the default message.
+                    # if they are, just put none so we don't see a bunch of
+                    # trash custom messages
+                    if custom == self.default_message:
+                        message.write("NONE\n")
+                    else:
+                        message.write(custom)
                 else:
                     message.write("NONE\n")
                 message.write("\n.")
