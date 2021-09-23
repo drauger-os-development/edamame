@@ -646,14 +646,51 @@ If you would like a response, please leave:
 def cpu_info():
     """get CPU info"""
     info = check_output("lscpu").decode().split("\n")
-    output = [info[13], info[7], info[6], info[17], info[23], info[24]]
+    # We need to create a more intelligent parser for this data as positions can
+    # change depending on the system that is being used.
+    sentenal = 0
+    output = []
+    backup_speed = None
+    while sentenal < 7:
+        for each in info:
+            if sentenal == 0:
+                if "Model name:" in each:
+                    output.append(each)
+                    sentenal+=1
+            elif sentenal == 1:
+                if "Thread(s) per core:" in each:
+                    output.append(each)
+                    sentenal+=1
+            elif sentenal == 2:
+                if "Core(s) per socket:" in each:
+                    output.append(each)
+                    sentenal+=1
+            elif sentenal == 3:
+                if "CPU max MHz:" in each:
+                    output.append(each)
+                    sentenal+=1
+            elif sentenal == 4:
+                if "L2 cache:" in each:
+                    output.append(each)
+                    sentenal+=1
+            elif sentenal == 5:
+                if "L3 cache:" in each:
+                    output.append(each)
+                    sentenal+=1
+            elif sentenal == 6:
+                if "CPU MHz:" in each:
+                    backup_speed = each
+                    sentenal+=1
     speed_dir = "/sys/devices/system/cpu/cpu0/cpufreq/"
-    if path.exists(speed_dir + "bios_limit"):
-        with open(speed_dir + "bios_limit", "r") as file:
-            speed = int(file.read()) / 1000
+    if path.exists(speed_dir):
+        if path.exists(speed_dir + "bios_limit"):
+            with open(speed_dir + "bios_limit", "r") as file:
+                speed = int(file.read()) / 1000
+        else:
+            with open(speed_dir + "scaling_max_freq", "r") as file:
+                speed = int(file.read()) / 1000
     else:
-        with open(speed_dir + "scaling_max_freq", "r") as file:
-            speed = int(file.read()) / 1000
+        speed = backup_speed
     speed = f"CPU base MHz                     { speed }"
     output.insert(3, speed)
     return "\n".join(output)
