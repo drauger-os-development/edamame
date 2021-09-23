@@ -43,7 +43,7 @@ class Main(report.Main):
         self.clear_window()
 
         if hasattr(self, 'text_buffer'):
-            self.text_buffer.set_text("", len=0)
+            self.text_buffer.set_text("", length=0)
 
         self.label = Gtk.Label()
         self.label.set_markup("<b>" + self.display + "</b>")
