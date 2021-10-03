@@ -3,7 +3,7 @@
 #
 #  auto_partitioner.py
 #
-#  Copyright 2020 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2021 Thomas Castleman <contact@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@ import os
 import sys
 import subprocess
 import parted
+import psutil
 import common
 
 
@@ -48,7 +49,7 @@ LIMITER = gb_to_bytes(32)
 config = {"ROOT": {"START": 201, "END": "40%", "fs": "ext4"},
           "HOME": {"START": "40%", "END": "100%", "fs": "ext4"},
           "EFI": {"START": 0, "END": 200},
-          "min root size": 19327,
+          "min root size": 23000,
           "mdswh": 128}
 try:
     with open("/etc/system-installer/settings.json", "r") as config_file:
@@ -72,6 +73,66 @@ try:
     # if not, fall back to internal default
 except FileNotFoundError:
     pass
+
+
+def size_of_part(part_path, bytes=False):
+    """Get the size of the partition at `part_path`
+
+    If `bytes` is True, return size in bytes.
+    Else, return size in gigabytes.
+    """
+    # Get the root Drive
+    if "nvme" in part_path:
+        root = part_path[:12]
+    else:
+        root = part_path[:8]
+    # connect to that drive's partition table
+    device = parted.getDevice(root)
+    try:
+        disk = parted.Disk(device)
+    except parted._ped.DiskLabelException:
+        raise OSError(f"NO PARTITION TABLE EXISTS ON { root } ")
+    # Grab the right partiton
+    part = disk.getPartitionByPath(part_path)
+    # get size
+    size = part.getSize(unit="b")
+    # size conversion, if necessary
+    if not bytes:
+        size = bytes_to_gb(size)
+    return size
+
+
+def get_min_root_size(swap=True, ram_size=False, ram_size_unit=True,
+                      bytes=True):
+    """Get minimum root partition size as bytes
+
+    When `swap' == True, factor in the ideal size of swap file for
+    the current system's RAM.
+
+    If `ram_size' is not an int or float, RAM of the
+    current system will be used.
+
+    if `ram_size_unit' is True, `ram_size' should be in GB. When `ram_size_unit'
+    is False, `ram_size' should be in bytes.
+
+    If `bytes` is True, return size in bytes.
+    Else, return size in gigabytes.
+    """
+    if swap:
+        if type(ram_size) not in (int, float):
+            mem = psutil.virtual_memory().total
+        else:
+            if ram_size_unit:
+                mem = gb_to_bytes(ram_size)
+            else:
+                mem = ram_size
+        swap_amount = round((mem + ((mem / 1024 ** 3) ** 0.5) * 1024 ** 3))
+    else:
+        swap_amount = 0
+    min_root_size = swap_amount + (config["min root size"] * (1000 ** 2))
+    if not bytes:
+        min_root_size = bytes_to_gb(min_root_size)
+    return min_root_size
 
 
 def check_disk_state():
@@ -134,9 +195,11 @@ def __make_efi__(device, start=config["EFI"]["START"],
                                        end=parted.sizeToSectors(end + 10,
                                                                 "MB",
                                                                 device.sectorSize))
-    min_size = parted.sizeToSectors(common.real_number((end - start) - 25), "MB",
+    min_size = parted.sizeToSectors(common.real_number((end - start) - 25),
+                                    "MB",
                                     device.sectorSize)
-    max_size = parted.sizeToSectors(common.real_number((end - start) + 20), "MB",
+    max_size = parted.sizeToSectors(common.real_number((end - start) + 20),
+                                    "MB",
                                     device.sectorSize)
     const = parted.Constraint(startAlign=device.optimumAlignment,
                               endAlign=device.optimumAlignment,
@@ -194,9 +257,11 @@ def __make_root__(device, start=config["ROOT"]["START"],
                                                                   device.sectorSize),
                                        end=parted.sizeToSectors(end, "MB",
                                                                 device.sectorSize))
-    min_size = parted.sizeToSectors(common.real_number((end - start) - 150), "MB",
+    min_size = parted.sizeToSectors(common.real_number((end - start) - 150),
+                                    "MB",
                                     device.sectorSize)
-    max_size = parted.sizeToSectors(common.real_number((end - start) + 150), "MB",
+    max_size = parted.sizeToSectors(common.real_number((end - start) + 150),
+                                    "MB",
                                     device.sectorSize)
     const = parted.Constraint(startAlign=device.optimumAlignment,
                               endAlign=device.optimumAlignment,
@@ -255,6 +320,45 @@ This ONLY works if the root partition is the only partition on the drive
     disk.commit()
 
 
+def make_part_boot(part_path):
+    """Make a partition bootable.
+
+    This is useful for ensuring that users make their EFI partiton
+    (or root partition in the case of BIOS systems) bootable.
+
+    part_path should be set to the path to the partition device file.
+    So, if a user's EFI partition is the first partition on a SATA or USB
+    interface, part_path should be:
+
+        /dev/sda1
+
+    If the user's EFI partition is the 5th partition on the first NVMe drive on
+    the first NVMe bus:
+
+        /dev/nvme0n1p5
+
+    etc...
+    """
+    # Get root partiton
+    if "nvme" in part_path:
+        root = part_path[:12]
+    else:
+        root = part_path[:8]
+    # get Device
+    device = parted.getDevice(root)
+    # get entire partition table
+    disk = parted.Disk(device)
+    # narrow down to just primary partitions
+    partitions = disk.getPrimaryPartitions()
+    # mark designated partition as bootable
+    if "nvme" in part_path:
+        partitions[int(part_path[13:])].setFlag(parted.PARTITION_BOOT)
+    else:
+        partitions[int(part_path[8:])].setFlag(parted.PARTITION_BOOT)
+    # We don't have commitment issues here!
+    disk.commit()
+
+
 def clobber_disk(device):
     """Reset drive"""
     common.eprint("DELETING PARTITIONS.")
@@ -282,10 +386,11 @@ def partition(root, efi, home, raid_array):
 root: needs to be path to installation drive (i.e.: /dev/sda, /dev/nvme0n1)
 efi: booleen indicated whether system was booted with UEFI
 home: whether to make a home partition, or if one already exists
-    Possible values:
-        None, 'NULL':            Do not make a home partition, and one does not already exist
-        'MAKE':                  Make a home partition on the installation drive
-        (some partition path):   path to a partition to be used as home directory
+
+Possible values:
+  None, 'NULL':            Do not make a home partition, and one does not exist
+  'MAKE':                  Make a home partition on the installation drive
+  (some partition path):   path to a partition to be used as home directory
 """
     # Initial set up for partitioning
     common.eprint("\t###\tauto_partioner.py STARTED\t###\t")
@@ -334,7 +439,7 @@ home: whether to make a home partition, or if one already exists
                 home = None
     else:
         common.eprint("HOME PARTITION EXISTS. NOT DELETING PARTITIONS.")
-    if size == LIMITER:
+    if size <= LIMITER:
         if efi:
             part1 = __make_efi__(device)
             part2 = __make_root__(device, end="100%")
@@ -352,7 +457,7 @@ home: whether to make a home partition, or if one already exists
         if size >= gb_to_bytes(config["mdswh"]):
             root_end = int((size * 0.35) / (1000 ** 2))
         else:
-            root_end = config["min root size"]
+            root_end = get_min_root_size()
         if (efi and (part1 is None)):
             part1 = __make_efi__(device)
             part2 = __make_root__(device, end=root_end)

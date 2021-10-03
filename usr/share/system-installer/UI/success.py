@@ -42,18 +42,8 @@ class Main(report.Main):
     """Success UI Class"""
     def __init__(self, settings):
         """Initialize data"""
-        Gtk.Window.__init__(self, title="System Installer")
-        self.grid = Gtk.Grid(orientation=Gtk.Orientation.VERTICAL)
-        self.add(self.grid)
-        self.set_icon_name("system-installer")
+        super(Main, self).__init__()
         self.scrolling = False
-        self.opt_setting = False
-        self.cpu_setting = False
-        self.gpu_setting = False
-        self.ram_setting = False
-        self.disk_setting = False
-        self.log_setting = False
-        self.custom_setting = False
         self.settings = settings
 
         try:
@@ -75,11 +65,14 @@ class Main(report.Main):
         """Main Success Window"""
         self.clear_window()
 
+        if hasattr(self, 'text_buffer'):
+            self.text_buffer.set_text("", length=0)
+
         text = """
 \t<b>%s has been successfully installed on your computer!</b>\t
 """ % (self.distro)
         if "OEM" not in self.settings.values():
-            text = text + """\tPlease consider sending an installtion report to our team,
+            text = text + """\tPlease consider sending an installation report to our team,
             \tusing the "Send Installation Report" button below.\t\n\n"""
         label = Gtk.Label()
         label.set_markup(text)
@@ -201,7 +194,7 @@ class Main(report.Main):
         delete = os.listdir("/mnt")
         for each in delete:
             try:
-               os.remove("/mnt/" + each)
+                os.remove("/mnt/" + each)
             except IsADirectoryError:
                 rmtree("/mnt/" + each)
         self.exit("clicked")
@@ -249,7 +242,7 @@ class Main(report.Main):
         self.grid.remove(self.grid.get_child_at(1, 1))
         try:
             subprocess.Popen(["add-apt-repository", "--yes", "PPA:%s" %
-                   ((self.ppa_entry.get_text()).lower())])
+                              ((self.ppa_entry.get_text()).lower())])
 
             label = Gtk.Label()
             label.set_markup("""\n\tWhat PPAs would you like to add?\t
@@ -293,7 +286,9 @@ class Main(report.Main):
         self.clear_window()
 
         label = Gtk.Label()
-        label.set_markup("""\n\tSelect what you would like included in your Quick Install file.\t\n""")
+        label.set_markup("""
+\tSelect what you would like included in your Quick Install file.\t
+""")
         label = self._set_default_margins(label)
         self.grid.attach(label, 1, 1, 4, 1)
 
@@ -332,7 +327,7 @@ class Main(report.Main):
     def dump_settings_file_dialog(self, button):
         """Dump Settings File Dialog"""
         dialog = Gtk.FileChooserDialog("System Installer", self,
-                                        Gtk.FileChooserAction.SAVE,
+                                       Gtk.FileChooserAction.SAVE,
                                        (Gtk.STOCK_CANCEL,
                                         Gtk.ResponseType.CANCEL,
                                         Gtk.STOCK_SAVE,
@@ -443,6 +438,7 @@ def adv_dump_settings(settings, dump_path, copy_net=True, copy_set=True,
     # clean up
     rmtree("/tmp/working_dir")
 
+
 def __unique__(starting_list):
 
     # intilize a null list
@@ -453,7 +449,7 @@ def __unique__(starting_list):
         # check if exists in unique_list or not
         if x not in unique_list:
             unique_list.append(x)
-    return(unique_list)
+    return unique_list
 
 
 def show_success(settings):

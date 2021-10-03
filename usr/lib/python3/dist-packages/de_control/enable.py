@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-#  __init__.py
+#  enable.py
 #
 #  Copyright 2021 Thomas Castleman <contact@draugeros.org>
 #
@@ -21,10 +21,19 @@
 #  MA 02110-1301, USA.
 #
 #
-"""UI for System Installer"""
-import UI.confirm as confirm
-import UI.error as error
-import UI.main as main
-import UI.progress as progress
-import UI.report as report
-import UI.success as success
+"""Enable DE/WM or DE/WM features"""
+import subprocess
+import psutil
+
+def immersion():
+    """Enable Immersion within DE.
+
+    This may involve disabling desktop icons, removing panels, and more.
+    """
+    subprocess.Popen(["xfconf-query", "--channel", "xfce4-desktop",
+                      "--property", "/desktop-icons/style", "--set", "0"])
+    # Kill Xfce4 Panel, makes this more emersive
+    for proc in psutil.process_iter():
+        # check whether the process name matches
+        if proc.name() == "xfce4-panel":
+            proc.terminate()

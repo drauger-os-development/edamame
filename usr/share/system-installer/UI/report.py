@@ -23,7 +23,7 @@
 #
 """Installation Reporting UI"""
 from subprocess import Popen, check_output, PIPE, STDOUT, CalledProcessError
-from os import getenv, remove, chmod
+from os import getenv, remove, chmod, path
 from datetime import datetime
 from shutil import copyfile
 import time
@@ -59,6 +59,18 @@ class Main(Gtk.Window):
         self.disk_setting = False
         self.log_setting = False
         self.custom_setting = False
+
+        self.default_message = """
+Write a custom message to our developers and contributors!
+If you would like a response, please leave:
+* Your name (if this is not left we will use your username)
+* A way to get in contact with you through one or more of:
+* Email
+* Telegram
+* Discord
+* Mastodon
+* Twitter
+"""
 
     def clear_window(self):
         """Clear Window"""
@@ -283,7 +295,6 @@ class Main(Gtk.Window):
         """Exit"""
         Gtk.main_quit("delete-event")
         self.destroy()
-        print(1)
         return 1
 
     def message_handler(self, widget):
@@ -309,7 +320,8 @@ class Main(Gtk.Window):
         try:
             # Get keys
             cURL = curl.Curl()
-            with open("../../../etc/system-installer/settings.json", "r") as config:
+            with open("../../../etc/system-installer/settings.json",
+                      "r") as config:
                 URL = json.load(config)["report"]
             cURL.set_url(URL["recv_keys"])
             key = cURL.get().decode()
@@ -317,7 +329,8 @@ class Main(Gtk.Window):
             result = gpg.import_keys(key)
             # Encrypt file using newly imported keys
             with open(self.path, "rb") as signing:
-                signed_data = gpg.encrypt_file(signing, result.fingerprints, always_trust=True)
+                signed_data = gpg.encrypt_file(signing, result.fingerprints,
+                                               always_trust=True)
             with open(self.path, "w") as signed:
                 signed.write(str(signed_data))
             # Upload newly encrypted file
@@ -342,7 +355,12 @@ class Main(Gtk.Window):
             self.clear_window()
 
             label = Gtk.Label()
-            label.set_markup("\n\n\t\tReport Failed to Send!\n\t\tPlease make sure you have a working internet connection.\t\t\n\n")
+            label.set_markup("""
+
+\t\tReport Failed to Send!
+\t\tPlease make sure you have a working internet connection.\t\t
+
+""")
             label = self._set_default_margins(label)
             self.grid.attach(label, 1, 1, 2, 1)
 
@@ -417,7 +435,7 @@ class Main(Gtk.Window):
                 message.write("\n")
                 message.write("PCIe / GPU INFO:\n")
                 if self.gpu.get_active():
-                    for each in get_info(["lspci", "-nn"]):
+                    for each in get_info(["lspci", "-nnq"]):
                         message.write(each + "\n")
                 else:
                     message.write("OPT OUT\n")
@@ -446,9 +464,16 @@ class Main(Gtk.Window):
                 message.write("\n")
                 message.write("CUSTOM MESSAGE:\n")
                 if self.custom.get_active():
-                    message.write(self.text_buffer.get_text(self.text_buffer.get_start_iter(),
-                                                            self.text_buffer.get_end_iter(),
-                                                            False))
+                    custom = self.text_buffer.get_text(self.text_buffer.get_start_iter(),
+                                                       self.text_buffer.get_end_iter(),
+                                                       False)
+                    # Make sure that custom messages are not the default message.
+                    # if they are, just put none so we don't see a bunch of
+                    # trash custom messages
+                    if custom == self.default_message:
+                        message.write("NONE\n")
+                    else:
+                        message.write(custom)
                 else:
                     message.write("NONE\n")
                 message.write("\n.")
@@ -456,8 +481,13 @@ class Main(Gtk.Window):
             home = getenv("HOME")
             self.path = home + "/installation_report.txt"
             with open(self.path, "w+") as message:
-                message.write("Subject: Installation Report " +
-                              datetime.now().strftime("%c") + "\n\n")
+                message.write(f"Installation Report Code: { report_code }\n\n")
+                message.write("system-installer Version: ")
+                try:
+                    message.write(check_output(["system-installer",
+                                                "-v"]).decode())
+                except (FileNotFoundError, CalledProcessError):
+                    message.write("VERSION UNKNOWN. LIKELY TESTING OR MAJOR ERROR.\n")
                 message.write("\nCPU INFO:\n")
                 if self.cpu.get_active():
                     message.write(cpu_info() + "\n")
@@ -466,7 +496,7 @@ class Main(Gtk.Window):
                 message.write("\n")
                 message.write("PCIe / GPU INFO:\n")
                 if self.gpu.get_active():
-                    for each in get_info(["lspci", "-nn"]):
+                    for each in get_info(["lspci", "-nnq"]):
                         message.write(each + "\n")
                 else:
                     message.write("OPT OUT\n")
@@ -479,23 +509,32 @@ class Main(Gtk.Window):
                 message.write("\n")
                 message.write("DISK SETUP:\n")
                 if self.disk.get_active():
-                    for each in disk_info():
-                        message.write(each + "\n")
+                    message.write(json.dumps(disk_info(), indent=1) + "\n")
                 else:
                     message.write("OPT OUT\n")
                 message.write("\n")
                 message.write("INSTALLATION LOG:\n")
                 if self.log.get_active():
-                    with open("/tmp/system-installer.log", "r") as log:
-                        message.write(log.read())
+                    try:
+                        with open("/tmp/system-installer.log", "r") as log:
+                            message.write(log.read())
+                    except FileNotFoundError:
+                        message.write("Log does not exist.")
                 else:
                     message.write("OPT OUT\n")
                 message.write("\n")
                 message.write("CUSTOM MESSAGE:\n")
                 if self.custom.get_active():
-                    message.write(self.text_buffer.get_text(self.text_buffer.get_start_iter(),
-                                                            self.text_buffer.get_end_iter(),
-                                                            False))
+                    custom = self.text_buffer.get_text(self.text_buffer.get_start_iter(),
+                                                       self.text_buffer.get_end_iter(),
+                                                       False)
+                    # Make sure that custom messages are not the default message.
+                    # if they are, just put none so we don't see a bunch of
+                    # trash custom messages
+                    if custom == self.default_message:
+                        message.write("NONE\n")
+                    else:
+                        message.write(custom)
                 else:
                     message.write("NONE\n")
                 message.write("\n.")
@@ -504,27 +543,14 @@ class Main(Gtk.Window):
         """Accept Message Input in GUI"""
         if self.custom.get_active():
             self.custom_setting = True
-            if hasattr(self, 'text_buffer'):
-                self.grid.attach(self.custom_message, 1, 8, 8, 4)
-            else:
-                self.text_buffer = Gtk.TextBuffer()
-                text = """
-Write a custom message to our developers and contributors!
-If you would like a response, please leave:
-    * Your name (if this is not left we will use your username)
-    * A way to get in contact with you through one or more of:
-        * Email
-        * Telegram
-        * Discord
-        * Mastodon
-        * Twitter
-"""
-                self.text_buffer.set_text(text, len(text))
-                self.custom_message = Gtk.TextView.new_with_buffer(self.text_buffer)
-                self.custom_message.set_editable(True)
-                self.custom_message.set_accepts_tab(True)
-                self.custom_message = self._set_default_margins(self.custom_message)
-                self.grid.attach(self.custom_message, 1, 8, 8, 4)
+            self.text_buffer = Gtk.TextBuffer()
+            self.text_buffer.set_text(self.default_message,
+                                      len(self.default_message))
+            self.custom_message = Gtk.TextView.new_with_buffer(self.text_buffer)
+            self.custom_message.set_editable(True)
+            self.custom_message.set_accepts_tab(True)
+            self.custom_message = self._set_default_margins(self.custom_message)
+            self.grid.attach(self.custom_message, 1, 8, 8, 4)
 
         else:
             self.grid.remove(self.custom_message)
@@ -637,7 +663,83 @@ If you would like a response, please leave:
 def cpu_info():
     """get CPU info"""
     info = check_output("lscpu").decode().split("\n")
-    return info[13]
+    # We need to create a more intelligent parser for this data as positions can
+    # change depending on the system that is being used.
+    sentenal = 0
+    output = []
+    backup_speed = None
+    count = 0
+    while sentenal < 7:
+        for each in info:
+            if sentenal == 0:
+                if "Model name:" in each:
+                    output.append(each)
+                    sentenal += 1
+            elif sentenal == 1:
+                if "Thread(s) per core:" in each:
+                    output.append(each)
+                    sentenal += 1
+            elif sentenal == 2:
+                if "Core(s) per socket:" in each:
+                    output.append(each)
+                    sentenal += 1
+            elif sentenal == 3:
+                if "CPU max MHz:" in each:
+                    output.append(each)
+                    sentenal += 1
+                    count = 0
+                elif count == len(info):
+                    count = 0
+                    sentenal += 1
+                    output.append("CPU max MHz:\t\t\tUnknown")
+                else:
+                    count += 1
+            elif sentenal == 4:
+                if "L2 cache:" in each:
+                    output.append(each)
+                    sentenal += 1
+                    count = 0
+                elif count == len(info):
+                    count = 0
+                    sentenal += 1
+                    output.append("L2 cache:\t\t\tUnknown")
+                else:
+                    count += 1
+            elif sentenal == 5:
+                if "L3 cache:" in each:
+                    output.append(each)
+                    sentenal += 1
+                    count = 0
+                elif count == len(info):
+                    count = 0
+                    sentenal += 1
+                    output.append("L3 cache:\t\t\tUnknown")
+                else:
+                    count += 1
+            elif sentenal == 6:
+                if "CPU MHz:" in each:
+                    backup_speed = each
+                    sentenal += 1
+                    count = 0
+                elif count == len(info):
+                    count = 0
+                    sentenal += 1
+                    backup_speed = "Unknown"
+                else:
+                    count += 1
+    speed_dir = "/sys/devices/system/cpu/cpu0/cpufreq/"
+    if path.exists(speed_dir):
+        if path.exists(speed_dir + "bios_limit"):
+            with open(speed_dir + "bios_limit", "r") as file:
+                speed = int(file.read()) / 1000
+        else:
+            with open(speed_dir + "scaling_max_freq", "r") as file:
+                speed = int(file.read()) / 1000
+    else:
+        speed = backup_speed
+    speed = f"CPU base MHz                     { speed }"
+    output.insert(3, speed)
+    return "\n".join(output)
 
 
 def ram_info():
@@ -649,7 +751,8 @@ def ram_info():
 
 def disk_info():
     """Get disk info"""
-    info = json.loads(check_output(["lsblk", "--json", "--output", "name,size,type,mountpoint"]).decode())
+    info = json.loads(check_output(["lsblk", "--json", "--output",
+                                    "name,size,type,mountpoint"]).decode())
     for each in range(len(info["blockdevices"]) - 1, -1, -1):
         if "loop" == info["blockdevices"][each]["type"]:
             del info["blockdevices"][each]

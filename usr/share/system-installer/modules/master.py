@@ -35,6 +35,7 @@ from time import sleep
 import json
 import warnings
 import tarfile as tar
+import de_control.modify as de_modify
 
 
 
@@ -452,19 +453,9 @@ def _check_for_laptop():
 def handle_laptops(username):
     """Remove the battery icon from the panel on desktops"""
     if not _check_for_laptop():
-        eprint("DESKTOP DETECTED. EDITING PANEL ACCORDINGLY.")
-        try:
-            os.remove("/home/" + username + "/.config/xfce4/panel/battery-12.rc")
-        except FileNotFoundError:
-            pass
-        with open("/home/" + username + "/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml", "r") as file:
-            xml = file.read().split("\n")
-        for each in range(len(xml) - 1, -1, -1):
-            if "battery" in xml[each]:
-                del xml[each]
-        xml = "\n".join(xml)
-        with open("/home/" + username + "/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml", "w") as file:
-            file.write(xml)
+        de_modify.for_desktop(username)
+    else:
+        de_modify.for_laptop()
 
 
 def install(settings):

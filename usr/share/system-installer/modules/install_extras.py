@@ -45,11 +45,11 @@ def install_extras():
     cache.open()
     NVIDIA = False
     # Check PCI list
-    pci = subprocess.check_output(["lspci"]).decode()
+    pci = subprocess.check_output(["lspci", "-q"]).decode()
     # Install list, append extra stuff to this
     install_list = ["ubuntu-restricted-extras", "ubuntu-restricted-addons"]
     # Broadcom wifi cards (my condolences to all users of these infernal things)
-    if (("broadcom" in pci) or ("Broadcom" in pci) or ("BROADCOM" in pci)):
+    if "broadcom" in pci.lower():
         # Newer cards take different drivers from older cards
         for each in ("BCM43142", "BCM4331", "BCM4360", "BCM4352"):
             if each in pci:
@@ -61,23 +61,28 @@ def install_extras():
                     install_list = install_list.append("bcmwl-kernel-source")
                     break
     # Nvidia graphics cards
-    if (("Nvidia" in pci) or ("nvidia" in pci) or ("NVIDIA" in pci)):
+    if "nvidia" in pci.lower():
         drivers = []
         # We have other work we need to do after installing the Nvidia driver
         NVIDIA = True
         with cache.actiongroup():
-            for pkg in pkg_name:
-                for each in cache:
-                    if "nvidia-driver-" in each.name:
-                        drivers.append(each.name)
+            for each in cache:
+                if "nvidia-driver-" in each.name:
+                    drivers.append(each.name)
         for each in range(len(drivers) - 1, -1, -1):
-            drivers[each] = int(drivers[each].split("-")[-1])
+            try:
+                drivers[each] = int(drivers[each].split("-")[-1])
+            except ValueError:
+                pass
         # Get the latest Nvidia driver
         largest = drivers[0]
         for each in drivers:
-            if each > largest:
-                largest = each
-        install_list = install_list.append("nvidia-driver-" + str(largest))
+            try:
+                if int(each) > largest:
+                    largest = each
+            except ValueError:
+                pass
+        install_list.append("nvidia-driver-" + str(largest))
     # Install everything we want
     with cache.actiongroup():
         for each in install_list:

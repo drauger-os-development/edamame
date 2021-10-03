@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-#  __init__.py
+#  disable.py
 #
 #  Copyright 2021 Thomas Castleman <contact@draugeros.org>
 #
@@ -21,10 +21,16 @@
 #  MA 02110-1301, USA.
 #
 #
-"""UI for System Installer"""
-import UI.confirm as confirm
-import UI.error as error
-import UI.main as main
-import UI.progress as progress
-import UI.report as report
-import UI.success as success
+"""Disable DE/WM or DE/WM features"""
+import subprocess
+
+def immersion():
+    """disable Immersion within DE.
+
+    This may involve enabliong desktop icons, re-adding panels, and more.
+    """
+    # restart panel
+    subprocess.Popen(["xfce4-panel"])
+    # bring back desktop icons
+    subprocess.Popen(["xfconf-query", "--channel", "xfce4-desktop",
+                      "--property", "/desktop-icons/style", "--set", "2"])

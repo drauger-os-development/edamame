@@ -62,11 +62,6 @@ if len(sys.argv) > 1:
             # Not wanted to be running ootb
             sys.exit(0)
         boot_time = True
-        # Kill Xfce4 Panel, makes this more emersive
-        for proc in psutil.process_iter():
-            # check whether the process name matches
-            if proc.name() == "xfce4-panel":
-                proc.terminate()
 MEMCHECK = psutil.virtual_memory().total
 if (MEMCHECK / 1024 ** 2) < 1024:
     UI.error.show_error("\n\tRAM is less than 1 GB.\t\n")

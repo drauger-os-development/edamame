@@ -101,11 +101,11 @@ Settings are defined in `/etc/system-installer/settings.json`
    - Location of the squashfs file to unpack
  - `distro`
    - Name of the distro `system-installer` is running on. Use this for branding.
- - `report_to`
-   - Email address to send installation reports to
-     - Must be a valid email address
-     - Installation reporting is opt-in only
-     - This will be changed to a set of URLs soon as installation repoting has become much more complex
+ - `report`
+   - `recv_keys`
+     - URL to download Public GPG keys from for encryption.
+   - `upload`
+     - `rsync` URL to upload to.
  - `ping servers`
    - URLs to ping to check for internet access
    - DO NOT use IP addresses.
@@ -131,16 +131,17 @@ Settings are defined in `/etc/system-installer/settings.json`
      - All of supported entries must be defined in each of `ROOT`, `HOME`, or `EFI`
    - `min root size` must be an integer that dictates the minimum size of the root partition in MiB
    - `mdswh` stands for 'minimum drive size with home', and is the size smallest drive you can install Drauger OS to and have a seperate `/home` partition on the same drive.
+- `run_post_oem`
+  - A program to run once set up is complete after an OEM installation. This should probably launch a welcome screen for the end user at some point.
 
 Notable files for hacking
 ---
 
 ```
+build.sh
 /usr/share/system-installer/installer.py
-/usr/share/system-installer/modules/master.py
-/usr/share/system-installer/modules/install_extras.sh
-/usr/share/system-installer/modules/manual-partitioner.sh
-/usr/share/system-installer/modules/systemd_boot_config.py
+/usr/share/system-installer/modules
+/usr/share/system-installer/UI
+/usr/lib/python3/dist-packages/de_control
 /etc/system-installer/settings.json
-
 ```

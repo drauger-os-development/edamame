@@ -24,9 +24,11 @@
 """Command line executable for System Installer"""
 from sys import argv, stderr
 import subprocess
+import de_control.disable as de_disable
+import de_control.enable as de_enable
 from os import path
 ARGC = len(argv)
-VERSION = "2.0.1"
+VERSION = "2.1.0"
 HELP = """
 system-installer, Version %s
 
@@ -48,11 +50,6 @@ def eprint(args, *kwargs, color=R):
     print(NC, file=stderr)
 
 
-def restart_xfce_panel():
-    """Restart Xfce4-panel"""
-    subprocess.Popen(["xfce4-panel"])
-
-
 def launch(boot_time=False):
     """Launch system-isntaller"""
     command1 =  ["/usr/bin/xhost"]
@@ -66,6 +63,8 @@ def launch(boot_time=False):
         with open("/tmp/system-installer.log", "w+") as log_file:
             log_file.write("STARTING IN BOOT-TIME MODE")
         command.insert(1, "--boot-time")
+        de_enable.immersion()
+
     command = " ".join(command)
     try:
         exit_code = subprocess.check_call(command, shell=True)
@@ -73,7 +72,7 @@ def launch(boot_time=False):
         # Assume the worst
         exit_code = 256
     if boot_time:
-        restart_xfce_panel()
+        de_disable.immersion()
     if ((exit_code == 256) and (not path.exists("/tmp/system-installer.log"))):
         eprint("Error accessing /usr/share/system-installer/engine.py: No such file or directory")
         with open("/tmp/system-installer.log", "w+") as log_file:

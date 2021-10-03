@@ -881,7 +881,7 @@ Type. Minimum drives is: %s""" % (loops))
         self.grid.attach(button1, 3, 6, 1, 1)
 
         button3 = Gtk.Button.new_with_label("!!! DELETE !!!")
-        button3.connect("clicked", self.remove_part)
+        button3.connect("clicked", self.confirm_remove_part)
         button3 = self._set_default_margins(button3)
         self.grid.attach(button3, 2, 6, 1, 1)
 
@@ -909,6 +909,39 @@ Type. Minimum drives is: %s""" % (loops))
                                                                               each1["fstype"],
                                                                               int(auto_partitioner.bytes_to_gb(each1["size"]))))
         self.show_all()
+
+    def confirm_remove_part(self, widget):
+        """Confirm removal of designated partition"""
+        self.clear_window()
+
+        label = Gtk.Label()
+        label.set_markup("""
+    <b>Are you sure you want to delete this partition?</b>\t
+    """)
+        label.set_justify(Gtk.Justification.CENTER)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 1, 1, 3, 1)
+
+        label1 = Gtk.Label()
+        label1.set_markup(self.parts.get_active_id())
+        label1.set_justify(Gtk.Justification.CENTER)
+        label1 = self._set_default_margins(label1)
+        self.grid.attach(label1, 1, 2, 1, 1)
+
+        button1 = Gtk.Button.new_with_label("NO")
+        button1.connect("clicked", self.make_space)
+        button1 = self._set_default_margins(button1)
+        self.grid.attach(button1, 3, 6, 1, 1)
+
+        button3 = Gtk.Button.new_with_label("YES")
+        button3.connect("clicked", self.remove_part)
+        button3 = self._set_default_margins(button3)
+        self.grid.attach(button3, 2, 6, 1, 1)
+
+        button2 = Gtk.Button.new_with_label("Exit")
+        button2.connect("clicked", self.exit)
+        button2 = self._set_default_margins(button2)
+        self.grid.attach(button2, 1, 6, 1, 1)
 
     def remove_part(self, widget):
         """Interface for removing partitions"""
@@ -1131,6 +1164,7 @@ Type. Minimum drives is: %s""" % (loops))
             self.grid.attach(label, 1, 1, 3, 1)
 
             self.show_all()
+            return
         elif not os.path.exists(self.root.get_text()):
             label = Gtk.Label()
             label.set_markup("""
@@ -1149,7 +1183,7 @@ Type. Minimum drives is: %s""" % (loops))
             self.grid.attach(label, 1, 1, 3, 1)
 
             self.show_all()
-
+            return
         elif (((self.efi.get_text() == "") or (
                 self.efi.get_text()[0:5] != "/dev/")) and os.path.isdir("/sys/firmware/efi")):
             label = Gtk.Label()
@@ -1170,6 +1204,7 @@ Type. Minimum drives is: %s""" % (loops))
             self.grid.attach(label, 1, 1, 3, 1)
 
             self.show_all()
+            return
         elif (not os.path.exists(self.efi.get_text()) or (self.efi.get_text() == "")) and os.path.isdir("/sys/firmware/efi"):
             label = Gtk.Label()
             label.set_markup("""
@@ -1188,8 +1223,10 @@ Type. Minimum drives is: %s""" % (loops))
             self.grid.attach(label, 1, 1, 3, 1)
 
             self.show_all()
+            return
         elif ((self.home.get_text() != "") and (
-                self.home.get_text()[0:5] != "/dev/")):
+               self.home.get_text()[0:5] != "/dev/") and (
+               self.home.get_text() != "NULL")):
             label = Gtk.Label()
             label.set_markup("""
     What are the mount points for the partitions you wish to be used?
@@ -1207,8 +1244,10 @@ Type. Minimum drives is: %s""" % (loops))
             self.grid.attach(label, 1, 1, 3, 1)
 
             self.show_all()
+            return
         elif (not os.path.exists(self.home.get_text()) and (
-                self.home.get_text() != "")):
+                self.home.get_text() != "") and (
+                self.home.get_text() != "NULL")):
             label = Gtk.Label()
             label.set_markup("""
     What are the mount points for the partitions you wish to be used?
@@ -1226,6 +1265,7 @@ Type. Minimum drives is: %s""" % (loops))
             self.grid.attach(label, 1, 1, 3, 1)
 
             self.show_all()
+            return
         elif ((self.swap.get_text() != "") and (
                 self.swap.get_text()[0:5] != "/dev/") and (
                     self.swap.get_text().upper() != "FILE")):
@@ -1267,39 +1307,80 @@ Type. Minimum drives is: %s""" % (loops))
             self.grid.attach(label, 1, 1, 3, 1)
 
             self.show_all()
+            return
+        if ((self.swap.get_text().upper() == "FILE") or (self.swap.get_text() == "")):
+            if auto_partitioner.size_of_part(self.root.get_text()) < auto_partitioner.get_min_root_size(bytes=False):
+                label = Gtk.Label()
+                label.set_markup(f"""
+        What are the mount points for the partitions you wish to be used?
+        Leave empty the partitions you don't want.
+        <b> / MUST BE USED </b>
+
+        / is too small. Minimum Root Partition size is { round(auto_partitioner.get_min_root_size(bytes=False)) } GB
+        Make a swap partition to reduce this minimum to { round(auto_partitioner.get_min_root_size(swap=False, bytes=False)) } GB
+        """)
+                label.set_justify(Gtk.Justification.LEFT)
+                label = self._set_default_margins(label)
+                try:
+                    self.grid.remove(self.grid.get_child_at(1, 1))
+                except TypeError:
+                    pass
+                self.grid.attach(label, 1, 1, 3, 1)
+
+                self.show_all()
+                return
         else:
-            label = Gtk.Label()
-            label.set_markup("""
+            if auto_partitioner.size_of_part(self.root.get_text()) < auto_partitioner.get_min_root_size(swap=False, bytes=False):
+                label = Gtk.Label()
+                label.set_markup(f"""
+        What are the mount points for the partitions you wish to be used?
+        Leave empty the partitions you don't want.
+        <b> / MUST BE USED </b>
+
+        / is too small. Minimum Root Partition size is { round(auto_partitioner.get_min_root_size(swap=False, bytes=False)) } GB
+        """)
+                label.set_justify(Gtk.Justification.LEFT)
+                label = self._set_default_margins(label)
+                try:
+                    self.grid.remove(self.grid.get_child_at(1, 1))
+                except TypeError:
+                    pass
+                self.grid.attach(label, 1, 1, 3, 1)
+
+                self.show_all()
+                return
+        label = Gtk.Label()
+        label.set_markup("""
     What are the mount points for the partitions you wish to be used?
     Leave empty the partitions you don't want.
     <b> / MUST BE USED </b>
     """)
-            label.set_justify(Gtk.Justification.LEFT)
-            label = self._set_default_margins(label)
-            try:
-                self.grid.remove(self.grid.get_child_at(1, 1))
-            except TypeError:
-                pass
-            self.grid.attach(label, 1, 1, 3, 1)
-            self.data["ROOT"] = self.root.get_text()
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+        try:
+            self.grid.remove(self.grid.get_child_at(1, 1))
+        except TypeError:
+            pass
+        self.grid.attach(label, 1, 1, 3, 1)
+        self.data["ROOT"] = self.root.get_text()
 
-            self.show_all()
-            if self.efi.get_text() == "":
-                self.data["EFI"] = "NULL"
-            else:
-                self.data["EFI"] = self.efi.get_text()
-            if self.home.get_text() == "":
-                self.data["HOME"] = "NULL"
-            else:
-                self.data["HOME"] = self.home.get_text()
-            if ((self.swap.get_text() == "") or (
-                    self.swap.get_text().upper() == "FILE")):
-                self.data["SWAP"] = "FILE"
-            else:
-                self.data["SWAP"] = self.swap.get_text()
-            global PART_COMPLETION
-            PART_COMPLETION = "COMPLETED"
-            self.main_menu("clicked")
+        self.show_all()
+        if self.efi.get_text() in ("", " ", None):
+            self.data["EFI"] = "NULL"
+        else:
+            self.data["EFI"] = self.efi.get_text()
+        if self.home.get_text() in ("", " ", None):
+            self.data["HOME"] = "NULL"
+        else:
+            self.data["HOME"] = self.home.get_text()
+        if ((self.swap.get_text() in ("", " ", None)) or (
+                self.swap.get_text().upper() == "FILE")):
+            self.data["SWAP"] = "FILE"
+        else:
+            self.data["SWAP"] = self.swap.get_text()
+        global PART_COMPLETION
+        PART_COMPLETION = "COMPLETED"
+        self.main_menu("clicked")
 
     def opengparted(self, button):
         """Open GParted"""

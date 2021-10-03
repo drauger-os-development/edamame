@@ -24,7 +24,6 @@
 """Make swap File"""
 from __future__ import print_function
 from sys import stderr
-from math import sqrt
 import subprocess
 from os import chmod
 from time import sleep
@@ -45,7 +44,7 @@ def make_swap():
     # CPU time and write faster but testing suggestes otherwise
     # testing says once you hit the same number of threads
     # the CPU has, there's no more you can get
-    swap = round((swap + sqrt((swap / 1024 ** 3)) * 1024 ** 3))
+    swap = round((swap + ((swap / 1024 ** 3) ** 0.5) * 1024 ** 3))
     # you would think having a larger string would help,
     # but past a certain point it does not
     multiplyer = 10000
