@@ -418,126 +418,57 @@ If you would like a response, please leave:
     def generate_message(self):
         """write installation report to disk"""
         report_code = time.time()
+        output = {}
+        self.path = "/var/mail/installation_report-%s.dosir" % (report_code)
+        output['Installation Report Code'] = report_code
         try:
-            self.path = "/var/mail/installation_report-%s.dosir" % (report_code)
+            output['system-installer Version'] = check_output(["system-installer", "-v"]).decode()
+        except (FileNotFoundError, CalledProcessError):
+            output['system-installer Version'] = "VERSION UNKNOWN. LIKELY TESTING OR MAJOR ERROR."
+        output['OS'] = get_info(["lsb_release", "-ds"])[0]
+        if self.cpu.get_active():
+            output['CPU INFO'] = cpu_info()
+        else:
+            output['CPU INFO'] = 'OPT OUT'
+        if self.gpu.get_active():
+            output['PCIe / GPU INFO'] = get_info(["lspci", "-nnq"])
+        else:
+            output['PCIe / GPU INFO'] = 'OPT OUT'
+        if self.ram.get_active():
+            output['RAM / SWAP INFO'] = ram_info()
+        else:
+            output['RAM / SWAP INFO'] = 'OPT OUT'
+        if self.disk.get_active():
+            output['DISK SETUP'] = disk_info()
+        else:
+            output['DISK SETUP'] = 'OPT OUT'
+        if self.log.get_active():
+            try:
+                with open("/tmp/system-installer.log", "r") as log:
+                    output['INSTALLATION LOG'] = log.read()
+            except FileNotFoundError:
+                output['INSTALLATION LOG'] = 'Log does not exist.'
+        else:
+            output['INSTALLATION LOG'] = 'OPT OUT'
+        if self.custom.get_active():
+            custom = self.text_buffer.get_text(self.text_buffer.get_start_iter(),
+                                               self.text_buffer.get_end_iter(),
+                                               False)
+            # Make sure that custom messages are not the default message.
+            # if they are, just put none so we don't see a bunch of
+            # trash custom messages
+            if custom == self.default_message:
+                output['CUSTOM MESSAGE'] = "NONE"
+            else:
+                output['CUSTOM MESSAGE'] = custom
+        else:
+            output['CUSTOM MESSAGE'] = "NONE"
+        try:
             with open(self.path, "w+") as message:
-                message.write("Installation Report Code: %s\n\n" % (report_code))
-                message.write("system-installer Version: ")
-                try:
-                    message.write(check_output(["system-installer", "-v"]).decode())
-                except (FileNotFoundError, CalledProcessError):
-                    message.write("VERSION UNKNOWN. LIKELY TESTING OR MAJOR ERROR.\n")
-                message.write("\nCPU INFO:\n")
-                if self.cpu.get_active():
-                    message.write(cpu_info() + "\n")
-                else:
-                    message.write("OPT OUT\n")
-                message.write("\n")
-                message.write("PCIe / GPU INFO:\n")
-                if self.gpu.get_active():
-                    for each in get_info(["lspci", "-nnq"]):
-                        message.write(each + "\n")
-                else:
-                    message.write("OPT OUT\n")
-                message.write("\n")
-                message.write("RAM / SWAP INFO:\n")
-                if self.ram.get_active():
-                    message.write(ram_info() + "\n")
-                else:
-                    message.write("OPT OUT\n")
-                message.write("\n")
-                message.write("DISK SETUP:\n")
-                if self.disk.get_active():
-                    message.write(json.dumps(disk_info(), indent=1) + "\n")
-                else:
-                    message.write("OPT OUT\n")
-                message.write("\n")
-                message.write("INSTALLATION LOG:\n")
-                if self.log.get_active():
-                    try:
-                        with open("/tmp/system-installer.log", "r") as log:
-                            message.write(log.read())
-                    except FileNotFoundError:
-                        message.write("Log does not exist.")
-                else:
-                    message.write("OPT OUT\n")
-                message.write("\n")
-                message.write("CUSTOM MESSAGE:\n")
-                if self.custom.get_active():
-                    custom = self.text_buffer.get_text(self.text_buffer.get_start_iter(),
-                                                       self.text_buffer.get_end_iter(),
-                                                       False)
-                    # Make sure that custom messages are not the default message.
-                    # if they are, just put none so we don't see a bunch of
-                    # trash custom messages
-                    if custom == self.default_message:
-                        message.write("NONE\n")
-                    else:
-                        message.write(custom)
-                else:
-                    message.write("NONE\n")
-                message.write("\n.")
+                json.dump(output, message, indent=1)
         except PermissionError:
-            home = getenv("HOME")
-            self.path = home + "/installation_report.txt"
-            with open(self.path, "w+") as message:
-                message.write(f"Installation Report Code: { report_code }\n\n")
-                message.write("system-installer Version: ")
-                try:
-                    message.write(check_output(["system-installer",
-                                                "-v"]).decode())
-                except (FileNotFoundError, CalledProcessError):
-                    message.write("VERSION UNKNOWN. LIKELY TESTING OR MAJOR ERROR.\n")
-                message.write("\nCPU INFO:\n")
-                if self.cpu.get_active():
-                    message.write(cpu_info() + "\n")
-                else:
-                    message.write("OPT OUT\n")
-                message.write("\n")
-                message.write("PCIe / GPU INFO:\n")
-                if self.gpu.get_active():
-                    for each in get_info(["lspci", "-nnq"]):
-                        message.write(each + "\n")
-                else:
-                    message.write("OPT OUT\n")
-                message.write("\n")
-                message.write("RAM / SWAP INFO:\n")
-                if self.ram.get_active():
-                    message.write(ram_info() + "\n")
-                else:
-                    message.write("OPT OUT\n")
-                message.write("\n")
-                message.write("DISK SETUP:\n")
-                if self.disk.get_active():
-                    message.write(json.dumps(disk_info(), indent=1) + "\n")
-                else:
-                    message.write("OPT OUT\n")
-                message.write("\n")
-                message.write("INSTALLATION LOG:\n")
-                if self.log.get_active():
-                    try:
-                        with open("/tmp/system-installer.log", "r") as log:
-                            message.write(log.read())
-                    except FileNotFoundError:
-                        message.write("Log does not exist.")
-                else:
-                    message.write("OPT OUT\n")
-                message.write("\n")
-                message.write("CUSTOM MESSAGE:\n")
-                if self.custom.get_active():
-                    custom = self.text_buffer.get_text(self.text_buffer.get_start_iter(),
-                                                       self.text_buffer.get_end_iter(),
-                                                       False)
-                    # Make sure that custom messages are not the default message.
-                    # if they are, just put none so we don't see a bunch of
-                    # trash custom messages
-                    if custom == self.default_message:
-                        message.write("NONE\n")
-                    else:
-                        message.write(custom)
-                else:
-                    message.write("NONE\n")
-                message.write("\n.")
+            with open(home + "/installation_report.txt", "w+") as message:
+                json.dump(output, message, indent=1)
 
     def message_accept(self, widget):
         """Accept Message Input in GUI"""
@@ -744,9 +675,9 @@ def cpu_info():
 
 def ram_info():
     """Get RAM info"""
-    ram_capacity = check_output(["lsmem", "--summary=only"]).decode()
-    swap_capacity = check_output(["swapon", "--show"]).decode()
-    return ram_capacity + "\n" + swap_capacity
+    ram_capacity = check_output(["lsmem", "--summary=only"]).decode().split("\n")
+    swap_capacity = check_output(["swapon", "--show"]).decode().split("\n")
+    return {"RAM": ram_capacity, "SWAP": swap_capacity}
 
 
 def disk_info():
