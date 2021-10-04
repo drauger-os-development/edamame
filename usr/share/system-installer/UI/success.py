@@ -476,4 +476,5 @@ def __poweroff__(button):
 
 
 if __name__ == '__main__':
-    show_success(sys.argv[1])
+    settings = json.loads(sys.argv[1])
+    show_success(settings)
