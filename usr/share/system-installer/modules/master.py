@@ -318,7 +318,7 @@ def _install_systemd_boot(release, root):
         except FileExistsError:
             pass
     with open("/boot/efi/loader/loader.conf", "w+") as loader_conf:
-        loader_conf.write("default Drauger_OS\ntimeout 5\neditor 1")
+        loader_conf.write("default Drauger_OS\ntimeout 5\nconsole-mode 1\neditor 1")
     try:
         subprocess.check_call(["chattr", "-i", "/boot/efi/loader/loader.conf"],
                               stdout=stderr.buffer)
