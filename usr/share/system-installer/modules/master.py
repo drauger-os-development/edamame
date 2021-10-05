@@ -43,7 +43,6 @@ import de_control.modify as de_modify
 import modules.auto_login_set as auto_login_set
 import modules.make_swap as make_swap
 import modules.set_time as set_time
-import modules.systemd_boot_config as systemd_boot_config
 import modules.set_locale as set_locale
 import modules.install_updates as install_updates
 import modules.make_user as mkuser
@@ -251,12 +250,12 @@ def install_kernel(release, local_repo):
                           stdout=stderr.buffer)
 
 
-def install_bootloader(efi, root, release):
+def install_bootloader(efi, root, release, local_repo):
     """Determine whether bootloader needs to be systemd-boot (for UEFI)
     or GRUB (for BIOS)
     and install the correct one."""
     if efi not in ("NULL", None, "", False):
-        _install_systemd_boot(release, root)
+        _install_systemd_boot(release, root, local_repo)
     else:
         _install_grub(root)
 
@@ -281,7 +280,8 @@ def _install_grub(root):
     subprocess.check_call(["grub-mkconfig", "-o", "/boot/grub/grub.cfg"],
                           stdout=stderr.buffer)
 
-def _install_systemd_boot(release, root):
+
+def _install_systemd_boot(release, root, local_repo):
     """set up and install systemd-boot"""
     try:
         os.mkdir("/boot/efi")
@@ -334,8 +334,11 @@ def _install_systemd_boot(release, root):
     except subprocess.CalledProcessError:
         eprint("CHATTR FAILED ON loader.conf, setting octal permissions to 444")
         os.chmod("/boot/efi/loader/loader.conf", 0o444)
-    systemd_boot_config.systemd_boot_config(root)
-    subprocess.check_call("/etc/kernel/postinst.d/zz-update-systemd-boot",
+    install_command = ["dpkg", "-R", "--install"]
+    package = [each for each in os.listdir(local_repo) if "systemd-boot-manager" in each]
+    subprocess.check_call(install_command + package,
+                          stdout=stderr.buffer)
+    subprocess.check_call(["systemd-boot-manager", "-r"],
                           stdout=stderr.buffer)
     check_systemd_boot(release, root)
 
@@ -349,7 +352,7 @@ def setup_lowlevel(efi, root, local_repo):
     eprint("\n    ###    MAKING INITRAMFS    ###    ")
     subprocess.check_call(["mkinitramfs", "-o", "/boot/initrd.img-" + release],
                           stdout=stderr.buffer)
-    install_bootloader(efi, root, release)
+    install_bootloader(efi, root, release, local_repo)
     sleep(0.5)
     os.symlink("/boot/initrd.img-" + release, "/boot/initrd.img")
     os.symlink("/boot/vmlinuz-" + release, "/boot/vmlinuz")

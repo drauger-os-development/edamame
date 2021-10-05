@@ -281,13 +281,7 @@ def install(settings):
         file_list = []
     if ((len(file_list) == 0) and (settings["EFI"] not in (None, "", "NULL", False))):
         common.eprint("    ###    SYSTEMD-BOOT NOT CONFIGURED. CORRECTING . . .    ###    ")
-        shutil.copyfile("/usr/share/system-installer/modules/systemd_boot_config.py",
-                        "/mnt/systemd_boot_config.py")
-        check_call(["arch-chroot", "/mnt", "python3",
-                    "/systemd_boot_config.py", settings["ROOT"]])
-        check_call(["arch-chroot", "/mnt",
-                    "/etc/kernel/postinst.d/zz-update-systemd-boot"])
-        remove("/mnt/systemd_boot_config.py")
+        check_call(["arch-chroot", "/mnt", "systemd-boot-manager", "-r"])
     try:
         shutil.rmtree("/mnt/home/" + settings["USERNAME"] +
                       "/.config/xfce4/panel/launcher-3")
