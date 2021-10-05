@@ -129,9 +129,9 @@ def install(settings):
     __update__(14)
     # STEP 3: Unsquash the sqaushfs and get the files where they need to go
     squashfs = ""
-    with open("/etc/system-installer/settings.json", "r") as config:
-        squashfs = json.loads(config.read())["squashfs_Location"]
-    if not path.exists(squashfs):
+    with open("/etc/system-installer/settings.json", "r") as file:
+        config = json.loads(file.read())
+    if not path.exists(config["squashfs_Location"]):
         common.eprint("\n    SQUASHFS FILE DOES NOT EXIST    \n")
         UI.error.show_error("\n\tSQUASHFS FILE DOES NOT EXIST\t\n")
     __update__(17)
@@ -158,7 +158,7 @@ def install(settings):
     except FileNotFoundError:
         pass
     common.eprint("    ###    EXTRACTING SQUASHFS    ###    ")
-    check_call(["unsquashfs", squashfs])
+    check_call(["unsquashfs", config["squashfs_Location"]])
     common.eprint("    ###    EXTRACTION COMPLETE    ###    ")
     file_list = listdir("/mnt/squashfs-root")
     for each in file_list:
@@ -260,7 +260,7 @@ def install(settings):
                 shutil.copytree(work_dir + "/assets/" + each,
                                 "/mnt/user-data/" + each)
     real_root = chroot.arch_chroot("/mnt")
-    modules.master.install(settings)
+    modules.master.install(settings, config["local_repo"])
     chroot.de_chroot(real_root, "/mnt")
     common.eprint("Removing installation scripts and resetting resolv.conf")
     for each in file_list:
@@ -275,22 +275,6 @@ def install(settings):
     remove("/mnt/etc/resolv.conf")
     shutil.move("/mnt/etc/resolv.conf.save", "/mnt/etc/resolv.conf")
     __update__(96)
-    file_list = listdir("/mnt/boot")
-    for each in range(len(file_list) - 1, -1, -1):
-        if "vmlinuz" not in file_list[each]:
-            del file_list[each]
-    if len(file_list) == 0:
-        common.eprint("    ###    KERNEL NOT INSTALLED. CORRECTING . . .    ###    ")
-        shutil.copyfile("/usr/share/system-installer/modules/kernel.tar.xz",
-                        "/mnt/kernel.tar.xz")
-        root_dir = chroot.arch_chroot("/mnt")
-        tar_file = tar.open("kernel.tar.xz")
-        tar_file.extractall()
-        tar_file.close()
-        check_call(["dpkg", "-R", "--install", "/kernel"])
-        chroot.de_chroot(root_dir, "/mnt")
-        shutil.rmtree("/mnt/kernel")
-        remove("/mnt/kernel.tar.xz")
     try:
         file_list = listdir("/mnt/boot/efi/loader/entries")
     except FileNotFoundError:

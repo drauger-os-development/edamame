@@ -225,22 +225,30 @@ def set_plymouth_theme():
                                stderr=subprocess.PIPE)
     process.communicate(input=bytes("2\n", "utf-8"))
 
-def install_kernel(release):
+
+def install_kernel(release, local_repo):
     """Install kernel from kernel.tar.xz"""
     # we are going to do offline kernel installation from now on.
     # it's just easier and more reliable
-    eprint("EXTRACTING KERNEL.TAR.XZ")
-    tar_file = tar.open("kernel.tar.xz")
-    tar_file.extractall()
-    tar_file.close()
-    eprint("EXTRACTION COMPLETE")
-    subprocess.check_call(["apt", "purge", "-y", "linux-headers-" + release,
-                           "linux-image-" + release], stdout=stderr.buffer)
-    subprocess.check_call(["apt", "autoremove", "-y", "--purge"],
+    packages = ["linux-headers-" + release, "linux-image-" + release]
+    install_command = ["dpkg", "-R", "--install"]
+    subprocess.check_call(["apt-get", "purge", "-y"] + packages, stdout=stderr.buffer)
+    subprocess.check_call(["apt-get", "autoremove", "-y", "--purge"],
                           stdout=stderr.buffer)
-    subprocess.check_call(["dpkg", "-R", "--install", "kernel/"],
+    if not os.path.exists(local_repo):
+        eprint("EXTRACTING KERNEL.TAR.XZ")
+        tar_file = tar.open("kernel.tar.xz")
+        tar_file.extractall()
+        tar_file.close()
+        eprint("EXTRACTION COMPLETE")
+        subprocess.check_call(install_command + ["kernel/"],
+                              stdout=stderr.buffer)
+        rmtree("/kernel")
+        return
+    # Local repo exists. Use it
+    packages = [each for each in os.listdir(local_repo) if "linux-" in each]
+    subprocess.check_call(install_command + packages,
                           stdout=stderr.buffer)
-    rmtree("/kernel")
 
 
 def install_bootloader(efi, root, release):
@@ -251,6 +259,7 @@ def install_bootloader(efi, root, release):
         _install_systemd_boot(release, root)
     else:
         _install_grub(root)
+
 
 def _install_grub(root):
     """set up and install GRUB.
@@ -331,10 +340,10 @@ def _install_systemd_boot(release, root):
     check_systemd_boot(release, root)
 
 
-def setup_lowlevel(efi, root):
+def setup_lowlevel(efi, root, local_repo):
     """Set up kernel and bootloader"""
     release = subprocess.check_output(["uname", "--release"]).decode()[0:-1]
-    install_kernel(release)
+    install_kernel(release, local_repo)
     set_plymouth_theme()
     __update__(91)
     eprint("\n    ###    MAKING INITRAMFS    ###    ")
@@ -344,6 +353,7 @@ def setup_lowlevel(efi, root):
     sleep(0.5)
     os.symlink("/boot/initrd.img-" + release, "/boot/initrd.img")
     os.symlink("/boot/vmlinuz-" + release, "/boot/vmlinuz")
+
 
 def check_systemd_boot(release, root):
     """Ensure systemd-boot was configured correctly"""
@@ -439,6 +449,7 @@ options root=PARTUUID=%s %s""" % (uuid, recovery_flags))
     else:
         eprint("System.map checks out")
 
+
 def _check_for_laptop():
     """Check if the device we are installing is a laptop.
     Returns True if it is a laptop, returns False otherwise.
@@ -458,7 +469,7 @@ def handle_laptops(username):
         de_modify.for_laptop()
 
 
-def install(settings):
+def install(settings, local_repo):
     """Entry point for installation procedure"""
     processes_to_do = dir(MainInstallation)
     for each in range(len(processes_to_do) - 1, -1, -1):
@@ -466,7 +477,7 @@ def install(settings):
             del processes_to_do[each]
     MainInstallation(processes_to_do, settings)
     handle_laptops(settings["USERNAME"])
-    setup_lowlevel(settings["EFI"], settings["ROOT"])
+    setup_lowlevel(settings["EFI"], settings["ROOT"], local_repo)
     verify(settings["USERNAME"])
     if "PURGE" in settings:
         purge_package(settings["PURGE"])
@@ -474,6 +485,7 @@ def install(settings):
     if "OEM" in settings.values():
         with open("/etc/system-installer/oem-post-install.flag", "w") as file:
             file.write("")
+
 
 if __name__ == "__main__":
     # get length of argv
