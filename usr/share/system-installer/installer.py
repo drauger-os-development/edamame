@@ -246,10 +246,6 @@ def install(settings):
     if settings["UPDATES"] == "":
         common.eprint("$UPDATES is not set. Defaulting to false.")
         settings["UPDATES"] = False
-    # ues check_call(["arch-chroot", "python3", "/master.py", ...]) because it
-    # jumps through a lot of hoops for us.
-    # check_call(["arch-chroot", "python3", "/master.py", settings],
-    # stdout=stderr.buffer)
     # Copy live system networking settings into installed system
     shutil.rmtree("/mnt/etc/NetworkManager/system-connections")
     shutil.copytree("/etc/NetworkManager/system-connections",
