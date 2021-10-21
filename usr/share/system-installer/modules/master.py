@@ -225,37 +225,26 @@ def set_plymouth_theme():
     process.communicate(input=bytes("2\n", "utf-8"))
 
 
-def install_kernel(release, local_repo):
+def install_kernel(release):
     """Install kernel from kernel.tar.xz"""
     # we are going to do offline kernel installation from now on.
     # it's just easier and more reliable
     packages = ["linux-headers-" + release, "linux-image-" + release]
     install_command = ["dpkg", "-R", "--install"]
-    subprocess.check_call(["apt-get", "purge", "-y"] + packages, stdout=stderr.buffer)
+    subprocess.check_call(["apt-get", "purge", "-y"] + packages,
+                          stdout=stderr.buffer)
     subprocess.check_call(["apt-get", "autoremove", "-y", "--purge"],
                           stdout=stderr.buffer)
-    if not os.path.exists(local_repo):
-        eprint("EXTRACTING KERNEL.TAR.XZ")
-        tar_file = tar.open("kernel.tar.xz")
-        tar_file.extractall()
-        tar_file.close()
-        eprint("EXTRACTION COMPLETE")
-        subprocess.check_call(install_command + ["kernel/"],
-                              stdout=stderr.buffer)
-        rmtree("/kernel")
-        return
-    # Local repo exists. Use it
-    packages = [each for each in os.listdir(local_repo) if "linux-" in each]
-    subprocess.check_call(install_command + packages,
-                          stdout=stderr.buffer)
+    packages = [each for each in os.listdir("/repo") if "linux-" in each]
+    subprocess.check_call(install_command + packages, stdout=stderr.buffer)
 
 
-def install_bootloader(efi, root, release, local_repo):
+def install_bootloader(efi, root, release):
     """Determine whether bootloader needs to be systemd-boot (for UEFI)
     or GRUB (for BIOS)
     and install the correct one."""
     if efi not in ("NULL", None, "", False):
-        _install_systemd_boot(release, root, local_repo)
+        _install_systemd_boot(release, root)
     else:
         _install_grub(root)
 
@@ -281,7 +270,7 @@ def _install_grub(root):
                           stdout=stderr.buffer)
 
 
-def _install_systemd_boot(release, root, local_repo):
+def _install_systemd_boot(release, root):
     """set up and install systemd-boot"""
     try:
         os.mkdir("/boot/efi")
@@ -335,7 +324,7 @@ def _install_systemd_boot(release, root, local_repo):
         eprint("CHATTR FAILED ON loader.conf, setting octal permissions to 444")
         os.chmod("/boot/efi/loader/loader.conf", 0o444)
     install_command = ["dpkg", "-R", "--install"]
-    package = [each for each in os.listdir(local_repo) if "systemd-boot-manager" in each]
+    package = [each for each in os.listdir("/repo") if "systemd-boot-manager" in each]
     subprocess.check_call(install_command + package,
                           stdout=stderr.buffer)
     subprocess.check_call(["systemd-boot-manager", "-r"],
@@ -343,16 +332,16 @@ def _install_systemd_boot(release, root, local_repo):
     check_systemd_boot(release, root)
 
 
-def setup_lowlevel(efi, root, local_repo):
+def setup_lowlevel(efi, root):
     """Set up kernel and bootloader"""
     release = subprocess.check_output(["uname", "--release"]).decode()[0:-1]
-    install_kernel(release, local_repo)
+    install_kernel(release)
     set_plymouth_theme()
     __update__(91)
     eprint("\n    ###    MAKING INITRAMFS    ###    ")
     subprocess.check_call(["mkinitramfs", "-o", "/boot/initrd.img-" + release],
                           stdout=stderr.buffer)
-    install_bootloader(efi, root, release, local_repo)
+    install_bootloader(efi, root, release)
     sleep(0.5)
     os.symlink("/boot/initrd.img-" + release, "/boot/initrd.img")
     os.symlink("/boot/vmlinuz-" + release, "/boot/vmlinuz")
@@ -472,7 +461,7 @@ def handle_laptops(username):
         de_modify.for_laptop()
 
 
-def install(settings, local_repo):
+def install(settings):
     """Entry point for installation procedure"""
     processes_to_do = dir(MainInstallation)
     for each in range(len(processes_to_do) - 1, -1, -1):
@@ -480,7 +469,7 @@ def install(settings, local_repo):
             del processes_to_do[each]
     MainInstallation(processes_to_do, settings)
     handle_laptops(settings["USERNAME"])
-    setup_lowlevel(settings["EFI"], settings["ROOT"], local_repo)
+    setup_lowlevel(settings["EFI"], settings["ROOT"])
     verify(settings["USERNAME"])
     if "PURGE" in settings:
         purge_package(settings["PURGE"])

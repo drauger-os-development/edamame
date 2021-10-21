@@ -185,6 +185,26 @@ def install(settings):
     with open("/mnt/etc/fstab", "w+") as fstab:
         fstab.write(fstab_contents + "\n")
     __update__(34)
+    # STEP 5: Extract Tar ball if needed, copy files to installation drive
+    if not os.path.exists(local_repo):
+        eprint("EXTRACTING KERNEL.TAR.XZ")
+        tar_file = tar.open("/usr/share/system-installer/kernel.tar.xz")
+        tar_file.extractall(path="/")
+        tar_file.close()
+        eprint("EXTRACTION COMPLETE")
+        path = local_repo.split("/")
+        for each in enumerate(path):
+            os.mkdir("/".join(path[:each[0] + 1]))
+        os.mkdir(local_repo)
+        # Copy everything into local_repo at top level
+        # We COULD go ahead and copy everything where it needs to be, but that would
+        # make for more code and an extra check I don't wanna bother with right now
+        branches = os.listdir("/kernel")
+        for each in branches:
+            lv2 = os.listdir("/kernel/" + each)
+            for each1 in lv2:
+                shutil.move(f"/kernel/{each}/{each1}", f"{local_repo}/{each1}")
+    shutil.copytree(local_repo, "/mnt/repo")
     __update__(35)
     # STEP 6: Run Master script inside chroot
     # don't run it as a background process so we know when it gets done
@@ -248,7 +268,7 @@ def install(settings):
                 shutil.copytree(work_dir + "/assets/" + each,
                                 "/mnt/user-data/" + each)
     real_root = chroot.arch_chroot("/mnt")
-    modules.master.install(settings, config["local_repo"])
+    modules.master.install(settings)
     chroot.de_chroot(real_root, "/mnt")
     common.eprint("Resetting resolv.conf")
     remove("/mnt/etc/resolv.conf")
