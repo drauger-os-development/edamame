@@ -185,18 +185,6 @@ def install(settings):
     with open("/mnt/etc/fstab", "w+") as fstab:
         fstab.write(fstab_contents + "\n")
     __update__(34)
-    # STEP 5: copy scripts into chroot
-    file_list = listdir("/usr/share/system-installer/modules")
-    for each in range(len(file_list) - 1, -1, -1):
-        if "partitioner" in file_list[each]:
-            del file_list[each]
-    for each in file_list:
-        if each == "__pycache__":
-            continue
-        common.eprint("/usr/share/system-installer/modules/%s --> /mnt/%s" %
-                      (each, each))
-        shutil.copyfile("/usr/share/system-installer/modules/" + each,
-                        "/mnt/" + each)
     __update__(35)
     # STEP 6: Run Master script inside chroot
     # don't run it as a background process so we know when it gets done
@@ -262,16 +250,7 @@ def install(settings):
     real_root = chroot.arch_chroot("/mnt")
     modules.master.install(settings, config["local_repo"])
     chroot.de_chroot(real_root, "/mnt")
-    common.eprint("Removing installation scripts and resetting resolv.conf")
-    for each in file_list:
-        common.eprint("Removing /mnt/" + each)
-        try:
-            remove("/mnt/" + each)
-        except FileNotFoundError:
-            pass
-        except IsADirectoryError:
-            shutil.rmtree("/mnt/" + each)
-    __update__(92)
+    common.eprint("Resetting resolv.conf")
     remove("/mnt/etc/resolv.conf")
     shutil.move("/mnt/etc/resolv.conf.save", "/mnt/etc/resolv.conf")
     __update__(96)

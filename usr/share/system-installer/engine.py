@@ -135,13 +135,7 @@ if INSTALL:
         pid = process.pid
         SETTINGS["INTERNET"] = check_internet.has_internet()
         installer.install(SETTINGS)
-        file_list = listdir("/mnt")
-        for each in file_list:
-            if each[-3:] in (".sh", ".py", ".xz"):
-                try:
-                    remove("/mnt/" + each)
-                except FileNotFoundError:
-                    pass
+        os.remove("/mnt/repo")
         common.eprint("    ###    %s CLOSED    ###    " % (sys.argv[0]))
         try:
             copyfile("/tmp/system-installer.log",
