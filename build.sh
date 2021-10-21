@@ -17,7 +17,7 @@ mkdir ../"$FOLDER"
 # Instead of compiling, we are building a tar.xz archive of the latest kernel package
 # Don't make the archive if --pool passed
 if [ "$OPTIONS" != "--pool" ]; then
-	cd usr/share/system-installer/modules
+	cd usr/share/system-installer
 	echo -e "\t###\tDOWNLOADING\t###\t"
 	rsync -vr rsync://apt.draugeros.org/aptsync/pool/main/l/linux-upstream kernel
 	rsync -vr rsync://apt.draugeros.org/aptsync/pool/main/l/linux-meta kernel
