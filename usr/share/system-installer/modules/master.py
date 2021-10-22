@@ -230,13 +230,15 @@ def install_kernel(release):
     # we are going to do offline kernel installation from now on.
     # it's just easier and more reliable
     packages = ["linux-headers-" + release, "linux-image-" + release]
-    install_command = ["dpkg", "-R", "--install"]
+    install_command = ["dpkg", "--install"]
     subprocess.check_call(["apt-get", "purge", "-y"] + packages,
                           stdout=stderr.buffer)
     subprocess.check_call(["apt-get", "autoremove", "-y", "--purge"],
                           stdout=stderr.buffer)
     packages = [each for each in os.listdir("/repo") if "linux-" in each]
+    os.chdir("/repo")
     subprocess.check_call(install_command + packages, stdout=stderr.buffer)
+    os.chdir("/")
 
 
 def install_bootloader(efi, root, release):
@@ -323,10 +325,12 @@ def _install_systemd_boot(release, root):
     except subprocess.CalledProcessError:
         eprint("CHATTR FAILED ON loader.conf, setting octal permissions to 444")
         os.chmod("/boot/efi/loader/loader.conf", 0o444)
-    install_command = ["dpkg", "-R", "--install"]
+    install_command = ["dpkg", "--install"]
     package = [each for each in os.listdir("/repo") if "systemd-boot-manager" in each]
+    os.chdir("/repo")
     subprocess.check_call(install_command + package,
                           stdout=stderr.buffer)
+    os.chdir("/")
     subprocess.check_call(["systemd-boot-manager", "-r"],
                           stdout=stderr.buffer)
     check_systemd_boot(release, root)
