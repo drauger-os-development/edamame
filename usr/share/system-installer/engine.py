@@ -134,7 +134,7 @@ if INSTALL:
         process = subprocess.Popen("/usr/share/system-installer/progress.py")
         pid = process.pid
         SETTINGS["INTERNET"] = check_internet.has_internet()
-        installer.install(SETTINGS)
+        installer.install(SETTINGS, CONFIG["local_repo"])
         os.remove("/mnt/repo")
         common.eprint("    ###    %s CLOSED    ###    " % (sys.argv[0]))
         try:

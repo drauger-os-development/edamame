@@ -57,7 +57,7 @@ def __update__(percentage):
             progress.write(str(percentage))
 
 
-def install(settings):
+def install(settings, local_repo):
     """Begin installation proceidure
 
     settings should be a dictionary with the following values:
