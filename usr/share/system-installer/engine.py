@@ -28,7 +28,7 @@ import subprocess
 import os
 import json
 import tarfile as tar
-from shutil import copyfile, copytree
+import shutil
 import traceback
 import psutil
 import UI
@@ -109,7 +109,7 @@ try:
             try:
                 net_settings = os.listdir(work_dir + "/settings/network-settings")
                 if len(net_settings) > 0:
-                    copytree(net_settings + "/settings/network-settings",
+                    shutil.copytree(net_settings + "/settings/network-settings",
                              "/etc/NetworkManager/system-connections")
                     common.eprint("\t###\tNOTE: NETWORK SETTINGS COPIED TO LIVE SYSTEM\t###\t")
             except FileNotFoundError:
@@ -135,10 +135,10 @@ if INSTALL:
         pid = process.pid
         SETTINGS["INTERNET"] = check_internet.has_internet()
         installer.install(SETTINGS, CONFIG["local_repo"])
-        os.remove("/mnt/repo")
+        shutil.rmtree("/mnt/repo")
         common.eprint("    ###    %s CLOSED    ###    " % (sys.argv[0]))
         try:
-            copyfile("/tmp/system-installer.log",
+            shutil.copyfile("/tmp/system-installer.log",
                      "/mnt/var/log/system-installer.log")
         except FileNotFoundError:
             common.eprint("    ###    Log Not Found. Testing?    ###    ")
@@ -146,7 +146,7 @@ if INSTALL:
                 log.write("""Log was not created during installation.
 This is a stand-in file.
 """)
-            copyfile("/tmp/system-installer.log",
+            shutil.copyfile("/tmp/system-installer.log",
                      "/mnt/var/log/system-installer.log")
         subprocess.Popen(["su", "live", "-c",
                           "/usr/share/system-installer/success.py \'%s\'" % (json.dumps(SETTINGS))])
