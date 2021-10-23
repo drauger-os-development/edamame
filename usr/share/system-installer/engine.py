@@ -25,10 +25,10 @@
 from __future__ import print_function
 import sys
 import subprocess
-from os import path, listdir, remove, kill
+import os
 import json
 import tarfile as tar
-from shutil import copyfile, copytree
+import shutil
 import traceback
 import psutil
 import UI
@@ -48,10 +48,10 @@ if len(sys.argv) > 1:
     if sys.argv[1] == "--boot-time":
         # OEM post-install configuration, on-boot installation, and more
         # are handled here
-        if path.exists("/etc/system-installer/oem-post-install.flag"):
+        if os.path.exists("/etc/system-installer/oem-post-install.flag"):
             # OEM post installation configuration
             oem.post_install.UI.show_main()
-            remove("/etc/system-installer/oem-post-install.flag")
+            os.remove("/etc/system-installer/oem-post-install.flag")
             modules.purge.purge_package("system-installer")
             if "run_post_oem" in CONFIG:
                 subprocess.Popen(CONFIG["run_post_oem"])
@@ -74,7 +74,7 @@ for each in range(len(DISK) - 1, -1, -1):
 if len(DISK) < 1:
     UI.error.show_error("\n\tNo 32 GB or Larger Drives detected\t\n")
     sys.exit(2)
-if not check_kernel_versions.check_kernel_versions():
+if not check_kernel_versions.check_kernel_versions(CONFIG["local_repo"]):
     UI.error.show_error("""
 \t<b>Kernel Version Mismatch.</b>\t
 \tPlease reboot and retry installation.\t
@@ -94,7 +94,7 @@ try:
 \tIf your problem persists, please create an issue on our Github.\t
 """)
         sys.exit(2)
-    elif path.exists(SETTINGS):
+    elif os.path.exists(SETTINGS):
         if SETTINGS.split("/")[-1][-5:] == ".json":
             with open(SETTINGS, "r") as quick_install_file:
                 SETTINGS = json.load(quick_install_file)
@@ -102,14 +102,14 @@ try:
             tar_file = tar.open(name=SETTINGS)
             tar_file.extractall(path=work_dir)
             tar_file.close()
-            if path.exists(work_dir + "/settings/installation-settings.json"):
+            if os.path.exists(work_dir + "/settings/installation-settings.json"):
                 with open(work_dir + "/settings/installation-settings.json",
                           "r") as quick_install_file:
                     SETTINGS = json.load(quick_install_file)
             try:
-                net_settings = listdir(work_dir + "/settings/network-settings")
+                net_settings = os.listdir(work_dir + "/settings/network-settings")
                 if len(net_settings) > 0:
-                    copytree(net_settings + "/settings/network-settings",
+                    shutil.copytree(net_settings + "/settings/network-settings",
                              "/etc/NetworkManager/system-connections")
                     common.eprint("\t###\tNOTE: NETWORK SETTINGS COPIED TO LIVE SYSTEM\t###\t")
             except FileNotFoundError:
@@ -134,17 +134,11 @@ if INSTALL:
         process = subprocess.Popen("/usr/share/system-installer/progress.py")
         pid = process.pid
         SETTINGS["INTERNET"] = check_internet.has_internet()
-        installer.install(SETTINGS)
-        file_list = listdir("/mnt")
-        for each in file_list:
-            if each[-3:] in (".sh", ".py", ".xz"):
-                try:
-                    remove("/mnt/" + each)
-                except FileNotFoundError:
-                    pass
+        installer.install(SETTINGS, CONFIG["local_repo"])
+        shutil.rmtree("/mnt/repo")
         common.eprint("    ###    %s CLOSED    ###    " % (sys.argv[0]))
         try:
-            copyfile("/tmp/system-installer.log",
+            shutil.copyfile("/tmp/system-installer.log",
                      "/mnt/var/log/system-installer.log")
         except FileNotFoundError:
             common.eprint("    ###    Log Not Found. Testing?    ###    ")
@@ -152,13 +146,13 @@ if INSTALL:
                 log.write("""Log was not created during installation.
 This is a stand-in file.
 """)
-            copyfile("/tmp/system-installer.log",
+            shutil.copyfile("/tmp/system-installer.log",
                      "/mnt/var/log/system-installer.log")
         subprocess.Popen(["su", "live", "-c",
                           "/usr/share/system-installer/success.py \'%s\'" % (json.dumps(SETTINGS))])
-        kill(pid, 15)
+        os.kill(pid, 15)
     except Exception as error:
-        kill(pid, 15)
+        os.kill(pid, 15)
         common.eprint("\nAn Error has occured:\n%s\n" % (error))
         common.eprint(traceback.format_exc())
         print("\nAn Error has occured:\n%s\n" % (error))

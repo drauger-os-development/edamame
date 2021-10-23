@@ -1,6 +1,6 @@
 # Development Setup and Tools
 
-The following packages are required in order to do development for `system-istaller`. Most of these packages are available in most distributions of Linux and many come pre-installed in some distros.
+The following packages are required in order to do development for `system-installer`. Most of these packages are available in most distributions of Linux and many come pre-installed in some distros.
 
  * `python3`
  * `gir1.2-gtk-3.0`

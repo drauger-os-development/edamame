@@ -43,7 +43,6 @@ import de_control.modify as de_modify
 import modules.auto_login_set as auto_login_set
 import modules.make_swap as make_swap
 import modules.set_time as set_time
-import modules.systemd_boot_config as systemd_boot_config
 import modules.set_locale as set_locale
 import modules.install_updates as install_updates
 import modules.make_user as mkuser
@@ -225,22 +224,21 @@ def set_plymouth_theme():
                                stderr=subprocess.PIPE)
     process.communicate(input=bytes("2\n", "utf-8"))
 
+
 def install_kernel(release):
     """Install kernel from kernel.tar.xz"""
     # we are going to do offline kernel installation from now on.
     # it's just easier and more reliable
-    eprint("EXTRACTING KERNEL.TAR.XZ")
-    tar_file = tar.open("kernel.tar.xz")
-    tar_file.extractall()
-    tar_file.close()
-    eprint("EXTRACTION COMPLETE")
-    subprocess.check_call(["apt", "purge", "-y", "linux-headers-" + release,
-                           "linux-image-" + release], stdout=stderr.buffer)
-    subprocess.check_call(["apt", "autoremove", "-y", "--purge"],
+    packages = ["linux-headers-" + release, "linux-image-" + release]
+    install_command = ["dpkg", "--install"]
+    subprocess.check_call(["apt-get", "purge", "-y"] + packages,
                           stdout=stderr.buffer)
-    subprocess.check_call(["dpkg", "-R", "--install", "kernel/"],
+    subprocess.check_call(["apt-get", "autoremove", "-y", "--purge"],
                           stdout=stderr.buffer)
-    rmtree("/kernel")
+    packages = [each for each in os.listdir("/repo") if "linux-" in each]
+    os.chdir("/repo")
+    subprocess.check_call(install_command + packages, stdout=stderr.buffer)
+    os.chdir("/")
 
 
 def install_bootloader(efi, root, release):
@@ -251,6 +249,7 @@ def install_bootloader(efi, root, release):
         _install_systemd_boot(release, root)
     else:
         _install_grub(root)
+
 
 def _install_grub(root):
     """set up and install GRUB.
@@ -271,6 +270,7 @@ def _install_grub(root):
                            "--target=i386-pc", root], stdout=stderr.buffer)
     subprocess.check_call(["grub-mkconfig", "-o", "/boot/grub/grub.cfg"],
                           stdout=stderr.buffer)
+
 
 def _install_systemd_boot(release, root):
     """set up and install systemd-boot"""
@@ -318,15 +318,39 @@ def _install_systemd_boot(release, root):
         except FileExistsError:
             pass
     with open("/boot/efi/loader/loader.conf", "w+") as loader_conf:
-        loader_conf.write("default Drauger_OS\ntimeout 5\neditor 1")
+        loader_conf.write("default Drauger_OS\ntimeout 5\nconsole-mode 1\neditor 1")
     try:
         subprocess.check_call(["chattr", "-i", "/boot/efi/loader/loader.conf"],
                               stdout=stderr.buffer)
     except subprocess.CalledProcessError:
         eprint("CHATTR FAILED ON loader.conf, setting octal permissions to 444")
         os.chmod("/boot/efi/loader/loader.conf", 0o444)
-    systemd_boot_config.systemd_boot_config(root)
-    subprocess.check_call("/etc/kernel/postinst.d/zz-update-systemd-boot",
+    install_command = ["dpkg", "--install"]
+    packages = [each for each in os.listdir("/repo") if "systemd-boot-manager" in each]
+    os.chdir("/repo")
+    depends = subprocess.check_output(["dpkg", "-f"] + packages + ["depends"])
+    depends = depends.decode()[:-1].split(", ")
+    # List of dependencies
+    depends = [depends[each[0]].split(" ")[0] for each in enumerate(depends)]
+    # depends is just a list of package names. We now need to go through the list
+    # of files in this folder, and if the package name is in the file name, add
+    # it to the list `packages`
+    for each in os.listdir():
+        for each1 in depends:
+            if ((each1 in each) and (each not in packages)):
+                packages.append(each)
+                break
+    subprocess.check_call(install_command + packages,
+                          stdout=stderr.buffer)
+    os.chdir("/")
+    subprocess.check_call(["systemd-boot-manager", "-e"],
+                          stdout=stderr.buffer)
+    subprocess.check_call(["systemd-boot-manager", "-r"],
+                          stdout=stderr.buffer)
+    subprocess.check_call(["systemd-boot-manager",
+                           "--enforce-default-entry=enable"],
+                          stdout=stderr.buffer)
+    subprocess.check_call(["systemd-boot-manager", "-u"],
                           stdout=stderr.buffer)
     check_systemd_boot(release, root)
 
@@ -344,6 +368,7 @@ def setup_lowlevel(efi, root):
     sleep(0.5)
     os.symlink("/boot/initrd.img-" + release, "/boot/initrd.img")
     os.symlink("/boot/vmlinuz-" + release, "/boot/vmlinuz")
+
 
 def check_systemd_boot(release, root):
     """Ensure systemd-boot was configured correctly"""
@@ -439,6 +464,7 @@ options root=PARTUUID=%s %s""" % (uuid, recovery_flags))
     else:
         eprint("System.map checks out")
 
+
 def _check_for_laptop():
     """Check if the device we are installing is a laptop.
     Returns True if it is a laptop, returns False otherwise.
@@ -474,6 +500,7 @@ def install(settings):
     if "OEM" in settings.values():
         with open("/etc/system-installer/oem-post-install.flag", "w") as file:
             file.write("")
+
 
 if __name__ == "__main__":
     # get length of argv

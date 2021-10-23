@@ -23,7 +23,7 @@
 #
 """Main module controling the installation process"""
 from subprocess import Popen, check_output, check_call, CalledProcessError
-from os import mkdir, path, chdir, listdir, remove, symlink, chmod
+import os
 import shutil
 import tarfile as tar
 import json
@@ -52,12 +52,12 @@ def __update__(percentage):
         with open("/tmp/system-installer-progress.log", "w+") as progress:
             progress.write(str(percentage))
     except PermissionError:
-        chmod("/tmp/system-installer-progress.log", 0o666)
+        os.chmod("/tmp/system-installer-progress.log", 0o666)
         with open("/tmp/system-installer-progress.log", "w+") as progress:
             progress.write(str(percentage))
 
 
-def install(settings):
+def install(settings, local_repo):
     """Begin installation proceidure
 
     settings should be a dictionary with the following values:
@@ -100,24 +100,24 @@ def install(settings):
             auto_partitioner.make_part_boot(settings["ROOT"])
         else:
             auto_partitioner.make_part_boot(settings["EFI"])
-    if path.exists("/tmp/system-installer-progress.log"):
-        remove("/tmp/system-installer-progress.log")
+    if os.path.exists("/tmp/system-installer-progress.log"):
+        os.remove("/tmp/system-installer-progress.log")
     __update__(12)
     # STEP 2: Mount the new partitions
     __mount__(settings["ROOT"], "/mnt")
     if settings["EFI"] not in ("NULL", None, "", False):
         try:
-            mkdir("/mnt/boot")
+            os.mkdir("/mnt/boot")
         except FileExistsError:
             pass
         try:
-            mkdir("/mnt/boot/efi")
+            os.mkdir("/mnt/boot/efi")
         except FileExistsError:
             pass
         __mount__(settings["EFI"], "/mnt/boot/efi")
     if settings["HOME"] not in ("NULL", None, ""):
         try:
-            mkdir("/mnt/home")
+            os.mkdir("/mnt/home")
         except FileExistsError:
             common.eprint("/mnt/home exists when it shouldn't. We have issues...")
         __mount__(settings["HOME"], "/mnt/home")
@@ -129,38 +129,38 @@ def install(settings):
     __update__(14)
     # STEP 3: Unsquash the sqaushfs and get the files where they need to go
     squashfs = ""
-    with open("/etc/system-installer/settings.json", "r") as config:
-        squashfs = json.loads(config.read())["squashfs_Location"]
-    if not path.exists(squashfs):
+    with open("/etc/system-installer/settings.json", "r") as file:
+        config = json.loads(file.read())
+    if not os.path.exists(config["squashfs_Location"]):
         common.eprint("\n    SQUASHFS FILE DOES NOT EXIST    \n")
         UI.error.show_error("\n\tSQUASHFS FILE DOES NOT EXIST\t\n")
     __update__(17)
-    chdir("/mnt")
+    os.chdir("/mnt")
     common.eprint("CLEANING INSTALLATION DIRECTORY")
-    death_row = listdir()
+    death_row = os.listdir()
     for each in death_row:
         if each not in ("boot", "home"):
             common.eprint("Removing " + each)
             try:
                 shutil.rmtree(each)
             except NotADirectoryError:
-                remove(each)
+                os.remove(each)
     try:
-        chdir("/mnt/boot")
-        death_row = listdir()
+        os.chdir("/mnt/boot")
+        death_row = os.listdir()
         for each in death_row:
             if each != "efi":
                 try:
                     shutil.rmtree(each)
                 except NotADirectoryError:
-                    remove(each)
-        chdir("/mnt")
+                    os.remove(each)
+        os.chdir("/mnt")
     except FileNotFoundError:
         pass
     common.eprint("    ###    EXTRACTING SQUASHFS    ###    ")
-    check_call(["unsquashfs", squashfs])
+    check_call(["unsquashfs", config["squashfs_Location"]])
     common.eprint("    ###    EXTRACTION COMPLETE    ###    ")
-    file_list = listdir("/mnt/squashfs-root")
+    file_list = os.listdir("/mnt/squashfs-root")
     for each in file_list:
         try:
             common.eprint("/mnt/squashfs-root/" + each + " --> /mnt/" + each)
@@ -169,34 +169,42 @@ def install(settings):
             common.eprint("ERROR: %s" % (e))
     shutil.rmtree("/mnt/squashfs-root")
     try:
-        mkdir("/mnt/boot")
+        os.mkdir("/mnt/boot")
     except FileExistsError:
         common.eprint("/mnt/boot already created")
     shutil.copyfile("/tmp/system-installer-progress.log",
                     "/mnt/tmp/system-installer-progress.log")
-    remove("/tmp/system-installer-progress.log")
-    symlink("/mnt/tmp/system-installer-progress.log",
+    os.remove("/tmp/system-installer-progress.log")
+    os.symlink("/mnt/tmp/system-installer-progress.log",
             "/tmp/system-installer-progress.log")
     __update__(32)
     # STEP 4: Update fstab
     common.eprint("    ###    Updating FSTAB    ###    ")
-    remove("/mnt/etc/fstab")
+    os.remove("/mnt/etc/fstab")
     fstab_contents = check_output(["genfstab", "-U", "/mnt"]).decode()
     with open("/mnt/etc/fstab", "w+") as fstab:
         fstab.write(fstab_contents + "\n")
     __update__(34)
-    # STEP 5: copy scripts into chroot
-    file_list = listdir("/usr/share/system-installer/modules")
-    for each in range(len(file_list) - 1, -1, -1):
-        if "partitioner" in file_list[each]:
-            del file_list[each]
-    for each in file_list:
-        if each == "__pycache__":
-            continue
-        common.eprint("/usr/share/system-installer/modules/%s --> /mnt/%s" %
-                      (each, each))
-        shutil.copyfile("/usr/share/system-installer/modules/" + each,
-                        "/mnt/" + each)
+    # STEP 5: Extract Tar ball if needed, copy files to installation drive
+    if not os.path.exists(local_repo):
+        eprint("EXTRACTING KERNEL.TAR.XZ")
+        tar_file = tar.open("/usr/share/system-installer/kernel.tar.xz")
+        tar_file.extractall(path="/")
+        tar_file.close()
+        eprint("EXTRACTION COMPLETE")
+        path = local_repo.split("/")
+        for each in enumerate(path):
+            os.mkdir("/".join(path[:each[0] + 1]))
+        os.mkdir(local_repo)
+        # Copy everything into local_repo at top level
+        # We COULD go ahead and copy everything where it needs to be, but that would
+        # make for more code and an extra check I don't wanna bother with right now
+        branches = os.listdir("/kernel")
+        for each in branches:
+            lv2 = os.listdir("/kernel/" + each)
+            for each1 in lv2:
+                shutil.move(f"/kernel/{each}/{each1}", f"{local_repo}/{each1}")
+    shutil.copytree(local_repo, "/mnt/repo")
     __update__(35)
     # STEP 6: Run Master script inside chroot
     # don't run it as a background process so we know when it gets done
@@ -238,19 +246,15 @@ def install(settings):
     if settings["UPDATES"] == "":
         common.eprint("$UPDATES is not set. Defaulting to false.")
         settings["UPDATES"] = False
-    # ues check_call(["arch-chroot", "python3", "/master.py", ...]) because it
-    # jumps through a lot of hoops for us.
-    # check_call(["arch-chroot", "python3", "/master.py", settings],
-    # stdout=stderr.buffer)
     # Copy live system networking settings into installed system
     shutil.rmtree("/mnt/etc/NetworkManager/system-connections")
     shutil.copytree("/etc/NetworkManager/system-connections",
                     "/mnt/etc/NetworkManager/system-connections")
-    if path.exists(work_dir) and path.exists(work_dir + "/assets"):
-        ls = listdir(work_dir + "/assets")
-        mkdir("/mnt/user-data")
+    if os.path.exists(work_dir) and os.path.exists(work_dir + "/assets"):
+        ls = os.listdir(work_dir + "/assets")
+        os.mkdir("/mnt/user-data")
         if "master" in ls:
-            file_type = listdir(work_dir + "/assets/master")[0].split("/")[-1].split(".")[-1]
+            file_type = os.listdir(work_dir + "/assets/master")[0].split("/")[-1].split(".")[-1]
             shutil.copyfile(work_dir + "/assets/master/wallpaper." + file_type,
                             "/mnt/user-data/wallpaper." + file_type)
             shutil.copyfile(work_dir + "/assets/screens.list",
@@ -262,48 +266,17 @@ def install(settings):
     real_root = chroot.arch_chroot("/mnt")
     modules.master.install(settings)
     chroot.de_chroot(real_root, "/mnt")
-    common.eprint("Removing installation scripts and resetting resolv.conf")
-    for each in file_list:
-        common.eprint("Removing /mnt/" + each)
-        try:
-            remove("/mnt/" + each)
-        except FileNotFoundError:
-            pass
-        except IsADirectoryError:
-            shutil.rmtree("/mnt/" + each)
-    __update__(92)
-    remove("/mnt/etc/resolv.conf")
+    common.eprint("Resetting resolv.conf")
+    os.remove("/mnt/etc/resolv.conf")
     shutil.move("/mnt/etc/resolv.conf.save", "/mnt/etc/resolv.conf")
     __update__(96)
-    file_list = listdir("/mnt/boot")
-    for each in range(len(file_list) - 1, -1, -1):
-        if "vmlinuz" not in file_list[each]:
-            del file_list[each]
-    if len(file_list) == 0:
-        common.eprint("    ###    KERNEL NOT INSTALLED. CORRECTING . . .    ###    ")
-        shutil.copyfile("/usr/share/system-installer/modules/kernel.tar.xz",
-                        "/mnt/kernel.tar.xz")
-        root_dir = chroot.arch_chroot("/mnt")
-        tar_file = tar.open("kernel.tar.xz")
-        tar_file.extractall()
-        tar_file.close()
-        check_call(["dpkg", "-R", "--install", "/kernel"])
-        chroot.de_chroot(root_dir, "/mnt")
-        shutil.rmtree("/mnt/kernel")
-        remove("/mnt/kernel.tar.xz")
     try:
-        file_list = listdir("/mnt/boot/efi/loader/entries")
+        file_list = os.listdir("/mnt/boot/efi/loader/entries")
     except FileNotFoundError:
         file_list = []
     if ((len(file_list) == 0) and (settings["EFI"] not in (None, "", "NULL", False))):
         common.eprint("    ###    SYSTEMD-BOOT NOT CONFIGURED. CORRECTING . . .    ###    ")
-        shutil.copyfile("/usr/share/system-installer/modules/systemd_boot_config.py",
-                        "/mnt/systemd_boot_config.py")
-        check_call(["arch-chroot", "/mnt", "python3",
-                    "/systemd_boot_config.py", settings["ROOT"]])
-        check_call(["arch-chroot", "/mnt",
-                    "/etc/kernel/postinst.d/zz-update-systemd-boot"])
-        remove("/mnt/systemd_boot_config.py")
+        check_call(["arch-chroot", "/mnt", "systemd-boot-manager", "-r"])
     try:
         shutil.rmtree("/mnt/home/" + settings["USERNAME"] +
                       "/.config/xfce4/panel/launcher-3")

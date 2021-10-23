@@ -1,5 +1,6 @@
 {
 	"squashfs_Location": "/run/live/medium/live/filesystem.squashfs",
+	"local_repo": "/run/live/medium/repo",
 	"distro": "Drauger OS",
 	"report": {
 				"recv_keys": "https://download.draugeros.org/keys/public_keys.asc",
