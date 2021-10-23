@@ -326,9 +326,21 @@ def _install_systemd_boot(release, root):
         eprint("CHATTR FAILED ON loader.conf, setting octal permissions to 444")
         os.chmod("/boot/efi/loader/loader.conf", 0o444)
     install_command = ["dpkg", "--install"]
-    package = [each for each in os.listdir("/repo") if "systemd-boot-manager" in each]
+    packages = [each for each in os.listdir("/repo") if "systemd-boot-manager" in each]
     os.chdir("/repo")
-    subprocess.check_call(install_command + package,
+    depends = subprocess.check_output(["dpkg", "-f"] + package + ["depends"])
+    depends = depends.decode()[:-1].split(", ")
+    # List of dependencies
+    depends = [depends[each[0]].split(" ") for each in enumerate(depends)]
+    # depends is just a list of package names. We now need to go through the list
+    # of files in this folder, and if the package name is in the file name, add
+    # it to the list `packages`
+    for each in os.listdir():
+        for each1 in depends:
+            if ((each1 in each) and (each not in packages)):
+                packages.append(each)
+                break
+    subprocess.check_call(install_command + packages,
                           stdout=stderr.buffer)
     os.chdir("/")
     subprocess.check_call(["systemd-boot-manager", "-r"],
