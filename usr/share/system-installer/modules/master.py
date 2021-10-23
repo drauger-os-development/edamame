@@ -343,9 +343,12 @@ def _install_systemd_boot(release, root):
     subprocess.check_call(install_command + packages,
                           stdout=stderr.buffer)
     os.chdir("/")
+    subprocess.check_call(["systemd-boot-manager", "-e"],
+                          stdout=stderr.buffer)
     subprocess.check_call(["systemd-boot-manager", "-r"],
                           stdout=stderr.buffer)
-    subprocess.check_call(["systemd-boot-manager", "-e"],
+    subprocess.check_call(["systemd-boot-manager",
+                           "--enforce-default-entry=enable"],
                           stdout=stderr.buffer)
     subprocess.check_call(["systemd-boot-manager", "-u"],
                           stdout=stderr.buffer)
