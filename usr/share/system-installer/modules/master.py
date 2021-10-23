@@ -331,7 +331,7 @@ def _install_systemd_boot(release, root):
     depends = subprocess.check_output(["dpkg", "-f"] + packages + ["depends"])
     depends = depends.decode()[:-1].split(", ")
     # List of dependencies
-    depends = [depends[each[0]].split(" ") for each in enumerate(depends)]
+    depends = [depends[each[0]].split(" ")[0] for each in enumerate(depends)]
     # depends is just a list of package names. We now need to go through the list
     # of files in this folder, and if the package name is in the file name, add
     # it to the list `packages`
