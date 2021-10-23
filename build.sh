@@ -94,6 +94,13 @@ if [ -d srv ]; then
 	cp -R srv ../"$FOLDER"/srv
 fi
 cp -R DEBIAN ../"$FOLDER"/DEBIAN
+mkdir -p usr/share/doc/$PAK
+git log > usr/share/doc/$PAK/changelog
+cd usr/share/doc/$PAK
+tar --verbose --create --xz -f changelog.gz changelog
+rm changelog
+cd ../../../..
+base="$pwd"
 cd ..
 #DELETE STUFF HERE
 if [ "$OPTIONS" != "--pool" ]; then
