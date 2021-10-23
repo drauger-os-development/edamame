@@ -39,5 +39,7 @@ This drawback is in place for a number of reasons:
  * `systemd-boot` does not support BIOS
  * `GRUB` is a pain on UEFI
 
-### +40 MB *.deb
+### Max 40+ MB *.deb
 The *.deb is currently +40 MB because it packs a kernel to install inside the *.deb file.
+
+This can be circumvented by passing the `--pool` flag to `build.sh`, and results in a *.deb with no kernel archive. To use this DEB, please be sure to have a folder in your ISO storing all necessary packages (kernel and systemd-boot-manager) and have that folder defined in `etc/system-installer/settings.json`. 
