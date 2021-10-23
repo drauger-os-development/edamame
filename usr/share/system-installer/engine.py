@@ -25,7 +25,7 @@
 from __future__ import print_function
 import sys
 import subprocess
-from os import path, listdir, remove, kill
+import os
 import json
 import tarfile as tar
 from shutil import copyfile, copytree
@@ -48,10 +48,10 @@ if len(sys.argv) > 1:
     if sys.argv[1] == "--boot-time":
         # OEM post-install configuration, on-boot installation, and more
         # are handled here
-        if path.exists("/etc/system-installer/oem-post-install.flag"):
+        if os.path.exists("/etc/system-installer/oem-post-install.flag"):
             # OEM post installation configuration
             oem.post_install.UI.show_main()
-            remove("/etc/system-installer/oem-post-install.flag")
+            os.remove("/etc/system-installer/oem-post-install.flag")
             modules.purge.purge_package("system-installer")
             if "run_post_oem" in CONFIG:
                 subprocess.Popen(CONFIG["run_post_oem"])
@@ -94,7 +94,7 @@ try:
 \tIf your problem persists, please create an issue on our Github.\t
 """)
         sys.exit(2)
-    elif path.exists(SETTINGS):
+    elif os.path.exists(SETTINGS):
         if SETTINGS.split("/")[-1][-5:] == ".json":
             with open(SETTINGS, "r") as quick_install_file:
                 SETTINGS = json.load(quick_install_file)
@@ -102,12 +102,12 @@ try:
             tar_file = tar.open(name=SETTINGS)
             tar_file.extractall(path=work_dir)
             tar_file.close()
-            if path.exists(work_dir + "/settings/installation-settings.json"):
+            if os.path.exists(work_dir + "/settings/installation-settings.json"):
                 with open(work_dir + "/settings/installation-settings.json",
                           "r") as quick_install_file:
                     SETTINGS = json.load(quick_install_file)
             try:
-                net_settings = listdir(work_dir + "/settings/network-settings")
+                net_settings = os.listdir(work_dir + "/settings/network-settings")
                 if len(net_settings) > 0:
                     copytree(net_settings + "/settings/network-settings",
                              "/etc/NetworkManager/system-connections")
@@ -150,9 +150,9 @@ This is a stand-in file.
                      "/mnt/var/log/system-installer.log")
         subprocess.Popen(["su", "live", "-c",
                           "/usr/share/system-installer/success.py \'%s\'" % (json.dumps(SETTINGS))])
-        kill(pid, 15)
+        os.kill(pid, 15)
     except Exception as error:
-        kill(pid, 15)
+        os.kill(pid, 15)
         common.eprint("\nAn Error has occured:\n%s\n" % (error))
         common.eprint(traceback.format_exc())
         print("\nAn Error has occured:\n%s\n" % (error))
