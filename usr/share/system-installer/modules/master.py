@@ -345,6 +345,10 @@ def _install_systemd_boot(release, root):
     os.chdir("/")
     subprocess.check_call(["systemd-boot-manager", "-r"],
                           stdout=stderr.buffer)
+    subprocess.check_call(["systemd-boot-manager", "-e"],
+                          stdout=stderr.buffer)
+    subprocess.check_call(["systemd-boot-manager", "-u"],
+                          stdout=stderr.buffer)
     check_systemd_boot(release, root)
 
 
