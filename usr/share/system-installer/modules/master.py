@@ -328,7 +328,7 @@ def _install_systemd_boot(release, root):
     install_command = ["dpkg", "--install"]
     packages = [each for each in os.listdir("/repo") if "systemd-boot-manager" in each]
     os.chdir("/repo")
-    depends = subprocess.check_output(["dpkg", "-f"] + package + ["depends"])
+    depends = subprocess.check_output(["dpkg", "-f"] + packages + ["depends"])
     depends = depends.decode()[:-1].split(", ")
     # List of dependencies
     depends = [depends[each[0]].split(" ") for each in enumerate(depends)]
