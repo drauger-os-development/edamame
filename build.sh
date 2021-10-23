@@ -97,7 +97,7 @@ cp -R DEBIAN ../"$FOLDER"/DEBIAN
 mkdir -p usr/share/doc/$PAK
 git log > usr/share/doc/$PAK/changelog
 cd usr/share/doc/$PAK
-tar --verbose --create --xz -f changelog.gz changelog
+tar --verbose --create --xz -f changelog.gz changelog 1>/dev/null
 rm changelog
 cd ../../../..
 base="$pwd"
