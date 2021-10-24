@@ -38,7 +38,6 @@ import tarfile as tar
 import de_control.modify as de_modify
 
 
-
 # import our own programs
 import modules.auto_login_set as auto_login_set
 import modules.make_swap as make_swap
@@ -49,6 +48,7 @@ import modules.make_user as mkuser
 import modules.install_extras as install_extras
 from modules.verify_install import verify
 from modules.purge import purge_package
+
 
 def eprint(*args, **kwargs):
     """Make it easier for us to print to stderr"""
@@ -63,6 +63,7 @@ def __update__(percentage):
         os.chmod("/tmp/system-installer-progress.log", 0o666)
         with open("/tmp/system-installer-progress.log", "w+") as progress:
             progress.write(str(percentage))
+
 
 class MainInstallation():
     """Main Installation Procedure, minus low-level stuff"""
@@ -79,8 +80,8 @@ class MainInstallation():
         offset = 39
         ending = 51
         iterator = round(ending / len(processes_to_do))
-        # We COULD set point equal to iterator, but we don't want the iterator to change,
-        # so re-doing the math is safer, albiet slower.
+        # We COULD set point equal to iterator, but we don't want the iterator
+        # to change, so re-doing the math is safer, albiet slower.
         point = round(ending / len(processes_to_do))
         while len(processes_to_do) > 0:
             for each in range(len(processes_to_do) - 1, -1, -1):
@@ -193,19 +194,20 @@ BACKSPACE=\"guess\"
             subprocess.Popen(["udevadm", "trigger", "--subsystem-match=input",
                               "--action=change"], stdout=stderr.buffer)
 
-    def remove_launcher(USERNAME):
+    def remove_launcher(USER):
         """Remove system installer desktop launcher"""
         try:
             os.remove("/home/live/Desktop/system-installer.desktop")
         except FileNotFoundError:
             try:
-                os.remove("/home/%s/Desktop/system-installer.desktop" % (USERNAME))
+                os.remove("/home/%s/Desktop/system-installer.desktop" % (USER))
             except FileNotFoundError:
                 try:
-                    rmtree("/home/%s/.config/xfce4/panel/launcher-3" % (USERNAME))
+                    rmtree("/home/%s/.config/xfce4/panel/launcher-3" % (USER))
                 except FileNotFoundError:
                     eprint("""Cannot find launcher for system-installer.
 User will need to remove manually.""")
+
 
 def set_plymouth_theme():
     """Ensure the plymouth theme is set correctly"""
@@ -214,7 +216,8 @@ def set_plymouth_theme():
                       "default.plymouth",
                       "/usr/share/plymouth/themes/drauger-theme/drauger-theme.plymouth",
                       "100", "--slave",
-                      "/usr/share/plymouth/themes/default.grub", "default.plymouth.grub",
+                      "/usr/share/plymouth/themes/default.grub",
+                      "default.plymouth.grub",
                       "/usr/share/plymouth/themes/drauger-theme/drauger-theme.grub"],
                      stdout=stderr.buffer)
     process = subprocess.Popen(["update-alternatives", "--config",
@@ -318,7 +321,8 @@ def _install_systemd_boot(release, root):
         except FileExistsError:
             pass
     with open("/boot/efi/loader/loader.conf", "w+") as loader_conf:
-        loader_conf.write("default Drauger_OS\ntimeout 5\nconsole-mode 1\neditor 1")
+        loader_conf.write("default Drauger_OS\n")
+        loader_conf.write("timeout 5\nconsole-mode 1\neditor 1")
     try:
         subprocess.check_call(["chattr", "-i", "/boot/efi/loader/loader.conf"],
                               stdout=stderr.buffer)
@@ -350,6 +354,10 @@ def _install_systemd_boot(release, root):
     subprocess.check_call(["systemd-boot-manager",
                            "--enforce-default-entry=enable"],
                           stdout=stderr.buffer)
+    # This lib didn't exist before we installed this package.
+    # So we can only now import it
+    import systemd_boot_manager
+    systemd_boot_manager.update_defaults_file(systemd_boot_manager.DISTRO + ".conf")
     subprocess.check_call(["systemd-boot-manager", "-u"],
                           stdout=stderr.buffer)
     check_systemd_boot(release, root)
@@ -384,7 +392,8 @@ def check_systemd_boot(release, root):
         # Write standard boot conf if it doesn't exist
         eprint("Standard Systemd-boot entry non-existant")
         try:
-            with open("/boot/efi/loader/entries/Drauger_OS.conf", "w+") as main_conf:
+            with open("/boot/efi/loader/entries/Drauger_OS.conf",
+                      "w+") as main_conf:
                 main_conf.write("""title   Drauger OS
 linux   /Drauger_OS/vmlinuz
 initrd  /Drauger_OS/initrd.img
@@ -401,7 +410,8 @@ options root=PARTUUID=%s %s""" % (uuid, root_flags))
         eprint("Recovery Systemd-boot entry non-existant")
         try:
             # Write recovery boot conf if it doesn't exist
-            with open("/boot/efi/loader/entries/Drauger_OS_Recovery.conf", "w+") as main_conf:
+            with open("/boot/efi/loader/entries/Drauger_OS_Recovery.conf",
+                      "w+") as main_conf:
                 main_conf.write("""title   Drauger OS Recovery
 linux   /Drauger_OS/vmlinuz
 initrd  /Drauger_OS/initrd.img
