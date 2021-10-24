@@ -354,7 +354,8 @@ def _install_systemd_boot(release, root):
     subprocess.check_call(["systemd-boot-manager",
                            "--enforce-default-entry=enable"],
                           stdout=stderr.buffer)
-    # This lib didn't exist before we installed this package. So we can only now import it
+    # This lib didn't exist before we installed this package.
+    # So we can only now import it
     import systemd_boot_manager
     systemd_boot_manager.update_defaults_file(systemd_boot_manager.DISTRO + ".conf")
     subprocess.check_call(["systemd-boot-manager", "-u"],
@@ -391,7 +392,8 @@ def check_systemd_boot(release, root):
         # Write standard boot conf if it doesn't exist
         eprint("Standard Systemd-boot entry non-existant")
         try:
-            with open("/boot/efi/loader/entries/Drauger_OS.conf", "w+") as main_conf:
+            with open("/boot/efi/loader/entries/Drauger_OS.conf",
+                      "w+") as main_conf:
                 main_conf.write("""title   Drauger OS
 linux   /Drauger_OS/vmlinuz
 initrd  /Drauger_OS/initrd.img
@@ -408,7 +410,8 @@ options root=PARTUUID=%s %s""" % (uuid, root_flags))
         eprint("Recovery Systemd-boot entry non-existant")
         try:
             # Write recovery boot conf if it doesn't exist
-            with open("/boot/efi/loader/entries/Drauger_OS_Recovery.conf", "w+") as main_conf:
+            with open("/boot/efi/loader/entries/Drauger_OS_Recovery.conf",
+                      "w+") as main_conf:
                 main_conf.write("""title   Drauger OS Recovery
 linux   /Drauger_OS/vmlinuz
 initrd  /Drauger_OS/initrd.img
