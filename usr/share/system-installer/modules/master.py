@@ -38,7 +38,6 @@ import tarfile as tar
 import de_control.modify as de_modify
 
 
-
 # import our own programs
 import modules.auto_login_set as auto_login_set
 import modules.make_swap as make_swap
@@ -49,6 +48,7 @@ import modules.make_user as mkuser
 import modules.install_extras as install_extras
 from modules.verify_install import verify
 from modules.purge import purge_package
+
 
 def eprint(*args, **kwargs):
     """Make it easier for us to print to stderr"""
@@ -63,6 +63,7 @@ def __update__(percentage):
         os.chmod("/tmp/system-installer-progress.log", 0o666)
         with open("/tmp/system-installer-progress.log", "w+") as progress:
             progress.write(str(percentage))
+
 
 class MainInstallation():
     """Main Installation Procedure, minus low-level stuff"""
@@ -206,6 +207,7 @@ BACKSPACE=\"guess\"
                 except FileNotFoundError:
                     eprint("""Cannot find launcher for system-installer.
 User will need to remove manually.""")
+
 
 def set_plymouth_theme():
     """Ensure the plymouth theme is set correctly"""
