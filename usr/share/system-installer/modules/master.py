@@ -80,8 +80,8 @@ class MainInstallation():
         offset = 39
         ending = 51
         iterator = round(ending / len(processes_to_do))
-        # We COULD set point equal to iterator, but we don't want the iterator to change,
-        # so re-doing the math is safer, albiet slower.
+        # We COULD set point equal to iterator, but we don't want the iterator
+        # to change, so re-doing the math is safer, albiet slower.
         point = round(ending / len(processes_to_do))
         while len(processes_to_do) > 0:
             for each in range(len(processes_to_do) - 1, -1, -1):
@@ -194,16 +194,16 @@ BACKSPACE=\"guess\"
             subprocess.Popen(["udevadm", "trigger", "--subsystem-match=input",
                               "--action=change"], stdout=stderr.buffer)
 
-    def remove_launcher(USERNAME):
+    def remove_launcher(USER):
         """Remove system installer desktop launcher"""
         try:
             os.remove("/home/live/Desktop/system-installer.desktop")
         except FileNotFoundError:
             try:
-                os.remove("/home/%s/Desktop/system-installer.desktop" % (USERNAME))
+                os.remove("/home/%s/Desktop/system-installer.desktop" % (USER))
             except FileNotFoundError:
                 try:
-                    rmtree("/home/%s/.config/xfce4/panel/launcher-3" % (USERNAME))
+                    rmtree("/home/%s/.config/xfce4/panel/launcher-3" % (USER))
                 except FileNotFoundError:
                     eprint("""Cannot find launcher for system-installer.
 User will need to remove manually.""")
@@ -216,7 +216,8 @@ def set_plymouth_theme():
                       "default.plymouth",
                       "/usr/share/plymouth/themes/drauger-theme/drauger-theme.plymouth",
                       "100", "--slave",
-                      "/usr/share/plymouth/themes/default.grub", "default.plymouth.grub",
+                      "/usr/share/plymouth/themes/default.grub",
+                      "default.plymouth.grub",
                       "/usr/share/plymouth/themes/drauger-theme/drauger-theme.grub"],
                      stdout=stderr.buffer)
     process = subprocess.Popen(["update-alternatives", "--config",
@@ -320,7 +321,8 @@ def _install_systemd_boot(release, root):
         except FileExistsError:
             pass
     with open("/boot/efi/loader/loader.conf", "w+") as loader_conf:
-        loader_conf.write("default Drauger_OS\ntimeout 5\nconsole-mode 1\neditor 1")
+        loader_conf.write("default Drauger_OS\n")
+        loader_conf.write("timeout 5\nconsole-mode 1\neditor 1")
     try:
         subprocess.check_call(["chattr", "-i", "/boot/efi/loader/loader.conf"],
                               stdout=stderr.buffer)
