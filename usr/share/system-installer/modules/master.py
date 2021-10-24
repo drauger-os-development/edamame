@@ -350,6 +350,9 @@ def _install_systemd_boot(release, root):
     subprocess.check_call(["systemd-boot-manager",
                            "--enforce-default-entry=enable"],
                           stdout=stderr.buffer)
+    # This lib didn't exist before we installed this package. So we can only now import it
+    import systemd_boot_manager
+    systemd_boot_manager.update_defaults_file(systemd_boot_manager.DISTRO + ".conf")
     subprocess.check_call(["systemd-boot-manager", "-u"],
                           stdout=stderr.buffer)
     check_systemd_boot(release, root)
