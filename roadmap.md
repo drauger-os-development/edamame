@@ -330,7 +330,6 @@
 ## main.py
 | Function Name | Pylint | Unit/Doc Tests | Type Hinting |
 | --- | --- | --- | --- |
-| eprint |     |     |     |
 | has_special_character |     |     |     |
 | Main.init |    |     |     |
 | Main.set_default_margins |     |     |     |
