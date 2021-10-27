@@ -27,7 +27,7 @@ import sys
 import re
 import json
 import os
-import si-utilities
+import si_utilities
 from subprocess import Popen, check_output, DEVNULL
 import gi
 gi.require_version('Gtk', '3.0')
