@@ -5,6 +5,7 @@ The following packages are required in order to do development for `system-insta
  * `python3`
  * `gir1.2-gtk-3.0`
  * `p7zip-full`
+ * `python3-parted`
 
 The following are not required but may help out
  * `arch-install-scripts`
