@@ -194,16 +194,16 @@ BACKSPACE=\"guess\"
             subprocess.Popen(["udevadm", "trigger", "--subsystem-match=input",
                               "--action=change"], stdout=stderr.buffer)
 
-    def remove_launcher(USER):
+    def remove_launcher(USERNAME):
         """Remove system installer desktop launcher"""
         try:
             os.remove("/home/live/Desktop/system-installer.desktop")
         except FileNotFoundError:
             try:
-                os.remove("/home/%s/Desktop/system-installer.desktop" % (USER))
+                os.remove("/home/%s/Desktop/system-installer.desktop" % (USERNAME))
             except FileNotFoundError:
                 try:
-                    rmtree("/home/%s/.config/xfce4/panel/launcher-3" % (USER))
+                    rmtree("/home/%s/.config/xfce4/panel/launcher-3" % (USERNAME))
                 except FileNotFoundError:
                     eprint("""Cannot find launcher for system-installer.
 User will need to remove manually.""")
