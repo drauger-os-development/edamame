@@ -27,7 +27,7 @@ import sys
 import re
 import json
 import os
-import si_utilities
+import common
 from subprocess import Popen, check_output, DEVNULL
 import gi
 gi.require_version('Gtk', '3.0')
@@ -216,7 +216,7 @@ class Main(Gtk.Window):
 
     def select_config(self, widget):
         """Quick Install File Selection Window"""
-        si_utilties.eprint("\t###\tQUICK INSTALL MODE ACTIVATED\t###\t")
+        common.eprint("\t###\tQUICK INSTALL MODE ACTIVATED\t###\t")
         dialog = Gtk.FileChooserDialog("System Installer", self,
                                        Gtk.FileChooserAction.OPEN,
                                        (Gtk.STOCK_CANCEL,
