@@ -27,17 +27,12 @@ import sys
 import re
 import json
 import os
+import common
 from subprocess import Popen, check_output, DEVNULL
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 import auto_partitioner
-
-
-def eprint(*args, **kwargs):
-    """Make it easier for us to print to stderr"""
-    print(*args, file=sys.stderr, **kwargs)
-
 
 def has_special_character(input_string):
     """Check for special characters"""
@@ -221,7 +216,7 @@ class Main(Gtk.Window):
 
     def select_config(self, widget):
         """Quick Install File Selection Window"""
-        eprint("\t###\tQUICK INSTALL MODE ACTIVATED\t###\t")
+        common.eprint("\t###\tQUICK INSTALL MODE ACTIVATED\t###\t")
         dialog = Gtk.FileChooserDialog("System Installer", self,
                                        Gtk.FileChooserAction.OPEN,
                                        (Gtk.STOCK_CANCEL,
