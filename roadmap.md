@@ -6,11 +6,6 @@
 
 # system-installer
 
-## si-utlities
-| Function Name | Pylint | Unit/Doc Tests | Type Hinting |
-| --- | --- | --- | --- |
-| eprint |     |     |     |
-
 ## auto_partitioner.py
 | Function Name | Pylint | Unit/Doc Tests | Type Hinting |
 | --- | --- | --- | --- |
