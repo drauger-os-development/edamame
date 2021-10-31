@@ -28,11 +28,17 @@ import re
 import json
 import os
 import common
-from subprocess import Popen, check_output, DEVNULL
+import subprocess
 import gi
-gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
 import auto_partitioner
+
+gi.require_version('Gtk', '3.0')
+
+from gi.repository import Gtk
+
+
+
+
 
 def has_special_character(input_string):
     """Check for special characters"""
@@ -545,7 +551,7 @@ class Main(Gtk.Window):
         self.data["AUTO_PART"] = True
 
         # Get a list of disks and their capacity
-        self.devices = json.loads(check_output(["lsblk", "-n", "-i", "--json",
+        self.devices = json.loads(subprocess.check_output(["lsblk", "-n", "-i", "--json",
                                                 "-o", "NAME,SIZE,TYPE"]).decode())
         self.devices = self.devices["blockdevices"]
         dev = []
@@ -1382,7 +1388,7 @@ Type. Minimum drives is: %s""" % (loops))
 
     def opengparted(self, button):
         """Open GParted"""
-        Popen("gparted", stdout=DEVNULL, stderr=DEVNULL)
+        Subprocess.Subprocess.Popen("gparted", stdout=SUBPROCESS.DEVNULL, stderr=SUBPROCESS.DEVNULL)
         self.data["AUTO_PART"] = False
         self.input_part("clicked")
 
