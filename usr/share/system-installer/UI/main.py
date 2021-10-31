@@ -1057,18 +1057,39 @@ Type. Minimum drives is: %s""" % (loops))
             self.main_menu("clicked")
 
 
+    def set_up_partitioner_label(self, additional_message = ""):
+        """prepare top label for display on manual partitioner
+
+        Keyword arguments:
+        additonal message -- any errors that need to be displayed below original message
+
+        Return value:
+        label -- the top label ready for additional formatting and display
+        """
+        label = Gtk.Label()
+
+        input_string = """
+    What are the mount points for the partitions you wish to be used?
+    Leave empty the partitions you don't want.
+    <b> / MUST BE USED </b>
+        """
+
+        if additional_message != "":
+            input_string = input_string + "\n     " + additional_message
+
+        label.set_markup(input_string)
+
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+
+        return label
+
+
     def input_part(self, button):
         """Manual Partitioning Input Window"""
         self.clear_window()
 
-        label = Gtk.Label()
-        label.set_markup("""
-    What are the mount points for the partitions you wish to be used?
-    Leave empty the partitions you don't want.
-    <b> / MUST BE USED </b>
-    """)
-        label.set_justify(Gtk.Justification.LEFT)
-        label = self._set_default_margins(label)
+        label = self.set_up_partitioner_label()
         self.grid.attach(label, 1, 1, 3, 1)
 
         label2 = Gtk.Label()
@@ -1148,16 +1169,7 @@ Type. Minimum drives is: %s""" % (loops))
         """Check device paths provided for manual partitioner"""
         if ((self.root.get_text() == "") or (
                 self.root.get_text()[0:5] != "/dev/")):
-            label = Gtk.Label()
-            label.set_markup("""
-    What are the mount points for the partitions you wish to be used?
-    Leave empty the partitions you don't want.
-    <b> / MUST BE USED </b>
-
-    / NOT SET
-    """)
-            label.set_justify(Gtk.Justification.LEFT)
-            label = self._set_default_margins(label)
+            label = self.set_up_partitioner_label("ERROR: / NOT SET")
             try:
                 self.grid.remove(self.grid.get_child_at(1, 1))
             except TypeError:
@@ -1167,16 +1179,7 @@ Type. Minimum drives is: %s""" % (loops))
             self.show_all()
             return
         elif not os.path.exists(self.root.get_text()):
-            label = Gtk.Label()
-            label.set_markup("""
-    What are the mount points for the partitions you wish to be used?
-    Leave empty the partitions you don't want.
-    <b> / MUST BE USED </b>
-
-    Not a Valid Device on /
-    """)
-            label.set_justify(Gtk.Justification.LEFT)
-            label = self._set_default_margins(label)
+            label = self.set_up_partitioner_label("ERROR: Not a Valid Device on /")
             try:
                 self.grid.remove(self.grid.get_child_at(1, 1))
             except TypeError:
@@ -1187,17 +1190,8 @@ Type. Minimum drives is: %s""" % (loops))
             return
         elif (((self.efi.get_text() == "") or (
                 self.efi.get_text()[0:5] != "/dev/")) and os.path.isdir("/sys/firmware/efi")):
-            label = Gtk.Label()
-            label.set_markup("""
-    What are the mount points for the partitions you wish to be used?
-    Leave empty the partitions you don't want.
-    <b> / MUST BE USED </b>
-
-    You are using EFI, therefore an EFI partition
-    must be set.
-    """)
-            label.set_justify(Gtk.Justification.LEFT)
-            label = self._set_default_margins(label)
+            label = self.set_up_partitioner_label(
+                "ERROR: System is running EFI. An EFI partition must be set.")
             try:
                 self.grid.remove(self.grid.get_child_at(1, 1))
             except TypeError:
@@ -1209,15 +1203,7 @@ Type. Minimum drives is: %s""" % (loops))
         elif (not os.path.exists(self.efi.get_text()) or (
                 self.efi.get_text() == "")) and os.path.isdir("/sys/firmware/efi"):
             label = Gtk.Label()
-            label.set_markup("""
-    What are the mount points for the partitions you wish to be used?
-    Leave empty the partitions you don't want.
-    <b> / MUST BE USED </b>
-
-    Not a Valid Device on /boot/efi
-    """)
-            label.set_justify(Gtk.Justification.LEFT)
-            label = self._set_default_margins(label)
+            label = self.set_up_partitioner_label("ERROR: Not a Valid Device on /boot/efi")
             try:
                 self.grid.remove(self.grid.get_child_at(1, 1))
             except TypeError:
@@ -1230,15 +1216,7 @@ Type. Minimum drives is: %s""" % (loops))
                self.home.get_text()[0:5] != "/dev/") and (
                self.home.get_text() != "NULL")):
             label = Gtk.Label()
-            label.set_markup("""
-    What are the mount points for the partitions you wish to be used?
-    Leave empty the partitions you don't want.
-    <b> / MUST BE USED </b>
-
-    Please input a valid device path for HOME partition.
-    """)
-            label.set_justify(Gtk.Justification.LEFT)
-            label = self._set_default_margins(label)
+            label = self.set_up_partitioner_label("ERROR: invalid HOME partition device path")
             try:
                 self.grid.remove(self.grid.get_child_at(1, 1))
             except TypeError:
@@ -1250,16 +1228,7 @@ Type. Minimum drives is: %s""" % (loops))
         elif (not os.path.exists(self.home.get_text()) and (
                 self.home.get_text() != "") and (
                 self.home.get_text() != "NULL")):
-            label = Gtk.Label()
-            label.set_markup("""
-    What are the mount points for the partitions you wish to be used?
-    Leave empty the partitions you don't want.
-    <b> / MUST BE USED </b>
-
-    Not a Valid Device on /home
-    """)
-            label.set_justify(Gtk.Justification.LEFT)
-            label = self._set_default_margins(label)
+            label = self.set_up_partitioner_label("ERROR: Not a Valid Device on /home")
             try:
                 self.grid.remove(self.grid.get_child_at(1, 1))
             except TypeError:
@@ -1271,17 +1240,8 @@ Type. Minimum drives is: %s""" % (loops))
         elif ((self.swap.get_text() != "") and (
                 self.swap.get_text()[0:5] != "/dev/") and (
                     self.swap.get_text().upper() != "FILE")):
-            label = Gtk.Label()
-            label.set_markup("""
-    What are the mount points for the partitions you wish to be used?
-    Leave empty the partitions you don't want.
-    <b> / MUST BE USED </b>
-
-    SWAP must be set to a valid partition path, "FILE", or
-    left empty.
-    """)
-            label.set_justify(Gtk.Justification.LEFT)
-            label = self._set_default_margins(label)
+            label = self.set_up_partitioner_label(
+                "ERROR: SWAP must be set to a valid path, 'FILE', or empty.")
             try:
                 self.grid.remove(self.grid.get_child_at(1, 1))
             except TypeError:
@@ -1292,16 +1252,7 @@ Type. Minimum drives is: %s""" % (loops))
         elif (not os.path.exists(self.swap.get_text()) and (
                 self.swap.get_text().upper() != "FILE") and (
                     self.swap.get_text() != "")):
-            label = Gtk.Label()
-            label.set_markup("""
-    What are the mount points for the partitions you wish to be used?
-    Leave empty the partitions you don't want.
-    <b> / MUST BE USED </b>
-
-    Not a Valid Device on SWAP
-    """)
-            label.set_justify(Gtk.Justification.LEFT)
-            label = self._set_default_margins(label)
+            label = self.set_up_partitioner_label("ERROR: Not a Valid Device on SWAP")
             try:
                 self.grid.remove(self.grid.get_child_at(1, 1))
             except TypeError:
@@ -1313,17 +1264,11 @@ Type. Minimum drives is: %s""" % (loops))
         if ((self.swap.get_text().upper() == "FILE") or (self.swap.get_text() == "")):
             if auto_partitioner.size_of_part(self.root.get_text()) < \
                     auto_partitioner.get_min_root_size(bytes=False):
-                label = Gtk.Label()
-                label.set_markup(f"""
-        What are the mount points for the partitions you wish to be used?
-        Leave empty the partitions you don't want.
-        <b> / MUST BE USED </b>
-
-        / is too small. Minimum Root Partition size is { round(auto_partitioner.get_min_root_size(bytes=False)) } GB
+                label_string = \
+        f""" / is too small. Minimum Root Partition size is { round(auto_partitioner.get_min_root_size(bytes=False)) } GB
         Make a swap partition to reduce this minimum to { round(auto_partitioner.get_min_root_size(swap=False, bytes=False)) } GB
-        """)
-                label.set_justify(Gtk.Justification.LEFT)
-                label = self._set_default_margins(label)
+        """
+                label = self.set_up_partitioner_label(label_string)
                 try:
                     self.grid.remove(self.grid.get_child_at(1, 1))
                 except TypeError:
@@ -1335,16 +1280,8 @@ Type. Minimum drives is: %s""" % (loops))
         else:
             if auto_partitioner.size_of_part(self.root.get_text()) < \
                     auto_partitioner.get_min_root_size(swap=False, bytes=False):
-                label = Gtk.Label()
-                label.set_markup(f"""
-        What are the mount points for the partitions you wish to be used?
-        Leave empty the partitions you don't want.
-        <b> / MUST BE USED </b>
-
-        / is too small. Minimum Root Partition size is { round(auto_partitioner.get_min_root_size(swap=False, bytes=False)) } GB
-        """)
-                label.set_justify(Gtk.Justification.LEFT)
-                label = self._set_default_margins(label)
+                label_string = f"/ is too small. Minimum Root Partition size is { round(auto_partitioner.get_min_root_size(swap=False, bytes=False)) } GB"
+                label = self.set_up_partitioner_label(label_string)
                 try:
                     self.grid.remove(self.grid.get_child_at(1, 1))
                 except TypeError:
@@ -1353,14 +1290,7 @@ Type. Minimum drives is: %s""" % (loops))
 
                 self.show_all()
                 return
-        label = Gtk.Label()
-        label.set_markup("""
-    What are the mount points for the partitions you wish to be used?
-    Leave empty the partitions you don't want.
-    <b> / MUST BE USED </b>
-    """)
-        label.set_justify(Gtk.Justification.LEFT)
-        label = self._set_default_margins(label)
+        label = self.set_up_partitioner_label()
         try:
             self.grid.remove(self.grid.get_child_at(1, 1))
         except TypeError:
@@ -1388,7 +1318,7 @@ Type. Minimum drives is: %s""" % (loops))
 
     def opengparted(self, button):
         """Open GParted"""
-        Subprocess.Subprocess.Popen("gparted", stdout=SUBPROCESS.DEVNULL, stderr=SUBPROCESS.DEVNULL)
+        subprocess.Popen("gparted", stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         self.data["AUTO_PART"] = False
         self.input_part("clicked")
 
