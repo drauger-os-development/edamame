@@ -901,8 +901,8 @@ Type. Minimum drives is: %s""" % (loops))
                     for each1 in each["children"]:
                         self.parts.append(each1["name"],
                                           "%s, filesystem: %s, size: %sGB" % (each1["name"],
-                                                                              each1["fstype"],
-                                                                              int(auto_partitioner.bytes_to_gb(each1["size"]))))
+                                            each1["fstype"],
+                                            int(auto_partitioner.bytes_to_gb(each1["size"]))))
         self.show_all()
 
     def confirm_remove_part(self, widget):
@@ -1200,7 +1200,8 @@ Type. Minimum drives is: %s""" % (loops))
 
             self.show_all()
             return
-        elif (not os.path.exists(self.efi.get_text()) or (self.efi.get_text() == "")) and os.path.isdir("/sys/firmware/efi"):
+        elif (not os.path.exists(self.efi.get_text()) or (
+                self.efi.get_text() == "")) and os.path.isdir("/sys/firmware/efi"):
             label = Gtk.Label()
             label.set_markup("""
     What are the mount points for the partitions you wish to be used?
@@ -1304,7 +1305,8 @@ Type. Minimum drives is: %s""" % (loops))
             self.show_all()
             return
         if ((self.swap.get_text().upper() == "FILE") or (self.swap.get_text() == "")):
-            if auto_partitioner.size_of_part(self.root.get_text()) < auto_partitioner.get_min_root_size(bytes=False):
+            if auto_partitioner.size_of_part(self.root.get_text()) < \
+                    auto_partitioner.get_min_root_size(bytes=False):
                 label = Gtk.Label()
                 label.set_markup(f"""
         What are the mount points for the partitions you wish to be used?
@@ -1325,7 +1327,8 @@ Type. Minimum drives is: %s""" % (loops))
                 self.show_all()
                 return
         else:
-            if auto_partitioner.size_of_part(self.root.get_text()) < auto_partitioner.get_min_root_size(swap=False, bytes=False):
+            if auto_partitioner.size_of_part(self.root.get_text()) < \
+                    auto_partitioner.get_min_root_size(swap=False, bytes=False):
                 label = Gtk.Label()
                 label.set_markup(f"""
         What are the mount points for the partitions you wish to be used?
