@@ -264,7 +264,7 @@ def install(settings, local_repo):
                 shutil.copytree(work_dir + "/assets/" + each,
                                 "/mnt/user-data/" + each)
     real_root = chroot.arch_chroot("/mnt")
-    modules.master.install(settings)
+    modules.master.install(settings, config["distro"].replace(" ", "_"))
     chroot.de_chroot(real_root, "/mnt")
     common.eprint("Resetting resolv.conf")
     os.remove("/mnt/etc/resolv.conf")

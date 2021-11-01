@@ -244,12 +244,12 @@ def install_kernel(release):
     os.chdir("/")
 
 
-def install_bootloader(efi, root, release):
+def install_bootloader(efi, root, release, distro):
     """Determine whether bootloader needs to be systemd-boot (for UEFI)
     or GRUB (for BIOS)
     and install the correct one."""
     if efi not in ("NULL", None, "", False):
-        _install_systemd_boot(release, root)
+        _install_systemd_boot(release, root, distro)
     else:
         _install_grub(root)
 
@@ -275,7 +275,7 @@ def _install_grub(root):
                           stdout=stderr.buffer)
 
 
-def _install_systemd_boot(release, root):
+def _install_systemd_boot(release, root, distro):
     """set up and install systemd-boot"""
     try:
         os.mkdir("/boot/efi")
@@ -283,7 +283,7 @@ def _install_systemd_boot(release, root):
         pass
     os.mkdir("/boot/efi/loader")
     os.mkdir("/boot/efi/loader/entries")
-    os.mkdir("/boot/efi/Drauger_OS")
+    os.mkdir(f"/boot/efi/{distro}" )
     os.environ["SYSTEMD_RELAX_ESP_CHECKS"] = "1"
     with open("/etc/environment", "a") as envi:
         envi.write("export SYSTEMD_RELAX_ESP_CHECKS=1")
@@ -321,7 +321,7 @@ def _install_systemd_boot(release, root):
         except FileExistsError:
             pass
     with open("/boot/efi/loader/loader.conf", "w+") as loader_conf:
-        loader_conf.write("default Drauger_OS\n")
+        loader_conf.write(f"default {distro}\n")
         loader_conf.write("timeout 5\nconsole-mode 1\neditor 1")
     try:
         subprocess.check_call(["chattr", "-i", "/boot/efi/loader/loader.conf"],
@@ -357,13 +357,13 @@ def _install_systemd_boot(release, root):
     # This lib didn't exist before we installed this package.
     # So we can only now import it
     import systemd_boot_manager
-    systemd_boot_manager.update_defaults_file(systemd_boot_manager.DISTRO + ".conf")
+    systemd_boot_manager.update_defaults_file(distro + ".conf")
     subprocess.check_call(["systemd-boot-manager", "-u"],
                           stdout=stderr.buffer)
-    check_systemd_boot(release, root)
+    check_systemd_boot(release, root, distro)
 
 
-def setup_lowlevel(efi, root):
+def setup_lowlevel(efi, root, distro):
     """Set up kernel and bootloader"""
     release = subprocess.check_output(["uname", "--release"]).decode()[0:-1]
     install_kernel(release)
@@ -372,13 +372,13 @@ def setup_lowlevel(efi, root):
     eprint("\n    ###    MAKING INITRAMFS    ###    ")
     subprocess.check_call(["mkinitramfs", "-o", "/boot/initrd.img-" + release],
                           stdout=stderr.buffer)
-    install_bootloader(efi, root, release)
+    install_bootloader(efi, root, release, distro)
     sleep(0.5)
     os.symlink("/boot/initrd.img-" + release, "/boot/initrd.img")
     os.symlink("/boot/vmlinuz-" + release, "/boot/vmlinuz")
 
 
-def check_systemd_boot(release, root):
+def check_systemd_boot(release, root, distro):
     """Ensure systemd-boot was configured correctly"""
     # Initialize variables
     root_flags = "quiet splash"
@@ -388,15 +388,15 @@ def check_systemd_boot(release, root):
                                     "-o", "value", root]).decode()[0:-1]
 
     # Check for standard boot config
-    if not os.path.exists("/boot/efi/loader/entries/Drauger_OS.conf"):
+    if not os.path.exists(f"/boot/efi/loader/entries/{distro}.conf"):
         # Write standard boot conf if it doesn't exist
         eprint("Standard Systemd-boot entry non-existant")
         try:
-            with open("/boot/efi/loader/entries/Drauger_OS.conf",
+            with open(f"/boot/efi/loader/entries/{distro}.conf",
                       "w+") as main_conf:
-                main_conf.write("""title   Drauger OS
-linux   /Drauger_OS/vmlinuz
-initrd  /Drauger_OS/initrd.img
+                main_conf.write(f"""title   {distro}
+linux   /{distro}/vmlinuz
+initrd  /{distro}/initrd.img
 options root=PARTUUID=%s %s""" % (uuid, root_flags))
             eprint("Made standard systemd-boot entry")
         # Raise an exception if we cannot write the entry
@@ -406,15 +406,15 @@ options root=PARTUUID=%s %s""" % (uuid, root_flags))
     else:
         eprint("Standard systemd-boot entry checks out")
     # Check for recovery boot config
-    if not os.path.exists("/boot/efi/loader/entries/Drauger_OS_Recovery.conf"):
+    if not os.path.exists(f"/boot/efi/loader/entries/{distro}_Recovery.conf"):
         eprint("Recovery Systemd-boot entry non-existant")
         try:
             # Write recovery boot conf if it doesn't exist
-            with open("/boot/efi/loader/entries/Drauger_OS_Recovery.conf",
+            with open(f"/boot/efi/loader/entries/{distro}_Recovery.conf",
                       "w+") as main_conf:
-                main_conf.write("""title   Drauger OS Recovery
-linux   /Drauger_OS/vmlinuz
-initrd  /Drauger_OS/initrd.img
+                main_conf.write(f"""title   {distro}_Recovery
+linux   /{distro}/vmlinuz
+initrd  /{distro}/initrd.img
 options root=PARTUUID=%s %s""" % (uuid, recovery_flags))
             eprint("Made recovery systemd-boot entry")
         # Raise a warning if we cannot write the entry
@@ -449,27 +449,27 @@ options root=PARTUUID=%s %s""" % (uuid, recovery_flags))
     sysmap = sorted(sysmap)[-1]
     # Copy the latest files into place
     # Also, rename them so that systemd-boot can find them
-    if not os.path.exists("/boot/efi/Drauger_OS/vmlinuz"):
+    if not os.path.exists(f"/boot/efi/{distro}/vmlinuz"):
         eprint("vmlinuz non-existant")
-        copyfile("/boot/" + vmlinuz, "/boot/efi/Drauger_OS/vmlinuz")
+        copyfile("/boot/" + vmlinuz, f"/boot/efi/{distro}/vmlinuz")
         eprint("vmlinuz copied")
     else:
         eprint("vmlinuz checks out")
-    if not os.path.exists("/boot/efi/Drauger_OS/config"):
+    if not os.path.exists(f"/boot/efi/{distro}/config"):
         eprint("config non-existant")
-        copyfile("/boot/" + config, "/boot/efi/Drauger_OS/config")
+        copyfile("/boot/" + config, f"/boot/efi/{distro}/config")
         eprint("config copied")
     else:
         eprint("Config checks out")
-    if not os.path.exists("/boot/efi/Drauger_OS/initrd.img"):
+    if not os.path.exists(f"/boot/efi/{distro}/initrd.img"):
         eprint("initrd.img non-existant")
-        copyfile("/boot/" + initrd, "/boot/efi/Drauger_OS/initrd.img")
+        copyfile("/boot/" + initrd, f"/boot/efi/{distro}/initrd.img")
         eprint("initrd.img copied")
     else:
         eprint("initrd.img checks out")
-    if not os.path.exists("/boot/efi/Drauger_OS/System.map"):
+    if not os.path.exists(f"/boot/efi/{distro}/System.map"):
         eprint("System.map non-existant")
-        copyfile("/boot/" + sysmap, "/boot/efi/Drauger_OS/System.map")
+        copyfile("/boot/" + sysmap, f"/boot/efi/{distro}/System.map")
         eprint("System.map copied")
     else:
         eprint("System.map checks out")
@@ -494,7 +494,7 @@ def handle_laptops(username):
         de_modify.for_laptop()
 
 
-def install(settings):
+def install(settings, distro):
     """Entry point for installation procedure"""
     processes_to_do = dir(MainInstallation)
     for each in range(len(processes_to_do) - 1, -1, -1):
@@ -502,8 +502,8 @@ def install(settings):
             del processes_to_do[each]
     MainInstallation(processes_to_do, settings)
     handle_laptops(settings["USERNAME"])
-    setup_lowlevel(settings["EFI"], settings["ROOT"])
-    verify(settings["USERNAME"])
+    setup_lowlevel(settings["EFI"], settings["ROOT"], distro)
+    verify(settings["USERNAME"], settings["ROOT"], distro)
     if "PURGE" in settings:
         purge_package(settings["PURGE"])
     # Mark a system as an OEM installation if necessary
