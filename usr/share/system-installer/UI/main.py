@@ -31,6 +31,7 @@ import common
 import subprocess
 import gi
 import auto_partitioner
+import pdb
 
 gi.require_version('Gtk', '3.0')
 
@@ -975,33 +976,33 @@ Type. Minimum drives is: %s""" % (loops))
     def auto_home_setup2(self, widget):
         """Provide options for prexisting home partitions"""
         if widget.get_active() == 1:
-            dev = []
-            for each5 in enumerate(self.device):
-                if ("loop" in self.device[each5[0]]) or ("disk" in self.device[each5[0]]):
+            dev_list = []  # dev_list will be an list of dictionaries
+            for each5 in enumerate(self.devices):
+                if ("loop" in self.devices[each5[0]]) or ("disk" in self.devices[each5[0]]):
                     continue
-                dev.append(self.device[each5[0]])
-            devices = []
-            for each5 in dev:
-                devices.append(each5.split())
-            devices = [x for x in devices if x != []]
-            for each5 in devices:
-                if each5[0] == "sr0":
-                    devices.remove(each5)
-            for each5 in enumerate(devices):
-                devices[each5[0]].remove(devices[each5[0]][2])
-            for each5 in enumerate(devices):
-                devices[each5[0]][0] = list(devices[each5[0]][0])
-                del devices[each5[0]][0][0]
-                del devices[each5[0]][0][0]
-                devices[each5[0]][0] = "".join(devices[each5[0]][0])
-            for each5 in enumerate(devices):
-                devices[each5[0]][0] = "/dev/%s" % ("".join(devices[each5[0]][0]))
+                dev_list.append(self.devices[each5[0]])
+
+            dev_list = [x for x in dev_list if x != []] #removes empty indexes
+
+            for i in range(len(dev_list)): # iterate numerically through the dev_list indexes
+                if dev_list[i - 1]['name'] == "sr0":
+                    del dev_list[i - 1] 
+
+            for each5 in enumerate(dev_list):
+                dev_list[each5[0]].remove(dev_list[each5[0]][2])
+            for each5 in enumerate(dev_list):
+                dev_list[each5[0]][0] = list(dev_list[each5[0]][0])
+                del dev_list[each5[0]][0][0]
+                del dev_list[each5[0]][0][0]
+                dev_list[each5[0]][0] = "".join(dev_list[each5[0]][0])
+            for each5 in enumerate(dev_list):
+                dev_list[each5[0]][0] = "/dev/%s" % ("".join(dev_list[each5[0]][0]))
 
             parts = Gtk.ComboBoxText.new()
-            for each5 in enumerate(devices):
-                parts.append("%s" % (devices[each5[0]][0]),
-                             "%s    Size: %s" % (devices[each5[0]][0],
-                                                 devices[each5[0]][1]))
+            for each5 in enumerate(dev_list):
+                parts.append("%s" % (dev_list[each5[0]][0]),
+                             "%s    Size: %s" % (dev_list[each5[0]][0],
+                                                 dev_list[each5[0]][1]))
             if self.data["HOME"] != "":
                 parts.set_active_id(self.data["HOME"])
             parts.connect("changed", self.select_home_part)
