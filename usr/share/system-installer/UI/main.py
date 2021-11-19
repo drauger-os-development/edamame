@@ -976,38 +976,47 @@ Type. Minimum drives is: %s""" % (loops))
     def auto_home_setup2(self, widget):
         """Provide options for prexisting home partitions"""
         if widget.get_active() == 1:
-            dev_list = []  # dev_list will be an list of dictionaries
-            for each5 in enumerate(self.devices):
-                if ("loop" in self.devices[each5[0]]) or ("disk" in self.devices[each5[0]]):
-                    continue
-                dev_list.append(self.devices[each5[0]])
+            dev_list = tuple(self.devices)
+            new_dev_list = [] # this will be the final list that is displayed for the user
 
-            dev_list = [x for x in dev_list if x != []] #removes empty indexes
+            for device in dev_list: # we will iterate through the dev list and add devices to the new list
+                try:
+                    if device == []: # if the device is empty, we skip
+                        continue
+                    if device['name'] == "sr0": # skip sr0 devices
+                        continue
+                    elif 'type' in device: # device should have type or children in it
+                        if device['type'] == "loop" or device['type'] == "disk": # skip loop devices (created by snap packages)
+                            continue
+                    elif 'children' in device:
+                        for child in device['children']:
+                            test_child = {'name' : child['name'], 'size' : child['size']}
 
-            for i in range(len(dev_list)): # iterate numerically through the dev_list indexes
-                if dev_list[i - 1]['name'] == "sr0":
-                    del dev_list[i - 1] 
+                            if test_child not in new_dev_list: # make sure child object is not already in dev_list
+                                new_dev_list.append(test_child)
+                    else:
+                        new_device = {'name' : device['name'], 'size' : device['size']}
 
-            for each5 in enumerate(dev_list):
-                dev_list[each5[0]].remove(dev_list[each5[0]][2])
-            for each5 in enumerate(dev_list):
-                dev_list[each5[0]][0] = list(dev_list[each5[0]][0])
-                del dev_list[each5[0]][0][0]
-                del dev_list[each5[0]][0][0]
-                dev_list[each5[0]][0] = "".join(dev_list[each5[0]][0])
-            for each5 in enumerate(dev_list):
-                dev_list[each5[0]][0] = "/dev/%s" % ("".join(dev_list[each5[0]][0]))
+                        new_dev_list.append(new_device)
+                except KeyError:
+                    pass # todo: use traceback module to print the traceback to stderr
+                # can print to file.  Look up printing tracebacks from an exception
 
-            parts = Gtk.ComboBoxText.new()
-            for each5 in enumerate(dev_list):
-                parts.append("%s" % (dev_list[each5[0]][0]),
-                             "%s    Size: %s" % (dev_list[each5[0]][0],
-                                                 dev_list[each5[0]][1]))
+                # todo: should parent objects be included in the list?
+
+            home_cmbbox = Gtk.ComboBoxText.new()
+
+            # properly format device names and add to combo box
+            for device in new_dev_list:
+                device['name'] = "/dev/%s" % device['name']
+
+                home_cmbbox.append(device['name'], "%s    Size: %s" % (device['name'], device['size']))
+
             if self.data["HOME"] != "":
-                parts.set_active_id(self.data["HOME"])
-            parts.connect("changed", self.select_home_part)
-            parts = self._set_default_margins(parts)
-            self.grid.attach(parts, 1, 5, 2, 1)
+                home_cmbbox.set_active_id(self.data["HOME"])
+            home_cmbbox.connect("changed", self.select_home_part)
+            parts = self._set_default_margins(home_cmbbox)
+            self.grid.attach(home_cmbbox, 1, 5, 2, 1)
         else:
             self.data["HOME"] = "MAKE"
 
