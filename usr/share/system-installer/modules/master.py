@@ -35,6 +35,7 @@ from time import sleep
 import json
 import warnings
 import tarfile as tar
+import traceback
 import de_control.modify as de_modify
 
 
@@ -267,10 +268,22 @@ def _install_grub(root):
     if root[-1] == "p":
         del root[-1]
     root = "".join(root)
-    subprocess.check_call(["grub-mkdevicemap", "--verbose"],
-                          stdout=stderr.buffer)
+    redo = False
+    try:
+        subprocess.check_call(["grub-mkdevicemap", "--verbose"],
+                               stdout=stderr.buffer)
+    except CalledProcessError:
+        redo = True
     subprocess.check_call(["grub-install", "--verbose", "--force",
                            "--target=i386-pc", root], stdout=stderr.buffer)
+    if redo:
+        try:
+            subprocess.check_call(["grub-mkdevicemap", "--verbose"],
+                                   stdout=stderr.buffer)
+        except CalledProcessError as e:
+            eprint("WARNING: GRUB device map failed to generate")
+            eprint("The error was as follows:")
+            eprint(traceback.format_exeception())
     subprocess.check_call(["grub-mkconfig", "-o", "/boot/grub/grub.cfg"],
                           stdout=stderr.buffer)
 
