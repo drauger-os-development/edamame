@@ -114,7 +114,6 @@ def verify(username, root, distro):
         remove("/home/" + username + "/Desktop/system-installer.desktop")
     except FileNotFoundError:
         pass
-    cache.close()
     status = is_default_entry(distro)
     if status in (False, None):
         if status is None:
@@ -132,4 +131,5 @@ def verify(username, root, distro):
                         each.mark_delete()
         cache.commit()
         purge.autoremove(cache)
+    cache.close()
     __eprint__("    ###    verify_install.py CLOSED    ###    ")
