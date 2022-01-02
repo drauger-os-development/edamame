@@ -979,21 +979,23 @@ Type. Minimum drives is: %s""" % (loops))
             dev_list = tuple(self.devices)
             new_dev_list = [] # this will be the final list that is displayed for the user
 
+            pdb.set_trace()
+
             for device in dev_list: # we will iterate through the dev list and add devices to the new list
                 try:
                     if device == []: # if the device is empty, we skip
                         continue
-                    if device['name'] == "sr0": # skip sr0 devices
-                        continue
-                    elif 'type' in device: # device should have type or children in it
-                        if device['type'] == "loop" or device['type'] == "disk": # skip loop devices (created by snap packages)
-                            continue
                     elif 'children' in device:
                         for child in device['children']:
+                            if not child['type'] == 'part': # if it isn't labeled partition, skip
+                                continue 
+
                             test_child = {'name' : child['name'], 'size' : child['size']}
 
                             if test_child not in new_dev_list: # make sure child object is not already in dev_list
                                 new_dev_list.append(test_child)
+                    elif not device['type'] == 'part': # if it isn't labeled partition, skip
+                        continue
                     else:
                         new_device = {'name' : device['name'], 'size' : device['size']}
 
@@ -1005,6 +1007,8 @@ Type. Minimum drives is: %s""" % (loops))
                 # todo: should parent objects be included in the list?
 
             home_cmbbox = Gtk.ComboBoxText.new()
+
+            pdb.set_trace()
 
             # properly format device names and add to combo box
             for device in new_dev_list:
