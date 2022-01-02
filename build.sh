@@ -105,7 +105,7 @@ cd usr/share/doc/$PAK
 tar --verbose --create --xz -f changelog.gz changelog 1>/dev/null
 rm changelog
 cd ../../../..
-base="$pwd"
+base="$PWD"
 cd ..
 #DELETE STUFF HERE
 if [ "$OPTIONS" != "--pool" ]; then
