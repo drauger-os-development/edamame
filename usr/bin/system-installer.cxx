@@ -46,7 +46,7 @@
 
 using namespace std;
 
-str VERSION = "2.1.6";
+str VERSION = "2.1.8";
 str R = "\033[0;31m";
 str G = "\033[0;32m";
 str Y = "\033[1;33m";
@@ -116,7 +116,7 @@ void launch(bool boot_time)
 		command = command + " --boot-time";
 	}
 	command = command + " 2>/tmp/system-installer.log 1>&2";
-	system(command.c_str());
+	run(command.c_str());
 	if (boot_time)
 	{
 		PyRun_SimpleString("import de_control.disable as de_disable\n"
@@ -127,8 +127,7 @@ void launch(bool boot_time)
 		}
 		PyMem_RawFree(program);
 	}
-
-	system((command1 + disable).c_str());
+	run((command1 + disable).c_str());
 }
 
 // Launch with no parameter
