@@ -52,6 +52,11 @@ if [ "$OPTIONS" != "--pool" ]; then
 	rm -rfv kernel
 	cd ../../../..
 fi
+
+# Pshyc - we're compiling shit now
+cd usr/bin
+g++ -o system-installer system-installer.cxx $(python3.9-config --ldflags --cflags --embed)
+cd ../..
 ##############################################################
 #							     #
 #							     #
@@ -106,6 +111,10 @@ cd ..
 if [ "$OPTIONS" != "--pool" ]; then
 	rm system-installer/usr/share/system-installer/modules/kernel.tar.xz
 fi
+# delete binary file from repo
+rm "$base"/usr/bin/system-installer
+# delete C++ source from package
+rm "$FOLDER"/usr/bin/system-installer.cxx
 #build the shit
 dpkg-deb --build "$FOLDER"
 rm -rf "$FOLDER"
