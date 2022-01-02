@@ -1,7 +1,7 @@
 /*
  * system-installer.cxx
  *
- * Copyright 2021 Thomas Castleman <contact@draugeros.org>
+ * Copyright 2022 Thomas Castleman <contact@draugeros.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
