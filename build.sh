@@ -58,7 +58,7 @@ cd usr/bin
 g++ -o system-installer system-installer.cxx $(python3.9-config --ldflags --cflags --embed)
 cd ../share/system-installer
 g++ -c -Wall -Werror -fpic common.cxx $(python3.9-config --cflags)
-g++ -shared -o libcommon.so common.o $(python3.9-config --ldflags)
+g++ -shared -o common.so common.o $(python3.9-config --ldflags)
 cd ../../..
 ##############################################################
 #							     #
