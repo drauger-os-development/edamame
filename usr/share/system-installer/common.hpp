@@ -33,8 +33,8 @@
 
 // We need to overload this method so it can take either a float or an int
 extern unsigned real_number(float num);
-
 extern unsigned real_number(int num);
+extern PyObject * real_number(PyObject *self, PyObject *args);
 
 
 #endif //common_hpp__

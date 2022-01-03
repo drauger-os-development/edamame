@@ -30,6 +30,7 @@ using namespace std;
 // This DOES NOT return absolute value. Any negative numbers will return 0.
 // Valid floats that are passed are truncated, not rounded.
 
+
 unsigned real_number(int num)
 {
 	// This one is really easy. Just check to see if the argument is positive
@@ -41,6 +42,7 @@ unsigned real_number(int num)
 	return 0;
 }
 
+
 unsigned real_number(float num)
 {
 	// First we need to static_cast the float to an int, to truncate it
@@ -48,4 +50,17 @@ unsigned real_number(float num)
 	// now, just use the other real_number()
 	// no need to write code twice!
 	return real_number(new_num);
+}
+
+
+PyObject * real_number(PyObject *self, PyObject *args)
+{
+	int * num;
+
+	if (!PyArg_ParseTuple(args, "i", &num))
+	{
+        return NULL;
+	}
+	return PyLong_FromLong(real_number(*num));
+
 }
