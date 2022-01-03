@@ -31,7 +31,6 @@ import common
 import subprocess
 import gi
 import auto_partitioner
-import pdb
 
 gi.require_version('Gtk', '3.0')
 
@@ -979,8 +978,8 @@ Type. Minimum drives is: %s""" % (loops))
             dev_list = tuple(self.devices)
             new_dev_list = [] # this will be the final list that is displayed for the user
 
-            pdb.set_trace()
 
+            # todo: account for BTRFS drives that have no partitions
             for device in dev_list: # we will iterate through the dev list and add devices to the new list
                 try:
                     if device == []: # if the device is empty, we skip
@@ -1002,13 +1001,8 @@ Type. Minimum drives is: %s""" % (loops))
                         new_dev_list.append(new_device)
                 except KeyError:
                     pass # todo: use traceback module to print the traceback to stderr
-                # can print to file.  Look up printing tracebacks from an exception
-
-                # todo: should parent objects be included in the list?
 
             home_cmbbox = Gtk.ComboBoxText.new()
-
-            pdb.set_trace()
 
             # properly format device names and add to combo box
             for device in new_dev_list:
