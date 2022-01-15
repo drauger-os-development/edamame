@@ -109,7 +109,7 @@ base="$PWD"
 cd ..
 #DELETE STUFF HERE
 if [ "$OPTIONS" != "--pool" ]; then
-	rm "$base"/system-installer/usr/share/system-installer/modules/kernel.tar.xz
+	rm "$base"/usr/share/system-installer/modules/kernel.tar.xz
 fi
 # delete binary files from repo
 rm "$base"/usr/bin/system-installer
