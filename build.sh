@@ -50,7 +50,7 @@ if [ "$OPTIONS" != "--pool" ]; then
 	tar --verbose --create --xz -f kernel.tar.xz kernel
 	echo -e "\t###\tCLEANING\t###\t"
 	rm -rfv kernel
-	cd ../../../..
+	cd ../../..
 fi
 
 # Pshyc - we're compiling shit now
