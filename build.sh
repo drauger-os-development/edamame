@@ -55,11 +55,11 @@ fi
 
 # Pshyc - we're compiling shit now
 cd usr/bin
-g++ -o system-installer system-installer.cxx $(python3.9-config --ldflags --cflags --embed)
 cd ../share/system-installer
 g++ -c -Wall -Werror -fpic common.cxx $(python3.9-config --cflags)
 g++ -shared -o common.so common.o $(python3.9-config --ldflags)
 cd ../../..
+g++ -m64 -o system-installer system-installer.cxx $(python3.9-config --ldflags --cflags --embed)
 ##############################################################
 #							     #
 #							     #
