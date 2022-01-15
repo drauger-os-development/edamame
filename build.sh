@@ -50,8 +50,13 @@ if [ "$OPTIONS" != "--pool" ]; then
 	tar --verbose --create --xz -f kernel.tar.xz kernel
 	echo -e "\t###\tCLEANING\t###\t"
 	rm -rfv kernel
-	cd ../../../..
+	cd ../../..
 fi
+
+# Pshyc - we're compiling shit now
+cd usr/bin
+g++ -m64 -o system-installer system-installer.cxx $(python3.9-config --ldflags --cflags --embed)
+cd ../..
 ##############################################################
 #							     #
 #							     #
@@ -100,12 +105,16 @@ cd usr/share/doc/$PAK
 tar --verbose --create --xz -f changelog.gz changelog 1>/dev/null
 rm changelog
 cd ../../../..
-base="$pwd"
+base="$PWD"
 cd ..
 #DELETE STUFF HERE
 if [ "$OPTIONS" != "--pool" ]; then
-	rm system-installer/usr/share/system-installer/modules/kernel.tar.xz
+	rm "$base"/usr/share/system-installer/modules/kernel.tar.xz
 fi
+# delete binary files from repo
+rm "$base"/usr/bin/system-installer
+# delete C++ source from package
+rm "$FOLDER"/usr/bin/system-installer.cxx
 #build the shit
 dpkg-deb --build "$FOLDER"
 rm -rf "$FOLDER"
