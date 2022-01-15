@@ -55,11 +55,8 @@ fi
 
 # Pshyc - we're compiling shit now
 cd usr/bin
-cd ../share/system-installer
-g++ -c -Wall -Werror -fpic common.cxx $(python3.9-config --cflags)
-g++ -shared -o common.so common.o $(python3.9-config --ldflags)
-cd ../../..
 g++ -m64 -o system-installer system-installer.cxx $(python3.9-config --ldflags --cflags --embed)
+cd ../..
 ##############################################################
 #							     #
 #							     #
@@ -116,9 +113,6 @@ if [ "$OPTIONS" != "--pool" ]; then
 fi
 # delete binary files from repo
 rm "$base"/usr/bin/system-installer
-rm "$base"/usr/share/system-installer/libcommon.so
-# delete object files from the repo
-rm "$base"/use/share/system-installer/common.o
 # delete C++ source from package
 rm "$FOLDER"/usr/bin/system-installer.cxx
 #build the shit
