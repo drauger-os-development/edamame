@@ -975,38 +975,46 @@ Type. Minimum drives is: %s""" % (loops))
     def auto_home_setup2(self, widget):
         """Provide options for prexisting home partitions"""
         if widget.get_active() == 1:
-            dev = []
-            for each5 in enumerate(self.device):
-                if ("loop" in self.device[each5[0]]) or ("disk" in self.device[each5[0]]):
-                    continue
-                dev.append(self.device[each5[0]])
-            devices = []
-            for each5 in dev:
-                devices.append(each5.split())
-            devices = [x for x in devices if x != []]
-            for each5 in devices:
-                if each5[0] == "sr0":
-                    devices.remove(each5)
-            for each5 in enumerate(devices):
-                devices[each5[0]].remove(devices[each5[0]][2])
-            for each5 in enumerate(devices):
-                devices[each5[0]][0] = list(devices[each5[0]][0])
-                del devices[each5[0]][0][0]
-                del devices[each5[0]][0][0]
-                devices[each5[0]][0] = "".join(devices[each5[0]][0])
-            for each5 in enumerate(devices):
-                devices[each5[0]][0] = "/dev/%s" % ("".join(devices[each5[0]][0]))
+            dev_list = tuple(self.devices)
+            new_dev_list = [] # this will be the final list that is displayed for the user
 
-            parts = Gtk.ComboBoxText.new()
-            for each5 in enumerate(devices):
-                parts.append("%s" % (devices[each5[0]][0]),
-                             "%s    Size: %s" % (devices[each5[0]][0],
-                                                 devices[each5[0]][1]))
+
+            # todo: account for BTRFS drives that have no partitions
+            for device in dev_list: # we will iterate through the dev list and add devices to the new list
+                try:
+                    if device == []: # if the device is empty, we skip
+                        continue
+                    elif 'children' in device:
+                        for child in device['children']:
+                            if not child['type'] == 'part': # if it isn't labeled partition, skip
+                                continue 
+
+                            test_child = {'name' : child['name'], 'size' : child['size']}
+
+                            if test_child not in new_dev_list: # make sure child object is not already in dev_list
+                                new_dev_list.append(test_child)
+                    elif not device['type'] == 'part': # if it isn't labeled partition, skip
+                        continue
+                    else:
+                        new_device = {'name' : device['name'], 'size' : device['size']}
+
+                        new_dev_list.append(new_device)
+                except KeyError:
+                    pass # todo: use traceback module to print the traceback to stderr
+
+            home_cmbbox = Gtk.ComboBoxText.new()
+
+            # properly format device names and add to combo box
+            for device in new_dev_list:
+                device['name'] = "/dev/%s" % device['name']
+
+                home_cmbbox.append(device['name'], "%s    Size: %s" % (device['name'], device['size']))
+
             if self.data["HOME"] != "":
-                parts.set_active_id(self.data["HOME"])
-            parts.connect("changed", self.select_home_part)
-            parts = self._set_default_margins(parts)
-            self.grid.attach(parts, 1, 5, 2, 1)
+                home_cmbbox.set_active_id(self.data["HOME"])
+            home_cmbbox.connect("changed", self.select_home_part)
+            parts = self._set_default_margins(home_cmbbox)
+            self.grid.attach(home_cmbbox, 1, 5, 2, 1)
         else:
             self.data["HOME"] = "MAKE"
 
