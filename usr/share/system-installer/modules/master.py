@@ -297,7 +297,7 @@ def _install_systemd_boot(release, root, distro):
         pass
     os.mkdir("/boot/efi/loader")
     os.mkdir("/boot/efi/loader/entries")
-    os.mkdir(f"/boot/efi/{distro}" )
+    os.mkdir(f"/boot/efi/{distro}")
     os.environ["SYSTEMD_RELAX_ESP_CHECKS"] = "1"
     with open("/etc/environment", "a") as envi:
         envi.write("export SYSTEMD_RELAX_ESP_CHECKS=1")
