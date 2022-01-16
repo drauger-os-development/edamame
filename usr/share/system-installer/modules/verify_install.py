@@ -114,17 +114,19 @@ def verify(username, root, distro):
         remove("/home/" + username + "/Desktop/system-installer.desktop")
     except FileNotFoundError:
         pass
-    status = is_default_entry(distro)
-    if status in (False, None):
-        if status is None:
-            add_boot_entry(root, distro)
-        set_default_entry(disto)
+    if path.isdir("/sys/firmware/efi"):
+        # on UEFI, set as default entry
+        status = is_default_entry(distro)
+        if status in (False, None):
+            if status is None:
+                add_boot_entry(root, distro)
+                set_default_entry(disto)
     cache = apt.cache.Cache()
     cache.open()
     if username != "drauger-user":
         if (("system-installer" in cache) and cache["system-installer"].is_installed):
             cache["system-installer"].mark_delete()
-        if path.isfile("/etc/kernel/postinst.d/zz-update-systemd-boot"):
+        if path.isdir("/sys/firmware/efi"):
             with cache.actiongroup():
                 for each in cache:
                     if (("grub" in each.name) and each.is_installed):
