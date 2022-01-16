@@ -269,6 +269,7 @@ def _install_grub(root):
         del root[-1]
     root = "".join(root)
     redo = False
+    os.mkdir("/boot/grub")
     try:
         subprocess.check_call(["grub-mkdevicemap", "--verbose"],
                                stdout=stderr.buffer)
