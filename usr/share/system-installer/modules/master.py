@@ -272,16 +272,16 @@ def _install_grub(root):
     os.mkdir("/boot/grub")
     try:
         subprocess.check_call(["grub-mkdevicemap", "--verbose"],
-                               stdout=stderr.buffer)
-    except CalledProcessError:
+                              stdout=stderr.buffer)
+    except subprocess.CalledProcessError:
         redo = True
     subprocess.check_call(["grub-install", "--verbose", "--force",
                            "--target=i386-pc", root], stdout=stderr.buffer)
     if redo:
         try:
             subprocess.check_call(["grub-mkdevicemap", "--verbose"],
-                                   stdout=stderr.buffer)
-        except CalledProcessError as e:
+                                  stdout=stderr.buffer)
+        except subprocess.CalledProcessError as e:
             eprint("WARNING: GRUB device map failed to generate")
             eprint("The error was as follows:")
             eprint(traceback.format_exeception())
