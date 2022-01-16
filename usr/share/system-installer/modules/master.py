@@ -269,18 +269,19 @@ def _install_grub(root):
         del root[-1]
     root = "".join(root)
     redo = False
+    os.mkdir("/boot/grub")
     try:
         subprocess.check_call(["grub-mkdevicemap", "--verbose"],
-                               stdout=stderr.buffer)
-    except CalledProcessError:
+                              stdout=stderr.buffer)
+    except subprocess.CalledProcessError:
         redo = True
     subprocess.check_call(["grub-install", "--verbose", "--force",
                            "--target=i386-pc", root], stdout=stderr.buffer)
     if redo:
         try:
             subprocess.check_call(["grub-mkdevicemap", "--verbose"],
-                                   stdout=stderr.buffer)
-        except CalledProcessError as e:
+                                  stdout=stderr.buffer)
+        except subprocess.CalledProcessError as e:
             eprint("WARNING: GRUB device map failed to generate")
             eprint("The error was as follows:")
             eprint(traceback.format_exeception())
@@ -296,7 +297,7 @@ def _install_systemd_boot(release, root, distro):
         pass
     os.mkdir("/boot/efi/loader")
     os.mkdir("/boot/efi/loader/entries")
-    os.mkdir(f"/boot/efi/{distro}" )
+    os.mkdir(f"/boot/efi/{distro}")
     os.environ["SYSTEMD_RELAX_ESP_CHECKS"] = "1"
     with open("/etc/environment", "a") as envi:
         envi.write("export SYSTEMD_RELAX_ESP_CHECKS=1")
