@@ -422,7 +422,8 @@ Possible values:
     except parted._ped.DiskLabelException:
         common.eprint("NO PARTITION TABLE EXISTS. MAKING NEW ONE . . .")
         disk = parted.freshDisk(device, "gpt")
-    size = sectors_to_size(device.length, device.sectorSize) * 1000
+    # sectors_to_size() returns size in MBs, multiply by 1 million to convert to bytes
+    size = sectors_to_size(device.length, device.sectorSize) * 1000000
     if ((home in ("NULL", "null",
                   None, "MAKE")) and (raid_array["raid_type"] is None)):
         disk = clobber_disk(device)
