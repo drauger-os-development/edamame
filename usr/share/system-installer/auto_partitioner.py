@@ -422,7 +422,8 @@ Possible values:
     except parted._ped.DiskLabelException:
         common.eprint("NO PARTITION TABLE EXISTS. MAKING NEW ONE . . .")
         disk = parted.freshDisk(device, "gpt")
-    size = sectors_to_size(device.length, device.sectorSize) * 1000
+    # sectors_to_size() returns size in MBs, multiply by 1 million to convert to bytes
+    size = sectors_to_size(device.length, device.sectorSize) * 1000000
     if ((home in ("NULL", "null",
                   None, "MAKE")) and (raid_array["raid_type"] is None)):
         disk = clobber_disk(device)
@@ -455,17 +456,14 @@ Possible values:
         # If home == "MAKE", we KNOW there are no partitons because we made a
         # new partition table
         if size >= gb_to_bytes(config["mdswh"]):
-            common.eprint("Getting root partition size")
             root_end = int((size * 0.35) / (1000 ** 2))
         else:
             root_end = get_min_root_size()
         if (efi and (part1 is None)):
-            common.eprint("Making home part")
             part1 = __make_efi__(device)
             part2 = __make_root__(device, end=root_end)
             part3 = __make_home__(device, new_start=root_end)
         elif part1 is None:
-            common.eprint("Making home part")
             part1 = __make_root__(device, start="0%", end=root_end)
             __make_root_boot__(device)
             part2 = __make_home__(device, new_start=root_end)
