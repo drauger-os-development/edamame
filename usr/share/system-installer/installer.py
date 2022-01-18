@@ -187,15 +187,19 @@ def install(settings, local_repo):
     __update__(34)
     # STEP 5: Extract Tar ball if needed, copy files to installation drive
     if not os.path.exists(local_repo):
-        eprint("EXTRACTING KERNEL.TAR.XZ")
+        common.eprint("EXTRACTING KERNEL.TAR.XZ")
         tar_file = tar.open("/usr/share/system-installer/kernel.tar.xz")
         tar_file.extractall(path="/")
         tar_file.close()
-        eprint("EXTRACTION COMPLETE")
-        path = local_repo.split("/")
-        for each in enumerate(path):
-            os.mkdir("/".join(path[:each[0] + 1]))
-        os.mkdir(local_repo)
+        common.eprint("EXTRACTION COMPLETE")
+        # try to use the default path. If an OSError or PermissionError is thrown,
+        # default to a path that should be good. This may mean more memory usage
+        # since /tmp is in memory, not on disk. But that's a sacrifice we can make here
+        try:
+            common.recursive_mkdir(local_repo)
+        except (OSError, PermissionError):
+            local_repo = "/tmp/system-installer/repo"
+            common.recursive_mkdir(local_repo)
         # Copy everything into local_repo at top level
         # We COULD go ahead and copy everything where it needs to be, but that would
         # make for more code and an extra check I don't wanna bother with right now
