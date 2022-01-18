@@ -23,7 +23,7 @@
 #
 """Common functions and other data for system-installer"""
 import sys
-
+import os
 
 def unique(starting_list):
     """Function to get a list down to only unique elements"""
@@ -54,3 +54,19 @@ def real_number(num):
     if num >= 0:
         return int(num)
     return 0
+
+
+def recursive_mkdir(path):
+    """ Recursively make directories down a file path
+
+    This function is functionally equivallent to: `mkdir -p {path}'
+    """
+    path = path.split("/")
+    for each in enumerate(path):
+        dir = "/".join(path[:each[0] + 1])
+        # prevent calling mkdir() on an empty string
+        if dir != "":
+            try:
+                os.mkdir(dir)
+            except FileExistsError:
+                pass
