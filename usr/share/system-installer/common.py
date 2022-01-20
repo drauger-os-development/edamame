@@ -25,6 +25,7 @@
 import sys
 import os
 
+
 def unique(starting_list):
     """Function to get a list down to only unique elements"""
     # intilize a null list
