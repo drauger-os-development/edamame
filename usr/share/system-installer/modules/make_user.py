@@ -61,7 +61,8 @@ def make_user(username):
         try:
             rmtree("/home/live")
         except FileNotFoundError:
-            if username != "home": #literally a 1 in a trillion chance of happening, but just in case
+            # literally a 1 in a trillion chance of happening, but just in case
+            if username != "home":
                 rmtree("/home/home")
     elif os.path.exists("/home/home/live"):
         __fix_home__(username)
