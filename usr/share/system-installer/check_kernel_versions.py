@@ -35,9 +35,9 @@ def __get_file_version__(local_repo):
     """Get kernel version in included kernel archive"""
     if not os.path.exists(local_repo):
         try:
-            tar_file = tar.open("/usr/share/system-installer/modules/kernel.tar.xz")
+            tar_file = tar.open("/usr/share/system-installer/kernel.tar.xz")
         except FileNotFoundError:
-            tar_file = tar.open("/usr/share/system-installer/modules/kernel.tar.7z")
+            tar_file = tar.open("/usr/share/system-installer/kernel.tar.7z")
         files = tar_file.getnames()
         tar_file.close()
     else:
