@@ -58,7 +58,11 @@ def make_user(username):
     new_home = "/home/" + username
     if os.path.exists(new_home):
         eprint("Original home folder found. Substituting it in . . .")
-        rmtree("/home/live")
+        try:
+            rmtree("/home/live")
+        except FileNotFoundError:
+            if username != "home": #literally a 1 in a trillion chance of happening, but just in case
+                rmtree("/home/home")
     elif os.path.exists("/home/home/live"):
         __fix_home__(username)
     else:
