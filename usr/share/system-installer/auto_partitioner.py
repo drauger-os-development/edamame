@@ -439,7 +439,7 @@ Possible values:
     elif raid_array["raid_type"] is not None:
         disk = clobber_disk(device)
         common.eprint("CREATING RAID ARRAY")
-        common.eprint("RAID TYPE: %s" % (raid_array["raid_type"]))
+        common.eprint(f"RAID TYPE: {raid_array['raid_type']}")
         if not make_raid_array(raid_array["disks"], raid_array["raid_type"]):
             common.eprint("INITIAL RAID ARRAY CREATION FAILED. FORCING . . .")
             if not make_raid_array(raid_array["disks"], raid_array["raid_type"],
@@ -575,19 +575,19 @@ def make_raid_array(disks: list, raid_type: int, force=False) -> bool:
     if force:
         command.insert(1, "-f")
     if raid_type not in raid_types_dict:
-        raise ValueError("'%s' not a valid BTRFS RAID type" % (raid_type))
+        raise ValueError(f"'{raid_type}' not a valid BTRFS RAID type")
     if raid_type in (0, 1):
         if len(disks) < 2:
-            raise ValueError("Not enough disks for RAID%s" % (raid_type))
+            raise ValueError(f"Not enough disks for RAID{raid_type}")
     elif raid_type == 5:
         if not 3 <= len(disks) <= 16:
             raise ValueError("Not enough/Too many disks for RAID5")
     elif raid_type in (6, 10):
         if len(disks) < 4:
-            raise ValueError("Not enough disks for RAID%s" % (raid_type))
+            raise ValueError(f"Not enough disks for RAID{raid_type}")
     for each in disks:
         if not os.path.exists(each):
-            raise FileNotFoundError("Device not found: %s" % (each))
+            raise FileNotFoundError(f"Device not found: {each}")
     command.append(raid_types_dict[raid_type])
     if raid_type not in (0, 5, 6):
         command.append("-m")
