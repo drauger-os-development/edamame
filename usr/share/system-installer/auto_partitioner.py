@@ -448,7 +448,12 @@ Possible values:
                 common.eprint("FALLING BACK TO NO HOME PARTITION.")
                 home = None
     else:
-        common.eprint("HOME PARTITION EXISTS. NOT DELETING PARTITIONS.")
+        home_drive = get_drive_path(home)
+        root_drive = get_drive_path(root)
+        if home_drive == root_drive:
+            common.eprint("HOME PARTITION EXISTS. NOT DELETING PARTITIONS.")
+        else:
+            disk = clobber_disk(device)
     if size <= LIMITER:
         if efi:
             part1 = __make_efi__(device)
