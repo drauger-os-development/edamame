@@ -256,19 +256,19 @@ def __make_root__(device, start=config["ROOT"]["START"],
     except TypeError:
         pass
     disk = parted.Disk(device)
-    start_geo = parted.geometry.Geometry(device=device,
-                                         start=parted.sizeToSectors(common.real_number(start - 20),
-                                                                    "MB",
-                                                                    device.sectorSize),
-                                         end=parted.sizeToSectors(start + 20,
-                                                                  "MB",
-                                                                  device.sectorSize))
-    end_geo = parted.geometry.Geometry(device=device,
-                                       start=parted.sizeToSectors(common.real_number(end - 100),
-                                                                  "MB",
-                                                                  device.sectorSize),
-                                       end=parted.sizeToSectors(end, "MB",
-                                                                device.sectorSize))
+    s_geo = parted.geometry.Geometry(device=device,
+                                     start=parted.sizeToSectors(common.real_number(start - 20),
+                                                                "MB",
+                                                                device.sectorSize),
+                                     end=parted.sizeToSectors(start + 20,
+                                                              "MB",
+                                                              device.sectorSize))
+    e_geo = parted.geometry.Geometry(device=device,
+                                     start=parted.sizeToSectors(common.real_number(end - 100),
+                                                                "MB",
+                                                                device.sectorSize),
+                                     end=parted.sizeToSectors(end, "MB",
+                                                              device.sectorSize))
     min_size = parted.sizeToSectors(common.real_number((end - start) - 250),
                                     "MB",
                                     device.sectorSize)
@@ -277,7 +277,7 @@ def __make_root__(device, start=config["ROOT"]["START"],
                                     device.sectorSize)
     const = parted.Constraint(startAlign=device.optimumAlignment,
                               endAlign=device.optimumAlignment,
-                              startRange=start_geo, endRange=end_geo,
+                              startRange=s_geo, endRange=e_geo,
                               minSize=min_size,
                               maxSize=max_size)
     geo = parted.geometry.Geometry(start=parted.sizeToSectors(start, "MB",
@@ -296,37 +296,38 @@ def __make_root__(device, start=config["ROOT"]["START"],
         data = disk.getFreeSpaceRegions()
         sizes = {}
         for each in data:
-            sizes[each.length] = each
+            sizes[each.getSize(unit="b")] = each
+        sizes_sorted = sorted(sizes)
         made = False
-        for each in sizes:
-            if sizes[each].getSize(unit="b") >= get_min_root_size():
-                start_geo = parted.geometry.Geometry(device=device,
-                                                     start=parted.sizeToSectors(common.real_number(sizes[each].start - 500),
-                                                                                "MB",
-                                                                                device.sectorSize),
-                                                     end=parted.sizeToSectors(sizes[each].start + 500,
-                                                                              "MB",
-                                                                              device.sectorSize))
-                end_geo = parted.geometry.Geometry(device=device,
-                                                   start=parted.sizeToSectors(common.real_number(sizes[each].end - 500),
-                                                                              "MB",
-                                                                              device.sectorSize),
-                                                   end=parted.sizeToSectors(sizes[each].end + 500, "MB",
-                                                                            device.sectorSize))
-                min_size = parted.sizeToSectors(common.real_number((sizes[each].end - sizes[each].start) - 500),
+        for each in range(len(sizes_sorted) - 1, -1, -1):
+            if sizes[sizes_sorted[each]].getSize(unit="b") >= get_min_root_size():
+                s_geo = parted.geometry.Geometry(device=device,
+                                                 start=parted.sizeToSectors(common.real_number(sizes[sizes_sorted[each]].start - 500),
+                                                                            "MB",
+                                                                            device.sectorSize),
+                                                 end=parted.sizeToSectors(sizes[sizes_sorted[each]].start + 500,
+                                                                          "MB",
+                                                                          device.sectorSize))
+                e_geo = parted.geometry.Geometry(device=device,
+                                                 start=parted.sizeToSectors(common.real_number(sizes[sizes_sorted[each]].end - 500),
+                                                                            "MB",
+                                                                            device.sectorSize),
+                                                 end=parted.sizeToSectors(sizes[sizes_sorted[each]].end + 500, "MB",
+                                                                          device.sectorSize))
+                min_size = parted.sizeToSectors(common.real_number((sizes[sizes_sorted[each]].end - sizes[sizes_sorted[each]].start) - 500),
                                                 "MB",
                                                 device.sectorSize)
-                max_size = parted.sizeToSectors(common.real_number((sizes[each].end - sizes[each].start) + 500),
+                max_size = parted.sizeToSectors(common.real_number((sizes[sizes_sorted[each]].end - sizes[sizes_sorted[each]].start) + 500),
                                                 "MB",
                                                 device.sectorSize)
                 const = parted.Constraint(startAlign=device.optimumAlignment,
                                           endAlign=device.optimumAlignment,
-                                          startRange=start_geo, endRange=end_geo,
+                                          startRange=s_geo, endRange=e_geo,
                                           minSize=min_size,
                                           maxSize=max_size)
                 new_part = parted.Partition(disk=disk,
                                             type=parted.PARTITION_NORMAL,
-                                            geometry=sizes[each])
+                                            geometry=sizes[sizes_sorted[each]])
                 try:
                     disk.addPartition(partition=new_part, constraint=const)
                 except:
