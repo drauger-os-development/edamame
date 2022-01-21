@@ -264,15 +264,15 @@ def __make_root__(device, start=config["ROOT"]["START"],
                                                                   "MB",
                                                                   device.sectorSize))
     end_geo = parted.geometry.Geometry(device=device,
-                                       start=parted.sizeToSectors(common.real_number(end - 40),
+                                       start=parted.sizeToSectors(common.real_number(end - 100),
                                                                   "MB",
                                                                   device.sectorSize),
                                        end=parted.sizeToSectors(end, "MB",
                                                                 device.sectorSize))
-    min_size = parted.sizeToSectors(common.real_number((end - start) - 150),
+    min_size = parted.sizeToSectors(common.real_number((end - start) - 250),
                                     "MB",
                                     device.sectorSize)
-    max_size = parted.sizeToSectors(common.real_number((end - start) + 150),
+    max_size = parted.sizeToSectors(common.real_number((end - start) + 250),
                                     "MB",
                                     device.sectorSize)
     const = parted.Constraint(startAlign=device.optimumAlignment,
@@ -280,16 +280,39 @@ def __make_root__(device, start=config["ROOT"]["START"],
                               startRange=start_geo, endRange=end_geo,
                               minSize=min_size,
                               maxSize=max_size)
-    geometry = parted.geometry.Geometry(start=parted.sizeToSectors(start, "MB",
-                                                                   device.sectorSize),
-                                        length=parted.sizeToSectors((end - start),
-                                                                    "MB",
-                                                                    device.sectorSize),
+    geo = parted.geometry.Geometry(start=parted.sizeToSectors(start, "MB",
+                                                              device.sectorSize),
+                                   length=parted.sizeToSectors((end - start),
+                                                               "MB",
+                                                               device.sectorSize),
                                         device=device)
     new_part = parted.Partition(disk=disk,
                                 type=parted.PARTITION_NORMAL,
-                                geometry=geometry)
-    disk.addPartition(partition=new_part, constraint=const)
+                                geometry=geo)
+    try:
+        disk.addPartition(partition=new_part, constraint=const)
+    except parted._ped.PartitionException:
+        # Simply use the geometry of the first free space region, if it is big enough
+        data = disk.getFreeSpaceRegions()
+        sizes = {}
+        for each in data:
+            sizes[each.length] = each
+        made = False
+        for each in sizes:
+            if sizes[each].getSize(unit="b") >= get_min_root_size():
+                new_part = parted.Partition(disk=disk,
+                                            type=parted.PARTITION_NORMAL,
+                                            geometry=sizes[each])
+                try:
+                    disk.addPartition(partition=new_part, constraint=const)
+                except:
+                    break
+                made = True
+                break
+        if not made:
+            common.eprint("WAS NOT ABLE TO CREATE ROOT PARTITION. LIKELY NOT ENOUGH SPACE FOR ONE.")
+            common.eprint("INSTALLATION WILL FAIL")
+
     disk.commit()
     time.sleep(0.1)
     __mkfs__(new_part.path, fs)
@@ -523,8 +546,8 @@ Possible values:
         else:
             for each in sizes_sorted:
                 if sizes[each].getSize() >= 200:
-                    part1 = __make_root__(device, start=sizes[each].start,
-                                          end=sizes[each].end)
+                    part1 = __make_root__(device, start=sizes[each].start + 1,
+                                          end=sizes[each].end - 1)
                     __make_root_boot__(device)
                     break
         common.eprint("\t###\tauto_partioner.py CLOSED\t###\t")
