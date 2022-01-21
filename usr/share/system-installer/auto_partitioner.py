@@ -82,10 +82,7 @@ def size_of_part(part_path, bytes=False):
     Else, return size in gigabytes.
     """
     # Get the root Drive
-    if "nvme" in part_path:
-        root = part_path[:12]
-    else:
-        root = part_path[:8]
+    root = get_drive_path(part_path)
     # connect to that drive's partition table
     device = parted.getDevice(root)
     try:
@@ -100,6 +97,21 @@ def size_of_part(part_path, bytes=False):
     if not bytes:
         size = bytes_to_gb(size)
     return size
+
+
+def get_drive_path(part_path):
+    """Get drive path from partition path"""
+    if "nvme" in part_path:
+        output = part_path[:part_path.index("p")]
+    else:
+        count = 0
+        for each in part_path:
+            if not each.isnumeric():
+                count+=1
+            else:
+                break
+        output = part_path[:count]
+    return output
 
 
 def get_min_root_size(swap=True, ram_size=False, ram_size_unit=True,
@@ -339,11 +351,8 @@ def make_part_boot(part_path):
 
     etc...
     """
-    # Get root partiton
-    if "nvme" in part_path:
-        root = part_path[:12]
-    else:
-        root = part_path[:8]
+    # Get root drive
+    root = get_drive_path(part_path)
     # get Device
     device = parted.getDevice(root)
     # get entire partition table
@@ -353,7 +362,7 @@ def make_part_boot(part_path):
     # mark designated partition as bootable
     try:
         if "nvme" in part_path:
-            partitions[int(part_path[13:])].setFlag(parted.PARTITION_BOOT)
+            partitions[int(part_path[part_path.index("p") + 1:])].setFlag(parted.PARTITION_BOOT)
         else:
             partitions[int(part_path[8:])].setFlag(parted.PARTITION_BOOT)
     except IndexError:
@@ -373,10 +382,7 @@ def clobber_disk(device):
 
 def delete_part(part_path):
     """Delete partiton indicated by path"""
-    if "nvme" in part_path:
-        device = parted.getDevice(part_path[:-2])
-    else:
-        device = parted.getDevice(part_path[:-1])
+    device = parted.getDevice(get_drive_path(part_path))
     disk = parted.Disk(device)
     part = disk.getPartitionByPath(part_path)
     disk.deletePartition(part)
@@ -486,10 +492,7 @@ Possible values:
         return __generate_return_data__(home, efi, part1, part2, part3)
     # This one we need to figure out if the home partiton is on the drive
     # we are working on or elsewhere
-    if "nvme" in home:
-        check = home[:-2]
-    else:
-        check = home[:-1]
+    check = get_drive_path(home)
     if root == check:
         # It IS on the same drive. We need to figure out where at and work
         # around it
