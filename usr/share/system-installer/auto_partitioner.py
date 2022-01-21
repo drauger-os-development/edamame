@@ -300,6 +300,30 @@ def __make_root__(device, start=config["ROOT"]["START"],
         made = False
         for each in sizes:
             if sizes[each].getSize(unit="b") >= get_min_root_size():
+                start_geo = parted.geometry.Geometry(device=device,
+                                                     start=parted.sizeToSectors(common.real_number(sizes[each].start - 500),
+                                                                                "MB",
+                                                                                device.sectorSize),
+                                                     end=parted.sizeToSectors(sizes[each].start + 500,
+                                                                              "MB",
+                                                                              device.sectorSize))
+                end_geo = parted.geometry.Geometry(device=device,
+                                                   start=parted.sizeToSectors(common.real_number(sizes[each].end - 500),
+                                                                              "MB",
+                                                                              device.sectorSize),
+                                                   end=parted.sizeToSectors(sizes[each].end + 500, "MB",
+                                                                            device.sectorSize))
+                min_size = parted.sizeToSectors(common.real_number((sizes[each].end - sizes[each].start) - 500),
+                                                "MB",
+                                                device.sectorSize)
+                max_size = parted.sizeToSectors(common.real_number((sizes[each].end - sizes[each].start) + 500),
+                                                "MB",
+                                                device.sectorSize)
+                const = parted.Constraint(startAlign=device.optimumAlignment,
+                                          endAlign=device.optimumAlignment,
+                                          startRange=start_geo, endRange=end_geo,
+                                          minSize=min_size,
+                                          maxSize=max_size)
                 new_part = parted.Partition(disk=disk,
                                             type=parted.PARTITION_NORMAL,
                                             geometry=sizes[each])
