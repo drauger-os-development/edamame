@@ -448,9 +448,10 @@ Possible values:
                 common.eprint("FALLING BACK TO NO HOME PARTITION.")
                 home = None
     else:
+        # we know there is a pre-existing home partition
+        # determine if it is on the same drive and act accordingly
         home_drive = get_drive_path(home)
-        root_drive = get_drive_path(root)
-        if home_drive == root_drive:
+        if home_drive == root:
             common.eprint("HOME PARTITION EXISTS. NOT DELETING PARTITIONS.")
         else:
             disk = clobber_disk(device)
@@ -497,8 +498,7 @@ Possible values:
         return __generate_return_data__(home, efi, part1, part2, part3)
     # This one we need to figure out if the home partiton is on the drive
     # we are working on or elsewhere
-    check = get_drive_path(home)
-    if root == check:
+    if root == get_drive_path(home):
         # It IS on the same drive. We need to figure out where at and work
         # around it
         # NOTE: WE NEED TO WORK IN MB ONLY IN THIS SECTION
