@@ -31,6 +31,7 @@ import common
 import subprocess
 import gi
 import auto_partitioner
+import traceback
 
 gi.require_version('Gtk', '3.0')
 
@@ -986,21 +987,26 @@ Type. Minimum drives is: %s""" % (loops))
                         continue
                     elif 'children' in device:
                         for child in device['children']:
-                            if not child['type'] == 'part': # if it isn't labeled partition, skip
-                                continue 
+                            if "type" not in child.keys(): # if it doesn't have a label, skip
+                                continue
+                            elif not child['type'] == 'part': # if it isn't labeled partition, skip
+                                continue
 
                             test_child = {'name' : child['name'], 'size' : child['size']}
 
                             if test_child not in new_dev_list: # make sure child object is not already in dev_list
                                 new_dev_list.append(test_child)
-                    elif not device['type'] == 'part': # if it isn't labeled partition, skip
+                    elif "type" not in device.keys(): # if it doesn't have a label, skip
+                        continue
+                    elif device['type'] != 'part': # if it isn't labeled partition, skip
                         continue
                     else:
                         new_device = {'name' : device['name'], 'size' : device['size']}
 
                         new_dev_list.append(new_device)
                 except KeyError:
-                    pass # todo: use traceback module to print the traceback to stderr
+                    common.eprint(traceback.format_exc())
+                    print(json.dumps(device, indent=2))
 
             home_cmbbox = Gtk.ComboBoxText.new()
 
