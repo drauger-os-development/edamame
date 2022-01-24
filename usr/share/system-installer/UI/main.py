@@ -1008,6 +1008,12 @@ Type. Minimum drives is: %s""" % (loops))
                     common.eprint(traceback.format_exc())
                     print(json.dumps(device, indent=2))
 
+            # TEMPORARY: Remove the ability to use a home partition on the same
+            # drive as where the root partition is
+            for each in range(len(new_dev_list) - 1, -1, -1):
+                if self.data["ROOT"][5:] in new_dev_list[each]["name"]:
+                    del new_dev_list[each]
+
             home_cmbbox = Gtk.ComboBoxText.new()
 
             # properly format device names and add to combo box
