@@ -580,7 +580,7 @@ Possible values:
     # it's elsewhere. We're good.
     if efi:
         part1 = __make_efi__(device)
-        part2 = __make_root__(device)
+        part2 = __make_root__(device, end="100%")
     else:
         part1 = __make_root__(device, start="0%", end="100%")
         __make_root_boot__(device)
