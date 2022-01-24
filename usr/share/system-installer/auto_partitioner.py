@@ -302,22 +302,22 @@ def __make_root__(device, start=config["ROOT"]["START"],
         for each in range(len(sizes_sorted) - 1, -1, -1):
             if sizes[sizes_sorted[each]].getSize(unit="b") >= get_min_root_size():
                 s_geo = parted.geometry.Geometry(device=device,
-                                                 start=parted.sizeToSectors(common.real_number(sizes[sizes_sorted[each]].start - 500),
+                                                 start=parted.sizeToSectors(common.real_number(sizes[sizes_sorted[each]].start - 2000),
                                                                             "MB",
                                                                             device.sectorSize),
-                                                 end=parted.sizeToSectors(sizes[sizes_sorted[each]].start + 500,
+                                                 end=parted.sizeToSectors(sizes[sizes_sorted[each]].start + 2000,
                                                                           "MB",
                                                                           device.sectorSize))
                 e_geo = parted.geometry.Geometry(device=device,
-                                                 start=parted.sizeToSectors(common.real_number(sizes[sizes_sorted[each]].end - 500),
+                                                 start=parted.sizeToSectors(common.real_number(sizes[sizes_sorted[each]].end - 2000),
                                                                             "MB",
                                                                             device.sectorSize),
-                                                 end=parted.sizeToSectors(sizes[sizes_sorted[each]].end + 500, "MB",
+                                                 end=parted.sizeToSectors(sizes[sizes_sorted[each]].end + 2000, "MB",
                                                                           device.sectorSize))
-                min_size = parted.sizeToSectors(common.real_number((sizes[sizes_sorted[each]].end - sizes[sizes_sorted[each]].start) - 500),
+                min_size = parted.sizeToSectors(common.real_number((sizes[sizes_sorted[each]].end - sizes[sizes_sorted[each]].start) - 2000),
                                                 "MB",
                                                 device.sectorSize)
-                max_size = parted.sizeToSectors(common.real_number((sizes[sizes_sorted[each]].end - sizes[sizes_sorted[each]].start) + 500),
+                max_size = parted.sizeToSectors(common.real_number((sizes[sizes_sorted[each]].end - sizes[sizes_sorted[each]].start) + 2000),
                                                 "MB",
                                                 device.sectorSize)
                 const = parted.Constraint(startAlign=device.optimumAlignment,
