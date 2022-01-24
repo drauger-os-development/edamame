@@ -82,10 +82,7 @@ def size_of_part(part_path, bytes=False):
     Else, return size in gigabytes.
     """
     # Get the root Drive
-    if "nvme" in part_path:
-        root = part_path[:12]
-    else:
-        root = part_path[:8]
+    root = get_drive_path(part_path)
     # connect to that drive's partition table
     device = parted.getDevice(root)
     try:
@@ -100,6 +97,21 @@ def size_of_part(part_path, bytes=False):
     if not bytes:
         size = bytes_to_gb(size)
     return size
+
+
+def get_drive_path(part_path):
+    """Get drive path from partition path"""
+    if "nvme" in part_path:
+        output = part_path[:part_path.index("p")]
+    else:
+        count = 0
+        for each in part_path:
+            if not each.isnumeric():
+                count+=1
+            else:
+                break
+        output = part_path[:count]
+    return output
 
 
 def get_min_root_size(swap=True, ram_size=False, ram_size_unit=True,
@@ -244,40 +256,88 @@ def __make_root__(device, start=config["ROOT"]["START"],
     except TypeError:
         pass
     disk = parted.Disk(device)
-    start_geo = parted.geometry.Geometry(device=device,
-                                         start=parted.sizeToSectors(common.real_number(start - 20),
-                                                                    "MB",
-                                                                    device.sectorSize),
-                                         end=parted.sizeToSectors(start + 20,
-                                                                  "MB",
-                                                                  device.sectorSize))
-    end_geo = parted.geometry.Geometry(device=device,
-                                       start=parted.sizeToSectors(common.real_number(end - 40),
-                                                                  "MB",
-                                                                  device.sectorSize),
-                                       end=parted.sizeToSectors(end, "MB",
-                                                                device.sectorSize))
-    min_size = parted.sizeToSectors(common.real_number((end - start) - 150),
+    s_geo = parted.geometry.Geometry(device=device,
+                                     start=parted.sizeToSectors(common.real_number(start - 20),
+                                                                "MB",
+                                                                device.sectorSize),
+                                     end=parted.sizeToSectors(start + 20,
+                                                              "MB",
+                                                              device.sectorSize))
+    e_geo = parted.geometry.Geometry(device=device,
+                                     start=parted.sizeToSectors(common.real_number(end - 100),
+                                                                "MB",
+                                                                device.sectorSize),
+                                     end=parted.sizeToSectors(end, "MB",
+                                                              device.sectorSize))
+    min_size = parted.sizeToSectors(common.real_number((end - start) - 250),
                                     "MB",
                                     device.sectorSize)
-    max_size = parted.sizeToSectors(common.real_number((end - start) + 150),
+    max_size = parted.sizeToSectors(common.real_number((end - start) + 250),
                                     "MB",
                                     device.sectorSize)
     const = parted.Constraint(startAlign=device.optimumAlignment,
                               endAlign=device.optimumAlignment,
-                              startRange=start_geo, endRange=end_geo,
+                              startRange=s_geo, endRange=e_geo,
                               minSize=min_size,
                               maxSize=max_size)
-    geometry = parted.geometry.Geometry(start=parted.sizeToSectors(start, "MB",
-                                                                   device.sectorSize),
-                                        length=parted.sizeToSectors((end - start),
-                                                                    "MB",
-                                                                    device.sectorSize),
-                                        device=device)
+    geo = parted.geometry.Geometry(start=parted.sizeToSectors(start, "MB",
+                                                              device.sectorSize),
+                                   length=parted.sizeToSectors((end - start),
+                                                               "MB",
+                                                               device.sectorSize),
+                                   device=device)
     new_part = parted.Partition(disk=disk,
                                 type=parted.PARTITION_NORMAL,
-                                geometry=geometry)
-    disk.addPartition(partition=new_part, constraint=const)
+                                geometry=geo)
+    try:
+        disk.addPartition(partition=new_part, constraint=const)
+    except parted._ped.PartitionException:
+        # Simply use the geometry of the first free space region, if it is big enough
+        data = disk.getFreeSpaceRegions()
+        sizes = {}
+        for each in data:
+            sizes[each.getSize(unit="b")] = each
+        sizes_sorted = sorted(sizes)
+        made = False
+        for each in range(len(sizes_sorted) - 1, -1, -1):
+            if sizes[sizes_sorted[each]].getSize(unit="b") >= get_min_root_size():
+                s_geo = parted.geometry.Geometry(device=device,
+                                                 start=parted.sizeToSectors(common.real_number(sizes[sizes_sorted[each]].start - 2000),
+                                                                            "MB",
+                                                                            device.sectorSize),
+                                                 end=parted.sizeToSectors(sizes[sizes_sorted[each]].start + 2000,
+                                                                          "MB",
+                                                                          device.sectorSize))
+                e_geo = parted.geometry.Geometry(device=device,
+                                                 start=parted.sizeToSectors(common.real_number(sizes[sizes_sorted[each]].end - 2000),
+                                                                            "MB",
+                                                                            device.sectorSize),
+                                                 end=parted.sizeToSectors(sizes[sizes_sorted[each]].end + 2000, "MB",
+                                                                          device.sectorSize))
+                min_size = parted.sizeToSectors(common.real_number((sizes[sizes_sorted[each]].end - sizes[sizes_sorted[each]].start) - 2000),
+                                                "MB",
+                                                device.sectorSize)
+                max_size = parted.sizeToSectors(common.real_number((sizes[sizes_sorted[each]].end - sizes[sizes_sorted[each]].start) + 2000),
+                                                "MB",
+                                                device.sectorSize)
+                const = parted.Constraint(startAlign=device.optimumAlignment,
+                                          endAlign=device.optimumAlignment,
+                                          startRange=s_geo, endRange=e_geo,
+                                          minSize=min_size,
+                                          maxSize=max_size)
+                new_part = parted.Partition(disk=disk,
+                                            type=parted.PARTITION_NORMAL,
+                                            geometry=sizes[sizes_sorted[each]])
+                try:
+                    disk.addPartition(partition=new_part, constraint=const)
+                except:
+                    break
+                made = True
+                break
+        if not made:
+            common.eprint("WAS NOT ABLE TO CREATE ROOT PARTITION. LIKELY NOT ENOUGH SPACE FOR ONE.")
+            common.eprint("INSTALLATION WILL FAIL")
+
     disk.commit()
     time.sleep(0.1)
     __mkfs__(new_part.path, fs)
@@ -339,11 +399,8 @@ def make_part_boot(part_path):
 
     etc...
     """
-    # Get root partiton
-    if "nvme" in part_path:
-        root = part_path[:12]
-    else:
-        root = part_path[:8]
+    # Get root drive
+    root = get_drive_path(part_path)
     # get Device
     device = parted.getDevice(root)
     # get entire partition table
@@ -353,7 +410,7 @@ def make_part_boot(part_path):
     # mark designated partition as bootable
     try:
         if "nvme" in part_path:
-            partitions[int(part_path[13:])].setFlag(parted.PARTITION_BOOT)
+            partitions[int(part_path[part_path.index("p") + 1:])].setFlag(parted.PARTITION_BOOT)
         else:
             partitions[int(part_path[8:])].setFlag(parted.PARTITION_BOOT)
     except IndexError:
@@ -373,10 +430,7 @@ def clobber_disk(device):
 
 def delete_part(part_path):
     """Delete partiton indicated by path"""
-    if "nvme" in part_path:
-        device = parted.getDevice(part_path[:-2])
-    else:
-        device = parted.getDevice(part_path[:-1])
+    device = parted.getDevice(get_drive_path(part_path))
     disk = parted.Disk(device)
     part = disk.getPartitionByPath(part_path)
     disk.deletePartition(part)
@@ -433,7 +487,7 @@ Possible values:
     elif raid_array["raid_type"] is not None:
         disk = clobber_disk(device)
         common.eprint("CREATING RAID ARRAY")
-        common.eprint("RAID TYPE: %s" % (raid_array["raid_type"]))
+        common.eprint(f"RAID TYPE: {raid_array['raid_type']}")
         if not make_raid_array(raid_array["disks"], raid_array["raid_type"]):
             common.eprint("INITIAL RAID ARRAY CREATION FAILED. FORCING . . .")
             if not make_raid_array(raid_array["disks"], raid_array["raid_type"],
@@ -442,7 +496,13 @@ Possible values:
                 common.eprint("FALLING BACK TO NO HOME PARTITION.")
                 home = None
     else:
-        common.eprint("HOME PARTITION EXISTS. NOT DELETING PARTITIONS.")
+        # we know there is a pre-existing home partition
+        # determine if it is on the same drive and act accordingly
+        home_drive = get_drive_path(home)
+        if home_drive == root:
+            common.eprint("HOME PARTITION EXISTS. NOT DELETING PARTITIONS.")
+        else:
+            disk = clobber_disk(device)
     if size <= LIMITER:
         if efi:
             part1 = __make_efi__(device)
@@ -486,11 +546,7 @@ Possible values:
         return __generate_return_data__(home, efi, part1, part2, part3)
     # This one we need to figure out if the home partiton is on the drive
     # we are working on or elsewhere
-    if "nvme" in home:
-        check = home[:-2]
-    else:
-        check = home[:-1]
-    if root == check:
+    if root == get_drive_path(home):
         # It IS on the same drive. We need to figure out where at and work
         # around it
         # NOTE: WE NEED TO WORK IN MB ONLY IN THIS SECTION
@@ -515,8 +571,8 @@ Possible values:
         else:
             for each in sizes_sorted:
                 if sizes[each].getSize() >= 200:
-                    part1 = __make_root__(device, start=sizes[each].start,
-                                          end=sizes[each].end)
+                    part1 = __make_root__(device, start=sizes[each].start + 1,
+                                          end=sizes[each].end - 1)
                     __make_root_boot__(device)
                     break
         common.eprint("\t###\tauto_partioner.py CLOSED\t###\t")
@@ -567,19 +623,19 @@ def make_raid_array(disks: list, raid_type: int, force=False) -> bool:
     if force:
         command.insert(1, "-f")
     if raid_type not in raid_types_dict:
-        raise ValueError("'%s' not a valid BTRFS RAID type" % (raid_type))
+        raise ValueError(f"'{raid_type}' not a valid BTRFS RAID type")
     if raid_type in (0, 1):
         if len(disks) < 2:
-            raise ValueError("Not enough disks for RAID%s" % (raid_type))
+            raise ValueError(f"Not enough disks for RAID{raid_type}")
     elif raid_type == 5:
         if not 3 <= len(disks) <= 16:
             raise ValueError("Not enough/Too many disks for RAID5")
     elif raid_type in (6, 10):
         if len(disks) < 4:
-            raise ValueError("Not enough disks for RAID%s" % (raid_type))
+            raise ValueError(f"Not enough disks for RAID{raid_type}")
     for each in disks:
         if not os.path.exists(each):
-            raise FileNotFoundError("Device not found: %s" % (each))
+            raise FileNotFoundError(f"Device not found: {each}")
     command.append(raid_types_dict[raid_type])
     if raid_type not in (0, 5, 6):
         command.append("-m")

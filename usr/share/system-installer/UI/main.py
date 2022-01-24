@@ -31,13 +31,11 @@ import common
 import subprocess
 import gi
 import auto_partitioner
+import traceback
 
 gi.require_version('Gtk', '3.0')
 
 from gi.repository import Gtk
-
-
-
 
 
 def has_special_character(input_string):
@@ -552,7 +550,7 @@ class Main(Gtk.Window):
 
         # Get a list of disks and their capacity
         self.devices = json.loads(subprocess.check_output(["lsblk", "-n", "-i", "--json",
-                                                "-o", "NAME,SIZE,TYPE"]).decode())
+                                                           "-o", "NAME,SIZE,TYPE"]).decode())
         self.devices = self.devices["blockdevices"]
         dev = []
         for each2 in enumerate(self.devices):
@@ -906,9 +904,7 @@ Type. Minimum drives is: %s""" % (loops))
                 if "children" in each:
                     for each1 in each["children"]:
                         self.parts.append(each1["name"],
-                                          "%s, filesystem: %s, size: %sGB" % (each1["name"],
-                                            each1["fstype"],
-                                            int(auto_partitioner.bytes_to_gb(each1["size"]))))
+                                          f"{each1['name']}, filesystem: {each1['fstype']}, size: {int(auto_partitioner.bytes_to_gb(each1['size']))}GB")
         self.show_all()
 
     def confirm_remove_part(self, widget):
@@ -953,7 +949,6 @@ Type. Minimum drives is: %s""" % (loops))
         else:
             self.make_space("clicked", drive=part[:-1])
 
-
     def auto_home_setup(self, widget):
         """Handle preexisting vs making a new home directory"""
         if widget.get_active():
@@ -976,31 +971,41 @@ Type. Minimum drives is: %s""" % (loops))
         """Provide options for prexisting home partitions"""
         if widget.get_active() == 1:
             dev_list = tuple(self.devices)
-            new_dev_list = [] # this will be the final list that is displayed for the user
-
+            new_dev_list = []  # this will be the final list that is displayed for the user
 
             # todo: account for BTRFS drives that have no partitions
-            for device in dev_list: # we will iterate through the dev list and add devices to the new list
+            for device in dev_list:  # we will iterate through the dev list and add devices to the new list
                 try:
-                    if device == []: # if the device is empty, we skip
+                    if device == []:  # if the device is empty, we skip
                         continue
                     elif 'children' in device:
                         for child in device['children']:
-                            if not child['type'] == 'part': # if it isn't labeled partition, skip
-                                continue 
+                            if "type" not in child.keys():  # if it doesn't have a label, skip
+                                continue
+                            elif not child['type'] == 'part':  # if it isn't labeled partition, skip
+                                continue
 
-                            test_child = {'name' : child['name'], 'size' : child['size']}
+                            test_child = {'name': child['name'], 'size': child['size']}
 
-                            if test_child not in new_dev_list: # make sure child object is not already in dev_list
+                            if test_child not in new_dev_list:  # make sure child object is not already in dev_list
                                 new_dev_list.append(test_child)
-                    elif not device['type'] == 'part': # if it isn't labeled partition, skip
+                    elif "type" not in device.keys():  # if it doesn't have a label, skip
+                        continue
+                    elif device['type'] != 'part':  # if it isn't labeled partition, skip
                         continue
                     else:
-                        new_device = {'name' : device['name'], 'size' : device['size']}
+                        new_device = {'name': device['name'], 'size': device['size']}
 
                         new_dev_list.append(new_device)
                 except KeyError:
-                    pass # todo: use traceback module to print the traceback to stderr
+                    common.eprint(traceback.format_exc())
+                    print(json.dumps(device, indent=2))
+
+            # TEMPORARY: Remove the ability to use a home partition on the same
+            # drive as where the root partition is
+            for each in range(len(new_dev_list) - 1, -1, -1):
+                if self.data["ROOT"][5:] in new_dev_list[each]["name"]:
+                    del new_dev_list[each]
 
             home_cmbbox = Gtk.ComboBoxText.new()
 
@@ -1065,7 +1070,7 @@ Type. Minimum drives is: %s""" % (loops))
             self.main_menu("clicked")
 
 
-    def set_up_partitioner_label(self, additional_message = ""):
+    def set_up_partitioner_label(self, additional_message=""):
         """prepare top label for display on manual partitioner
 
         Keyword arguments:
@@ -1091,7 +1096,6 @@ Type. Minimum drives is: %s""" % (loops))
         label = self._set_default_margins(label)
 
         return label
-
 
     def input_part(self, button):
         """Manual Partitioning Input Window"""
@@ -1501,8 +1505,7 @@ Sub-Region""")
         """
         if widget.get_active_id() is None:
             return
-        zones = sorted(os.listdir("/usr/share/zoneinfo/"
-                               + widget.get_active_id()))
+        zones = sorted(os.listdir("/usr/share/zoneinfo/" + widget.get_active_id()))
         self.grid.remove(self.grid.get_child_at(2, 7))
         self.sub_region = Gtk.ComboBoxText.new()
         for each7 in zones:
@@ -1625,7 +1628,6 @@ Sub-Region""")
 
         self.show_all()
 
-
     def on_keyboard_completed(self, button):
         """Set default keyboard layout if user did not specify one"""
         if self.model_menu.get_active_id() is not None:
@@ -1648,7 +1650,6 @@ Sub-Region""")
         KEYBOARD_COMPLETION = "COMPLETED"
 
         self.main_menu("clicked")
-
 
     def done(self, button):
         """Check to see if each segment has been completed
