@@ -285,7 +285,7 @@ def __make_root__(device, start=config["ROOT"]["START"],
                                    length=parted.sizeToSectors((end - start),
                                                                "MB",
                                                                device.sectorSize),
-                                        device=device)
+                                   device=device)
     new_part = parted.Partition(disk=disk,
                                 type=parted.PARTITION_NORMAL,
                                 geometry=geo)
