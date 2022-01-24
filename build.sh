@@ -55,7 +55,7 @@ fi
 
 # Pshyc - we're compiling shit now
 cd usr/bin
-g++ -m64 -o system-installer system-installer.cxx $(python3.9-config --ldflags --cflags --embed)
+g++ -fPIE -m64 -o system-installer system-installer.cxx $(python3.9-config --ldflags --cflags --embed)
 cd ../..
 ##############################################################
 #							     #
