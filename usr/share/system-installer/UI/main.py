@@ -38,9 +38,6 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
 
-
-
-
 def has_special_character(input_string):
     """Check for special characters"""
     regex = re.compile(r'[@_!#$%^&*()<>?/\|}{~:]')
@@ -553,7 +550,7 @@ class Main(Gtk.Window):
 
         # Get a list of disks and their capacity
         self.devices = json.loads(subprocess.check_output(["lsblk", "-n", "-i", "--json",
-                                                "-o", "NAME,SIZE,TYPE"]).decode())
+                                                           "-o", "NAME,SIZE,TYPE"]).decode())
         self.devices = self.devices["blockdevices"]
         dev = []
         for each2 in enumerate(self.devices):
@@ -907,9 +904,7 @@ Type. Minimum drives is: %s""" % (loops))
                 if "children" in each:
                     for each1 in each["children"]:
                         self.parts.append(each1["name"],
-                                          "%s, filesystem: %s, size: %sGB" % (each1["name"],
-                                            each1["fstype"],
-                                            int(auto_partitioner.bytes_to_gb(each1["size"]))))
+                                          f"{each1['name']}, filesystem: {each1['fstype']}, size: {int(auto_partitioner.bytes_to_gb(each1['size']))}GB")
         self.show_all()
 
     def confirm_remove_part(self, widget):
