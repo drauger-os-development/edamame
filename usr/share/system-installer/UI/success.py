@@ -3,7 +3,7 @@
 #
 #  success.py
 #
-#  Copyright 2021 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2022 Thomas Castleman <contact@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -476,4 +476,5 @@ def __poweroff__(button):
 
 
 if __name__ == '__main__':
-    show_success(sys.argv[1])
+    settings = json.loads(sys.argv[1])
+    show_success(settings)

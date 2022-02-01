@@ -3,7 +3,7 @@
 #
 #  make_user.py
 #
-#  Copyright 2020 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2022 Thomas Castleman <contact@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -58,7 +58,12 @@ def make_user(username):
     new_home = "/home/" + username
     if os.path.exists(new_home):
         eprint("Original home folder found. Substituting it in . . .")
-        rmtree("/home/live")
+        try:
+            rmtree("/home/live")
+        except FileNotFoundError:
+            # literally a 1 in a trillion chance of happening, but just in case
+            if username != "home":
+                rmtree("/home/home")
     elif os.path.exists("/home/home/live"):
         __fix_home__(username)
     else:

@@ -3,7 +3,7 @@
 #
 #  common.py
 #
-#  Copyright 2020 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2022 Thomas Castleman <contact@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
 #
 """Common functions and other data for system-installer"""
 import sys
+import os
 
 
 def unique(starting_list):
@@ -54,3 +55,19 @@ def real_number(num):
     if num >= 0:
         return int(num)
     return 0
+
+
+def recursive_mkdir(path):
+    """ Recursively make directories down a file path
+
+    This function is functionally equivallent to: `mkdir -p {path}'
+    """
+    path = path.split("/")
+    for each in enumerate(path):
+        dir = "/".join(path[:each[0] + 1])
+        # prevent calling mkdir() on an empty string
+        if dir != "":
+            try:
+                os.mkdir(dir)
+            except FileExistsError:
+                pass

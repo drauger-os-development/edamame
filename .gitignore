@@ -1,2 +1,6 @@
 *.pyc
 __pycache__
+changelog.gz
+changelog
+*.o
+*.so

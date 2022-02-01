@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=System Installer
-Version=1.9.7-beta9
+Version=2.1.8
 Exec=/usr/bin/system-installer --boot-time
 Comment=Install Drauger OS to your internal drive
 Type=Application

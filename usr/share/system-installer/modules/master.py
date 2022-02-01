@@ -3,7 +3,7 @@
 #
 #  master.py
 #
-#  Copyright 2021 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2022 Thomas Castleman <contact@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -35,21 +35,21 @@ from time import sleep
 import json
 import warnings
 import tarfile as tar
+import traceback
 import de_control.modify as de_modify
-
 
 
 # import our own programs
 import modules.auto_login_set as auto_login_set
 import modules.make_swap as make_swap
 import modules.set_time as set_time
-import modules.systemd_boot_config as systemd_boot_config
 import modules.set_locale as set_locale
 import modules.install_updates as install_updates
 import modules.make_user as mkuser
 import modules.install_extras as install_extras
 from modules.verify_install import verify
 from modules.purge import purge_package
+
 
 def eprint(*args, **kwargs):
     """Make it easier for us to print to stderr"""
@@ -64,6 +64,7 @@ def __update__(percentage):
         os.chmod("/tmp/system-installer-progress.log", 0o666)
         with open("/tmp/system-installer-progress.log", "w+") as progress:
             progress.write(str(percentage))
+
 
 class MainInstallation():
     """Main Installation Procedure, minus low-level stuff"""
@@ -80,8 +81,8 @@ class MainInstallation():
         offset = 39
         ending = 51
         iterator = round(ending / len(processes_to_do))
-        # We COULD set point equal to iterator, but we don't want the iterator to change,
-        # so re-doing the math is safer, albiet slower.
+        # We COULD set point equal to iterator, but we don't want the iterator
+        # to change, so re-doing the math is safer, albiet slower.
         point = round(ending / len(processes_to_do))
         while len(processes_to_do) > 0:
             for each in range(len(processes_to_do) - 1, -1, -1):
@@ -208,6 +209,7 @@ BACKSPACE=\"guess\"
                     eprint("""Cannot find launcher for system-installer.
 User will need to remove manually.""")
 
+
 def set_plymouth_theme():
     """Ensure the plymouth theme is set correctly"""
     subprocess.Popen(["update-alternatives", "--install",
@@ -215,7 +217,8 @@ def set_plymouth_theme():
                       "default.plymouth",
                       "/usr/share/plymouth/themes/drauger-theme/drauger-theme.plymouth",
                       "100", "--slave",
-                      "/usr/share/plymouth/themes/default.grub", "default.plymouth.grub",
+                      "/usr/share/plymouth/themes/default.grub",
+                      "default.plymouth.grub",
                       "/usr/share/plymouth/themes/drauger-theme/drauger-theme.grub"],
                      stdout=stderr.buffer)
     process = subprocess.Popen(["update-alternatives", "--config",
@@ -225,32 +228,32 @@ def set_plymouth_theme():
                                stderr=subprocess.PIPE)
     process.communicate(input=bytes("2\n", "utf-8"))
 
+
 def install_kernel(release):
     """Install kernel from kernel.tar.xz"""
     # we are going to do offline kernel installation from now on.
     # it's just easier and more reliable
-    eprint("EXTRACTING KERNEL.TAR.XZ")
-    tar_file = tar.open("kernel.tar.xz")
-    tar_file.extractall()
-    tar_file.close()
-    eprint("EXTRACTION COMPLETE")
-    subprocess.check_call(["apt", "purge", "-y", "linux-headers-" + release,
-                           "linux-image-" + release], stdout=stderr.buffer)
-    subprocess.check_call(["apt", "autoremove", "-y", "--purge"],
+    packages = ["linux-headers-" + release, "linux-image-" + release]
+    install_command = ["dpkg", "--install"]
+    subprocess.check_call(["apt-get", "purge", "-y"] + packages,
                           stdout=stderr.buffer)
-    subprocess.check_call(["dpkg", "-R", "--install", "kernel/"],
+    subprocess.check_call(["apt-get", "autoremove", "-y", "--purge"],
                           stdout=stderr.buffer)
-    rmtree("/kernel")
+    packages = [each for each in os.listdir("/repo") if "linux-" in each]
+    os.chdir("/repo")
+    subprocess.check_call(install_command + packages, stdout=stderr.buffer)
+    os.chdir("/")
 
 
-def install_bootloader(efi, root, release):
+def install_bootloader(efi, root, release, distro):
     """Determine whether bootloader needs to be systemd-boot (for UEFI)
     or GRUB (for BIOS)
     and install the correct one."""
     if efi not in ("NULL", None, "", False):
-        _install_systemd_boot(release, root)
+        _install_systemd_boot(release, root, distro)
     else:
         _install_grub(root)
+
 
 def _install_grub(root):
     """set up and install GRUB.
@@ -265,14 +268,28 @@ def _install_grub(root):
     if root[-1] == "p":
         del root[-1]
     root = "".join(root)
-    subprocess.check_call(["grub-mkdevicemap", "--verbose"],
-                          stdout=stderr.buffer)
+    redo = False
+    os.mkdir("/boot/grub")
+    try:
+        subprocess.check_call(["grub-mkdevicemap", "--verbose"],
+                              stdout=stderr.buffer)
+    except subprocess.CalledProcessError:
+        redo = True
     subprocess.check_call(["grub-install", "--verbose", "--force",
                            "--target=i386-pc", root], stdout=stderr.buffer)
+    if redo:
+        try:
+            subprocess.check_call(["grub-mkdevicemap", "--verbose"],
+                                  stdout=stderr.buffer)
+        except subprocess.CalledProcessError as e:
+            eprint("WARNING: GRUB device map failed to generate")
+            eprint("The error was as follows:")
+            eprint(traceback.format_exeception())
     subprocess.check_call(["grub-mkconfig", "-o", "/boot/grub/grub.cfg"],
                           stdout=stderr.buffer)
 
-def _install_systemd_boot(release, root):
+
+def _install_systemd_boot(release, root, distro):
     """set up and install systemd-boot"""
     try:
         os.mkdir("/boot/efi")
@@ -280,7 +297,7 @@ def _install_systemd_boot(release, root):
         pass
     os.mkdir("/boot/efi/loader")
     os.mkdir("/boot/efi/loader/entries")
-    os.mkdir("/boot/efi/Drauger_OS")
+    os.mkdir(f"/boot/efi/{distro}")
     os.environ["SYSTEMD_RELAX_ESP_CHECKS"] = "1"
     with open("/etc/environment", "a") as envi:
         envi.write("export SYSTEMD_RELAX_ESP_CHECKS=1")
@@ -318,20 +335,49 @@ def _install_systemd_boot(release, root):
         except FileExistsError:
             pass
     with open("/boot/efi/loader/loader.conf", "w+") as loader_conf:
-        loader_conf.write("default Drauger_OS\ntimeout 5\neditor 1")
+        loader_conf.write(f"default {distro}\n")
+        loader_conf.write("timeout 5\nconsole-mode 1\neditor 1")
     try:
         subprocess.check_call(["chattr", "-i", "/boot/efi/loader/loader.conf"],
                               stdout=stderr.buffer)
     except subprocess.CalledProcessError:
         eprint("CHATTR FAILED ON loader.conf, setting octal permissions to 444")
         os.chmod("/boot/efi/loader/loader.conf", 0o444)
-    systemd_boot_config.systemd_boot_config(root)
-    subprocess.check_call("/etc/kernel/postinst.d/zz-update-systemd-boot",
+    install_command = ["dpkg", "--install"]
+    packages = [each for each in os.listdir("/repo") if "systemd-boot-manager" in each]
+    os.chdir("/repo")
+    depends = subprocess.check_output(["dpkg", "-f"] + packages + ["depends"])
+    depends = depends.decode()[:-1].split(", ")
+    # List of dependencies
+    depends = [depends[each[0]].split(" ")[0] for each in enumerate(depends)]
+    # depends is just a list of package names. We now need to go through the list
+    # of files in this folder, and if the package name is in the file name, add
+    # it to the list `packages`
+    for each in os.listdir():
+        for each1 in depends:
+            if ((each1 in each) and (each not in packages)):
+                packages.append(each)
+                break
+    subprocess.check_call(install_command + packages,
                           stdout=stderr.buffer)
-    check_systemd_boot(release, root)
+    os.chdir("/")
+    subprocess.check_call(["systemd-boot-manager", "-e"],
+                          stdout=stderr.buffer)
+    subprocess.check_call(["systemd-boot-manager", "-r"],
+                          stdout=stderr.buffer)
+    subprocess.check_call(["systemd-boot-manager",
+                           "--enforce-default-entry=enable"],
+                          stdout=stderr.buffer)
+    # This lib didn't exist before we installed this package.
+    # So we can only now import it
+    import systemd_boot_manager
+    systemd_boot_manager.update_defaults_file(distro + ".conf")
+    subprocess.check_call(["systemd-boot-manager", "-u"],
+                          stdout=stderr.buffer)
+    check_systemd_boot(release, root, distro)
 
 
-def setup_lowlevel(efi, root):
+def setup_lowlevel(efi, root, distro):
     """Set up kernel and bootloader"""
     release = subprocess.check_output(["uname", "--release"]).decode()[0:-1]
     install_kernel(release)
@@ -340,12 +386,13 @@ def setup_lowlevel(efi, root):
     eprint("\n    ###    MAKING INITRAMFS    ###    ")
     subprocess.check_call(["mkinitramfs", "-o", "/boot/initrd.img-" + release],
                           stdout=stderr.buffer)
-    install_bootloader(efi, root, release)
+    install_bootloader(efi, root, release, distro)
     sleep(0.5)
     os.symlink("/boot/initrd.img-" + release, "/boot/initrd.img")
     os.symlink("/boot/vmlinuz-" + release, "/boot/vmlinuz")
 
-def check_systemd_boot(release, root):
+
+def check_systemd_boot(release, root, distro):
     """Ensure systemd-boot was configured correctly"""
     # Initialize variables
     root_flags = "quiet splash"
@@ -355,14 +402,15 @@ def check_systemd_boot(release, root):
                                     "-o", "value", root]).decode()[0:-1]
 
     # Check for standard boot config
-    if not os.path.exists("/boot/efi/loader/entries/Drauger_OS.conf"):
+    if not os.path.exists(f"/boot/efi/loader/entries/{distro}.conf"):
         # Write standard boot conf if it doesn't exist
         eprint("Standard Systemd-boot entry non-existant")
         try:
-            with open("/boot/efi/loader/entries/Drauger_OS.conf", "w+") as main_conf:
-                main_conf.write("""title   Drauger OS
-linux   /Drauger_OS/vmlinuz
-initrd  /Drauger_OS/initrd.img
+            with open(f"/boot/efi/loader/entries/{distro}.conf",
+                      "w+") as main_conf:
+                main_conf.write(f"""title   {distro}
+linux   /{distro}/vmlinuz
+initrd  /{distro}/initrd.img
 options root=PARTUUID=%s %s""" % (uuid, root_flags))
             eprint("Made standard systemd-boot entry")
         # Raise an exception if we cannot write the entry
@@ -372,14 +420,15 @@ options root=PARTUUID=%s %s""" % (uuid, root_flags))
     else:
         eprint("Standard systemd-boot entry checks out")
     # Check for recovery boot config
-    if not os.path.exists("/boot/efi/loader/entries/Drauger_OS_Recovery.conf"):
+    if not os.path.exists(f"/boot/efi/loader/entries/{distro}_Recovery.conf"):
         eprint("Recovery Systemd-boot entry non-existant")
         try:
             # Write recovery boot conf if it doesn't exist
-            with open("/boot/efi/loader/entries/Drauger_OS_Recovery.conf", "w+") as main_conf:
-                main_conf.write("""title   Drauger OS Recovery
-linux   /Drauger_OS/vmlinuz
-initrd  /Drauger_OS/initrd.img
+            with open(f"/boot/efi/loader/entries/{distro}_Recovery.conf",
+                      "w+") as main_conf:
+                main_conf.write(f"""title   {distro}_Recovery
+linux   /{distro}/vmlinuz
+initrd  /{distro}/initrd.img
 options root=PARTUUID=%s %s""" % (uuid, recovery_flags))
             eprint("Made recovery systemd-boot entry")
         # Raise a warning if we cannot write the entry
@@ -414,30 +463,31 @@ options root=PARTUUID=%s %s""" % (uuid, recovery_flags))
     sysmap = sorted(sysmap)[-1]
     # Copy the latest files into place
     # Also, rename them so that systemd-boot can find them
-    if not os.path.exists("/boot/efi/Drauger_OS/vmlinuz"):
+    if not os.path.exists(f"/boot/efi/{distro}/vmlinuz"):
         eprint("vmlinuz non-existant")
-        copyfile("/boot/" + vmlinuz, "/boot/efi/Drauger_OS/vmlinuz")
+        copyfile("/boot/" + vmlinuz, f"/boot/efi/{distro}/vmlinuz")
         eprint("vmlinuz copied")
     else:
         eprint("vmlinuz checks out")
-    if not os.path.exists("/boot/efi/Drauger_OS/config"):
+    if not os.path.exists(f"/boot/efi/{distro}/config"):
         eprint("config non-existant")
-        copyfile("/boot/" + config, "/boot/efi/Drauger_OS/config")
+        copyfile("/boot/" + config, f"/boot/efi/{distro}/config")
         eprint("config copied")
     else:
         eprint("Config checks out")
-    if not os.path.exists("/boot/efi/Drauger_OS/initrd.img"):
+    if not os.path.exists(f"/boot/efi/{distro}/initrd.img"):
         eprint("initrd.img non-existant")
-        copyfile("/boot/" + initrd, "/boot/efi/Drauger_OS/initrd.img")
+        copyfile("/boot/" + initrd, f"/boot/efi/{distro}/initrd.img")
         eprint("initrd.img copied")
     else:
         eprint("initrd.img checks out")
-    if not os.path.exists("/boot/efi/Drauger_OS/System.map"):
+    if not os.path.exists(f"/boot/efi/{distro}/System.map"):
         eprint("System.map non-existant")
-        copyfile("/boot/" + sysmap, "/boot/efi/Drauger_OS/System.map")
+        copyfile("/boot/" + sysmap, f"/boot/efi/{distro}/System.map")
         eprint("System.map copied")
     else:
         eprint("System.map checks out")
+
 
 def _check_for_laptop():
     """Check if the device we are installing is a laptop.
@@ -458,7 +508,7 @@ def handle_laptops(username):
         de_modify.for_laptop()
 
 
-def install(settings):
+def install(settings, distro):
     """Entry point for installation procedure"""
     processes_to_do = dir(MainInstallation)
     for each in range(len(processes_to_do) - 1, -1, -1):
@@ -466,14 +516,15 @@ def install(settings):
             del processes_to_do[each]
     MainInstallation(processes_to_do, settings)
     handle_laptops(settings["USERNAME"])
-    setup_lowlevel(settings["EFI"], settings["ROOT"])
-    verify(settings["USERNAME"])
+    setup_lowlevel(settings["EFI"], settings["ROOT"], distro)
+    verify(settings["USERNAME"], settings["ROOT"], distro)
     if "PURGE" in settings:
         purge_package(settings["PURGE"])
     # Mark a system as an OEM installation if necessary
     if "OEM" in settings.values():
         with open("/etc/system-installer/oem-post-install.flag", "w") as file:
             file.write("")
+
 
 if __name__ == "__main__":
     # get length of argv

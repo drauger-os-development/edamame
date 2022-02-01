@@ -3,7 +3,7 @@
 #
 #  check_kernel_version.py
 #
-#  Copyright 2021 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2022 Thomas Castleman <contact@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -27,17 +27,21 @@ kernel cannot be booted.
 """
 import tarfile as tar
 import subprocess
+import os
 import common
 
 
-def __get_file_version__():
+def __get_file_version__(local_repo):
     """Get kernel version in included kernel archive"""
-    try:
-        tar_file = tar.open("/usr/share/system-installer/modules/kernel.tar.xz")
-    except FileNotFoundError:
-        tar_file = tar.open("/usr/share/system-installer/modules/kernel.tar.7z")
-    files = tar_file.getnames()
-    tar_file.close()
+    if not os.path.exists(local_repo):
+        try:
+            tar_file = tar.open("/usr/share/system-installer/kernel.tar.xz")
+        except FileNotFoundError:
+            tar_file = tar.open("/usr/share/system-installer/kernel.tar.7z")
+        files = tar_file.getnames()
+        tar_file.close()
+    else:
+        files = os.listdir(local_repo)
     for each in range(len(files) - 1, -1, -1):
         if files[each] in ("kernel", "kernel/linux-meta"):
             del files[each]
@@ -50,11 +54,16 @@ def __get_file_version__():
             if files[each][-1] == "amd64.deb":
                 del files[each][-1]
             files[each] = files[each][0]
+    files = [each for each in files if "linux" in each]
     version = common.unique(files)[0]
     if version[:6] == "linux-":
         version = version[6:]
     if version[-2:] == "-0":
         version = version[:-2]
+    if version[:8] == "headers-":
+        version = version[8:]
+    if version[:6] == "image-":
+        version = version[6:]
     return version
 
 
@@ -63,10 +72,10 @@ def __get_installed_version__():
     return subprocess.check_output(["uname", "--release"]).decode("utf-8")[:-1]
 
 
-def check_kernel_versions():
+def check_kernel_versions(local_repo):
     """Compare kernel versions"""
     common.eprint("CHECKING KERNEL VERSIONS")
-    file_version = __get_file_version__()
+    file_version = __get_file_version__(local_repo)
     installed_version = __get_installed_version__()
     if file_version == installed_version:
         common.eprint("KERNEL VERSIONS MATCH: SUCCESS")
