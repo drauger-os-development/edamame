@@ -904,7 +904,9 @@ Type. Minimum drives is: %s""" % (loops))
                 if "children" in each:
                     for each1 in each["children"]:
                         self.parts.append(each1["name"],
-                                          f"{each1['name']}, filesystem: {each1['fstype']}, size: {int(auto_partitioner.bytes_to_gb(each1['size']))}GB")
+                                          f"{each1['name']}, filesystem: "\
+                                            "{each1['fstype']}, size: "\
+                                            "{int(auto_partitioner.bytes_to_gb(each1['size']))}GB")
         self.show_all()
 
     def confirm_remove_part(self, widget):
@@ -973,8 +975,8 @@ Type. Minimum drives is: %s""" % (loops))
             dev_list = tuple(self.devices)
             new_dev_list = []  # this will be the final list that is displayed for the user
 
-            # todo: account for BTRFS drives that have no partitions
-            for device in dev_list:  # we will iterate through the dev list and add devices to the new list
+            # we will iterate through the dev list and add devices to the new list
+            for device in dev_list:
                 try:
                     if device == []:  # if the device is empty, we skip
                         continue
@@ -982,12 +984,13 @@ Type. Minimum drives is: %s""" % (loops))
                         for child in device['children']:
                             if "type" not in child.keys():  # if it doesn't have a label, skip
                                 continue
-                            elif not child['type'] == 'part':  # if it isn't labeled partition, skip
+                            elif not child['type'] == 'part':  # if it isn't labeled 'part', skip
                                 continue
 
                             test_child = {'name': child['name'], 'size': child['size']}
 
-                            if test_child not in new_dev_list:  # make sure child object is not already in dev_list
+                            # make sure child object is not already in dev_list
+                            if test_child not in new_dev_list:
                                 new_dev_list.append(test_child)
                     elif "type" not in device.keys():  # if it doesn't have a label, skip
                         continue
@@ -1013,7 +1016,8 @@ Type. Minimum drives is: %s""" % (loops))
             for device in new_dev_list:
                 device['name'] = "/dev/%s" % device['name']
 
-                home_cmbbox.append(device['name'], "%s    Size: %s" % (device['name'], device['size']))
+                home_cmbbox.append(device['name'], "%s    Size: %s" %
+                    (device['name'], device['size']))
 
             if self.data["HOME"] != "":
                 home_cmbbox.set_active_id(self.data["HOME"])
@@ -1179,6 +1183,7 @@ Type. Minimum drives is: %s""" % (loops))
 
     def onnext4clicked(self, button):
         """Check device paths provided for manual partitioner"""
+        root_min = round(auto_partitioner.get_min_root_size(bytes=False))
         if ((self.root.get_text() == "") or (
                 self.root.get_text()[0:5] != "/dev/")):
             label = self.set_up_partitioner_label("ERROR: / NOT SET")
@@ -1276,9 +1281,10 @@ Type. Minimum drives is: %s""" % (loops))
         if ((self.swap.get_text().upper() == "FILE") or (self.swap.get_text() == "")):
             if auto_partitioner.size_of_part(self.root.get_text()) < \
                     auto_partitioner.get_min_root_size(bytes=False):
+                root_swap_min = round(auto_partitioner.get_min_root_size(swap=False, bytes=False))
                 label_string = \
-        f""" / is too small. Minimum Root Partition size is { round(auto_partitioner.get_min_root_size(bytes=False)) } GB
-        Make a swap partition to reduce this minimum to { round(auto_partitioner.get_min_root_size(swap=False, bytes=False)) } GB
+        f""" / is too small. Minimum Root Partition size is {root_min} GB
+        Make a swap partition to reduce this minimum to { root_swap_min } GB
         """
                 label = self.set_up_partitioner_label(label_string)
                 try:
@@ -1292,7 +1298,7 @@ Type. Minimum drives is: %s""" % (loops))
         else:
             if auto_partitioner.size_of_part(self.root.get_text()) < \
                     auto_partitioner.get_min_root_size(swap=False, bytes=False):
-                label_string = f"/ is too small. Minimum Root Partition size is { round(auto_partitioner.get_min_root_size(swap=False, bytes=False)) } GB"
+                label_string = f"/ is too small. Minimum Root Partition size is { root_min } GB"
                 label = self.set_up_partitioner_label(label_string)
                 try:
                     self.grid.remove(self.grid.get_child_at(1, 1))
