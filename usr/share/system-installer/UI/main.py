@@ -22,20 +22,22 @@
 #
 #
 """Main Installation UI"""
+# pylint: disable=wrong-import-position
 from __future__ import print_function
-import sys
 import re
 import json
 import os
-import common
 import subprocess
-import gi
-import auto_partitioner
 import traceback
 
+import gi
 gi.require_version('Gtk', '3.0')
-
 from gi.repository import Gtk
+
+import common
+import auto_partitioner
+
+
 
 
 def has_special_character(input_string):
@@ -142,7 +144,7 @@ class Main(Gtk.Window):
         widget.set_margin_bottom(10)
         return widget
 
-    def quick_install_warning(self, button):
+    def quick_install_warning(self):
         """Quick Install Mode Entry Point"""
         self.clear_window()
 
@@ -178,7 +180,7 @@ class Main(Gtk.Window):
 
         self.show_all()
 
-    def reset(self, button):
+    def reset(self):
         """Main Splash Window"""
         global DEFAULT
         self.clear_window()
@@ -213,12 +215,12 @@ class Main(Gtk.Window):
 
         self.show_all()
 
-    def oem_startup(self, widget):
+    def oem_startup(self):
         """Start up OEM installation"""
         self.data = "/etc/system-installer/oem-install.json"
         self.complete()
 
-    def select_config(self, widget):
+    def select_config(self):
         """Quick Install File Selection Window"""
         common.eprint("\t###\tQUICK INSTALL MODE ACTIVATED\t###\t")
         dialog = Gtk.FileChooserDialog("System Installer", self,
@@ -255,7 +257,7 @@ class Main(Gtk.Window):
         filter_any.add_pattern("*")
         dialog.add_filter(filter_any)
 
-    def main_menu(self, button):
+    def main_menu(self):
         """Main Menu"""
         self.clear_window()
 
@@ -333,7 +335,7 @@ class Main(Gtk.Window):
 
         self.show_all()
 
-    def user(self, button):
+    def user(self):
         """User setup Window"""
         self.clear_window()
 
@@ -408,7 +410,7 @@ class Main(Gtk.Window):
 
         self.show_all()
 
-    def onnext2clicked(self, button):
+    def onnext2clicked(self):
         """Password, Username, and hostname Checker"""
         self.data["PASSWORD"] = self.password.get_text()
         pass2 = self.passconf.get_text()
@@ -503,7 +505,7 @@ class Main(Gtk.Window):
 
         self.show_all()
 
-    def partitioning(self, button):
+    def partitioning(self):
         """Partitioning Main Window"""
         self.clear_window()
 
@@ -543,7 +545,7 @@ class Main(Gtk.Window):
 
         self.show_all()
 
-    def auto_partition(self, button):
+    def auto_partition(self):
         """Auto Partitioning Settings Window"""
         self.clear_window()
         self.data["AUTO_PART"] = True
@@ -635,7 +637,7 @@ class Main(Gtk.Window):
 
         self.show_all()
 
-    def define_array(self, widget, error=None):
+    def define_array(self, error=None):
         """Define btrfs RAID Array settings"""
         self.clear_window()
 
@@ -780,7 +782,7 @@ Type. Minimum drives is: %s""" % (loops))
             self.data["raid_array"]["disks"]["4"] = None
         self.define_array("clicked")
 
-    def confirm_raid_array(self, widget):
+    def confirm_raid_array(self):
         """Confirm RAID settings and modify other
         installer settings as necessary"""
         if self.data["raid_array"]["raid_type"] is None:
@@ -835,12 +837,12 @@ Type. Minimum drives is: %s""" % (loops))
 
         self.show_all()
 
-    def cement_raid_array(self, widget):
+    def cement_raid_array(self):
         """Set alternate settings so that the RAID Array can be handled internally"""
         self.data["HOME"] = self.data["raid_array"]["disks"]["1"]
         self.auto_partition("clicked")
 
-    def make_space(self, widget, drive=None):
+    def make_space(self, drive=None):
         """Window for making space on an installed drive"""
         self.clear_window()
 
@@ -909,7 +911,7 @@ Type. Minimum drives is: %s""" % (loops))
                                             "{int(auto_partitioner.bytes_to_gb(each1['size']))}GB")
         self.show_all()
 
-    def confirm_remove_part(self, widget):
+    def confirm_remove_part(self):
         """Confirm removal of designated partition"""
         self.clear_window()
 
@@ -942,7 +944,7 @@ Type. Minimum drives is: %s""" % (loops))
         button2 = self._set_default_margins(button2)
         self.grid.attach(button2, 1, 6, 1, 1)
 
-    def remove_part(self, widget):
+    def remove_part(self):
         """Interface for removing partitions"""
         part = self.parts.get_active_id()
         auto_partitioner.delete_part(part)
@@ -1022,7 +1024,6 @@ Type. Minimum drives is: %s""" % (loops))
             if self.data["HOME"] != "":
                 home_cmbbox.set_active_id(self.data["HOME"])
             home_cmbbox.connect("changed", self.select_home_part)
-            parts = self._set_default_margins(home_cmbbox)
             self.grid.attach(home_cmbbox, 1, 5, 2, 1)
         else:
             self.data["HOME"] = "MAKE"
