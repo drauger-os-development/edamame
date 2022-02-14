@@ -144,7 +144,9 @@ class Main(Gtk.Window):
         widget.set_margin_bottom(10)
         return widget
 
-    def quick_install_warning(self):
+    # the following functions have unused parameters that are required for GTK
+    # pylint: disable=unused-argument
+    def quick_install_warning(self, button):
         """Quick Install Mode Entry Point"""
         self.clear_window()
 
@@ -180,7 +182,7 @@ class Main(Gtk.Window):
 
         self.show_all()
 
-    def reset(self):
+    def reset(self, button):
         """Main Splash Window"""
         global DEFAULT
         self.clear_window()
@@ -215,12 +217,12 @@ class Main(Gtk.Window):
 
         self.show_all()
 
-    def oem_startup(self):
+    def oem_startup(self, widget):
         """Start up OEM installation"""
         self.data = "/etc/system-installer/oem-install.json"
         self.complete()
 
-    def select_config(self):
+    def select_config(self, widget):
         """Quick Install File Selection Window"""
         common.eprint("\t###\tQUICK INSTALL MODE ACTIVATED\t###\t")
         dialog = Gtk.FileChooserDialog("System Installer", self,
@@ -240,24 +242,7 @@ class Main(Gtk.Window):
         dialog.destroy()
         self.exit("clicked")
 
-    def add_filters(self, dialog):
-        """Add Filters to Quick Install File Selection Window"""
-        json_filter_text = Gtk.FileFilter()
-        json_filter_text.set_name("JSON Files (*.json)")
-        json_filter_text.add_mime_type("application/json")
-        dialog.add_filter(json_filter_text)
-
-        xz_filter_text = Gtk.FileFilter()
-        xz_filter_text.set_name("XZ compressed Tar balls (*.tar.xz)")
-        xz_filter_text.add_mime_type("application/x-xz-compressed-tar")
-        dialog.add_filter(xz_filter_text)
-
-        filter_any = Gtk.FileFilter()
-        filter_any.set_name("Any files")
-        filter_any.add_pattern("*")
-        dialog.add_filter(filter_any)
-
-    def main_menu(self):
+    def main_menu(self, button):
         """Main Menu"""
         self.clear_window()
 
@@ -335,7 +320,7 @@ class Main(Gtk.Window):
 
         self.show_all()
 
-    def user(self):
+    def user(self, button):
         """User setup Window"""
         self.clear_window()
 
@@ -410,7 +395,7 @@ class Main(Gtk.Window):
 
         self.show_all()
 
-    def onnext2clicked(self):
+    def onnext2clicked(self, button):
         """Password, Username, and hostname Checker"""
         self.data["PASSWORD"] = self.password.get_text()
         pass2 = self.passconf.get_text()
@@ -505,7 +490,7 @@ class Main(Gtk.Window):
 
         self.show_all()
 
-    def partitioning(self):
+    def partitioning(self, button):
         """Partitioning Main Window"""
         self.clear_window()
 
@@ -545,7 +530,7 @@ class Main(Gtk.Window):
 
         self.show_all()
 
-    def auto_partition(self):
+    def auto_partition(self, button):
         """Auto Partitioning Settings Window"""
         self.clear_window()
         self.data["AUTO_PART"] = True
@@ -637,7 +622,7 @@ class Main(Gtk.Window):
 
         self.show_all()
 
-    def define_array(self, error=None):
+    def define_array(self, widget, error=None):
         """Define btrfs RAID Array settings"""
         self.clear_window()
 
@@ -747,42 +732,7 @@ Type. Minimum drives is: %s""" % (loops))
 
         self.show_all()
 
-    # I know there is a better way to assign disks than this, or at least a
-    # Better way to define these functions. But this was the simplest way I can
-    # Think to do it right now. In the future, I want to add the ability to
-    # increase RAID Array size, but that will have to include some more dynamic
-    # programming that I just don't know how to do or care to learn right now
-    # considering it's 1 AM at time of writing
-
-    def _assign_raid_disk_1(self, widget):
-        """Assign RAID Disk 1"""
-        self.data["raid_array"]["disks"]["1"] = widget.get_active_id()
-        self.define_array("clicked")
-
-    def _assign_raid_disk_2(self, widget):
-        """Assign RAID Disk 2"""
-        self.data["raid_array"]["disks"]["2"] = widget.get_active_id()
-        self.define_array("clicked")
-
-    def _assign_raid_disk_3(self, widget):
-        """Assign RAID Disk 3"""
-        self.data["raid_array"]["disks"]["3"] = widget.get_active_id()
-        self.define_array("clicked")
-
-    def _assign_raid_disk_4(self, widget):
-        """Assign RAID Disk 4"""
-        self.data["raid_array"]["disks"]["4"] = widget.get_active_id()
-        self.define_array("clicked")
-
-    def _change_raid_type(self, widget):
-        """Set RAID type"""
-        self.data["raid_array"]["raid_type"] = widget.get_active_id()
-        if self.data["raid_array"]["raid_type"].lower() in ("raid0", "raid1"):
-            self.data["raid_array"]["disks"]["3"] = None
-            self.data["raid_array"]["disks"]["4"] = None
-        self.define_array("clicked")
-
-    def confirm_raid_array(self):
+    def confirm_raid_array(self, widget):
         """Confirm RAID settings and modify other
         installer settings as necessary"""
         if self.data["raid_array"]["raid_type"] is None:
@@ -837,12 +787,12 @@ Type. Minimum drives is: %s""" % (loops))
 
         self.show_all()
 
-    def cement_raid_array(self):
+    def cement_raid_array(self, widget):
         """Set alternate settings so that the RAID Array can be handled internally"""
         self.data["HOME"] = self.data["raid_array"]["disks"]["1"]
         self.auto_partition("clicked")
 
-    def make_space(self, drive=None):
+    def make_space(self, widget, drive=None):
         """Window for making space on an installed drive"""
         self.clear_window()
 
@@ -911,7 +861,7 @@ Type. Minimum drives is: %s""" % (loops))
                                             "{int(auto_partitioner.bytes_to_gb(each1['size']))}GB")
         self.show_all()
 
-    def confirm_remove_part(self):
+    def confirm_remove_part(self, widget):
         """Confirm removal of designated partition"""
         self.clear_window()
 
@@ -944,7 +894,7 @@ Type. Minimum drives is: %s""" % (loops))
         button2 = self._set_default_margins(button2)
         self.grid.attach(button2, 1, 6, 1, 1)
 
-    def remove_part(self):
+    def remove_part(self, widget):
         """Interface for removing partitions"""
         part = self.parts.get_active_id()
         auto_partitioner.delete_part(part)
@@ -952,6 +902,60 @@ Type. Minimum drives is: %s""" % (loops))
             self.make_space("clicked", drive=part[:-2])
         else:
             self.make_space("clicked", drive=part[:-1])
+
+    # pylint: enable=unused-argument
+
+    # I know there is a better way to assign disks than this, or at least a
+    # Better way to define these functions. But this was the simplest way I can
+    # Think to do it right now. In the future, I want to add the ability to
+    # increase RAID Array size, but that will have to include some more dynamic
+    # programming that I just don't know how to do or care to learn right now
+    # considering it's 1 AM at time of writing
+
+    def _assign_raid_disk_1(self, widget):
+        """Assign RAID Disk 1"""
+        self.data["raid_array"]["disks"]["1"] = widget.get_active_id()
+        self.define_array("clicked")
+
+    def _assign_raid_disk_2(self, widget):
+        """Assign RAID Disk 2"""
+        self.data["raid_array"]["disks"]["2"] = widget.get_active_id()
+        self.define_array("clicked")
+
+    def _assign_raid_disk_3(self, widget):
+        """Assign RAID Disk 3"""
+        self.data["raid_array"]["disks"]["3"] = widget.get_active_id()
+        self.define_array("clicked")
+
+    def _assign_raid_disk_4(self, widget):
+        """Assign RAID Disk 4"""
+        self.data["raid_array"]["disks"]["4"] = widget.get_active_id()
+        self.define_array("clicked")
+
+    def _change_raid_type(self, widget):
+        """Set RAID type"""
+        self.data["raid_array"]["raid_type"] = widget.get_active_id()
+        if self.data["raid_array"]["raid_type"].lower() in ("raid0", "raid1"):
+            self.data["raid_array"]["disks"]["3"] = None
+            self.data["raid_array"]["disks"]["4"] = None
+        self.define_array("clicked")
+
+    def add_filters(self, dialog):
+        """Add Filters to Quick Install File Selection Window"""
+        json_filter_text = Gtk.FileFilter()
+        json_filter_text.set_name("JSON Files (*.json)")
+        json_filter_text.add_mime_type("application/json")
+        dialog.add_filter(json_filter_text)
+
+        xz_filter_text = Gtk.FileFilter()
+        xz_filter_text.set_name("XZ compressed Tar balls (*.tar.xz)")
+        xz_filter_text.add_mime_type("application/x-xz-compressed-tar")
+        dialog.add_filter(xz_filter_text)
+
+        filter_any = Gtk.FileFilter()
+        filter_any.set_name("Any files")
+        filter_any.add_pattern("*")
+        dialog.add_filter(filter_any)
 
     def auto_home_setup(self, widget):
         """Handle preexisting vs making a new home directory"""
