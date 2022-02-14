@@ -53,11 +53,28 @@ Do you know some programming and want to help out, but haven't worked on someone
 - [ ] Test the code (run the application)
 
 # Pylint instructions
-_more coming soon_
-
 All Python code should conform to `PEP8` as closely as possible. If you open a pull request `pep8speaks` will provide feedback on your `PEP8` conformance.
 
 A good rule of thumb is if your Python code gets a score of `7.5` or higher from `pylint`, and works correctly, the chances of having your pull request accepted is fairly high, but no pull request is guaranteed to be accepted.
+
+If your code triggers pylint and you have a good reason for not complying to PEP8 standards, place a flag in your code to indicate you intentionally deviated from PEP8 standards.
+
+```python
+# pylint: disable=wrong-import-position
+import widget
+# pylint: enable=wrong-import-position
+```
+
+## How to set up and use Pylint
+
+This assumes you have python3 and python3-pip installed
+
+```bash
+pip3 install pylint
+python3 -m pylint testfile.py
+```
+
+Using "python3 -m" ensures the correct instance of pylint runs
 
 # Unit test instructions
 _more coming soon_
