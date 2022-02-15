@@ -264,7 +264,7 @@ class Main(Gtk.Window):
         self.grid.attach(button8, 3, 3, 1, 1)
 
         label_keyboard = Gtk.Label()
-        label_keyboard.set_markup(KEYBOARD_COMPLETION)
+        label_keyboard.set_markup(self.keyboard_completion)
         label_keyboard = self._set_default_margins(label_keyboard)
         self.grid.attach(label_keyboard, 2, 3, 1, 1)
 
@@ -1663,7 +1663,7 @@ Sub-Region""")
             self.data["VARIENT"] = ""
         else:
             self.data["VARIENT"] = "euro"
-        KEYBOARD_COMPLETION = "COMPLETED"
+        self.keyboard_completion = "COMPLETED"
 
         self.main_menu("clicked")
 
@@ -1672,7 +1672,7 @@ Sub-Region""")
         If it hasn't, print a warning, else
         Print out the value of stuffs and exit
         """
-        if ((KEYBOARD_COMPLETION != "COMPLETED"
+        if ((self.keyboard_completion != "COMPLETED"
             ) or (self.locale_completion != "COMPLETED"
                  ) or (self.options_completion != "COMPLETED"
                       ) or (self.part_completion != "COMPLETED"
