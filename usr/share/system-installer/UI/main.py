@@ -986,11 +986,12 @@ Type. Minimum drives is: %s""" % (loops))
                 try:
                     if device == []:  # if the device is empty, we skip
                         continue
-                    elif 'children' in device:
+
+                    if 'children' in device:
                         for child in device['children']:
                             if "type" not in child.keys():  # if it doesn't have a label, skip
                                 continue
-                            elif not child['type'] == 'part':  # if it isn't labeled 'part', skip
+                            if not child['type'] == 'part':  # if it isn't labeled 'part', skip
                                 continue
 
                             test_child = {'name': child['name'], 'size': child['size']}
@@ -1188,6 +1189,7 @@ Type. Minimum drives is: %s""" % (loops))
 
     def onnext4clicked(self, button):
         """Check device paths provided for manual partitioner"""
+        # run though multiple tests and return if any error states are true
         root_min = round(auto_partitioner.get_min_root_size(bytes=False))
         if ((self.root.get_text() == "") or (
                 self.root.get_text()[0:5] != "/dev/")):
@@ -1200,7 +1202,8 @@ Type. Minimum drives is: %s""" % (loops))
 
             self.show_all()
             return
-        elif not os.path.exists(self.root.get_text()):
+
+        if not os.path.exists(self.root.get_text()):
             label = self.set_up_partitioner_label("ERROR: Not a Valid Device on /")
             try:
                 self.grid.remove(self.grid.get_child_at(1, 1))
@@ -1210,7 +1213,8 @@ Type. Minimum drives is: %s""" % (loops))
 
             self.show_all()
             return
-        elif (((self.efi.get_text() == "") or (
+
+        if (((self.efi.get_text() == "") or (
                 self.efi.get_text()[0:5] != "/dev/")) and os.path.isdir("/sys/firmware/efi")):
             label = self.set_up_partitioner_label(
                 "ERROR: System is running EFI. An EFI partition must be set.")
@@ -1222,7 +1226,8 @@ Type. Minimum drives is: %s""" % (loops))
 
             self.show_all()
             return
-        elif (not os.path.exists(self.efi.get_text()) or (
+
+        if (not os.path.exists(self.efi.get_text()) or (
                 self.efi.get_text() == "")) and os.path.isdir("/sys/firmware/efi"):
             label = Gtk.Label()
             label = self.set_up_partitioner_label("ERROR: Not a Valid Device on /boot/efi")
@@ -1234,7 +1239,8 @@ Type. Minimum drives is: %s""" % (loops))
 
             self.show_all()
             return
-        elif ((self.home.get_text() != "") and (
+
+        if ((self.home.get_text() != "") and (
                self.home.get_text()[0:5] != "/dev/") and (
                self.home.get_text() != "NULL")):
             label = Gtk.Label()
@@ -1247,7 +1253,8 @@ Type. Minimum drives is: %s""" % (loops))
 
             self.show_all()
             return
-        elif (not os.path.exists(self.home.get_text()) and (
+
+        if (not os.path.exists(self.home.get_text()) and (
                 self.home.get_text() != "") and (
                 self.home.get_text() != "NULL")):
             label = self.set_up_partitioner_label("ERROR: Not a Valid Device on /home")
@@ -1259,7 +1266,8 @@ Type. Minimum drives is: %s""" % (loops))
 
             self.show_all()
             return
-        elif ((self.swap.get_text() != "") and (
+
+        if ((self.swap.get_text() != "") and (
                 self.swap.get_text()[0:5] != "/dev/") and (
                     self.swap.get_text().upper() != "FILE")):
             label = self.set_up_partitioner_label(
@@ -1271,7 +1279,9 @@ Type. Minimum drives is: %s""" % (loops))
             self.grid.attach(label, 1, 1, 3, 1)
 
             self.show_all()
-        elif (not os.path.exists(self.swap.get_text()) and (
+            return
+
+        if (not os.path.exists(self.swap.get_text()) and (
                 self.swap.get_text().upper() != "FILE") and (
                     self.swap.get_text() != "")):
             label = self.set_up_partitioner_label("ERROR: Not a Valid Device on SWAP")
@@ -1283,6 +1293,7 @@ Type. Minimum drives is: %s""" % (loops))
 
             self.show_all()
             return
+
         if ((self.swap.get_text().upper() == "FILE") or (self.swap.get_text() == "")):
             if auto_partitioner.size_of_part(self.root.get_text()) < \
                     auto_partitioner.get_min_root_size(bytes=False):
@@ -1695,8 +1706,8 @@ Sub-Region""")
         if isinstance(self.data, str):
             if os.path.isfile(self.data):
                 return
-            else:
-                self.data = 1
+            
+            self.data = 1
         elif isinstance(self.data, dict):
             if "" in self.data.values():
                 self.data = 1
