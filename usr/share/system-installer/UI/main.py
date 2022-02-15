@@ -69,12 +69,6 @@ DEFAULT = """
     fault of the user. You have been warned.
     """ % (DISTRO, DISTRO)
 
-KEYBOARD_COMPLETION = "TO DO"
-USER_COMPLETION = "TO DO"
-PART_COMPLETION = "TO DO"
-LOCALE_COMPLETION = "TO DO"
-OPTIONS_COMPLETION = "TO DO"
-
 
 class Main(Gtk.Window):
     """Main UI Window"""
@@ -84,6 +78,12 @@ class Main(Gtk.Window):
         self.grid = Gtk.Grid(orientation=Gtk.Orientation.VERTICAL)
         self.add(self.grid)
         self.set_icon_name("system-installer")
+
+        self.keyboard_completion = "TO DO"
+        self.user_completion = "TO DO"
+        self.part_completion = "TO DO"
+        self.locale_completion = "TO DO"
+        self.options_completion = "TO DO"
 
         # Initialize setting values
         self.data = {"AUTO_PART": "", "HOME": "", "ROOT": "", "EFI": "",
@@ -274,7 +274,7 @@ class Main(Gtk.Window):
         self.grid.attach(button4, 3, 4, 1, 1)
 
         label_locale = Gtk.Label()
-        label_locale.set_markup(LOCALE_COMPLETION)
+        label_locale.set_markup(self.locale_completion)
         label_locale = self._set_default_margins(label_locale)
         self.grid.attach(label_locale, 2, 4, 1, 1)
 
@@ -284,7 +284,7 @@ class Main(Gtk.Window):
         self.grid.attach(button5, 3, 5, 1, 1)
 
         label_options = Gtk.Label()
-        label_options.set_markup(OPTIONS_COMPLETION)
+        label_options.set_markup(self.options_completion)
         label_options = self._set_default_margins(label_options)
         self.grid.attach(label_options, 2, 5, 1, 1)
 
@@ -294,7 +294,7 @@ class Main(Gtk.Window):
         self.grid.attach(button6, 3, 6, 1, 1)
 
         label_part = Gtk.Label()
-        label_part.set_markup(PART_COMPLETION)
+        label_part.set_markup(self.part_completion)
         label_part = self._set_default_margins(label_part)
         self.grid.attach(label_part, 2, 6, 1, 1)
 
@@ -304,7 +304,7 @@ class Main(Gtk.Window):
         self.grid.attach(button7, 3, 7, 1, 1)
 
         label_user = Gtk.Label()
-        label_user.set_markup(USER_COMPLETION)
+        label_user.set_markup(self.user_completion)
         label_user = self._set_default_margins(label_user)
         self.grid.attach(label_user, 2, 7, 1, 1)
 
@@ -484,8 +484,7 @@ class Main(Gtk.Window):
                 pass
             self.grid.attach(label5, 1, 7, 3, 1)
         else:
-            global USER_COMPLETION
-            USER_COMPLETION = "COMPLETED"
+            self.user_completion = "COMPLETED"
             self.main_menu("clicked")
 
         self.show_all()
@@ -1075,8 +1074,7 @@ Type. Minimum drives is: %s""" % (loops))
             self.show_all()
         else:
             self.data["ROOT"] = self.disks.get_active_id()
-            global PART_COMPLETION
-            PART_COMPLETION = "COMPLETED"
+            self.part_completion = "COMPLETED"
             self.main_menu("clicked")
 
 
@@ -1346,8 +1344,7 @@ Type. Minimum drives is: %s""" % (loops))
             self.data["SWAP"] = "FILE"
         else:
             self.data["SWAP"] = self.swap.get_text()
-        global PART_COMPLETION
-        PART_COMPLETION = "COMPLETED"
+        self.part_completion = "COMPLETED"
         self.main_menu("clicked")
 
     def opengparted(self, button):
@@ -1436,8 +1433,7 @@ Type. Minimum drives is: %s""" % (loops))
             self.data["LOGIN"] = 1
         else:
             self.data["LOGIN"] = 0
-        global OPTIONS_COMPLETION
-        OPTIONS_COMPLETION = "COMPLETED"
+        self.options_completion = "COMPLETED"
         self.main_menu("clicked")
 
     def locale(self, button):
@@ -1555,8 +1551,7 @@ Sub-Region""")
         else:
             self.data["TIME_ZONE"] = "America/New_York"
 
-        global LOCALE_COMPLETION
-        LOCALE_COMPLETION = "COMPLETED"
+        self.locale_completion = "COMPLETED"
         self.main_menu("clicked")
 
     def keyboard(self, button):
@@ -1668,7 +1663,6 @@ Sub-Region""")
             self.data["VARIENT"] = ""
         else:
             self.data["VARIENT"] = "euro"
-        global KEYBOARD_COMPLETION
         KEYBOARD_COMPLETION = "COMPLETED"
 
         self.main_menu("clicked")
@@ -1678,16 +1672,11 @@ Sub-Region""")
         If it hasn't, print a warning, else
         Print out the value of stuffs and exit
         """
-        global KEYBOARD_COMPLETION
-        global LOCALE_COMPLETION
-        global OPTIONS_COMPLETION
-        global PART_COMPLETION
-        global USER_COMPLETION
         if ((KEYBOARD_COMPLETION != "COMPLETED"
-            ) or (LOCALE_COMPLETION != "COMPLETED"
-                 ) or (OPTIONS_COMPLETION != "COMPLETED"
-                      ) or (PART_COMPLETION != "COMPLETED"
-                           ) or (USER_COMPLETION != "COMPLETED")):
+            ) or (self.locale_completion != "COMPLETED"
+                 ) or (self.options_completion != "COMPLETED"
+                      ) or (self.part_completion != "COMPLETED"
+                           ) or (self.user_completion != "COMPLETED")):
             self.label.set_markup("""
         Feel free to complete any of the below segments in any order.\t
         However, all segments must be completed.
@@ -1706,7 +1695,7 @@ Sub-Region""")
         if isinstance(self.data, str):
             if os.path.isfile(self.data):
                 return
-            
+
             self.data = 1
         elif isinstance(self.data, dict):
             if "" in self.data.values():
