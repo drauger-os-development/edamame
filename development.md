@@ -7,6 +7,7 @@ The following packages are required in order to do development for `system-insta
  * `p7zip-full`
  * `python3-parted`
  * `python3-gnupg`
+ * `libpython3.9-dev`
 
 The following are not required but may help out
  * `arch-install-scripts`
@@ -16,7 +17,7 @@ The following are not required but may help out
 
  To install all of the dependencies at once, use
  ```bash
- sudo apt install -y python3 gir1.2-gtk-3.0 p7zip-full python3-parted python3-gnupg arch-install-scripts coreutils squashfs-tools pylint
+ sudo apt install -y python3 gir1.2-gtk-3.0 p7zip-full python3-parted python3-gnupg libpython3.9-dev arch-install-scripts coreutils squashfs-tools pylint
  ```
 
 # How to get started
