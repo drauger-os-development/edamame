@@ -30,5 +30,6 @@
 					"min root size": 23000,
 					"mdswh": 128
 				   },
-	"run_post_oem": ["/usr/share/drauger-welcome/main_ui.py"]
+	"run_post_oem": ["/usr/share/drauger-welcome/main_ui.py"],
+	"kernel_meta_pkg": "linux-drauger"
 }
