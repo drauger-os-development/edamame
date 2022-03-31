@@ -27,7 +27,7 @@ import sys
 import re
 import json
 import os
-from subprocess import Popen, check_output, DEVNULL
+import subprocess
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
@@ -89,8 +89,8 @@ class Main(Gtk.Window):
         self.clear_window()
 
         # Get a list of disks and their capacity
-        self.devices = json.loads(check_output(["lsblk", "-n", "-i", "--json",
-                                                "-o", "NAME,SIZE,TYPE"]).decode())
+        self.devices = json.loads(subprocess.check_output(["lsblk", "-n", "-i", "--json",
+                                                           "-o", "NAME,SIZE,TYPE,FSTYPE"]).decode())
         self.devices = self.devices["blockdevices"]
         dev = []
         for each2 in enumerate(self.devices):
