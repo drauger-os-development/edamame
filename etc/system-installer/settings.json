@@ -3,7 +3,7 @@
 	"local_repo": "/run/live/medium/repo",
 	"distro": "Drauger OS",
 	"report": {
-				"recv_keys": "https://download.draugeros.org/keys/public_keys.asc",
+				"recv_keys": "https://download-optimizer.draugeros.org/keys/public_keys.asc",
 				"upload": "rsync://download.draugeros.org/reports-upload"
 				},
 	"ping servers": [
@@ -20,15 +20,16 @@
 					"ROOT":{
 							"START": 201,
 							"END": "40%",
-							"fs": "ext4"
+							"fs": "btrfs"
 							},
 					"HOME":{
 							"START": "40%",
 							"END": "100%",
-							"fs": "ext4"
+							"fs": "btrfs"
 						   },
 					"min root size": 23000,
 					"mdswh": 128
 				   },
-	"run_post_oem": ["/usr/share/drauger-welcome/main_ui.py"]
+	"run_post_oem": ["/usr/share/drauger-welcome/main_ui.py"],
+	"kernel_meta_pkg": "linux-drauger"
 }

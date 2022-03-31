@@ -30,15 +30,12 @@ import os
 import multiprocessing
 import subprocess
 import gi
+
 gi.require_version('Gtk', '3.0')
+
 from gi.repository import Gtk
 
 import oem.post_install.configure as configure
-
-
-def eprint(*args, **kwargs):
-    """Make it easier for us to print to stderr"""
-    print(*args, file=sys.stderr, **kwargs)
 
 
 def has_special_character(input_string):
@@ -52,10 +49,8 @@ def has_special_character(input_string):
 try:
     with open("/etc/system-installer/settings.json") as config_file:
         DISTRO = json.loads(config_file.read())["distro"]
-
-except FileNotFoundError:
-    eprint("/etc/system-installer/settings.json does not exist. In testing?")
-    DISTRO = "Drauger OS"
+except (FileNotFoundError, KeyError):
+    DISTRO = "Linux"
 
 
 DEFAULT = """
@@ -336,13 +331,13 @@ Sub-Region""")
         """Keyboard Settings Dialog"""
         self.clear_window()
 
-        self.label = Gtk.Label()
-        self.label.set_markup("""
+        label = Gtk.Label()
+        label.set_markup("""
     <b>Choose your Keyboard layout</b>\t
     """)
-        self.label.set_justify(Gtk.Justification.CENTER)
-        self.label = self._set_default_margins(self.label)
-        self.grid.attach(self.label, 1, 1, 4, 1)
+        label.set_justify(Gtk.Justification.CENTER)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 1, 1, 4, 1)
 
         model_label = Gtk.Label()
         model_label.set_markup("""Model: """)

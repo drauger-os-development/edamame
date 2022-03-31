@@ -27,15 +27,12 @@ import sys
 import re
 import json
 import os
-from subprocess import Popen, check_output, DEVNULL
+import subprocess
 import gi
+
 gi.require_version('Gtk', '3.0')
+
 from gi.repository import Gtk
-
-
-def eprint(*args, **kwargs):
-    """Make it easier for us to print to stderr"""
-    print(*args, file=sys.stderr, **kwargs)
 
 
 def has_special_character(input_string):
@@ -89,8 +86,8 @@ class Main(Gtk.Window):
         self.clear_window()
 
         # Get a list of disks and their capacity
-        self.devices = json.loads(check_output(["lsblk", "-n", "-i", "--json",
-                                                "-o", "NAME,SIZE,TYPE"]).decode())
+        self.devices = json.loads(subprocess.check_output(["lsblk", "-n", "-i", "--json",
+                                                           "-o", "NAME,SIZE,TYPE,FSTYPE"]).decode())
         self.devices = self.devices["blockdevices"]
         dev = []
         for each2 in enumerate(self.devices):
@@ -391,38 +388,65 @@ Type. Minimum drives is: %s""" % (loops))
     def auto_home_setup2(self, widget):
         """Provide options for prexisting home partitions"""
         if widget.get_active() == 1:
-            dev = []
-            for each5 in enumerate(self.device):
-                if ("loop" in self.device[each5[0]]) or ("disk" in self.device[each5[0]]):
-                    continue
-                dev.append(self.device[each5[0]])
-            devices = []
-            for each5 in dev:
-                devices.append(each5.split())
-            devices = [x for x in devices if x != []]
-            for each5 in devices:
-                if each5[0] == "sr0":
-                    devices.remove(each5)
-            for each5 in enumerate(devices):
-                devices[each5[0]].remove(devices[each5[0]][2])
-            for each5 in enumerate(devices):
-                devices[each5[0]][0] = list(devices[each5[0]][0])
-                del devices[each5[0]][0][0]
-                del devices[each5[0]][0][0]
-                devices[each5[0]][0] = "".join(devices[each5[0]][0])
-            for each5 in enumerate(devices):
-                devices[each5[0]][0] = "/dev/%s" % ("".join(devices[each5[0]][0]))
+            dev_list = tuple(self.devices)
+            new_dev_list = []  # this will be the final list that is displayed for the user
 
-            parts = Gtk.ComboBoxText.new()
-            for each5 in enumerate(devices):
-                parts.append("%s" % (devices[each5[0]][0]),
-                             "%s    Size: %s" % (devices[each5[0]][0],
-                                                 devices[each5[0]][1]))
+            # todo: account for BTRFS drives that have no partitions
+            for device in dev_list:  # we will iterate through the dev list and add devices to the new list
+                try:
+                    if device == []:  # if the device is empty, we skip
+                        continue
+                    elif 'children' in device:
+                        for child in device['children']:
+                            if "type" not in child.keys():  # if it doesn't have a label, skip
+                                continue
+                            elif not child['type'] == 'part':  # if it isn't labeled partition, skip
+                                continue
+
+                            test_child = {'name': child['name'], 'size': child['size']}
+
+                            if test_child not in new_dev_list:  # make sure child object is not already in dev_list
+                                new_dev_list.append(test_child)
+                    elif device["fstype"] != None:
+                        # if the drive has no partition table, just a file system,
+                        # add it
+                        if device["fstype"] != "squashfs":
+                            # don't add it, beacuse it's a squashfs file system
+                            new_device = {"name": device["name"], "size": device["size"]}
+                            new_dev_list.append(new_device)
+                    elif "type" not in device.keys():  # if it doesn't have a label, skip
+                        continue
+                    elif device['type'] != 'part':
+                        # if it isn't labeled partition, skip
+                        continue
+                    else:
+                        new_device = {'name': device['name'], 'size': device['size']}
+
+                        new_dev_list.append(new_device)
+                except KeyError:
+                    common.eprint(traceback.format_exc())
+                    print(json.dumps(device, indent=2))
+
+            # TEMPORARY: Remove the ability to use a home partition on the same
+            # drive as where the root partition is
+            for each in range(len(new_dev_list) - 1, -1, -1):
+                if self.data["ROOT"][5:] in new_dev_list[each]["name"]:
+                    del new_dev_list[each]
+
+            home_cmbbox = Gtk.ComboBoxText.new()
+
+            # properly format device names and add to combo box
+            for device in new_dev_list:
+                if device["name"][:5] != "/dev/":
+                    device['name'] = "/dev/%s" % device['name']
+
+                home_cmbbox.append(device['name'], "%s    Size: %s" % (device['name'], device['size']))
+
             if self.data["HOME"] != "":
-                parts.set_active_id(self.data["HOME"])
-            parts.connect("changed", self.select_home_part)
-            parts = self._set_default_margins(parts)
-            self.grid.attach(parts, 1, 5, 2, 1)
+                home_cmbbox.set_active_id(self.data["HOME"])
+            home_cmbbox.connect("changed", self.select_home_part)
+            parts = self._set_default_margins(home_cmbbox)
+            self.grid.attach(home_cmbbox, 1, 5, 2, 1)
         else:
             self.data["HOME"] = "MAKE"
 

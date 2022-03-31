@@ -31,7 +31,7 @@ import os
 import common
 
 
-def __get_file_version__(local_repo):
+def __get_file_version__(local_repo, kernel_meta_pkg):
     """Get kernel version in included kernel archive"""
     if not os.path.exists(local_repo):
         try:
@@ -49,7 +49,7 @@ def __get_file_version__(local_repo):
         else:
             files[each] = files[each].split("/")[-1]
             files[each] = files[each].split("_")
-            if files[each][0] == "linux-xanmod":
+            if files[each][0] == kernel_meta_pkg:
                 del files[each][0]
             if files[each][-1] == "amd64.deb":
                 del files[each][-1]
@@ -72,10 +72,10 @@ def __get_installed_version__():
     return subprocess.check_output(["uname", "--release"]).decode("utf-8")[:-1]
 
 
-def check_kernel_versions(local_repo):
+def check_kernel_versions(local_repo, kernel_meta_pkg):
     """Compare kernel versions"""
     common.eprint("CHECKING KERNEL VERSIONS")
-    file_version = __get_file_version__(local_repo)
+    file_version = __get_file_version__(local_repo, kernel_meta_pkg)
     installed_version = __get_installed_version__()
     if file_version == installed_version:
         common.eprint("KERNEL VERSIONS MATCH: SUCCESS")
