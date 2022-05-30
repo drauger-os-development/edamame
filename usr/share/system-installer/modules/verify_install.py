@@ -130,7 +130,8 @@ def verify(username, root, distro):
             with cache.actiongroup():
                 for each in cache:
                     if (("grub" in each.name) and each.is_installed):
-                        each.mark_delete()
+                        if "common" not in each.name:
+                            each.mark_delete()
         cache.commit()
         purge.autoremove(cache)
     cache.close()
