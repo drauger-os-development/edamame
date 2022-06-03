@@ -29,7 +29,7 @@ from shutil import move
 import subprocess
 import apt
 
-import modules.purge as purge
+from modules import purge
 
 
 def __eprint__(*args, **kwargs):
@@ -47,9 +47,9 @@ def add_boot_entry(root, distro):
         part = root[8:]
 
     subprocess.check_call(["efibootmgr", "--create", "--disk", disk, "--part",
-                           part, "--loader", "\EFI\systemd\systemd-bootx64.efi",
-                           "--label", distro], stdout=stderr.buffer,
-                          stderr=stderr.buffer)
+                           part, "--loader",
+                           r"\EFI\systemd\systemd-bootx64.efi", "--label",
+                           distro], stdout=stderr.buffer, stderr=stderr.buffer)
 
 
 def set_default_entry(distro):
@@ -124,8 +124,9 @@ def verify(username, root, distro):
     cache = apt.cache.Cache()
     cache.open()
     if username != "drauger-user":
-        if (("system-installer" in cache) and cache["system-installer"].is_installed):
-            cache["system-installer"].mark_delete()
+        if "system-installer" in cache:
+            if cache["system-installer"].is_installed:
+                cache["system-installer"].mark_delete()
         if path.isdir("/sys/firmware/efi"):
             with cache.actiongroup():
                 for each in cache:
