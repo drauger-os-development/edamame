@@ -74,7 +74,8 @@ for each in range(len(DISK) - 1, -1, -1):
 if len(DISK) < 1:
     UI.error.show_error("\n\tNo 32 GB or Larger Drives detected\t\n")
     sys.exit(2)
-if not check_kernel_versions.check_kernel_versions(CONFIG["local_repo"]):
+if not check_kernel_versions.check_kernel_versions(CONFIG["local_repo"],
+                                                   CONFIG["kernel_meta_pkg"]):
     UI.error.show_error("""
 \t<b>Kernel Version Mismatch.</b>\t
 \tPlease reboot and retry installation.\t

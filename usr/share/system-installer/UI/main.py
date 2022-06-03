@@ -550,7 +550,7 @@ class Main(Gtk.Window):
 
         # Get a list of disks and their capacity
         self.devices = json.loads(subprocess.check_output(["lsblk", "-n", "-i", "--json",
-                                                           "-o", "NAME,SIZE,TYPE"]).decode())
+                                                           "-o", "NAME,SIZE,TYPE,FSTYPE"]).decode())
         self.devices = self.devices["blockdevices"]
         dev = []
         for each2 in enumerate(self.devices):
@@ -989,9 +989,17 @@ Type. Minimum drives is: %s""" % (loops))
 
                             if test_child not in new_dev_list:  # make sure child object is not already in dev_list
                                 new_dev_list.append(test_child)
+                    elif device["fstype"] != None:
+                        # if the drive has no partition table, just a file system,
+                        # add it
+                        if device["fstype"] != "squashfs":
+                            # don't add it, beacuse it's a squashfs file system
+                            new_device = {"name": device["name"], "size": device["size"]}
+                            new_dev_list.append(new_device)
                     elif "type" not in device.keys():  # if it doesn't have a label, skip
                         continue
-                    elif device['type'] != 'part':  # if it isn't labeled partition, skip
+                    elif device['type'] != 'part':
+                        # if it isn't labeled partition, skip
                         continue
                     else:
                         new_device = {'name': device['name'], 'size': device['size']}
@@ -1011,7 +1019,8 @@ Type. Minimum drives is: %s""" % (loops))
 
             # properly format device names and add to combo box
             for device in new_dev_list:
-                device['name'] = "/dev/%s" % device['name']
+                if device["name"][:5] != "/dev/":
+                    device['name'] = "/dev/%s" % device['name']
 
                 home_cmbbox.append(device['name'], "%s    Size: %s" % (device['name'], device['size']))
 

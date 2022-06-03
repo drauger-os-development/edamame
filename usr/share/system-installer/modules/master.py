@@ -292,12 +292,13 @@ def _install_grub(root):
 def _install_systemd_boot(release, root, distro):
     """set up and install systemd-boot"""
     try:
-        os.mkdir("/boot/efi")
+        os.makedirs("/boot/efi/loader/entries", exist_ok=True)
     except FileExistsError:
         pass
-    os.mkdir("/boot/efi/loader")
-    os.mkdir("/boot/efi/loader/entries")
-    os.mkdir(f"/boot/efi/{distro}")
+    try:
+        os.mkdir(f"/boot/efi/{distro}")
+    except FileExistsError:
+        pass
     os.environ["SYSTEMD_RELAX_ESP_CHECKS"] = "1"
     with open("/etc/environment", "a") as envi:
         envi.write("export SYSTEMD_RELAX_ESP_CHECKS=1")
@@ -309,11 +310,7 @@ def _install_systemd_boot(release, root, distro):
         eprint(e)
         eprint("Performing manual installation of systemd-boot.")
         try:
-            os.mkdir("/boot/efi/EFI")
-        except FileExistsError:
-            pass
-        try:
-            os.mkdir("/boot/efi/EFI/systemd")
+            os.makedirs("/boot/efi/EFI/systemd", exist_ok=True)
         except FileExistsError:
             pass
         try:
