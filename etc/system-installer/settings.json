@@ -4,7 +4,7 @@
 	"distro": "Drauger OS",
 	"report": {
 				"recv_keys": "https://download-optimizer.draugeros.org/keys/public_keys.asc",
-				"upload": "rsync://download.draugeros.org/reports-upload"
+				"upload": "rsync://rsync.draugeros.org/reports-upload"
 				},
 	"ping servers": [
 					"https://apt.draugeros.org",
@@ -15,18 +15,18 @@
 	"partitioning": {
 					"EFI": {
 						"EFI": {
-							"START": 0,
-							"END": 500
-							},
-					"ROOT":{
-							"START": 501,
-							"END": "40%",
-							"fs": "btrfs"
-							},
-					"HOME":{
-							"START": "40%",
-							"END": "100%",
-							"fs": "btrfs"
+								"START": 0,
+								"END": 500
+								},
+						"ROOT":{
+								"START": 501,
+								"END": "40%",
+								"fs": "btrfs"
+								},
+						"HOME":{
+								"START": "40%",
+								"END": "100%",
+								"fs": "btrfs"
 							   }
 							},
 					"BIOS": {
@@ -40,7 +40,7 @@
 							"END": "100%",
 							"fs": "btrfs"
 						   }
-						   },
+					},
 					"min root size": 23000,
 					"mdswh": 128
 				   },
