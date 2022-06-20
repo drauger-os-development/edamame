@@ -28,6 +28,7 @@ from os import path, remove
 from shutil import move
 import subprocess
 import apt
+import auto_partitioner
 
 from modules import purge
 
@@ -114,7 +115,7 @@ def verify(username, root, distro):
         remove("/home/" + username + "/Desktop/system-installer.desktop")
     except FileNotFoundError:
         pass
-    if path.isdir("/sys/firmware/efi"):
+    if auto_partitioner.is_EFI():
         # on UEFI, set as default entry
         status = is_default_entry(distro)
         if status in (False, None):
@@ -127,7 +128,7 @@ def verify(username, root, distro):
         if "system-installer" in cache:
             if cache["system-installer"].is_installed:
                 cache["system-installer"].mark_delete()
-        if path.isdir("/sys/firmware/efi"):
+        if auto_partitioner.is_EFI():
             with cache.actiongroup():
                 for each in cache:
                     if (("grub" in each.name) and each.is_installed):

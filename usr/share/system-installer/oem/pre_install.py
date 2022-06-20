@@ -468,7 +468,7 @@ Type. Minimum drives is: %s""" % (loops))
         """Force User to either pick a drive to install to, abort,
         or backtrack
         """
-        if os.path.isdir("/sys/firmware/efi"):
+        if auto_partitioner.is_EFI():
             self.data["EFI"] = True
         else:
             self.data["EFI"] = False

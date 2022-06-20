@@ -1050,7 +1050,7 @@ Type. Minimum drives is: %s""" % (loops))
         """Force User to either pick a drive to install to, abort,
         or backtrack
         """
-        if os.path.isdir("/sys/firmware/efi"):
+        if auto_partitioner.is_EFI():
             self.data["EFI"] = True
         else:
             self.data["EFI"] = False
@@ -1210,7 +1210,7 @@ Type. Minimum drives is: %s""" % (loops))
             self.show_all()
             return
         elif (((self.efi.get_text() == "") or (
-                self.efi.get_text()[0:5] != "/dev/")) and os.path.isdir("/sys/firmware/efi")):
+                self.efi.get_text()[0:5] != "/dev/")) and auto_partitioner.is_EFI()):
             label = self.set_up_partitioner_label(
                 "ERROR: System is running EFI. An EFI partition must be set.")
             try:
@@ -1222,7 +1222,7 @@ Type. Minimum drives is: %s""" % (loops))
             self.show_all()
             return
         elif (not os.path.exists(self.efi.get_text()) or (
-                self.efi.get_text() == "")) and os.path.isdir("/sys/firmware/efi"):
+                self.efi.get_text() == "")) and auto_partitioner.is_EFI():
             label = Gtk.Label()
             label = self.set_up_partitioner_label("ERROR: Not a Valid Device on /boot/efi")
             try:
