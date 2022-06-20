@@ -104,8 +104,10 @@ if os.path.exists("/tmp/system-installer.log"):
     # force the user to reboot in order to reattempt installation
     UI.error.show_error("""
 \t<b>Must Reboot Before Reattempting Installation</b>\t
+
 \tIn order to prevent various bugs from occuring, users\t
-\tare required to reboot before re-attempting installation.\t""", report=False)
+\tare required to reboot before re-attempting installation.\t
+""", report=False)
     sys.exit(2)
 SETTINGS = UI.main.show_main(boot_time=BOOT_TIME)
 try:

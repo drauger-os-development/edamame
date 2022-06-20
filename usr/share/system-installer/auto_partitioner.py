@@ -42,20 +42,72 @@ def bytes_to_gb(b):
     return b / (10 ** 9)
 
 
+def is_EFI():
+    """Get if the current system is using EFI"""
+    return os.path.isdir("/sys/firmware/efi")
+
+
 # GET DEFAULT CONFIG
 LIMITER = gb_to_bytes(32)
 
 # get configuration for partitioning
-config = {"ROOT": {"START": 201, "END": "40%", "fs": "ext4"},
-          "HOME": {"START": "40%", "END": "100%", "fs": "ext4"},
-          "EFI": {"START": 0, "END": 200},
-          "min root size": 23000,
-          "mdswh": 128}
+config = {
+			"EFI": {
+                "EFI": {
+					"START": 0,
+					"END": 500
+						},
+				"ROOT":{
+					"START": 501,
+					"END": "40%",
+					"fs": "btrfs"
+						},
+				"HOME":{
+					"START": "40%",
+					"END": "100%",
+					"fs": "btrfs"
+						}
+					},
+			"BIOS": {
+				"ROOT":{
+					"START": 0,
+					"END": "40%",
+					"fs": "ext4"
+					    },
+				"HOME":{
+					"START": "40%",
+					"END": "100%",
+					"fs": "btrfs"
+						}
+					},
+			"min root size": 23000,
+			"mdswh": 128
+		}
+
 try:
     with open("/etc/system-installer/settings.json", "r") as config_file:
         config_data = json.load(config_file)
+except FileNotFoundError:
+    config_data = config
 
-    # check to make sure packager left this block in
+
+if is_EFI():
+    try:
+        config_data = config_data["EFI"]
+    except KeyError:
+        common.eprint("EFI partitioning details not defined. Falling back to defaults")
+        print("EFI partitioning details not defined. Falling back to defaults")
+        config_data = config["EFI"]
+else:
+    try:
+        config_data = config_data["BIOS"]
+    except KeyError:
+        common.eprint("BIOS partitioning details not defined. Falling back to defaults")
+        print("BIOS partitioning details not defined. Falling back to defaults")
+        config_data = config["BIOS"]
+
+
+# check to make sure packager left this block in
     if "partitioning" in config_data:
         new_config = config_data["partitioning"]
     # make sure everything is there. If not, substitute in defaults
@@ -71,8 +123,6 @@ try:
         new_config["mdswh"] = config["mdswh"]
     config = new_config
     # if not, fall back to internal default
-except FileNotFoundError:
-    pass
 
 
 def size_of_part(part_path, bytes=False):
