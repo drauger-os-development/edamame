@@ -73,8 +73,10 @@ class Main(report.Main):
         self.show_all()
 
 
-def show_error(display):
-    """Show Error Dialog"""
+def show_error(display: str):
+    """Show Error Dialog
+    
+    `display` is displayed to the user as the main error text, along with instructions on how to send an installation report."""
     window = Main(display)
     window.set_decorated(True)
     window.set_resizable(False)

@@ -40,10 +40,10 @@ import auto_partitioner
 import oem
 import modules
 
-common.eprint("    ###    %s STARTED    ###    " % (sys.argv[0]))
+common.eprint(f"    ###    {sys.argv[0]} STARTED    ###    ")
 with open("/etc/system-installer/settings.json") as config_file:
     CONFIG = json.loads(config_file.read())
-boot_time = False
+BOOT_TIME = False
 if len(sys.argv) > 1:
     if sys.argv[1] == "--boot-time":
         # OEM post-install configuration, on-boot installation, and more
@@ -61,7 +61,7 @@ if len(sys.argv) > 1:
         if "system-installer" not in cmdline:
             # Not wanted to be running ootb
             sys.exit(0)
-        boot_time = True
+        BOOT_TIME = True
 MEMCHECK = psutil.virtual_memory().total
 if (MEMCHECK / 1024 ** 2) < 1024:
     UI.error.show_error("\n\tRAM is less than 1 GB.\t\n")
@@ -83,7 +83,16 @@ if not check_kernel_versions.check_kernel_versions(CONFIG["local_repo"],
 """)
     sys.exit(2)
 work_dir = "/tmp/quick-install_working-dir"
-SETTINGS = UI.main.show_main(boot_time=boot_time)
+
+# Check if the installer has already been run
+if os.path.exists("/tmp/system-installer.log"):
+    # force the user to reboot in order to reattempt installation
+    UI.error.show_error("""
+\t<b>Must Reboot Before Reattempting Installation</b>\t
+\tIn order to prevent various bugs from occuring, users\t
+\tare required to reboot before re-attempting installation.\t""")
+    sys.exit(2)
+SETTINGS = UI.main.show_main(boot_time=BOOT_TIME)
 try:
     if ((SETTINGS == 1) or (len(SETTINGS) == 0)):
         sys.exit(1)
@@ -128,7 +137,7 @@ try:
 except TypeError:
     pass
 # Confirm whether settings are correct or not
-INSTALL = UI.confirm.show_confirm(SETTINGS, boot_time=boot_time)
+INSTALL = UI.confirm.show_confirm(SETTINGS, boot_time=BOOT_TIME)
 if INSTALL:
     try:
         # Run the progress bar in the background
@@ -137,7 +146,7 @@ if INSTALL:
         SETTINGS["INTERNET"] = check_internet.has_internet()
         installer.install(SETTINGS, CONFIG["local_repo"])
         shutil.rmtree("/mnt/repo")
-        common.eprint("    ###    %s CLOSED    ###    " % (sys.argv[0]))
+        common.eprint(f"    ###    {sys.argv[0]} CLOSED    ###    ")
         try:
             shutil.copyfile("/tmp/system-installer.log",
                      "/mnt/var/log/system-installer.log")
@@ -150,13 +159,13 @@ This is a stand-in file.
             shutil.copyfile("/tmp/system-installer.log",
                      "/mnt/var/log/system-installer.log")
         subprocess.Popen(["su", "live", "-c",
-                          "/usr/share/system-installer/success.py \'%s\'" % (json.dumps(SETTINGS))])
+                          f"/usr/share/system-installer/success.py \'{json.dumps(SETTINGS)}\'"])
         os.kill(pid, 15)
     except Exception as error:
         os.kill(pid, 15)
-        common.eprint("\nAn Error has occured:\n%s\n" % (error))
+        common.eprint(f"\nAn Error has occured:\n{error}\n")
         common.eprint(traceback.format_exc())
-        print("\nAn Error has occured:\n%s\n" % (error))
+        print(f"\nAn Error has occured:\n{error}\n")
         print(traceback.format_exc())
         UI.error.show_error("""\n\tError detected.\t
 \tPlease see /tmp/system-installer.log for details.\t\n""")
