@@ -41,6 +41,21 @@ import oem
 import modules
 
 common.eprint(f"    ###    {sys.argv[0]} STARTED    ###    ")
+
+def copy_log_to_disk():
+    """Copy Installation Log to installation location"""
+    try:
+        shutil.copyfile("/tmp/system-installer.log",
+                     "/mnt/var/log/system-installer.log")
+    except FileNotFoundError:
+        common.eprint("    ###    Log Not Found. Testing?    ###    ")
+        with open("/tmp/system-installer.log", "w+") as log:
+            log.write("""Log was not created during installation.
+This is a stand-in file.
+""")
+        shutil.copyfile("/tmp/system-installer.log",
+                     "/mnt/var/log/system-installer.log")
+
 with open("/etc/system-installer/settings.json") as config_file:
     CONFIG = json.loads(config_file.read())
 BOOT_TIME = False
@@ -90,7 +105,7 @@ if os.path.exists("/tmp/system-installer.log"):
     UI.error.show_error("""
 \t<b>Must Reboot Before Reattempting Installation</b>\t
 \tIn order to prevent various bugs from occuring, users\t
-\tare required to reboot before re-attempting installation.\t""")
+\tare required to reboot before re-attempting installation.\t""", report=False)
     sys.exit(2)
 SETTINGS = UI.main.show_main(boot_time=BOOT_TIME)
 try:
@@ -138,6 +153,7 @@ except TypeError:
     pass
 # Confirm whether settings are correct or not
 INSTALL = UI.confirm.show_confirm(SETTINGS, boot_time=BOOT_TIME)
+
 if INSTALL:
     try:
         # Run the progress bar in the background
@@ -147,17 +163,7 @@ if INSTALL:
         installer.install(SETTINGS, CONFIG["local_repo"])
         shutil.rmtree("/mnt/repo")
         common.eprint(f"    ###    {sys.argv[0]} CLOSED    ###    ")
-        try:
-            shutil.copyfile("/tmp/system-installer.log",
-                     "/mnt/var/log/system-installer.log")
-        except FileNotFoundError:
-            common.eprint("    ###    Log Not Found. Testing?    ###    ")
-            with open("/tmp/system-installer.log", "w+") as log:
-                log.write("""Log was not created during installation.
-This is a stand-in file.
-""")
-            shutil.copyfile("/tmp/system-installer.log",
-                     "/mnt/var/log/system-installer.log")
+        copy_log_to_disk()
         subprocess.Popen(["su", "live", "-c",
                           f"/usr/share/system-installer/success.py \'{json.dumps(SETTINGS)}\'"])
         os.kill(pid, 15)
@@ -167,6 +173,7 @@ This is a stand-in file.
         common.eprint(traceback.format_exc())
         print(f"\nAn Error has occured:\n{error}\n")
         print(traceback.format_exc())
+        copy_log_to_disk()
         UI.error.show_error("""\n\tError detected.\t
 \tPlease see /tmp/system-installer.log for details.\t\n""")
 else:

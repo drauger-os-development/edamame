@@ -31,10 +31,11 @@ import UI.report as report
 
 class Main(report.Main):
     """UI Error Class"""
-    def __init__(self, display):
+    def __init__(self, display, report):
         """set up Error UI"""
         super(Main, self).__init__()
         self.display = display
+        self.enable_reporting = report
         self.scrolling = False
         self.main_menu("clicked")
 
@@ -51,33 +52,35 @@ class Main(report.Main):
         self.label = self._set_default_margins(self.label)
         self.grid.attach(self.label, 1, 1, 3, 1)
 
-        self.label2 = Gtk.Label()
-        self.label2.set_markup("""
+        if self.enable_reporting:
+            self.label2 = Gtk.Label()
+            self.label2.set_markup("""
     If you wish to notify the developers of this failed installation,\t\t
     you can send an installation report below.
     """)
-        self.label2.set_justify(Gtk.Justification.CENTER)
-        self.label2 = self._set_default_margins(self.label2)
-        self.grid.attach(self.label2, 1, 2, 3, 1)
+            self.label2.set_justify(Gtk.Justification.CENTER)
+            self.label2 = self._set_default_margins(self.label2)
+            self.grid.attach(self.label2, 1, 2, 3, 1)
+
+            self.button = Gtk.Button.new_with_label("Send Installation report")
+            self.button.connect("clicked", self.main)
+            self.button = self._set_default_margins(self.button)
+            self.grid.attach(self.button, 3, 3, 1, 1)
 
         self.button2 = Gtk.Button.new_with_label("Exit")
         self.button2.connect("clicked", self.exit)
         self.button2 = self._set_default_margins(self.button2)
         self.grid.attach(self.button2, 1, 3, 1, 1)
 
-        self.button = Gtk.Button.new_with_label("Send Installation report")
-        self.button.connect("clicked", self.main)
-        self.button = self._set_default_margins(self.button)
-        self.grid.attach(self.button, 3, 3, 1, 1)
-
         self.show_all()
 
 
-def show_error(display: str):
+def show_error(display: str, report: bool = True):
     """Show Error Dialog
     
-    `display` is displayed to the user as the main error text, along with instructions on how to send an installation report."""
-    window = Main(display)
+    `display` is displayed to the user as the main error text, along with instructions on how to send an installation report.
+    `report` controls whether or not the user can send an installation report"""
+    window = Main(display, report)
     window.set_decorated(True)
     window.set_resizable(False)
     window.set_position(Gtk.WindowPosition.CENTER)
