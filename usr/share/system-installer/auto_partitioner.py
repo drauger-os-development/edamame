@@ -247,59 +247,60 @@ def __mkfs__(device, fs):
     return data
 
 
-def __mkfs_fat__(device):
-    """Set partition filesystem to FAT32"""
-    # pre-define command
-    command = ["mkfs.fat", "-F", "32", str(device)]
-    try:
-        data = subprocess.check_output(command).decode()
-    except subprocess.CalledProcessError as error:
-        data = error.output.decode()
-    return data
+if is_EFI():
+    def __mkfs_fat__(device):
+        """Set partition filesystem to FAT32"""
+        # pre-define command
+        command = ["mkfs.fat", "-F", "32", str(device)]
+        try:
+            data = subprocess.check_output(command).decode()
+        except subprocess.CalledProcessError as error:
+            data = error.output.decode()
+        return data
 
 
-def __make_efi__(device, start=config["EFI"]["START"],
-                 end=config["EFI"]["END"]):
-    """Make EFI partition"""
-    disk = parted.Disk(device)
-    start_geo = parted.geometry.Geometry(device=device,
-                                         start=parted.sizeToSectors(start,
+    def __make_efi__(device, start=config["EFI"]["START"],
+                     end=config["EFI"]["END"]):
+        """Make EFI partition"""
+        disk = parted.Disk(device)
+        start_geo = parted.geometry.Geometry(device=device,
+                                             start=parted.sizeToSectors(start,
+                                                                        "MB",
+                                                                        device.sectorSize),
+                                             end=parted.sizeToSectors(start + 10,
+                                                                      "MB",
+                                                                      device.sectorSize))
+        end_geo = parted.geometry.Geometry(device=device,
+                                           start=parted.sizeToSectors(common.real_number(end - 20),
+                                                                      "MB",
+                                                                      device.sectorSize),
+                                           end=parted.sizeToSectors(end + 10,
                                                                     "MB",
-                                                                    device.sectorSize),
-                                         end=parted.sizeToSectors(start + 10,
-                                                                  "MB",
-                                                                  device.sectorSize))
-    end_geo = parted.geometry.Geometry(device=device,
-                                       start=parted.sizeToSectors(common.real_number(end - 20),
-                                                                  "MB",
-                                                                  device.sectorSize),
-                                       end=parted.sizeToSectors(end + 10,
-                                                                "MB",
-                                                                device.sectorSize))
-    min_size = parted.sizeToSectors(common.real_number((end - start) - 25),
-                                    "MB",
-                                    device.sectorSize)
-    max_size = parted.sizeToSectors(common.real_number((end - start) + 20),
-                                    "MB",
-                                    device.sectorSize)
-    const = parted.Constraint(startAlign=device.optimumAlignment,
-                              endAlign=device.optimumAlignment,
-                              startRange=start_geo, endRange=end_geo,
-                              minSize=min_size, maxSize=max_size)
-    geometry = parted.geometry.Geometry(start=start,
-                                        length=parted.sizeToSectors(end - start,
-                                                                    "MB",
-                                                                    device.sectorSize),
-                                        device=device)
-    new_part = parted.Partition(disk=disk,
-                                type=parted.PARTITION_NORMAL,
-                                geometry=geometry)
-    new_part.setFlag(parted.PARTITION_BOOT)
-    disk.addPartition(partition=new_part, constraint=const)
-    disk.commit()
-    time.sleep(0.1)
-    __mkfs_fat__(new_part.path)
-    return new_part.path
+                                                                    device.sectorSize))
+        min_size = parted.sizeToSectors(common.real_number((end - start) - 25),
+                                        "MB",
+                                        device.sectorSize)
+        max_size = parted.sizeToSectors(common.real_number((end - start) + 20),
+                                        "MB",
+                                        device.sectorSize)
+        const = parted.Constraint(startAlign=device.optimumAlignment,
+                                  endAlign=device.optimumAlignment,
+                                  startRange=start_geo, endRange=end_geo,
+                                  minSize=min_size, maxSize=max_size)
+        geometry = parted.geometry.Geometry(start=start,
+                                            length=parted.sizeToSectors(end - start,
+                                                                        "MB",
+                                                                        device.sectorSize),
+                                            device=device)
+        new_part = parted.Partition(disk=disk,
+                                    type=parted.PARTITION_NORMAL,
+                                    geometry=geometry)
+        new_part.setFlag(parted.PARTITION_BOOT)
+        disk.addPartition(partition=new_part, constraint=const)
+        disk.commit()
+        time.sleep(0.1)
+        __mkfs_fat__(new_part.path)
+        return new_part.path
 
 
 def sectors_to_size(sectors, sector_size):
