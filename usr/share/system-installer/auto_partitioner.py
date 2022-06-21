@@ -49,40 +49,43 @@ def is_EFI():
 
 # GET DEFAULT CONFIG
 LIMITER = gb_to_bytes(32)
+PARTITIONING_ENABLED = True
 
 # get configuration for partitioning
 config = {
-			"EFI": {
-                "EFI": {
-					"START": 0,
-					"END": 500
-						},
-				"ROOT":{
-					"START": 501,
-					"END": "40%",
-					"fs": "btrfs"
-						},
-				"HOME":{
-					"START": "40%",
-					"END": "100%",
-					"fs": "btrfs"
-						}
-					},
-			"BIOS": {
-				"ROOT":{
-					"START": 0,
-					"END": "40%",
-					"fs": "ext4"
+            "partitioning": {
+			    "EFI": {
+                    "EFI": {
+					    "START": 0,
+    					"END": 500
+	    					},
+		    		"ROOT":{
+			    		"START": 501,
+				    	"END": "40%",
+					    "fs": "btrfs"
+						    },
+    				"HOME":{
+	    				"START": "40%",
+		    			"END": "100%",
+			    		"fs": "btrfs"
+				    		}
 					    },
-				"HOME":{
-					"START": "40%",
-					"END": "100%",
-					"fs": "btrfs"
-						}
-					},
-			"min root size": 23000,
-			"mdswh": 128
-		}
+    			"BIOS": {
+	    			"ROOT":{
+		    			"START": 0,
+			    		"END": "40%",
+				    	"fs": "ext4"
+					        },
+    				"HOME":{
+	    				"START": "40%",
+		    			"END": "100%",
+			    		"fs": "btrfs"
+				    		}
+					    },
+    			"min root size": 23000,
+	    		"mdswh": 128
+		    }
+        }
 
 try:
     with open("/etc/system-installer/settings.json", "r") as config_file:
@@ -91,37 +94,51 @@ except FileNotFoundError:
     config_data = config
 
 
+# check to make sure packager left this block in
+if "partitioning" in config_data:
+    new_config = config_data["partitioning"]
+else:
+    common.eprint("Partitioning settings not found. Cannot partition drives automatically")
+    PARTITIONING_ENABLED = False
+
+
 if is_EFI():
     try:
-        config_data = config_data["EFI"]
+        new_config = new_config["EFI"]
+        config = config["partitioning"]["EFI"]
     except KeyError:
         common.eprint("EFI partitioning details not defined. Falling back to defaults")
         print("EFI partitioning details not defined. Falling back to defaults")
-        config_data = config["EFI"]
+        new_config = config["partitioning"]["EFI"]
 else:
     try:
-        config_data = config_data["BIOS"]
+        new_config = new_config["BIOS"]
+        config = config["partitioning"]["BIOS"]
     except KeyError:
         common.eprint("BIOS partitioning details not defined. Falling back to defaults")
         print("BIOS partitioning details not defined. Falling back to defaults")
-        config_data = config["BIOS"]
+        new_config = config["partitioning"]["BIOS"]
 
 
-# check to make sure packager left this block in
-    if "partitioning" in config_data:
-        new_config = config_data["partitioning"]
-    # make sure everything is there. If not, substitute in defaults
-    if "ROOT" not in new_config:
-        new_config["ROOT"] = config["ROOT"]
-    if "HOME" not in new_config:
-        new_config["HOME"] = config["HOME"]
+
+
+# make sure everything is there. If not, substitute in defaults
+# we don't use config["partitioning"][<key>] syntax here because if we enter any of
+# these if-statements, then we are not using the built-in settings. In which case, because of the above
+# block, if we are using externally sourced settings, then config will be pared down for us. And if we
+# are using the built-in settings, then we won't enter any of
+if "ROOT" not in new_config:
+    new_config["ROOT"] = config["ROOT"]
+if "HOME" not in new_config:
+    new_config["HOME"] = config["HOME"]
+if is_EFI():
     if "EFI" not in new_config:
         new_config["EFI"] = config["EFI"]
-    if "min root size" not in new_config:
-        new_config["min root size"] = config["min root size"]
-    if "mdswh" not in new_config:
-        new_config["mdswh"] = config["mdswh"]
-    config = new_config
+if "min root size" not in new_config:
+    new_config["min root size"] = config["min root size"]
+if "mdswh" not in new_config:
+    new_config["mdswh"] = config["mdswh"]
+config = new_config
     # if not, fall back to internal default
 
 
