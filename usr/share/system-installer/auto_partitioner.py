@@ -54,39 +54,39 @@ PARTITIONING_ENABLED = True
 # get configuration for partitioning
 config = {
             "partitioning": {
-			    "EFI": {
+                "EFI": {
                     "EFI": {
-					    "START": 0,
-    					"END": 500
-	    					},
-		    		"ROOT":{
-			    		"START": 501,
-				    	"END": "40%",
-					    "fs": "btrfs"
-						    },
-    				"HOME":{
-	    				"START": "40%",
-		    			"END": "100%",
-			    		"fs": "btrfs"
-				    		}
-					    },
-    			"BIOS": {
-	    			"ROOT":{
-		    			"START": 0,
-			    		"END": "40%",
-				    	"fs": "ext4"
-					        },
-    				"HOME":{
-	    				"START": "40%",
-		    			"END": "100%",
-			    		"fs": "btrfs"
-				    		}
-					    },
+                        "START": 0,
+                        "END": 500
+                            },
+                    "ROOT":{
+                        "START": 501,
+                        "END": "40%",
+                        "fs": "btrfs"
+                            },
+                    "HOME":{
+                        "START": "40%",
+                        "END": "100%",
+                        "fs": "btrfs"
+                            }
+                        },
+                "BIOS": {
+                    "ROOT":{
+                        "START": 0,
+                        "END": "40%",
+                        "fs": "ext4"
+                            },
+                    "HOME":{
+                        "START": "40%",
+                        "END": "100%",
+                        "fs": "btrfs"
+                            }
+                        },
                 "GENERAL": {
-    			    "min root size": 23000,
-	    		    "mdswh": 128
+                    "min root size": 23000,
+                    "mdswh": 128
                         }
-		    }
+            }
         }
 
 try:
