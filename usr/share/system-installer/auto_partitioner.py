@@ -82,8 +82,10 @@ config = {
 			    		"fs": "btrfs"
 				    		}
 					    },
-    			"min root size": 23000,
-	    		"mdswh": 128
+                "GENERAL": {
+    			    "min root size": 23000,
+	    		    "mdswh": 128
+                        }
 		    }
         }
 
@@ -104,20 +106,20 @@ else:
 
 if is_EFI():
     try:
-        new_config = new_config["EFI"]
-        config = config["partitioning"]["EFI"]
+        new_config = new_config["EFI"]  | new_config["partitioning"]["GENERAL"]
+        config = config["partitioning"]["EFI"] | config["partitioning"]["GENERAL"]
     except KeyError:
-        common.eprint("EFI partitioning details not defined. Falling back to defaults")
-        print("EFI partitioning details not defined. Falling back to defaults")
-        new_config = config["partitioning"]["EFI"]
+        common.eprint("EFI or General partitioning details not defined. Falling back to defaults")
+        print("EFI or General partitioning details not defined. Falling back to defaults")
+        new_config = config["partitioning"]["EFI"] | config["partitioning"]["GENERAL"]
 else:
     try:
-        new_config = new_config["BIOS"]
-        config = config["partitioning"]["BIOS"]
+        new_config = new_config["BIOS"] | new_config["partitioning"]["GENERAL"]
+        config = config["partitioning"]["BIOS"] | config["partitioning"]["GENERAL"]
     except KeyError:
-        common.eprint("BIOS partitioning details not defined. Falling back to defaults")
-        print("BIOS partitioning details not defined. Falling back to defaults")
-        new_config = config["partitioning"]["BIOS"]
+        common.eprint("BIOS or General partitioning details not defined. Falling back to defaults")
+        print("BIOS or General partitioning details not defined. Falling back to defaults")
+        new_config = config["partitioning"]["BIOS"] | config["partitioning"]["GENERAL"]
 
 
 
