@@ -59,24 +59,24 @@ config = {
                         "START": 0,
                         "END": 500
                             },
-                    "ROOT":{
+                    "ROOT": {
                         "START": 501,
                         "END": "40%",
                         "fs": "btrfs"
                             },
-                    "HOME":{
+                    "HOME": {
                         "START": "40%",
                         "END": "100%",
                         "fs": "btrfs"
                             }
                         },
                 "BIOS": {
-                    "ROOT":{
+                    "ROOT": {
                         "START": 0,
                         "END": "40%",
                         "fs": "ext4"
                             },
-                    "HOME":{
+                    "HOME": {
                         "START": "40%",
                         "END": "100%",
                         "fs": "btrfs"
@@ -125,9 +125,12 @@ else:
 
 
 # make sure everything is there. If not, substitute in defaults
-# we don't use config["partitioning"][<key>] syntax here because if we enter any of
-# these if-statements, then we are not using the built-in settings. In which case, because of the above
-# block, if we are using externally sourced settings, then config will be pared down for us. And if we
+# we don't use config["partitioning"][<key>] syntax here because
+# if we enter any of
+# these if-statements, then we are not using the built-in settings.
+# In which case, because of the above
+# block, if we are using externally sourced settings, then config will
+# be pared down for us. And if we
 # are using the built-in settings, then we won't enter any of
 if "ROOT" not in new_config:
     new_config["ROOT"] = config["ROOT"]
