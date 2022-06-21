@@ -100,7 +100,7 @@ if not check_kernel_versions.check_kernel_versions(CONFIG["local_repo"],
 work_dir = "/tmp/quick-install_working-dir"
 
 # Check if the installer has already been run
-if os.path.exists("/tmp/system-installer.log"):
+if len(os.listdir("/mnt")) > 0:
     # force the user to reboot in order to reattempt installation
     UI.error.show_error("""
 \t<b>Must Reboot Before Reattempting Installation</b>\t
