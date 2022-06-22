@@ -106,7 +106,7 @@ else:
 
 if is_EFI():
     try:
-        new_config = new_config["EFI"]  | new_config["partitioning"]["GENERAL"]
+        new_config = new_config["EFI"]  | new_config["GENERAL"]
         config = config["partitioning"]["EFI"] | config["partitioning"]["GENERAL"]
     except KeyError:
         common.eprint("EFI or General partitioning details not defined. Falling back to defaults")
@@ -114,7 +114,7 @@ if is_EFI():
         new_config = config["partitioning"]["EFI"] | config["partitioning"]["GENERAL"]
 else:
     try:
-        new_config = new_config["BIOS"] | new_config["partitioning"]["GENERAL"]
+        new_config = new_config["BIOS"] | new_config]["GENERAL"]
         config = config["partitioning"]["BIOS"] | config["partitioning"]["GENERAL"]
     except KeyError:
         common.eprint("BIOS or General partitioning details not defined. Falling back to defaults")
