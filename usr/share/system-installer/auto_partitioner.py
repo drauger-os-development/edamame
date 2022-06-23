@@ -42,37 +42,109 @@ def bytes_to_gb(b):
     return b / (10 ** 9)
 
 
+def is_EFI():
+    """Get if the current system is using EFI"""
+    return os.path.isdir("/sys/firmware/efi")
+
+
 # GET DEFAULT CONFIG
 LIMITER = gb_to_bytes(32)
+PARTITIONING_ENABLED = True
 
 # get configuration for partitioning
-config = {"ROOT": {"START": 201, "END": "40%", "fs": "ext4"},
-          "HOME": {"START": "40%", "END": "100%", "fs": "ext4"},
-          "EFI": {"START": 0, "END": 200},
-          "min root size": 23000,
-          "mdswh": 128}
+config = {
+            "partitioning": {
+                "EFI": {
+                    "EFI": {
+                        "START": 0,
+                        "END": 500
+                            },
+                    "ROOT": {
+                        "START": 501,
+                        "END": "40%",
+                        "fs": "btrfs"
+                            },
+                    "HOME": {
+                        "START": "40%",
+                        "END": "100%",
+                        "fs": "btrfs"
+                            }
+                        },
+                "BIOS": {
+                    "ROOT": {
+                        "START": 0,
+                        "END": "40%",
+                        "fs": "ext4"
+                            },
+                    "HOME": {
+                        "START": "40%",
+                        "END": "100%",
+                        "fs": "btrfs"
+                            }
+                        },
+                "GENERAL": {
+                    "min root size": 23000,
+                    "mdswh": 128
+                        }
+            }
+        }
+
 try:
     with open("/etc/system-installer/settings.json", "r") as config_file:
         config_data = json.load(config_file)
+except FileNotFoundError:
+    config_data = config
 
-    # check to make sure packager left this block in
-    if "partitioning" in config_data:
-        new_config = config_data["partitioning"]
-    # make sure everything is there. If not, substitute in defaults
-    if "ROOT" not in new_config:
-        new_config["ROOT"] = config["ROOT"]
-    if "HOME" not in new_config:
-        new_config["HOME"] = config["HOME"]
+
+# check to make sure packager left this block in
+if "partitioning" in config_data:
+    new_config = config_data["partitioning"]
+else:
+    common.eprint("Partitioning settings not found. Cannot partition drives automatically")
+    PARTITIONING_ENABLED = False
+
+
+if is_EFI():
+    try:
+        new_config = new_config["EFI"]  | new_config["GENERAL"]
+        config = config["partitioning"]["EFI"] | config["partitioning"]["GENERAL"]
+    except KeyError:
+        common.eprint("EFI or General partitioning details not defined. Falling back to defaults")
+        print("EFI or General partitioning details not defined. Falling back to defaults")
+        new_config = config["partitioning"]["EFI"] | config["partitioning"]["GENERAL"]
+else:
+    try:
+        new_config = new_config["BIOS"] | new_config["GENERAL"]
+        config = config["partitioning"]["BIOS"] | config["partitioning"]["GENERAL"]
+    except KeyError:
+        common.eprint("BIOS or General partitioning details not defined. Falling back to defaults")
+        print("BIOS or General partitioning details not defined. Falling back to defaults")
+        new_config = config["partitioning"]["BIOS"] | config["partitioning"]["GENERAL"]
+
+
+
+
+# make sure everything is there. If not, substitute in defaults
+# we don't use config["partitioning"][<key>] syntax here because
+# if we enter any of
+# these if-statements, then we are not using the built-in settings.
+# In which case, because of the above
+# block, if we are using externally sourced settings, then config will
+# be pared down for us. And if we
+# are using the built-in settings, then we won't enter any of
+if "ROOT" not in new_config:
+    new_config["ROOT"] = config["ROOT"]
+if "HOME" not in new_config:
+    new_config["HOME"] = config["HOME"]
+if is_EFI():
     if "EFI" not in new_config:
         new_config["EFI"] = config["EFI"]
-    if "min root size" not in new_config:
-        new_config["min root size"] = config["min root size"]
-    if "mdswh" not in new_config:
-        new_config["mdswh"] = config["mdswh"]
-    config = new_config
+if "min root size" not in new_config:
+    new_config["min root size"] = config["min root size"]
+if "mdswh" not in new_config:
+    new_config["mdswh"] = config["mdswh"]
+config = new_config
     # if not, fall back to internal default
-except FileNotFoundError:
-    pass
 
 
 def size_of_part(part_path, bytes=False):
@@ -178,59 +250,60 @@ def __mkfs__(device, fs):
     return data
 
 
-def __mkfs_fat__(device):
-    """Set partition filesystem to FAT32"""
-    # pre-define command
-    command = ["mkfs.fat", "-F", "32", str(device)]
-    try:
-        data = subprocess.check_output(command).decode()
-    except subprocess.CalledProcessError as error:
-        data = error.output.decode()
-    return data
+if is_EFI():
+    def __mkfs_fat__(device):
+        """Set partition filesystem to FAT32"""
+        # pre-define command
+        command = ["mkfs.fat", "-F", "32", str(device)]
+        try:
+            data = subprocess.check_output(command).decode()
+        except subprocess.CalledProcessError as error:
+            data = error.output.decode()
+        return data
 
 
-def __make_efi__(device, start=config["EFI"]["START"],
-                 end=config["EFI"]["END"]):
-    """Make EFI partition"""
-    disk = parted.Disk(device)
-    start_geo = parted.geometry.Geometry(device=device,
-                                         start=parted.sizeToSectors(start,
+    def __make_efi__(device, start=config["EFI"]["START"],
+                     end=config["EFI"]["END"]):
+        """Make EFI partition"""
+        disk = parted.Disk(device)
+        start_geo = parted.geometry.Geometry(device=device,
+                                             start=parted.sizeToSectors(start,
+                                                                        "MB",
+                                                                        device.sectorSize),
+                                             end=parted.sizeToSectors(start + 10,
+                                                                      "MB",
+                                                                      device.sectorSize))
+        end_geo = parted.geometry.Geometry(device=device,
+                                           start=parted.sizeToSectors(common.real_number(end - 20),
+                                                                      "MB",
+                                                                      device.sectorSize),
+                                           end=parted.sizeToSectors(end + 10,
                                                                     "MB",
-                                                                    device.sectorSize),
-                                         end=parted.sizeToSectors(start + 10,
-                                                                  "MB",
-                                                                  device.sectorSize))
-    end_geo = parted.geometry.Geometry(device=device,
-                                       start=parted.sizeToSectors(common.real_number(end - 20),
-                                                                  "MB",
-                                                                  device.sectorSize),
-                                       end=parted.sizeToSectors(end + 10,
-                                                                "MB",
-                                                                device.sectorSize))
-    min_size = parted.sizeToSectors(common.real_number((end - start) - 25),
-                                    "MB",
-                                    device.sectorSize)
-    max_size = parted.sizeToSectors(common.real_number((end - start) + 20),
-                                    "MB",
-                                    device.sectorSize)
-    const = parted.Constraint(startAlign=device.optimumAlignment,
-                              endAlign=device.optimumAlignment,
-                              startRange=start_geo, endRange=end_geo,
-                              minSize=min_size, maxSize=max_size)
-    geometry = parted.geometry.Geometry(start=start,
-                                        length=parted.sizeToSectors(end - start,
-                                                                    "MB",
-                                                                    device.sectorSize),
-                                        device=device)
-    new_part = parted.Partition(disk=disk,
-                                type=parted.PARTITION_NORMAL,
-                                geometry=geometry)
-    new_part.setFlag(parted.PARTITION_BOOT)
-    disk.addPartition(partition=new_part, constraint=const)
-    disk.commit()
-    time.sleep(0.1)
-    __mkfs_fat__(new_part.path)
-    return new_part.path
+                                                                    device.sectorSize))
+        min_size = parted.sizeToSectors(common.real_number((end - start) - 25),
+                                        "MB",
+                                        device.sectorSize)
+        max_size = parted.sizeToSectors(common.real_number((end - start) + 20),
+                                        "MB",
+                                        device.sectorSize)
+        const = parted.Constraint(startAlign=device.optimumAlignment,
+                                  endAlign=device.optimumAlignment,
+                                  startRange=start_geo, endRange=end_geo,
+                                  minSize=min_size, maxSize=max_size)
+        geometry = parted.geometry.Geometry(start=start,
+                                            length=parted.sizeToSectors(end - start,
+                                                                        "MB",
+                                                                        device.sectorSize),
+                                            device=device)
+        new_part = parted.Partition(disk=disk,
+                                    type=parted.PARTITION_NORMAL,
+                                    geometry=geometry)
+        new_part.setFlag(parted.PARTITION_BOOT)
+        disk.addPartition(partition=new_part, constraint=const)
+        disk.commit()
+        time.sleep(0.1)
+        __mkfs_fat__(new_part.path)
+        return new_part.path
 
 
 def sectors_to_size(sectors, sector_size):

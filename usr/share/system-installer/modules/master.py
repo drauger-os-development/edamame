@@ -178,20 +178,29 @@ class MainInstallation():
             xkbl = ""
             xkbv = ""
             for each1 in kcd:
-                if " ".join(each1[1:]) == MODEL:
-                    xkbm = each1[0]
-                elif " ".join(each1[1:]) == LAYOUT:
-                    xkbl = each1[0]
-                elif " ".join(each1[1:]) == VARIENT:
-                    xkbv = each1[0]
-            with open("/etc/default/keyboard", "w+") as xkb_default:
-                xkb_default.write("""XKBMODEL=\"%s\"
-XKBLAYOUT=\"%s\"
-XKBVARIANT=\"%s\"
+                if len(each1) < 1:
+                    continue
+                if each1[0] == MODEL:
+                    xkbm = MODEL
+                elif each1[0] == LAYOUT:
+                    xkbl = LAYOUT
+                elif each1[0] == VARIENT:
+                    xkbv = VARIENT
+            if "" == xkbm:
+                print(f"{MODEL} not in XKeyboard Rules List. Invalid.")
+            if "" == xkbl:
+                print(f"{LAYOUT} not in XKeyboard Rules List. Invalid.")
+            if "" == xkbv:
+                print(f"{VARIENT} not in XKeyboard Rules List. Invalid.")
+            xkb_file = f"""XKBMODEL=\"{xkbm}\"
+XKBLAYOUT=\"{xkbl}\"
+XKBVARIANT=\"{xkbv}\"
 XKBOPTIONS=\"\"
 
 BACKSPACE=\"guess\"
-""" % (xkbm, xkbl, xkbv))
+"""
+            with open("/etc/default/keyboard", "w+") as xkb_default:
+                xkb_default.write(xkb_file)
             subprocess.Popen(["udevadm", "trigger", "--subsystem-match=input",
                               "--action=change"], stdout=stderr.buffer)
 
