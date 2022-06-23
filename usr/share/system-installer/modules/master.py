@@ -178,6 +178,8 @@ class MainInstallation():
             xkbl = ""
             xkbv = ""
             for each1 in kcd:
+                if len(each1) < 1:
+                    continue
                 if each1[0] == MODEL:
                     xkbm = MODEL
                 elif each1[0] == LAYOUT:
