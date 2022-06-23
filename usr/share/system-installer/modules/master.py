@@ -178,7 +178,7 @@ class MainInstallation():
             xkbl = ""
             xkbv = ""
             for each1 in kcd:
-                if each1[0]) == MODEL:
+                if each1[0] == MODEL:
                     xkbm = MODEL
                 elif each1[0] == LAYOUT:
                     xkbl = LAYOUT
