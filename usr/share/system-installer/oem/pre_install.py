@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-#  main.py
+#  pre_install.py
 #
 #  Copyright 2022 Thomas Castleman <contact@draugeros.org>
 #
@@ -28,6 +28,7 @@ import re
 import json
 import os
 import subprocess
+import auto_partitioner
 import gi
 
 gi.require_version('Gtk', '3.0')
