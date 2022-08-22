@@ -1114,7 +1114,7 @@ Type. Minimum drives is: %s""" % (loops))
         self.grid.attach(label, 1, 1, 3, 1)
 
         label2 = Gtk.Label()
-        label2.set_markup("/")
+        label2.set_markup("ROOT Partition (Mounted at /)")
         label2.set_justify(Gtk.Justification.RIGHT)
         label2 = self._set_default_margins(label2)
         self.grid.attach(label2, 1, 2, 1, 1)
@@ -1124,25 +1124,37 @@ Type. Minimum drives is: %s""" % (loops))
         self.root = self._set_default_margins(self.root)
         self.grid.attach(self.root, 2, 2, 1, 1)
 
-        label3 = Gtk.Label()
-        label3.set_markup("/boot/efi")
-        label3.set_justify(Gtk.Justification.RIGHT)
-        label3 = self._set_default_margins(label3)
-        self.grid.attach(label3, 1, 3, 1, 1)
+        root_info = Gtk.Button.new_with_label("Info on Root Partition")
+        root_info.connect("clicked", self.explain_root)
+        root_info = self._set_default_margins(root_info)
+        self.grid.attach(root_info, 3, 2, 1, 1)
 
-        self.efi = Gtk.Entry()
-        self.efi.set_text(self.data["EFI"])
-        self.efi = self._set_default_margins(self.efi)
-        self.grid.attach(self.efi, 2, 3, 1, 1)
 
-        label5 = Gtk.Label()
-        label5.set_markup("Must be fat32")
-        label5.set_justify(Gtk.Justification.RIGHT)
-        label5 = self._set_default_margins(label5)
-        self.grid.attach(label5, 3, 3, 1, 1)
+        if auto_partitioner.is_EFI():
+            label3 = Gtk.Label()
+            label3.set_markup("EFI Partition (Mounted at /boot/efi)")
+            label3.set_justify(Gtk.Justification.RIGHT)
+            label3 = self._set_default_margins(label3)
+            self.grid.attach(label3, 1, 3, 1, 1)
+
+            self.efi = Gtk.Entry()
+            self.efi.set_text(self.data["EFI"])
+            self.efi = self._set_default_margins(self.efi)
+            self.grid.attach(self.efi, 2, 3, 1, 1)
+
+            efi_info = Gtk.Button.new_with_label("Info on EFI Partition")
+            efi_info.connect("clicked", self.explain_efi)
+            efi_info = self._set_default_margins(efi_info)
+            self.grid.attach(efi_info, 3, 3, 1, 1)
+
+            #  label5 = Gtk.Label()
+            #  label5.set_markup("Must be fat32")
+            #  label5.set_justify(Gtk.Justification.RIGHT)
+            #  label5 = self._set_default_margins(label5)
+            #  self.grid.attach(label5, 3, 3, 1, 1)
 
         label4 = Gtk.Label()
-        label4.set_markup("/home")
+        label4.set_markup("Home Partition (Mounted at /home) (optional)")
         label4.set_justify(Gtk.Justification.RIGHT)
         label4 = self._set_default_margins(label4)
         self.grid.attach(label4, 1, 4, 1, 1)
@@ -1151,6 +1163,11 @@ Type. Minimum drives is: %s""" % (loops))
         self.home.set_text(self.data["HOME"])
         self.home = self._set_default_margins(self.home)
         self.grid.attach(self.home, 2, 4, 1, 1)
+
+        home_info = Gtk.Button.new_with_label("Info on Home Partition")
+        home_info.connect("clicked", self.explain_home)
+        home_info = self._set_default_margins(home_info)
+        self.grid.attach(home_info, 3, 4, 1, 1)
 
         label6 = Gtk.Label()
         label6.set_markup("SWAP")
@@ -1163,11 +1180,16 @@ Type. Minimum drives is: %s""" % (loops))
         self.swap = self._set_default_margins(self.swap)
         self.grid.attach(self.swap, 2, 5, 1, 1)
 
-        label7 = Gtk.Label()
-        label7.set_markup("Must be linux-swap or file")
-        label7.set_justify(Gtk.Justification.RIGHT)
-        label7 = self._set_default_margins(label7)
-        self.grid.attach(label7, 3, 5, 1, 1)
+        swap_info = Gtk.Button.new_with_label("Info on SWAP")
+        swap_info.connect("clicked", self.explain_swap)
+        swap_info = self._set_default_margins(swap_info)
+        self.grid.attach(swap_info, 3, 5, 1, 1)
+
+        #  label7 = Gtk.Label()
+        #  label7.set_markup("Must be linux-swap or file")
+        #  label7.set_justify(Gtk.Justification.RIGHT)
+        #  label7 = self._set_default_margins(label7)
+        #  self.grid.attach(label7, 3, 5, 1, 1)
 
         button1 = Gtk.Button.new_with_label("Okay -->")
         button1.connect("clicked", self.onnext4clicked)
@@ -1185,6 +1207,22 @@ Type. Minimum drives is: %s""" % (loops))
         self.grid.attach(button1, 1, 6, 1, 1)
 
         self.show_all()
+
+    def explain_root(self, button):
+        """Explain Root Partition requierments and limitations"""
+        pass
+
+    def explain_efi(self, button):
+        """Explain efi Partition requierments and limitations"""
+        pass
+
+    def explain_home(self, button):
+        """Explain home Partition requierments and limitations"""
+        pass
+
+    def explain_swap(self, button):
+        """Explain swap partitions and files"""
+        pass
 
     def onnext4clicked(self, button):
         """Check device paths provided for manual partitioner"""
