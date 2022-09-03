@@ -1093,7 +1093,7 @@ Type. Minimum drives is: %s""" % (loops))
         input_string = """
     What are the mount points for the partitions you wish to be used?
     Leave empty the partitions you don't want.
-    <b> / MUST BE USED </b>
+    <b> ROOT PARTITION MUST BE USED </b>
         """
 
         if additional_message != "":
@@ -1210,19 +1210,246 @@ Type. Minimum drives is: %s""" % (loops))
 
     def explain_root(self, button):
         """Explain Root Partition requierments and limitations"""
-        pass
+        self.clear_window()
+
+        label = Gtk.Label()
+        label.set_markup("<b>Info on Root Partition</b>")
+        label.set_justify(Gtk.Justification.RIGHT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 1, 1, 2, 1)
+
+        label = Gtk.Label()
+        label.set_markup("What is an Root Partition?")
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 1, 2, 1, 1)
+
+        label = Gtk.Label()
+        label.set_markup("""
+        The Root Partition is the partition where your operating system is
+        going to be installed, as well as the vast majority of apps you install
+        throughout the lifetime of the OS.
+        """)
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 1, 3, 1, 1)
+
+        label = Gtk.Label()
+        label.set_markup("Root Partition Requirements")
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 2, 2, 1, 1)
+
+        label = Gtk.Label()
+        label.set_markup("""
+        Root Partitions are expected to be no smaller than 32 GB, and can be any
+        file system type except FAT32, FAT16, NTFS, or exFAT/vFAT.
+
+        We suggest having a Root Partition of at least 64 GB, with a btrfs
+        file system. This will provide you with the ability to back up your OS in
+        case of a potentially risky upgrade or configuration change, while also
+        providing great file system performance.
+        """)
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 2, 3, 1, 1)
+
+        button2 = Gtk.Button.new_with_label("Exit")
+        button2.connect("clicked", self.exit)
+        button2 = self._set_default_margins(button2)
+        self.grid.attach(button2, 2, 6, 1, 1)
+
+        button1 = Gtk.Button.new_with_label("<-- Back")
+        button1.connect("clicked", self.input_part)
+        button1 = self._set_default_margins(button1)
+        self.grid.attach(button1, 1, 6, 1, 1)
+
+        self.show_all()
 
     def explain_efi(self, button):
         """Explain efi Partition requierments and limitations"""
-        pass
+        self.clear_window()
+
+        label = Gtk.Label()
+        label.set_markup("<b>Info on EFI Partition</b>")
+        label.set_justify(Gtk.Justification.RIGHT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 1, 1, 2, 1)
+
+        label = Gtk.Label()
+        label.set_markup("What is an EFI Partition?")
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 1, 2, 1, 1)
+
+        label = Gtk.Label()
+        label.set_markup("""
+        An EFI or UEFI Partition is a small partition which
+        contains the bootloader and related files for a system
+        using UEFI firmware.
+
+        Since you booted your system in UEFI mode, you are
+        required to have one of these partitions.
+        """)
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 1, 3, 1, 1)
+
+        label = Gtk.Label()
+        label.set_markup("EFI Partition Requirements")
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 2, 2, 1, 1)
+
+        label = Gtk.Label()
+        label.set_markup("""
+        EFI Partitions are expected to be no smaller than 200 MB,
+        and use a FAT32 or FAT16 file system. We suggest using a
+        FAT32 file system as it is the most widely supported.
+
+        This partition must also have the \"boot\" and \"esp\" flags set.
+        """)
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 2, 3, 1, 1)
+
+        button2 = Gtk.Button.new_with_label("Exit")
+        button2.connect("clicked", self.exit)
+        button2 = self._set_default_margins(button2)
+        self.grid.attach(button2, 2, 6, 1, 1)
+
+        button1 = Gtk.Button.new_with_label("<-- Back")
+        button1.connect("clicked", self.input_part)
+        button1 = self._set_default_margins(button1)
+        self.grid.attach(button1, 1, 6, 1, 1)
+
+        self.show_all()
 
     def explain_home(self, button):
         """Explain home Partition requierments and limitations"""
-        pass
+        self.clear_window()
+
+        label = Gtk.Label()
+        label.set_markup("<b>Info on Home Partition</b>")
+        label.set_justify(Gtk.Justification.RIGHT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 1, 1, 2, 1)
+
+        label = Gtk.Label()
+        label.set_markup("What is a Home Partition?")
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 1, 2, 1, 1)
+
+        label = Gtk.Label()
+        label.set_markup("""
+        A Home Partition is a partition which contains all or
+        most of your user info. Having one of these is completely
+        optional. If you do opt for one, it can help keep your data
+        safe from data loss, or if the partition is on another drive,
+        it can ensure quick access times to data in your home
+        directory.
+        """)
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 1, 3, 1, 1)
+
+        label = Gtk.Label()
+        label.set_markup("Home Partition Requirements")
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 2, 2, 1, 1)
+
+        label = Gtk.Label()
+        label.set_markup("""
+        Home Partitions are expected to be no smaller than 500 MB,
+        and can be any file system except FAT32, FAT16, exFAT/vFAT, or NTFS.
+        We suggest using a btrfs file system as it has features useful for
+        backing up your data, as well as is capable of optimizing itself for
+        solid-state drives.
+        """)
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 2, 3, 1, 1)
+
+        button2 = Gtk.Button.new_with_label("Exit")
+        button2.connect("clicked", self.exit)
+        button2 = self._set_default_margins(button2)
+        self.grid.attach(button2, 2, 6, 1, 1)
+
+        button1 = Gtk.Button.new_with_label("<-- Back")
+        button1.connect("clicked", self.input_part)
+        button1 = self._set_default_margins(button1)
+        self.grid.attach(button1, 1, 6, 1, 1)
+
+        self.show_all()
 
     def explain_swap(self, button):
         """Explain swap partitions and files"""
-        pass
+        self.clear_window()
+
+        label = Gtk.Label()
+        label.set_markup("<b>Info on SWAP Partition</b>")
+        label.set_justify(Gtk.Justification.RIGHT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 1, 1, 2, 1)
+
+        label = Gtk.Label()
+        label.set_markup("What is an SWAP Partition?")
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 1, 2, 1, 1)
+
+        label = Gtk.Label()
+        label.set_markup("""
+        A SWAP Partition is a partition which your system may use to
+        extend system memory. It is useful for when your system is
+        extreamly low on memory.
+
+        Because it is on your internal drive, it is capable of retaining
+        data between reboots and even total powerloss events. Thanks to this,
+        it also enables the usage of the Hibernate and Hybrid Suspend features.
+
+        SWAP can also be used as a file. This can allow you to easily create more
+        SWAP later, should you deem it necessary.
+
+        Having SWAP is mandatory on this operating system. As such, if you do not
+        create a SWAP partition, a SWAP file will be created for you.
+        """)
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 1, 3, 1, 1)
+
+        label = Gtk.Label()
+        label.set_markup("SWAP Partition Requirements")
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 2, 2, 1, 1)
+
+        label = Gtk.Label()
+        label.set_markup("""
+        SWAP Partitions are expected to be no smaller than 100 MB,
+        and use linux-swap file system.
+
+        If you are not sure how big you should make your SWAP partition,
+        simply put in "FILE" and a SWAP file of the appropriate size will
+        be generated for you.
+        """)
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 2, 3, 1, 1)
+
+        button2 = Gtk.Button.new_with_label("Exit")
+        button2.connect("clicked", self.exit)
+        button2 = self._set_default_margins(button2)
+        self.grid.attach(button2, 2, 6, 1, 1)
+
+        button1 = Gtk.Button.new_with_label("<-- Back")
+        button1.connect("clicked", self.input_part)
+        button1 = self._set_default_margins(button1)
+        self.grid.attach(button1, 1, 6, 1, 1)
+
+        self.show_all()
 
     def onnext4clicked(self, button):
         """Check device paths provided for manual partitioner"""
