@@ -173,7 +173,7 @@ def size_of_part(part_path, bytes=False):
 
 def get_drive_path(part_path):
     """Get drive path from partition path"""
-    if "nvme" in part_path:
+    if ("nvme" in part_path) or ("mmc" in part_path):
         output = part_path[:part_path.index("p")]
     else:
         count = 0

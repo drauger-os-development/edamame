@@ -1192,7 +1192,7 @@ Type. Minimum drives is: %s""" % (loops))
         #  self.grid.attach(label7, 3, 5, 1, 1)
 
         button1 = Gtk.Button.new_with_label("Okay -->")
-        button1.connect("clicked", self.onnext4clicked)
+        button1.connect("clicked", self.check_man_part_settings)
         button1 = self._set_default_margins(button1)
         self.grid.attach(button1, 3, 6, 1, 1)
 
@@ -1451,7 +1451,7 @@ Type. Minimum drives is: %s""" % (loops))
 
         self.show_all()
 
-    def onnext4clicked(self, button):
+    def check_man_part_settings(self, button):
         """Check device paths provided for manual partitioner"""
         if ((self.root.get_text() == "") or (
                 self.root.get_text()[0:5] != "/dev/")):
