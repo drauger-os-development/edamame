@@ -30,7 +30,7 @@ import os
 import common
 import subprocess
 import gi
-import auto_partitioner
+import auto_partitioner as ap
 import traceback
 
 gi.require_version('Gtk', '3.0')
@@ -852,12 +852,12 @@ Type. Minimum drives is: %s""" % (loops))
         label = self._set_default_margins(label)
         self.grid.attach(label, 1, 1, 3, 1)
 
-        data = auto_partitioner.check_disk_state()
+        data = ap.check_disk_state()
         devices = Gtk.ComboBoxText.new()
         for each in data:
             devices.append(each["name"],
                            "%s, size: %sGB" % (each["name"],
-                                               int(auto_partitioner.bytes_to_gb(each["size"]))))
+                                               int(ap.bytes_to_gb(each["size"]))))
         devices.connect("changed", self.make_space_parts)
         devices = self._set_default_margins(devices)
         self.grid.attach(devices, 1, 2, 3, 1)
@@ -897,14 +897,14 @@ Type. Minimum drives is: %s""" % (loops))
     def make_space_parts(self, widget):
         """Set partitions to show for make_space()"""
         self.parts.remove_all()
-        data = auto_partitioner.check_disk_state()
+        data = ap.check_disk_state()
         name = widget.get_active_id()
         for each in data:
             if each["name"] == name:
                 if "children" in each:
                     for each1 in each["children"]:
                         self.parts.append(each1["name"],
-                                          f"{each1['name']}, filesystem: {each1['fstype']}, size: {int(auto_partitioner.bytes_to_gb(each1['size']))}GB")
+                                          f"{each1['name']}, filesystem: {each1['fstype']}, size: {int(ap.bytes_to_gb(each1['size']))}GB")
         self.show_all()
 
     def confirm_remove_part(self, widget):
@@ -943,7 +943,7 @@ Type. Minimum drives is: %s""" % (loops))
     def remove_part(self, widget):
         """Interface for removing partitions"""
         part = self.parts.get_active_id()
-        auto_partitioner.delete_part(part)
+        ap.delete_part(part)
         if "nvme" in part:
             self.make_space("clicked", drive=part[:-2])
         else:
@@ -1050,7 +1050,7 @@ Type. Minimum drives is: %s""" % (loops))
         """Force User to either pick a drive to install to, abort,
         or backtrack
         """
-        if auto_partitioner.is_EFI():
+        if ap.is_EFI():
             self.data["EFI"] = True
         else:
             self.data["EFI"] = False
@@ -1130,7 +1130,7 @@ Type. Minimum drives is: %s""" % (loops))
         self.grid.attach(root_info, 3, 2, 1, 1)
 
 
-        if auto_partitioner.is_EFI():
+        if ap.is_EFI():
             label3 = Gtk.Label()
             label3.set_markup("EFI Partition (Mounted at /boot/efi)")
             label3.set_justify(Gtk.Justification.RIGHT)
@@ -1453,6 +1453,10 @@ Type. Minimum drives is: %s""" % (loops))
 
     def check_man_part_settings(self, button):
         """Check device paths provided for manual partitioner"""
+        try:
+            efi = self.efi.get_text()
+        except (AttributeError, NameError):
+            efi = ""
         if ((self.root.get_text() == "") or (
                 self.root.get_text()[0:5] != "/dev/")):
             label = self.set_up_partitioner_label("ERROR: / NOT SET")
@@ -1474,8 +1478,7 @@ Type. Minimum drives is: %s""" % (loops))
 
             self.show_all()
             return
-        elif (((self.efi.get_text() == "") or (
-                self.efi.get_text()[0:5] != "/dev/")) and auto_partitioner.is_EFI()):
+        elif (((efi == "") or (efi[0:5] != "/dev/")) and ap.is_EFI()):
             label = self.set_up_partitioner_label(
                 "ERROR: System is running EFI. An EFI partition must be set.")
             try:
@@ -1486,8 +1489,7 @@ Type. Minimum drives is: %s""" % (loops))
 
             self.show_all()
             return
-        elif (not os.path.exists(self.efi.get_text()) or (
-                self.efi.get_text() == "")) and auto_partitioner.is_EFI():
+        elif (not os.path.exists(efi) or (efi == "")) and ap.is_EFI():
             label = Gtk.Label()
             label = self.set_up_partitioner_label("ERROR: Not a Valid Device on /boot/efi")
             try:
@@ -1548,11 +1550,10 @@ Type. Minimum drives is: %s""" % (loops))
             self.show_all()
             return
         if ((self.swap.get_text().upper() == "FILE") or (self.swap.get_text() == "")):
-            if auto_partitioner.size_of_part(self.root.get_text()) < \
-                    auto_partitioner.get_min_root_size(bytes=False):
+            if ap.size_of_part(self.root.get_text()) < ap.get_min_root_size(bytes=False):
                 label_string = \
-        f""" / is too small. Minimum Root Partition size is { round(auto_partitioner.get_min_root_size(bytes=False)) } GB
-        Make a swap partition to reduce this minimum to { round(auto_partitioner.get_min_root_size(swap=False, bytes=False)) } GB
+        f""" / is too small. Minimum Root Partition size is { round(ap.get_min_root_size(bytes=False)) } GB
+        Make a swap partition to reduce this minimum to { round(ap.get_min_root_size(swap=False, bytes=False)) } GB
         """
                 label = self.set_up_partitioner_label(label_string)
                 try:
@@ -1564,9 +1565,8 @@ Type. Minimum drives is: %s""" % (loops))
                 self.show_all()
                 return
         else:
-            if auto_partitioner.size_of_part(self.root.get_text()) < \
-                    auto_partitioner.get_min_root_size(swap=False, bytes=False):
-                label_string = f"/ is too small. Minimum Root Partition size is { round(auto_partitioner.get_min_root_size(swap=False, bytes=False)) } GB"
+            if ap.size_of_part(self.root.get_text()) < ap.get_min_root_size(swap=False, bytes=False):
+                label_string = f"/ is too small. Minimum Root Partition size is { round(ap.get_min_root_size(swap=False, bytes=False)) } GB"
                 label = self.set_up_partitioner_label(label_string)
                 try:
                     self.grid.remove(self.grid.get_child_at(1, 1))
@@ -1585,10 +1585,10 @@ Type. Minimum drives is: %s""" % (loops))
         self.data["ROOT"] = self.root.get_text()
 
         self.show_all()
-        if self.efi.get_text() in ("", " ", None):
+        if efi in ("", " ", None):
             self.data["EFI"] = "NULL"
         else:
-            self.data["EFI"] = self.efi.get_text()
+            self.data["EFI"] = efi
         if self.home.get_text() in ("", " ", None):
             self.data["HOME"] = "NULL"
         else:
