@@ -135,6 +135,7 @@ class MainInstallation():
     def apt(UPDATES, EXTRAS, INTERNET):
         """Run commands for apt sequentially to avoid front-end lock"""
         # MainInstallation.__install_updates__(UPDATES, INTERNET)
+        print(INTERNET)
         if ((UPDATES) and (INTERNET)):
             install_updates.update_system()
         if ((EXTRAS) and (INTERNET)):

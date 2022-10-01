@@ -57,7 +57,7 @@ def make_swap():
     with open("/.swapfile", "w+") as swapfile:
         swapfile.write("")
         swapfile.flush()
-        subprocess.check_call(["chattr", "+C", "swapfile"])
+        subprocess.check_call(["chattr", "+C", "/.swapfile"])
         for i in range(loop_count):
             swapfile.write(master_string * (multiplyer * load_balancer))
             swapfile.flush()
