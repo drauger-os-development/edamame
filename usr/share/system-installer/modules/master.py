@@ -132,13 +132,12 @@ class MainInstallation():
             except IOError:
                 eprint("Adding swap failed. Must manually add later")
 
-    def apt(UPDATES, EXTRAS, INTERNET):
+    def apt(UPDATES, EXTRAS):
         """Run commands for apt sequentially to avoid front-end lock"""
         # MainInstallation.__install_updates__(UPDATES, INTERNET)
-        print(INTERNET)
-        if ((UPDATES) and (INTERNET)):
+        if UPDATES:
             install_updates.update_system()
-        if ((EXTRAS) and (INTERNET)):
+        if EXTRAS:
             install_extras.install_extras()
 
     def set_passwd(USERNAME, PASSWORD):
