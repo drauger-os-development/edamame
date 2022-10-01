@@ -51,10 +51,20 @@ def make_swap():
     load_balancer = 3
     master_string = "\0" * multiplyer
     swap = round(swap / multiplyer)
+    loop_count = round(swap / (multiplyer * load_balancer))
+    print_point = round(loop_count / 20)
+    perc = 5
     with open("/.swapfile", "w+") as swapfile:
-        for i in range(round(swap / (multiplyer * load_balancer))):
+        swapfile.write("")
+        swapfile.flush()
+        subprocess.check_call(["chattr", "+C", "/.swapfile"])
+        for i in range(loop_count):
             swapfile.write(master_string * (multiplyer * load_balancer))
             swapfile.flush()
+            if (i % print_point) == 0:
+                if perc <= 100:
+                    eprint(f"SWAP FILE { perc }% complete")
+                    perc += 5
     chmod("/.swapfile", 0o600)
     subprocess.check_call(["mkswap", "/.swapfile"], stdout=stderr.buffer)
     sleep(0.1)
