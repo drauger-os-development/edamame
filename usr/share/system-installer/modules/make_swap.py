@@ -55,6 +55,9 @@ def make_swap():
     print_point = round(loop_count / 20)
     perc = 5
     with open("/.swapfile", "w+") as swapfile:
+        swapfile.write("")
+        swapfile.flush()
+        subprocess.check_call(["chattr", "+C", "swapfile"])
         for i in range(loop_count):
             swapfile.write(master_string * (multiplyer * load_balancer))
             swapfile.flush()
