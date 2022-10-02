@@ -57,7 +57,12 @@ def make_swap():
     with open("/.swapfile", "w+") as swapfile:
         swapfile.write("")
         swapfile.flush()
-        subprocess.check_call(["chattr", "+C", "/.swapfile"])
+        try:
+            subprocess.check_call(["chattr", "+C", "/.swapfile"])
+        except subprocess.CalledProcessError:
+            # if this happens, we likely are not using a btrfs file system
+            # ignore
+            pass
         for i in range(loop_count):
             swapfile.write(master_string * (multiplyer * load_balancer))
             swapfile.flush()
