@@ -222,7 +222,8 @@ def get_min_root_size(swap=True, ram_size=False, ram_size_unit=True,
 def check_disk_state():
     """Check disk state as registered with lsblk
 
-    Returns data as dictionary"""
+    Returns data as dictionary
+    """
     command = ["lsblk", "--json", "--paths", "--bytes", "--output",
                "name,size,type,fstype"]
     data = json.loads(subprocess.check_output(command))["blockdevices"]
@@ -230,6 +231,18 @@ def check_disk_state():
         if data[each]["type"] == "loop":
             del data[each]
     return data
+
+
+def get_fs(part_name: str):
+    """Get filesystem type for given partition"""
+    disk = check_disk_state()
+    for each in disk:
+        if each["name"] == part_name:
+            return each["fstype"]
+        if "children" in each:
+            for each1 in each["children"]:
+                if each1["name"] == part_name:
+                    return each1["fstype"]
 
 
 def __mkfs__(device, fs):
