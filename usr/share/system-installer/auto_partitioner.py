@@ -224,6 +224,11 @@ def check_disk_state():
 
     Returns data as dictionary
     """
+    try:
+        subprocess.check_call(["partprobe"])
+    except subprocess.CalledProcess:
+        print("`partprobe` failed. Provided info may not be up-to-date.")
+    time.sleep(0.1)
     command = ["lsblk", "--json", "--paths", "--bytes", "--output",
                "name,size,type,fstype"]
     data = json.loads(subprocess.check_output(command))["blockdevices"]
