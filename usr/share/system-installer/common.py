@@ -28,7 +28,7 @@ import os
 
 def unique(starting_list):
     """Function to get a list down to only unique elements"""
-    # intilize a null list
+    # initialize a null list
     unique_list = []
     # traverse for all elements
     for each in starting_list:
