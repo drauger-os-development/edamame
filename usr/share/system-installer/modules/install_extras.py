@@ -53,47 +53,26 @@ def install_extras():
         # Newer cards take different drivers from older cards
         for each in ("BCM43142", "BCM4331", "BCM4360", "BCM4352"):
             if each in pci:
-                install_list = install_list + ["broadcom-sta-dkms", "dkms", "wireless-tools"]
+                install_list = install_list + ["broadcom-sta-dkms", "dkms",
+                                               "wireless-tools"]
                 break
         if len(install_list) == 2:
-            for each in ("BCM4311", "BCM4312", "BCM4313", "BCM4321", "BCM4322", "BCM43224", "BCM43225", "BCM43227", "BCM43228"):
+            for each in ("BCM4311", "BCM4312", "BCM4313", "BCM4321", "BCM4322",
+                         "BCM43224", "BCM43225", "BCM43227", "BCM43228"):
                 if each in pci:
-                    install_list = install_list.append("bcmwl-kernel-source")
+                    install_list.append("bcmwl-kernel-source")
                     break
     # Nvidia graphics cards
     if "nvidia" in pci.lower():
-        drivers = []
-        # We have other work we need to do after installing the Nvidia driver
-        NVIDIA = True
-        with cache.actiongroup():
-            for each in cache:
-                if "nvidia-driver-" in each.name:
-                    drivers.append(each.name)
-        for each in range(len(drivers) - 1, -1, -1):
-            try:
-                drivers[each] = int(drivers[each].split("-")[-1])
-            except ValueError:
-                pass
-        # Get the latest Nvidia driver
-        largest = drivers[0]
-        for each in drivers:
-            try:
-                if int(each) > largest:
-                    largest = each
-            except ValueError:
-                pass
-        install_list.append("nvidia-driver-" + str(largest))
+        # this isn't the ideal thing to do. Logic will be added later to handle
+        # installing drivers and `disable-nouveau` for older cards.
+        install_list.append("nvidia-driver-latest")
     # Install everything we want
     with cache.actiongroup():
         for each in install_list:
             cache[each].mark_install()
     cache.commit()
-    # Puge all the stuff we don't
+    # Purge all the stuff we don't want
     purge.purge_package("gstreamer1.0-fluendo-mp3")
     cache.close()
-    # Blacklist Nouveau if we installed the Nvidia drivers
-    if NVIDIA:
-        __eprint__("    ###    NVIDIA DRIVERS MAY HAVE BEEN INSTALLED. DISABLING NOUVEAU.    ###    ")
-        with open("/etc/modprobe.d/blacklist-nvidia-nouveau.conf", "w+") as blacklist:
-            blacklist.write("blacklist nouveau\noptions nouveau modeset=0\n")
     __eprint__("    ###    install_extras.py CLOSED    ###    ")
