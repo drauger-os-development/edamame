@@ -44,7 +44,7 @@ def update_system():
     try:
         cache.upgrade(dist_upgrade=True)
     except apt.apt_pkg.Error:
-        print("ERROR: Possible held packages. Not performing update.")
+        print("ERROR: Possible held packages. Update may be partially completed.")
     cache.commit()
     purge.autoremove(cache)
     cache.close()

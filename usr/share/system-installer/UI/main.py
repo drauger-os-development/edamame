@@ -1636,18 +1636,18 @@ Type. Minimum drives is: %s""" % (loops))
         self.extras = self._set_default_margins(self.extras)
         self.grid.attach(self.extras, 1, 3, 2, 1)
 
-        label2 = Gtk.Label()
-        label2.set_markup("""
-        Update the system during installation""")
-        label2.set_justify(Gtk.Justification.LEFT)
-        label2 = self._set_default_margins(label2)
-        self.grid.attach(label2, 1, 4, 2, 1)
+        #  label2 = Gtk.Label()
+        #  label2.set_markup("""
+        #  Update the system during installation""")
+        #  label2.set_justify(Gtk.Justification.LEFT)
+        #  label2 = self._set_default_margins(label2)
+        #  self.grid.attach(label2, 1, 4, 2, 1)
 
-        self.updates = Gtk.CheckButton.new_with_label("Update before reboot")
-        if self.data["UPDATES"] == 1:
-            self.updates.set_active(True)
-        self.updates = self._set_default_margins(self.updates)
-        self.grid.attach(self.updates, 1, 5, 2, 1)
+        #  self.updates = Gtk.CheckButton.new_with_label("Update during Installation")
+        #  if self.data["UPDATES"] == 1:
+            #  self.updates.set_active(True)
+        #  self.updates = self._set_default_margins(self.updates)
+        #  self.grid.attach(self.updates, 1, 5, 2, 1)
 
         label2 = Gtk.Label()
         label2.set_markup("""
@@ -1680,10 +1680,10 @@ Type. Minimum drives is: %s""" % (loops))
             self.data["EXTRAS"] = 1
         else:
             self.data["EXTRAS"] = 0
-        if self.updates.get_active():
-            self.data["UPDATES"] = 1
-        else:
-            self.data["UPDATES"] = 0
+        #  if self.updates.get_active():
+            #  self.data["UPDATES"] = 1
+        #  else:
+        self.data["UPDATES"] = 0
         if self.login.get_active():
             self.data["LOGIN"] = 1
         else:
@@ -1838,6 +1838,8 @@ Sub-Region""")
             self.model_menu.append(model[each8], each8)
         if self.data["MODEL"] != "":
             self.model_menu.set_active_id(self.data["MODEL"])
+        else:
+            self.model_menu.set_active_id("pc105")
         self.model_menu = self._set_default_margins(self.model_menu)
         self.grid.attach(self.model_menu, 2, 2, 3, 1)
 
