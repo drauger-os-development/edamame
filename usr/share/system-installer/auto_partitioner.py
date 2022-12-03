@@ -226,7 +226,7 @@ def check_disk_state():
     """
     try:
         subprocess.check_call(["partprobe"])
-    except subprocess.CalledProcess:
+    except subprocess.CalledProcessError:
         print("`partprobe` failed. Provided info may not be up-to-date.")
     time.sleep(0.1)
     command = ["lsblk", "--json", "--paths", "--bytes", "--output",
