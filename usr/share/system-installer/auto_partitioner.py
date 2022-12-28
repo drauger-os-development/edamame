@@ -173,7 +173,7 @@ def size_of_part(part_path, bytes=False):
 
 def get_drive_path(part_path):
     """Get drive path from partition path"""
-    if "nvme" in part_path:
+    if ("nvme" in part_path) or ("mmc" in part_path):
         output = part_path[:part_path.index("p")]
     else:
         count = 0
@@ -222,7 +222,13 @@ def get_min_root_size(swap=True, ram_size=False, ram_size_unit=True,
 def check_disk_state():
     """Check disk state as registered with lsblk
 
-    Returns data as dictionary"""
+    Returns data as dictionary
+    """
+    try:
+        subprocess.check_call(["partprobe"])
+    except subprocess.CalledProcessError:
+        print("`partprobe` failed. Provided info may not be up-to-date.")
+    time.sleep(0.1)
     command = ["lsblk", "--json", "--paths", "--bytes", "--output",
                "name,size,type,fstype"]
     data = json.loads(subprocess.check_output(command))["blockdevices"]
@@ -230,6 +236,18 @@ def check_disk_state():
         if data[each]["type"] == "loop":
             del data[each]
     return data
+
+
+def get_fs(part_name: str):
+    """Get filesystem type for given partition"""
+    disk = check_disk_state()
+    for each in disk:
+        if each["name"] == part_name:
+            return each["fstype"]
+        if "children" in each:
+            for each1 in each["children"]:
+                if each1["name"] == part_name:
+                    return each1["fstype"]
 
 
 def __mkfs__(device, fs):

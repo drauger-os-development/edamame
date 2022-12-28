@@ -30,7 +30,7 @@ import os
 import common
 import subprocess
 import gi
-import auto_partitioner
+import auto_partitioner as ap
 import traceback
 
 gi.require_version('Gtk', '3.0')
@@ -852,12 +852,12 @@ Type. Minimum drives is: %s""" % (loops))
         label = self._set_default_margins(label)
         self.grid.attach(label, 1, 1, 3, 1)
 
-        data = auto_partitioner.check_disk_state()
+        data = ap.check_disk_state()
         devices = Gtk.ComboBoxText.new()
         for each in data:
             devices.append(each["name"],
                            "%s, size: %sGB" % (each["name"],
-                                               int(auto_partitioner.bytes_to_gb(each["size"]))))
+                                               int(ap.bytes_to_gb(each["size"]))))
         devices.connect("changed", self.make_space_parts)
         devices = self._set_default_margins(devices)
         self.grid.attach(devices, 1, 2, 3, 1)
@@ -897,14 +897,14 @@ Type. Minimum drives is: %s""" % (loops))
     def make_space_parts(self, widget):
         """Set partitions to show for make_space()"""
         self.parts.remove_all()
-        data = auto_partitioner.check_disk_state()
+        data = ap.check_disk_state()
         name = widget.get_active_id()
         for each in data:
             if each["name"] == name:
                 if "children" in each:
                     for each1 in each["children"]:
                         self.parts.append(each1["name"],
-                                          f"{each1['name']}, filesystem: {each1['fstype']}, size: {int(auto_partitioner.bytes_to_gb(each1['size']))}GB")
+                                          f"{each1['name']}, filesystem: {each1['fstype']}, size: {int(ap.bytes_to_gb(each1['size']))}GB")
         self.show_all()
 
     def confirm_remove_part(self, widget):
@@ -943,7 +943,7 @@ Type. Minimum drives is: %s""" % (loops))
     def remove_part(self, widget):
         """Interface for removing partitions"""
         part = self.parts.get_active_id()
-        auto_partitioner.delete_part(part)
+        ap.delete_part(part)
         if "nvme" in part:
             self.make_space("clicked", drive=part[:-2])
         else:
@@ -1050,7 +1050,7 @@ Type. Minimum drives is: %s""" % (loops))
         """Force User to either pick a drive to install to, abort,
         or backtrack
         """
-        if auto_partitioner.is_EFI():
+        if ap.is_EFI():
             self.data["EFI"] = True
         else:
             self.data["EFI"] = False
@@ -1093,7 +1093,7 @@ Type. Minimum drives is: %s""" % (loops))
         input_string = """
     What are the mount points for the partitions you wish to be used?
     Leave empty the partitions you don't want.
-    <b> / MUST BE USED </b>
+    <b> ROOT PARTITION MUST BE USED </b>
         """
 
         if additional_message != "":
@@ -1114,7 +1114,7 @@ Type. Minimum drives is: %s""" % (loops))
         self.grid.attach(label, 1, 1, 3, 1)
 
         label2 = Gtk.Label()
-        label2.set_markup("/")
+        label2.set_markup("ROOT Partition (Mounted at /)")
         label2.set_justify(Gtk.Justification.RIGHT)
         label2 = self._set_default_margins(label2)
         self.grid.attach(label2, 1, 2, 1, 1)
@@ -1124,25 +1124,37 @@ Type. Minimum drives is: %s""" % (loops))
         self.root = self._set_default_margins(self.root)
         self.grid.attach(self.root, 2, 2, 1, 1)
 
-        label3 = Gtk.Label()
-        label3.set_markup("/boot/efi")
-        label3.set_justify(Gtk.Justification.RIGHT)
-        label3 = self._set_default_margins(label3)
-        self.grid.attach(label3, 1, 3, 1, 1)
+        root_info = Gtk.Button.new_with_label("Info on Root Partition")
+        root_info.connect("clicked", self.explain_root)
+        root_info = self._set_default_margins(root_info)
+        self.grid.attach(root_info, 3, 2, 1, 1)
 
-        self.efi = Gtk.Entry()
-        self.efi.set_text(self.data["EFI"])
-        self.efi = self._set_default_margins(self.efi)
-        self.grid.attach(self.efi, 2, 3, 1, 1)
 
-        label5 = Gtk.Label()
-        label5.set_markup("Must be fat32")
-        label5.set_justify(Gtk.Justification.RIGHT)
-        label5 = self._set_default_margins(label5)
-        self.grid.attach(label5, 3, 3, 1, 1)
+        if ap.is_EFI():
+            label3 = Gtk.Label()
+            label3.set_markup("EFI Partition (Mounted at /boot/efi)")
+            label3.set_justify(Gtk.Justification.RIGHT)
+            label3 = self._set_default_margins(label3)
+            self.grid.attach(label3, 1, 3, 1, 1)
+
+            self.efi = Gtk.Entry()
+            self.efi.set_text(self.data["EFI"])
+            self.efi = self._set_default_margins(self.efi)
+            self.grid.attach(self.efi, 2, 3, 1, 1)
+
+            efi_info = Gtk.Button.new_with_label("Info on EFI Partition")
+            efi_info.connect("clicked", self.explain_efi)
+            efi_info = self._set_default_margins(efi_info)
+            self.grid.attach(efi_info, 3, 3, 1, 1)
+
+            #  label5 = Gtk.Label()
+            #  label5.set_markup("Must be fat32")
+            #  label5.set_justify(Gtk.Justification.RIGHT)
+            #  label5 = self._set_default_margins(label5)
+            #  self.grid.attach(label5, 3, 3, 1, 1)
 
         label4 = Gtk.Label()
-        label4.set_markup("/home")
+        label4.set_markup("Home Partition (Mounted at /home) (optional)")
         label4.set_justify(Gtk.Justification.RIGHT)
         label4 = self._set_default_margins(label4)
         self.grid.attach(label4, 1, 4, 1, 1)
@@ -1151,6 +1163,11 @@ Type. Minimum drives is: %s""" % (loops))
         self.home.set_text(self.data["HOME"])
         self.home = self._set_default_margins(self.home)
         self.grid.attach(self.home, 2, 4, 1, 1)
+
+        home_info = Gtk.Button.new_with_label("Info on Home Partition")
+        home_info.connect("clicked", self.explain_home)
+        home_info = self._set_default_margins(home_info)
+        self.grid.attach(home_info, 3, 4, 1, 1)
 
         label6 = Gtk.Label()
         label6.set_markup("SWAP")
@@ -1163,14 +1180,19 @@ Type. Minimum drives is: %s""" % (loops))
         self.swap = self._set_default_margins(self.swap)
         self.grid.attach(self.swap, 2, 5, 1, 1)
 
-        label7 = Gtk.Label()
-        label7.set_markup("Must be linux-swap or file")
-        label7.set_justify(Gtk.Justification.RIGHT)
-        label7 = self._set_default_margins(label7)
-        self.grid.attach(label7, 3, 5, 1, 1)
+        swap_info = Gtk.Button.new_with_label("Info on SWAP")
+        swap_info.connect("clicked", self.explain_swap)
+        swap_info = self._set_default_margins(swap_info)
+        self.grid.attach(swap_info, 3, 5, 1, 1)
+
+        #  label7 = Gtk.Label()
+        #  label7.set_markup("Must be linux-swap or file")
+        #  label7.set_justify(Gtk.Justification.RIGHT)
+        #  label7 = self._set_default_margins(label7)
+        #  self.grid.attach(label7, 3, 5, 1, 1)
 
         button1 = Gtk.Button.new_with_label("Okay -->")
-        button1.connect("clicked", self.onnext4clicked)
+        button1.connect("clicked", self.check_man_part_settings)
         button1 = self._set_default_margins(button1)
         self.grid.attach(button1, 3, 6, 1, 1)
 
@@ -1186,8 +1208,255 @@ Type. Minimum drives is: %s""" % (loops))
 
         self.show_all()
 
-    def onnext4clicked(self, button):
+    def explain_root(self, button):
+        """Explain Root Partition requierments and limitations"""
+        self.clear_window()
+
+        label = Gtk.Label()
+        label.set_markup("<b>Info on Root Partition</b>")
+        label.set_justify(Gtk.Justification.RIGHT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 1, 1, 2, 1)
+
+        label = Gtk.Label()
+        label.set_markup("What is an Root Partition?")
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 1, 2, 1, 1)
+
+        label = Gtk.Label()
+        label.set_markup("""
+        The Root Partition is the partition where your operating system is
+        going to be installed, as well as the vast majority of apps you install
+        throughout the lifetime of the OS.
+        """)
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 1, 3, 1, 1)
+
+        label = Gtk.Label()
+        label.set_markup("Root Partition Requirements")
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 2, 2, 1, 1)
+
+        label = Gtk.Label()
+        label.set_markup("""
+        Root Partitions are expected to be no smaller than 32 GB, and can be any
+        file system type except FAT32, FAT16, NTFS, or exFAT/vFAT.
+
+        We suggest having a Root Partition of at least 64 GB, with a btrfs
+        file system. This will provide you with the ability to back up your OS in
+        case of a potentially risky upgrade or configuration change, while also
+        providing great file system performance.
+        """)
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 2, 3, 1, 1)
+
+        button2 = Gtk.Button.new_with_label("Exit")
+        button2.connect("clicked", self.exit)
+        button2 = self._set_default_margins(button2)
+        self.grid.attach(button2, 2, 6, 1, 1)
+
+        button1 = Gtk.Button.new_with_label("<-- Back")
+        button1.connect("clicked", self.input_part)
+        button1 = self._set_default_margins(button1)
+        self.grid.attach(button1, 1, 6, 1, 1)
+
+        self.show_all()
+
+    def explain_efi(self, button):
+        """Explain efi Partition requierments and limitations"""
+        self.clear_window()
+
+        label = Gtk.Label()
+        label.set_markup("<b>Info on EFI Partition</b>")
+        label.set_justify(Gtk.Justification.RIGHT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 1, 1, 2, 1)
+
+        label = Gtk.Label()
+        label.set_markup("What is an EFI Partition?")
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 1, 2, 1, 1)
+
+        label = Gtk.Label()
+        label.set_markup("""
+        An EFI or UEFI Partition is a small partition which
+        contains the bootloader and related files for a system
+        using UEFI firmware.
+
+        Since you booted your system in UEFI mode, you are
+        required to have one of these partitions.
+        """)
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 1, 3, 1, 1)
+
+        label = Gtk.Label()
+        label.set_markup("EFI Partition Requirements")
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 2, 2, 1, 1)
+
+        label = Gtk.Label()
+        label.set_markup("""
+        EFI Partitions are expected to be no smaller than 200 MB,
+        and use a FAT32 or FAT16 file system. We suggest using a
+        FAT32 file system as it is the most widely supported.
+
+        This partition must also have the \"boot\" and \"esp\" flags set.
+        """)
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 2, 3, 1, 1)
+
+        button2 = Gtk.Button.new_with_label("Exit")
+        button2.connect("clicked", self.exit)
+        button2 = self._set_default_margins(button2)
+        self.grid.attach(button2, 2, 6, 1, 1)
+
+        button1 = Gtk.Button.new_with_label("<-- Back")
+        button1.connect("clicked", self.input_part)
+        button1 = self._set_default_margins(button1)
+        self.grid.attach(button1, 1, 6, 1, 1)
+
+        self.show_all()
+
+    def explain_home(self, button):
+        """Explain home Partition requierments and limitations"""
+        self.clear_window()
+
+        label = Gtk.Label()
+        label.set_markup("<b>Info on Home Partition</b>")
+        label.set_justify(Gtk.Justification.RIGHT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 1, 1, 2, 1)
+
+        label = Gtk.Label()
+        label.set_markup("What is a Home Partition?")
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 1, 2, 1, 1)
+
+        label = Gtk.Label()
+        label.set_markup("""
+        A Home Partition is a partition which contains all or
+        most of your user info. Having one of these is completely
+        optional. If you do opt for one, it can help keep your data
+        safe from data loss, or if the partition is on another drive,
+        it can ensure quick access times to data in your home
+        directory.
+        """)
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 1, 3, 1, 1)
+
+        label = Gtk.Label()
+        label.set_markup("Home Partition Requirements")
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 2, 2, 1, 1)
+
+        label = Gtk.Label()
+        label.set_markup("""
+        Home Partitions are expected to be no smaller than 500 MB,
+        and can be any file system except FAT32, FAT16, exFAT/vFAT, or NTFS.
+        We suggest using a btrfs file system as it has features useful for
+        backing up your data, as well as is capable of optimizing itself for
+        solid-state drives.
+        """)
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 2, 3, 1, 1)
+
+        button2 = Gtk.Button.new_with_label("Exit")
+        button2.connect("clicked", self.exit)
+        button2 = self._set_default_margins(button2)
+        self.grid.attach(button2, 2, 6, 1, 1)
+
+        button1 = Gtk.Button.new_with_label("<-- Back")
+        button1.connect("clicked", self.input_part)
+        button1 = self._set_default_margins(button1)
+        self.grid.attach(button1, 1, 6, 1, 1)
+
+        self.show_all()
+
+    def explain_swap(self, button):
+        """Explain swap partitions and files"""
+        self.clear_window()
+
+        label = Gtk.Label()
+        label.set_markup("<b>Info on SWAP Partition</b>")
+        label.set_justify(Gtk.Justification.RIGHT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 1, 1, 2, 1)
+
+        label = Gtk.Label()
+        label.set_markup("What is an SWAP Partition?")
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 1, 2, 1, 1)
+
+        label = Gtk.Label()
+        label.set_markup("""
+        A SWAP Partition is a partition which your system may use to
+        extend system memory. It is useful for when your system is
+        extreamly low on memory.
+
+        Because it is on your internal drive, it is capable of retaining
+        data between reboots and even total powerloss events. Thanks to this,
+        it also enables the usage of the Hibernate and Hybrid Suspend features.
+
+        SWAP can also be used as a file. This can allow you to easily create more
+        SWAP later, should you deem it necessary.
+
+        Having SWAP is mandatory on this operating system. As such, if you do not
+        create a SWAP partition, a SWAP file will be created for you.
+        """)
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 1, 3, 1, 1)
+
+        label = Gtk.Label()
+        label.set_markup("SWAP Partition Requirements")
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 2, 2, 1, 1)
+
+        label = Gtk.Label()
+        label.set_markup("""
+        SWAP Partitions are expected to be no smaller than 100 MB,
+        and use linux-swap file system.
+
+        If you are not sure how big you should make your SWAP partition,
+        simply put in "FILE" and a SWAP file of the appropriate size will
+        be generated for you.
+        """)
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 2, 3, 1, 1)
+
+        button2 = Gtk.Button.new_with_label("Exit")
+        button2.connect("clicked", self.exit)
+        button2 = self._set_default_margins(button2)
+        self.grid.attach(button2, 2, 6, 1, 1)
+
+        button1 = Gtk.Button.new_with_label("<-- Back")
+        button1.connect("clicked", self.input_part)
+        button1 = self._set_default_margins(button1)
+        self.grid.attach(button1, 1, 6, 1, 1)
+
+        self.show_all()
+
+    def check_man_part_settings(self, button):
         """Check device paths provided for manual partitioner"""
+        try:
+            efi = self.efi.get_text()
+        except (AttributeError, NameError):
+            efi = ""
         if ((self.root.get_text() == "") or (
                 self.root.get_text()[0:5] != "/dev/")):
             label = self.set_up_partitioner_label("ERROR: / NOT SET")
@@ -1209,8 +1478,7 @@ Type. Minimum drives is: %s""" % (loops))
 
             self.show_all()
             return
-        elif (((self.efi.get_text() == "") or (
-                self.efi.get_text()[0:5] != "/dev/")) and auto_partitioner.is_EFI()):
+        elif (((efi == "") or (efi[0:5] != "/dev/")) and ap.is_EFI()):
             label = self.set_up_partitioner_label(
                 "ERROR: System is running EFI. An EFI partition must be set.")
             try:
@@ -1221,8 +1489,7 @@ Type. Minimum drives is: %s""" % (loops))
 
             self.show_all()
             return
-        elif (not os.path.exists(self.efi.get_text()) or (
-                self.efi.get_text() == "")) and auto_partitioner.is_EFI():
+        elif (not os.path.exists(efi) or (efi == "")) and ap.is_EFI():
             label = Gtk.Label()
             label = self.set_up_partitioner_label("ERROR: Not a Valid Device on /boot/efi")
             try:
@@ -1283,11 +1550,10 @@ Type. Minimum drives is: %s""" % (loops))
             self.show_all()
             return
         if ((self.swap.get_text().upper() == "FILE") or (self.swap.get_text() == "")):
-            if auto_partitioner.size_of_part(self.root.get_text()) < \
-                    auto_partitioner.get_min_root_size(bytes=False):
+            if ap.size_of_part(self.root.get_text()) < ap.get_min_root_size(bytes=False):
                 label_string = \
-        f""" / is too small. Minimum Root Partition size is { round(auto_partitioner.get_min_root_size(bytes=False)) } GB
-        Make a swap partition to reduce this minimum to { round(auto_partitioner.get_min_root_size(swap=False, bytes=False)) } GB
+        f""" / is too small. Minimum Root Partition size is { round(ap.get_min_root_size(bytes=False)) } GB
+        Make a swap partition to reduce this minimum to { round(ap.get_min_root_size(swap=False, bytes=False)) } GB
         """
                 label = self.set_up_partitioner_label(label_string)
                 try:
@@ -1299,9 +1565,8 @@ Type. Minimum drives is: %s""" % (loops))
                 self.show_all()
                 return
         else:
-            if auto_partitioner.size_of_part(self.root.get_text()) < \
-                    auto_partitioner.get_min_root_size(swap=False, bytes=False):
-                label_string = f"/ is too small. Minimum Root Partition size is { round(auto_partitioner.get_min_root_size(swap=False, bytes=False)) } GB"
+            if ap.size_of_part(self.root.get_text()) < ap.get_min_root_size(swap=False, bytes=False):
+                label_string = f"/ is too small. Minimum Root Partition size is { round(ap.get_min_root_size(swap=False, bytes=False)) } GB"
                 label = self.set_up_partitioner_label(label_string)
                 try:
                     self.grid.remove(self.grid.get_child_at(1, 1))
@@ -1320,10 +1585,10 @@ Type. Minimum drives is: %s""" % (loops))
         self.data["ROOT"] = self.root.get_text()
 
         self.show_all()
-        if self.efi.get_text() in ("", " ", None):
+        if efi in ("", " ", None):
             self.data["EFI"] = "NULL"
         else:
-            self.data["EFI"] = self.efi.get_text()
+            self.data["EFI"] = efi
         if self.home.get_text() in ("", " ", None):
             self.data["HOME"] = "NULL"
         else:
@@ -1371,18 +1636,18 @@ Type. Minimum drives is: %s""" % (loops))
         self.extras = self._set_default_margins(self.extras)
         self.grid.attach(self.extras, 1, 3, 2, 1)
 
-        label2 = Gtk.Label()
-        label2.set_markup("""
-        Update the system during installation""")
-        label2.set_justify(Gtk.Justification.LEFT)
-        label2 = self._set_default_margins(label2)
-        self.grid.attach(label2, 1, 4, 2, 1)
+        #  label2 = Gtk.Label()
+        #  label2.set_markup("""
+        #  Update the system during installation""")
+        #  label2.set_justify(Gtk.Justification.LEFT)
+        #  label2 = self._set_default_margins(label2)
+        #  self.grid.attach(label2, 1, 4, 2, 1)
 
-        self.updates = Gtk.CheckButton.new_with_label("Update before reboot")
-        if self.data["UPDATES"] == 1:
-            self.updates.set_active(True)
-        self.updates = self._set_default_margins(self.updates)
-        self.grid.attach(self.updates, 1, 5, 2, 1)
+        #  self.updates = Gtk.CheckButton.new_with_label("Update during Installation")
+        #  if self.data["UPDATES"] == 1:
+            #  self.updates.set_active(True)
+        #  self.updates = self._set_default_margins(self.updates)
+        #  self.grid.attach(self.updates, 1, 5, 2, 1)
 
         label2 = Gtk.Label()
         label2.set_markup("""
@@ -1415,10 +1680,10 @@ Type. Minimum drives is: %s""" % (loops))
             self.data["EXTRAS"] = 1
         else:
             self.data["EXTRAS"] = 0
-        if self.updates.get_active():
-            self.data["UPDATES"] = 1
-        else:
-            self.data["UPDATES"] = 0
+        #  if self.updates.get_active():
+            #  self.data["UPDATES"] = 1
+        #  else:
+        self.data["UPDATES"] = 0
         if self.login.get_active():
             self.data["LOGIN"] = 1
         else:
@@ -1573,6 +1838,8 @@ Sub-Region""")
             self.model_menu.append(model[each8], each8)
         if self.data["MODEL"] != "":
             self.model_menu.set_active_id(self.data["MODEL"])
+        else:
+            self.model_menu.set_active_id("pc105")
         self.model_menu = self._set_default_margins(self.model_menu)
         self.grid.attach(self.model_menu, 2, 2, 3, 1)
 

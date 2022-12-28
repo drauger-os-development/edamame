@@ -96,7 +96,7 @@ def install(settings, local_repo):
         settings["EFI"] = partitioning["EFI"]
         settings["HOME"] = partitioning["HOME"]
     else:
-        if settings["EFI"] == "NULL":
+        if settings["EFI"] in ("NULL", None, "", False):
             auto_partitioner.make_part_boot(settings["ROOT"])
         else:
             auto_partitioner.make_part_boot(settings["EFI"])
@@ -158,7 +158,11 @@ def install(settings, local_repo):
     except FileNotFoundError:
         pass
     common.eprint("    ###    EXTRACTING SQUASHFS    ###    ")
-    check_call(["unsquashfs", config["squashfs_Location"]])
+    cmd = ["unsquashfs", config["squashfs_Location"]]
+    # we're doing this as a tuple/list so that more can be added to this list later
+    if auto_partitioner.get_fs(settings["ROOT"]) in ("ext2",):
+        cmd.append("-no-xattrs")
+    check_call(cmd)
     common.eprint("    ###    EXTRACTION COMPLETE    ###    ")
     file_list = os.listdir("/mnt/squashfs-root")
     for each in file_list:
