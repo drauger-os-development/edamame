@@ -24,6 +24,7 @@
 """Confirm UI for System Installer"""
 from __future__ import print_function
 from sys import argv, stderr
+import auto_partitioner as ap
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
@@ -152,6 +153,19 @@ class Main(Gtk.Window):
             label12.set_justify(Gtk.Justification.CENTER)
             label12 = self._set_default_margins(label12)
             self.grid.attach(label12, 5, 5, 1, 1)
+
+            if ap.is_EFI():
+                label31 = Gtk.Label()
+                label31.set_markup("   <b>Compatibility Mode:</b>  ")
+                label31.set_justify(Gtk.Justification.CENTER)
+                label31 = self._set_default_margins(label31)
+                self.grid.attach(label31, 4, 6, 1, 1)
+
+                label32 = Gtk.Label()
+                label32.set_markup(settings["COMPAT_MODE"])
+                label32.set_justify(Gtk.Justification.CENTER)
+                label32 = self._set_default_margins(label32)
+                self.grid.attach(label32, 5, 6, 1, 1)
 
             sep1 = Gtk.Separator.new(Gtk.Orientation.VERTICAL)
             self.grid.attach(sep1, 6, 2, 1, 6)
