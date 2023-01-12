@@ -3,7 +3,7 @@
 #
 #  engine.py
 #
-#  Copyright 2022 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2023 Thomas Castleman <contact@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -112,6 +112,7 @@ if len(os.listdir("/mnt")) > 0:
 SETTINGS = UI.main.show_main(boot_time=BOOT_TIME)
 try:
     if ((SETTINGS == 1) or (len(SETTINGS) == 0)):
+        print("Returned data from UI appears empty. Assuming installation was canceled...")
         sys.exit(1)
     elif SETTINGS == 2:
         UI.error.show_error("""

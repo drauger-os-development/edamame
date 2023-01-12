@@ -3,7 +3,7 @@
 #
 #  main.py
 #
-#  Copyright 2022 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2023 Thomas Castleman <contact@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -1663,6 +1663,11 @@ Type. Minimum drives is: %s""" % (loops))
         self.login = self._set_default_margins(self.login)
         self.grid.attach(self.login, 1, 7, 2, 1)
 
+        self.compat_mode = Gtk.CheckButton.new_with_label("Enable Bootloader Compatibility Mode")
+        if self.data["COMPAT_MODE"] == 1:
+            self.compat_mode.set_active(True)
+        self.compat_mode = self._set_default_margins(self.compat_mode)
+
         if ap.is_EFI():
             label2 = Gtk.Label()
             label2.set_markup("""
@@ -1672,10 +1677,6 @@ Type. Minimum drives is: %s""" % (loops))
             label2 = self._set_default_margins(label2)
             self.grid.attach(label2, 1, 8, 2, 1)
 
-            self.compat_mode = Gtk.CheckButton.new_with_label("Enable Bootloader Compatibility Mode")
-            if self.data["COMPAT_MODE"] == 1:
-                self.compat_mode.set_active(True)
-            self.compat_mode = self._set_default_margins(self.compat_mode)
             self.grid.attach(self.compat_mode, 1, 9, 2, 1)
 
         button1 = Gtk.Button.new_with_label("Okay -->")
@@ -1704,6 +1705,10 @@ Type. Minimum drives is: %s""" % (loops))
             self.data["LOGIN"] = 1
         else:
             self.data["LOGIN"] = 0
+        if self.compat_mode.get_active():
+            self.data["COMPAT_MODE"] = 1
+        else:
+            self.data["COMPAT_MODE"] = 0
         global OPTIONS_COMPLETION
         OPTIONS_COMPLETION = "COMPLETED"
         self.main_menu("clicked")
