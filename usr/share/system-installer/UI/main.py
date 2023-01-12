@@ -92,7 +92,8 @@ class Main(Gtk.Window):
                                                    "disks": {"1": None,
                                                              "2": None,
                                                              "3": None,
-                                                             "4": None}}}
+                                                             "4": None}},
+                     "COMPAT_MODE": ""}
 
         self.langs = {'Afar': "aa", 'Afrikaans': "af", 'Aragonese': "an",
                       'Arabic': "ar", 'Asturian': "ast", 'Belarusian': "be",
@@ -1624,7 +1625,7 @@ Type. Minimum drives is: %s""" % (loops))
 
         label1 = Gtk.Label()
         label1.set_markup("""
-        Install third-party packages such as NVIDIA drivers if necessary\t\t
+        Install third-party packages, such as NVIDIA drivers, if necessary\t\t
 """)
         label1.set_justify(Gtk.Justification.LEFT)
         label1 = self._set_default_margins(label1)
@@ -1662,15 +1663,30 @@ Type. Minimum drives is: %s""" % (loops))
         self.login = self._set_default_margins(self.login)
         self.grid.attach(self.login, 1, 7, 2, 1)
 
+        if ap.is_EFI():
+            label2 = Gtk.Label()
+            label2.set_markup("""
+        Enable compatibility mode to improve installation reliability
+        with some UEFI systems. Does <b>NOT</b> require internet.""")
+            label2.set_justify(Gtk.Justification.LEFT)
+            label2 = self._set_default_margins(label2)
+            self.grid.attach(label2, 1, 8, 2, 1)
+
+            self.compat_mode = Gtk.CheckButton.new_with_label("Enable Bootloader Compatibility Mode")
+            if self.data["COMPAT_MODE"] == 1:
+                self.compat_mode.set_active(True)
+            self.compat_mode = self._set_default_margins(self.compat_mode)
+            self.grid.attach(self.compat_mode, 1, 9, 2, 1)
+
         button1 = Gtk.Button.new_with_label("Okay -->")
         button1.connect("clicked", self.options_next)
         button1 = self._set_default_margins(button1)
-        self.grid.attach(button1, 2, 8, 1, 1)
+        self.grid.attach(button1, 2, 10, 1, 1)
 
         button3 = Gtk.Button.new_with_label("<-- Back")
         button3.connect("clicked", self.main_menu)
         buton3 = self._set_default_margins(button3)
-        self.grid.attach(button3, 1, 8, 1, 1)
+        self.grid.attach(button3, 1, 10, 1, 1)
 
         self.show_all()
 
