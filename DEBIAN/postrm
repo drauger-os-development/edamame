@@ -22,5 +22,7 @@
 #  
 #
 if [ "$1" = "purge" ]; then
-	deluser --quiet --system system-installer > /dev/null || true
+	user=$(grep "1000" /etc/passwd | sed 's/:/ /g' | awk '{print $1}')
+	groups=$(groups $user | sed "s/$user : //" | sed 's/syslog//' | sed 's/ /,/g' | sed 's/,,/,/g')
+	usermod -G "$groups" "$user"
 fi

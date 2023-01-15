@@ -21,8 +21,6 @@
 #  MA 02110-1301, USA.
 #  
 #
-users=$(cat /etc/passwd | sed 's/:/ /g' | awk '{print $1}')
-if $(echo "$users" | grep -vq "system-installer"); then
-	adduser --disabled-password --quiet --system --home /nonexistent --no-create-home --group system-installer --shell /bin/false
-	usermod -aG syslog system-installer
+if $(groups live | grep -vq "syslog"); then
+	usermod -aG syslog live
 fi
