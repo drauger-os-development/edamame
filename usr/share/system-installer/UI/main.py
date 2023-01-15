@@ -1693,22 +1693,11 @@ Type. Minimum drives is: %s""" % (loops))
 
     def options_next(self, button):
         """Set update and extras settings"""
-        if self.extras.get_active():
-            self.data["EXTRAS"] = 1
-        else:
-            self.data["EXTRAS"] = 0
-        #  if self.updates.get_active():
-            #  self.data["UPDATES"] = 1
-        #  else:
-        self.data["UPDATES"] = 0
-        if self.login.get_active():
-            self.data["LOGIN"] = 1
-        else:
-            self.data["LOGIN"] = 0
-        if self.compat_mode.get_active():
-            self.data["COMPAT_MODE"] = 1
-        else:
-            self.data["COMPAT_MODE"] = 0
+        self.data["EXTRAS"] = self.extras.get_active()
+        #  self.data["UPDATES"] = self.updates.get_active()
+        self.data["UPDATES"] = False
+        self.data["LOGIN"] = self.login.get_active()
+        self.data["COMPAT_MODE"] = self.compat_mode.get_active()
         global OPTIONS_COMPLETION
         OPTIONS_COMPLETION = "COMPLETED"
         self.main_menu("clicked")

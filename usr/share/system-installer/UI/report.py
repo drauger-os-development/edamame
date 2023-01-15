@@ -30,7 +30,7 @@ import time
 import json
 import gnupg
 import gi
-import curl
+import urllib3
 
 # Configuration required to use some of these libs
 gi.require_version('Gtk', '3.0')
@@ -313,18 +313,18 @@ If you would like a response, please leave:
         self.show_all()
 
         try:
-            copyfile(self.path, "/mnt/var/mail/installation_report.txt")
+            copyfile(self.path, "/mnt/var/log/installation_report.txt")
         except:
             pass
 
         try:
             # Get keys
-            cURL = curl.Curl()
-            with open("../../../etc/system-installer/settings.json",
+            http = urllib3.PoolManager()
+            with open("/etc/system-installer/settings.json",
                       "r") as config:
                 URL = json.load(config)["report"]
-            cURL.set_url(URL["recv_keys"])
-            key = cURL.get().decode()
+            data = http.request("GET", URL["recv_keys"]).data
+            key = data.decode()
             # Import keys
             result = gpg.import_keys(key)
             # Encrypt file using newly imported keys
@@ -419,7 +419,7 @@ If you would like a response, please leave:
         """write installation report to disk"""
         report_code = time.time()
         output = {}
-        self.path = "/var/mail/installation_report-%s.dosir" % (report_code)
+        self.path = "/var/log/installation_report-%s.dosir" % (report_code)
         output['Installation Report Code'] = report_code
         try:
             output['system-installer Version'] = check_output(["system-installer", "-v"]).decode()
@@ -445,7 +445,7 @@ If you would like a response, please leave:
         if self.log.get_active():
             try:
                 with open("/tmp/system-installer.log", "r") as log:
-                    output['INSTALLATION LOG'] = log.read()
+                    output['INSTALLATION LOG'] = log.read().split("\n")
             except FileNotFoundError:
                 output['INSTALLATION LOG'] = 'Log does not exist.'
         else:
@@ -467,7 +467,7 @@ If you would like a response, please leave:
             with open(self.path, "w+") as message:
                 json.dump(output, message, indent=1)
         except PermissionError:
-            with open(home + "/installation_report.txt", "w+") as message:
+            with open(getenv("HOME") + "/installation_report.txt", "w+") as message:
                 json.dump(output, message, indent=1)
 
     def message_accept(self, widget):
