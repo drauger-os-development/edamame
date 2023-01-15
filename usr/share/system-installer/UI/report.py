@@ -30,7 +30,7 @@ import time
 import json
 import gnupg
 import gi
-import curl
+import urllib3
 
 # Configuration required to use some of these libs
 gi.require_version('Gtk', '3.0')
@@ -319,12 +319,12 @@ If you would like a response, please leave:
 
         try:
             # Get keys
-            cURL = curl.Curl()
-            with open("../../../etc/system-installer/settings.json",
+            http = urllib3.PoolManager()
+            with open("/etc/system-installer/settings.json",
                       "r") as config:
                 URL = json.load(config)["report"]
-            cURL.set_url(URL["recv_keys"])
-            key = cURL.get().decode()
+            data = http.request("GET", URL["recv_keys"]).data
+            key = data.decode()
             # Import keys
             result = gpg.import_keys(key)
             # Encrypt file using newly imported keys
