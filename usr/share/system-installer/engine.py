@@ -167,7 +167,8 @@ if INSTALL:
         shutil.rmtree("/mnt/repo")
         common.eprint(f"    ###    {sys.argv[0]} CLOSED    ###    ")
         copy_log_to_disk()
-        subprocess.Popen(["su", "live", "-c",
+        subprocess.check_call(["/usr/bin/xhost", "+si:localuser:system-installer"])
+        subprocess.Popen(["su", "system-installer", "-c",
                           f"/usr/share/system-installer/success.py \'{json.dumps(SETTINGS)}\'"])
         os.kill(pid, 15)
     except Exception as error:
