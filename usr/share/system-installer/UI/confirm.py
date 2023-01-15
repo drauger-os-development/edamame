@@ -162,7 +162,7 @@ class Main(Gtk.Window):
                 self.grid.attach(label31, 4, 6, 1, 1)
 
                 label32 = Gtk.Label()
-                label32.set_markup(settings["COMPAT_MODE"])
+                label32.set_markup(str(settings["COMPAT_MODE"]))
                 label32.set_justify(Gtk.Justification.CENTER)
                 label32 = self._set_default_margins(label32)
                 self.grid.attach(label32, 5, 6, 1, 1)
