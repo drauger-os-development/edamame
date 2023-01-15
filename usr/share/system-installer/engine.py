@@ -168,9 +168,7 @@ if INSTALL:
         common.eprint(f"    ###    {sys.argv[0]} CLOSED    ###    ")
         copy_log_to_disk()
         subprocess.Popen(["su", "live", "-c",
-                          f"/usr/share/system-installer/success.py \'{json.dumps(SETTINGS)}\'",
-                          "1>/tmp/system-installer.log",
-                          "2>/tmp/system-installer.log"], shell=True)
+                          f"/usr/share/system-installer/success.py \'{json.dumps(SETTINGS)}\'"])
         os.kill(pid, 15)
     except Exception as error:
         os.kill(pid, 15)
