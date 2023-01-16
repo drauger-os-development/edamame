@@ -422,7 +422,9 @@ If you would like a response, please leave:
         self.path = "/var/log/installation_report-%s.dosir" % (report_code)
         output['Installation Report Code'] = report_code
         try:
-            output['system-installer Version'] = check_output(["system-installer", "-v"]).decode()
+            ver = check_output(["system-installer", "-v"]).decode().split("\n")
+            ver = [each for each in ver if each != ""][0]
+            output['system-installer Version'] = ver
         except (FileNotFoundError, CalledProcessError):
             output['system-installer Version'] = "VERSION UNKNOWN. LIKELY TESTING OR MAJOR ERROR."
         output['OS'] = get_info(["lsb_release", "-ds"])[0]
@@ -597,54 +599,72 @@ def cpu_info():
     # We need to create a more intelligent parser for this data as positions can
     # change depending on the system that is being used.
     sentenal = 0
-    output = []
+    output = {}
     backup_speed = None
     count = 0
     while sentenal < 7:
         for each in info:
             if sentenal == 0:
                 if "Model name:" in each:
-                    output.append(each)
+                    add = [each1 for each1 in each.split("  ") if each1 != ""]
+                    if add[0][-1] == ":":
+                        add[0] = add[0][:-1]
+                    output[add[0]] = add[1]
                     sentenal += 1
             elif sentenal == 1:
                 if "Thread(s) per core:" in each:
-                    output.append(each)
+                    add = [each1 for each1 in each.split("  ") if each1 != ""]
+                    if add[0][-1] == ":":
+                        add[0] = add[0][:-1]
+                    output[add[0]] = int(add[1])
                     sentenal += 1
             elif sentenal == 2:
                 if "Core(s) per socket:" in each:
-                    output.append(each)
+                    add = [each1 for each1 in each.split("  ") if each1 != ""]
+                    if add[0][-1] == ":":
+                        add[0] = add[0][:-1]
+                    output[add[0]] = int(add[1])
                     sentenal += 1
             elif sentenal == 3:
                 if "CPU max MHz:" in each:
-                    output.append(each)
+                    add = [each1 for each1 in each.split("  ") if each1 != ""]
+                    if add[0][-1] == ":":
+                        add[0] = add[0][:-1]
+                    output[add[0]] = float(add[1])
                     sentenal += 1
                     count = 0
                 elif count == len(info):
                     count = 0
                     sentenal += 1
-                    output.append("CPU max MHz:\t\t\tUnknown")
+                    output["CPU max MHz"] = "Unknown"
                 else:
                     count += 1
             elif sentenal == 4:
                 if "L2 cache:" in each:
-                    output.append(each)
+                    add = [each1 for each1 in each.split("  ") if each1 != ""]
+                    if add[0][-1] == ":":
+                        add[0] = add[0][:-1]
+                    output[add[0]] = add[1]
                     sentenal += 1
                     count = 0
                 elif count == len(info):
                     count = 0
                     sentenal += 1
-                    output.append("L2 cache:\t\t\tUnknown")
+                    output["L2 cache"] = "Unknown"
                 else:
                     count += 1
             elif sentenal == 5:
                 if "L3 cache:" in each:
-                    output.append(each)
+                    add = [each1 for each1 in each.split("  ") if each1 != ""]
+                    if add[0][-1] == ":":
+                        add[0] = add[0][:-1]
+                    output[add[0]] = add[1]
                     sentenal += 1
                     count = 0
                 elif count == len(info):
                     count = 0
                     sentenal += 1
-                    output.append("L3 cache:\t\t\tUnknown")
+                    output["L3 cache"] = "Unknown"
                 else:
                     count += 1
             elif sentenal == 6:
@@ -668,14 +688,19 @@ def cpu_info():
                 speed = int(file.read()) / 1000
     else:
         speed = backup_speed
-    speed = f"CPU base MHz                     { speed }"
-    output.insert(3, speed)
-    return "\n".join(output)
+    # speed = float(speed)
+    output["CPU base MHz"] = speed
+    return output
 
 
 def ram_info():
     """Get RAM info"""
     ram_capacity = check_output(["lsmem", "--summary=only"]).decode().split("\n")
+    for each in enumerate(ram_capacity):
+        ram_capacity[each[0]] = [each1 for each1 in each[1].split("  ") if each1 != ""]
+    for each in range(len(ram_capacity) - 1, -1, -1):
+        if ram_capacity[each] == []:
+            del ram_capacity[each]
     swap_capacity = check_output(["swapon", "--show"]).decode().split("\n")
     return {"RAM": ram_capacity, "SWAP": swap_capacity}
 
@@ -700,9 +725,3 @@ def get_info(cmd):
     info = info.split("\n")
     return info
 
-
-def send_to():
-    try:
-        return json.loads("/etc/system-installer/settings.json")["report_to"]
-    except (FileNotFoundError, PermissionError, KeyError):
-        return "installation-reports@draugeros.org"
