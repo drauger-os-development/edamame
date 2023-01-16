@@ -3,7 +3,7 @@
 	"local_repo": "/run/live/medium/repo",
 	"distro": "Drauger OS",
 	"report": {
-				"recv_keys": "https://download-optimizer.draugeros.org/keys/public_keys.asc",
+				"recv_keys": "https://download.draugeros.org/keys/public_keys.asc",
 				"upload": "rsync://rsync.draugeros.org/reports-upload"
 				},
 	"ping servers": [

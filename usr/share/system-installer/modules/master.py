@@ -3,7 +3,7 @@
 #
 #  master.py
 #
-#  Copyright 2022 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2023 Thomas Castleman <contact@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ Configure newly installed system from within a chroot
 """
 from __future__ import print_function
 from sys import argv, stderr
-import subprocess
+import subprocess as subproc
 import multiprocessing
 import os
 from shutil import rmtree, copyfile
@@ -145,16 +145,16 @@ class MainInstallation():
         if PASSWORD == "OEM":
             PASSWORD = "toor"
         if USERNAME != "drauger-user":
-            process = subprocess.Popen("chpasswd",
+            process = subproc.Popen("chpasswd",
                                        stdout=stderr.buffer,
-                                       stdin=subprocess.PIPE,
-                                       stderr=subprocess.PIPE)
+                                       stdin=subproc.PIPE,
+                                       stderr=subproc.PIPE)
             process.communicate(input=bytes(r"root:%s" % (PASSWORD), "utf-8"))
 
-        process = subprocess.Popen("chpasswd",
+        process = subproc.Popen("chpasswd",
                                    stdout=stderr.buffer,
-                                   stdin=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
+                                   stdin=subproc.PIPE,
+                                   stderr=subproc.PIPE)
         process.communicate(input=bytes(r"%s:%s" % (USERNAME, PASSWORD),
                                         "utf-8"))
 
@@ -201,7 +201,7 @@ BACKSPACE=\"guess\"
 """
             with open("/etc/default/keyboard", "w+") as xkb_default:
                 xkb_default.write(xkb_file)
-            subprocess.Popen(["udevadm", "trigger", "--subsystem-match=input",
+            subproc.Popen(["udevadm", "trigger", "--subsystem-match=input",
                               "--action=change"], stdout=stderr.buffer)
 
     def remove_launcher(USERNAME):
@@ -221,7 +221,7 @@ User will need to remove manually.""")
 
 def set_plymouth_theme():
     """Ensure the plymouth theme is set correctly"""
-    subprocess.Popen(["update-alternatives", "--install",
+    subproc.Popen(["update-alternatives", "--install",
                       "/usr/share/plymouth/themes/default.plymouth",
                       "default.plymouth",
                       "/usr/share/plymouth/themes/drauger-theme/drauger-theme.plymouth",
@@ -230,11 +230,11 @@ def set_plymouth_theme():
                       "default.plymouth.grub",
                       "/usr/share/plymouth/themes/drauger-theme/drauger-theme.grub"],
                      stdout=stderr.buffer)
-    process = subprocess.Popen(["update-alternatives", "--config",
+    process = subproc.Popen(["update-alternatives", "--config",
                                 "default.plymouth"],
                                stdout=stderr.buffer,
-                               stdin=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
+                               stdin=subproc.PIPE,
+                               stderr=subproc.PIPE)
     process.communicate(input=bytes("2\n", "utf-8"))
 
 
@@ -244,22 +244,22 @@ def install_kernel(release):
     # it's just easier and more reliable
     packages = ["linux-headers-" + release, "linux-image-" + release]
     install_command = ["dpkg", "--install"]
-    subprocess.check_call(["apt-get", "purge", "-y"] + packages,
+    subproc.check_call(["apt-get", "purge", "-y"] + packages,
                           stdout=stderr.buffer)
-    subprocess.check_call(["apt-get", "autoremove", "-y", "--purge"],
+    subproc.check_call(["apt-get", "autoremove", "-y", "--purge"],
                           stdout=stderr.buffer)
     packages = [each for each in os.listdir("/repo") if "linux-" in each]
     os.chdir("/repo")
-    subprocess.check_call(install_command + packages, stdout=stderr.buffer)
+    subproc.check_call(install_command + packages, stdout=stderr.buffer)
     os.chdir("/")
 
 
-def install_bootloader(efi, root, release, distro):
+def install_bootloader(efi, root, release, distro, compat_mode):
     """Determine whether bootloader needs to be systemd-boot (for UEFI)
     or GRUB (for BIOS)
     and install the correct one."""
     if efi not in ("NULL", None, "", False):
-        _install_systemd_boot(release, root, distro)
+        _install_systemd_boot(release, root, distro, compat_mode)
     else:
         _install_grub(root)
 
@@ -280,25 +280,25 @@ def _install_grub(root):
     redo = False
     os.mkdir("/boot/grub")
     try:
-        subprocess.check_call(["grub-mkdevicemap", "--verbose"],
+        subproc.check_call(["grub-mkdevicemap", "--verbose"],
                               stdout=stderr.buffer)
-    except subprocess.CalledProcessError:
+    except subproc.CalledProcessError:
         redo = True
-    subprocess.check_call(["grub-install", "--verbose", "--force",
+    subproc.check_call(["grub-install", "--verbose", "--force",
                            "--target=i386-pc", root], stdout=stderr.buffer)
     if redo:
         try:
-            subprocess.check_call(["grub-mkdevicemap", "--verbose"],
+            subproc.check_call(["grub-mkdevicemap", "--verbose"],
                                   stdout=stderr.buffer)
-        except subprocess.CalledProcessError as e:
+        except subproc.CalledProcessError as e:
             eprint("WARNING: GRUB device map failed to generate")
             eprint("The error was as follows:")
             eprint(traceback.format_exeception())
-    subprocess.check_call(["grub-mkconfig", "-o", "/boot/grub/grub.cfg"],
+    subproc.check_call(["grub-mkconfig", "-o", "/boot/grub/grub.cfg"],
                           stdout=stderr.buffer)
 
 
-def _install_systemd_boot(release, root, distro):
+def _install_systemd_boot(release, root, distro, compat_mode):
     """set up and install systemd-boot"""
     try:
         os.makedirs("/boot/efi/loader/entries", exist_ok=True)
@@ -312,9 +312,9 @@ def _install_systemd_boot(release, root, distro):
     with open("/etc/environment", "a") as envi:
         envi.write("export SYSTEMD_RELAX_ESP_CHECKS=1")
     try:
-        subprocess.check_call(["bootctl", "--path=/boot/efi", "install"],
+        subproc.check_call(["bootctl", "--path=/boot/efi", "install"],
                               stdout=stderr.buffer)
-    except subprocess.CalledProcessError as e:
+    except subproc.CalledProcessError as e:
         eprint("WARNING: bootctl issued CalledProcessError:")
         eprint(e)
         eprint("Performing manual installation of systemd-boot.")
@@ -340,19 +340,19 @@ def _install_systemd_boot(release, root, distro):
                      "/boot/efi/EFI/systemd/systemd-bootx64.efi")
         except FileExistsError:
             pass
-    with open("/boot/efi/loader/loader.conf", "w+") as loader_conf:
-        loader_conf.write(f"default {distro}\n")
-        loader_conf.write("timeout 5\nconsole-mode 1\neditor 1")
-    try:
-        subprocess.check_call(["chattr", "-i", "/boot/efi/loader/loader.conf"],
-                              stdout=stderr.buffer)
-    except subprocess.CalledProcessError:
-        eprint("CHATTR FAILED ON loader.conf, setting octal permissions to 444")
-        os.chmod("/boot/efi/loader/loader.conf", 0o444)
+    #  with open("/boot/efi/loader/loader.conf", "w+") as loader_conf:
+        #  loader_conf.write(f"default {distro}\n")
+        #  loader_conf.write("timeout 5\nconsole-mode auto\neditor 1")
+    #  try:
+        #  subproc.check_call(["chattr", "-i", "/boot/efi/loader/loader.conf"],
+                              #  stdout=stderr.buffer)
+    #  except subproc.CalledProcessError:
+        #  eprint("CHATTR FAILED ON loader.conf, setting octal permissions to 444")
+        #  os.chmod("/boot/efi/loader/loader.conf", 0o444)
     install_command = ["dpkg", "--install"]
     packages = [each for each in os.listdir("/repo") if "systemd-boot-manager" in each]
     os.chdir("/repo")
-    depends = subprocess.check_output(["dpkg", "-f"] + packages + ["depends"])
+    depends = subproc.check_output(["dpkg", "-f"] + packages + ["depends"])
     depends = depends.decode()[:-1].split(", ")
     # List of dependencies
     depends = [depends[each[0]].split(" ")[0] for each in enumerate(depends)]
@@ -364,35 +364,40 @@ def _install_systemd_boot(release, root, distro):
             if ((each1 in each) and (each not in packages)):
                 packages.append(each)
                 break
-    subprocess.check_call(install_command + packages,
+    subproc.check_call(install_command + packages,
                           stdout=stderr.buffer)
     os.chdir("/")
-    subprocess.check_call(["systemd-boot-manager", "-e"],
+    if compat_mode:
+        subproc.check_call(["systemd-boot-manager", "--compat-mode=enable"],
+                              stdout=stderr.buffer)
+    subproc.check_call(["systemd-boot-manager", "-e"],
                           stdout=stderr.buffer)
-    subprocess.check_call(["systemd-boot-manager", "-r"],
+    subproc.check_call(["systemd-boot-manager", "--apply-loader-config"],
                           stdout=stderr.buffer)
-    subprocess.check_call(["systemd-boot-manager",
+    subproc.check_call(["systemd-boot-manager", "-r"],
+                          stdout=stderr.buffer)
+    subproc.check_call(["systemd-boot-manager",
                            "--enforce-default-entry=enable"],
                           stdout=stderr.buffer)
     # This lib didn't exist before we installed this package.
     # So we can only now import it
     import systemd_boot_manager
     systemd_boot_manager.update_defaults_file(distro + ".conf")
-    subprocess.check_call(["systemd-boot-manager", "-u"],
+    subproc.check_call(["systemd-boot-manager", "-u"],
                           stdout=stderr.buffer)
     check_systemd_boot(release, root, distro)
 
 
-def setup_lowlevel(efi, root, distro):
+def setup_lowlevel(efi, root, distro, compat_mode):
     """Set up kernel and bootloader"""
-    release = subprocess.check_output(["uname", "--release"]).decode()[0:-1]
+    release = subproc.check_output(["uname", "--release"]).decode()[0:-1]
     install_kernel(release)
     set_plymouth_theme()
     __update__(91)
     eprint("\n    ###    MAKING INITRAMFS    ###    ")
-    subprocess.check_call(["mkinitramfs", "-o", "/boot/initrd.img-" + release],
+    subproc.check_call(["mkinitramfs", "-o", "/boot/initrd.img-" + release],
                           stdout=stderr.buffer)
-    install_bootloader(efi, root, release, distro)
+    install_bootloader(efi, root, release, distro, compat_mode)
     sleep(0.5)
     os.symlink("/boot/initrd.img-" + release, "/boot/initrd.img")
     os.symlink("/boot/vmlinuz-" + release, "/boot/vmlinuz")
@@ -404,7 +409,7 @@ def check_systemd_boot(release, root, distro):
     root_flags = "quiet splash"
     recovery_flags = "ro recovery nomodeset"
     # Get Root UUID
-    uuid = subprocess.check_output(["blkid", "-s", "PARTUUID",
+    uuid = subproc.check_output(["blkid", "-s", "PARTUUID",
                                     "-o", "value", root]).decode()[0:-1]
 
     # Check for standard boot config
@@ -500,8 +505,8 @@ def _check_for_laptop():
     Returns True if it is a laptop, returns False otherwise.
     """
     try:
-        subprocess.check_call(["laptop-detect"])
-    except subprocess.CalledProcessError:
+        subproc.check_call(["laptop-detect"])
+    except subproc.CalledProcessError:
         return False
     return True
 
@@ -522,7 +527,8 @@ def install(settings, distro):
             del processes_to_do[each]
     MainInstallation(processes_to_do, settings)
     handle_laptops(settings["USERNAME"])
-    setup_lowlevel(settings["EFI"], settings["ROOT"], distro)
+    setup_lowlevel(settings["EFI"], settings["ROOT"], distro,
+                   settings["COMPAT_MODE"])
     verify(settings["USERNAME"], settings["ROOT"], distro)
     if "PURGE" in settings:
         purge_package(settings["PURGE"])

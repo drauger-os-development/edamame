@@ -24,6 +24,8 @@
 """Tests for auto_partitioner"""
 import auto_partitioner as ap
 import os
+import random
+import json
 
 def test_get_min_root_size_with_swap_part():
     """Make sure our math is correct to get the min root size, assuming no swap partition"""
@@ -45,3 +47,114 @@ def test_get_min_root_size_without_swap_part():
 def test_is_EFI():
     """Check if the checks if a system is an EFI system are working"""
     assert os.path.isdir("/boot/efi") == ap.is_EFI()
+
+
+def test_get_drive_path():
+    """Ensure drive paths are always returned correctly"""
+    # initial setup
+    nvme = "/dev/nvme"
+    mmcblk = "/dev/mmcblk"
+    sata = "/dev/sd"
+    ide = "/dev/hd"
+    drive_letters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k",
+                     "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v",
+                     "w", "x", "y", "z"]
+    nvme_list = {}
+    mmcblk_list = {}
+    sata_list = {}
+    ide_list = {}
+    # NVMe setup
+    for each in range(random.randint(1, 45)):
+        nvme_list[nvme + str(each)] = {}
+    for each in nvme_list:
+        total_drive_count = random.randint(1, 256)
+        for current_drive_count in range(1, total_drive_count):
+            nvme_list[each][each + "n" + str(current_drive_count)] = []
+    """
+    At this point, `nvme_list` should be set up like this:
+
+    {
+        "/dev/nvme1": {
+            "/dev/nvme1n1": [],
+            "/dev/nvme1n2": []
+            },
+        "/dev/nvme2": {
+            "/dev/nvme2n1": [],
+            "/dev/nvme2n2": []
+            }
+    }
+
+    But we want this:
+
+    {
+        "/dev/nvme1": {
+            "/dev/nvme1n1": [
+                "/dev/nvme1n1p1",
+                "/dev/nvme1n1p2",
+                "/dev/nvme1n1p3"
+                ],
+            "/dev/nvme1n2": ["/dev/nvme1n2p1"]
+            },
+        "/dev/nvme2": {
+            "/dev/nvme2n1": [
+                "/dev/nvme2n1p1",
+                "/dev/nvme2n1p2"
+                ],
+            "/dev/nvme2n2": [
+                "/dev/nvme2n2p1",
+                "/dev/nvme2n2p2",
+                "/dev/nvme2n2p3",
+                "/dev/nvme2n2p4"
+                ]
+            }
+    }
+
+    Just, larger.
+    """
+    for each in nvme_list:
+        for each1 in nvme_list[each]:
+            for part_count in range(1, random.randint(1, 256)):
+                nvme_list[each][each1].append(each1 + "p" + str(part_count))
+    # now we need to set up mmcblk, SATA, and IDE drive examples. Should be simple...
+    # SATA set up
+    for each in range(random.randint(1, len(drive_letters) - 1)):
+        sata_list[sata + drive_letters[each]] = []
+    for each in range(1, random.randint(1, 256)):
+        for each1 in sata_list:
+            sata_list[each1].append(each1 + str(each))
+    # IDE set up
+    for each in range(random.randint(1, len(drive_letters) - 1)):
+        ide_list[ide + drive_letters[each]] = []
+    for each in range(1, random.randint(1, 256)):
+        for each1 in ide_list:
+            ide_list[each1].append(each1 + str(each))
+    # now just to setup for mmcblk
+    for each in range(random.randint(1, 45)):
+        mmcblk_list[mmcblk + str(each)] = []
+    for each in mmcblk_list:
+        total_drive_count = random.randint(1, 256)
+        for current_drive_count in range(1, total_drive_count):
+            mmcblk_list[each].append(each + "p" + str(current_drive_count))
+    # check to make sure everything is valid
+    # check mmcblk
+    for each in mmcblk_list:
+        for each1 in mmcblk_list[each]:
+            assert each == ap.get_drive_path(each1)
+        assert each == ap.get_drive_path(each)
+    # check NVMe
+    for each in nvme_list:
+        # this, outter-most, loop needs no checks
+        for each1 in nvme_list[each]:
+            for each2 in nvme_list[each][each1]:
+                assert each1 == ap.get_drive_path(each2)
+            assert each1 == ap.get_drive_path(each1)
+    # check SATA
+    for each in sata_list:
+        for each1 in sata_list[each]:
+            assert each == ap.get_drive_path(each1)
+        assert each == ap.get_drive_path(each)
+    # check IDE
+    for each in ide_list:
+        for each1 in ide_list[each]:
+            assert each == ap.get_drive_path(each1)
+        assert each == ap.get_drive_path(each)
