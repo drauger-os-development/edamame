@@ -3,7 +3,7 @@
 #
 #  report.py
 #
-#  Copyright 2022 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2023 Thomas Castleman <contact@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -702,7 +702,7 @@ def ram_info():
         if ram_capacity[each] == []:
             del ram_capacity[each]
     swap_capacity = check_output(["swapon", "--show"]).decode().split("\n")
-    return {"RAM": ram_capacity, "SWAP": swap_capacity}
+    return {"RAM": dict(ram_capacity), "SWAP": swap_capacity}
 
 
 def disk_info():
