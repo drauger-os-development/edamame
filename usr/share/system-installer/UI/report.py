@@ -462,7 +462,7 @@ If you would like a response, please leave:
             if custom == self.default_message:
                 output['CUSTOM MESSAGE'] = "NONE"
             else:
-                output['CUSTOM MESSAGE'] = custom
+                output['CUSTOM MESSAGE'] = custom.split("\n")
         else:
             output['CUSTOM MESSAGE'] = "NONE"
         try:
