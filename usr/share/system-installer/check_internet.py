@@ -3,7 +3,7 @@
 #
 #  check_internet.py
 #
-#  Copyright 2022 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2023 Thomas Castleman <contact@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -22,19 +22,22 @@
 #
 #
 """Ping servers to see if we have internet"""
-from subprocess import check_output, CalledProcessError
 import json
+import dns.resolver as res
 import common
 
 
-def ping(mirror, count):
-    """Ping the mirrors"""
+def ping(mirror):
+    """Try doing a DNS resolution on the mirrors"""
     # We need just the domain name, so we have to parse things down a bit
     mirror = mirror.split("/")[2]
-    command = ["ping", "-c", str(count), "-q", mirror]
-    # get the ping times
-    output = check_output(command).decode("utf-8").split("\n")[-2]
-    return float(output.split("/")[-2])
+    try:
+        res.resolve(mirror, "A")
+        return True
+    except (res.NoNameserver, res.NoAnswer):
+        return False
+    except res.NXDOMAIN:
+        return None
 
 
 def has_internet():
@@ -44,18 +47,24 @@ def has_internet():
     with open("/etc/system-installer/settings.json", "r") as mirrors_file:
         mirrors = json.load(mirrors_file)
 
-    ping_count = mirrors["ping count"]
     mirrors = mirrors["ping servers"]
 
     # get only the unique mirrors
     mirrors = common.unique(mirrors)
     # Get our ping times
+    results = []
     try:
         # Ping all listed servers, in case one or more is blocked
         for each in mirrors:
-            ping(each, ping_count)
-
-    except CalledProcessError:
+            results.append(ping(each))
+    except:
         return False
-
-    return True
+    true = 0
+    false = 0
+    for each in results:
+        if each:
+            true += 1
+        else:
+            false += 1
+    
+    return (true > false)
