@@ -7,6 +7,7 @@ The following packages are required in order to do development for `system-insta
  * `p7zip-full`
  * `python3-parted`
  * `python3-gnupg`
+ * `python3-dnspython`
 
 The following are not required but may help out
  * `arch-install-scripts`
@@ -70,7 +71,7 @@ If, after modifying a function, the unit test fails, fix the issue in the functi
 _coming soon_
 
 # Recommended coding practices
-This section provides standards agreed upon by senior developers.  By following these guidelines, you reduce the likelihood the pull request will be returned.
+This section provides standards agreed upon by senior developers.  By following these guidelines, you reduce the likelihood the pull request will be refused.
 
 * Your code should be self documenting (i.e. variable names, function names, etc.)
 * Comment where necessary.  Assume someone else is going to read your code
