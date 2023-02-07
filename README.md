@@ -10,7 +10,7 @@ System Installation Utility for Drauger OS.
 
 [Click here for notes on hacking on `system-installer`](https://github.com/drauger-os-development/system-installer/blob/master/hacking.md)
 
-`system-installer` currently works only on Drauger OS, but is being adapted to work on other Debian-based OSs as well.
+`system-installer` currently is known working only on Drauger OS, but is being adapted to work on other Debian-based OSs as well. `system-installer` is designed NOT to be specific to Drauger OS. So testing on other distros is encouraged!
 
 
 ## Notable features
