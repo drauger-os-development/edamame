@@ -7,9 +7,11 @@
 				"upload": "rsync://rsync.draugeros.org/reports-upload"
 				},
 	"ping servers": [
-					"https://apt.draugeros.org",
-					"https://ubuntu.com",
-					"https://debian.org"
+					"draugeros.org",
+					"ubuntu.com",
+					"debian.org",
+					"google.com",
+					"example.com"
 				   ],
 	"ping count": 2,
 	"partitioning": {
