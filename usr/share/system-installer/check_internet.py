@@ -37,7 +37,7 @@ def ping(mirror):
     try:
         res.resolve(mirror, "A")
         return True
-    except (res.NoNameserver, res.NoAnswer):
+    except (res.NoNameservers, res.NoAnswer):
         return False
     except res.NXDOMAIN:
         return None
