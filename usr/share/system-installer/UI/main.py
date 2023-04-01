@@ -216,6 +216,47 @@ class Main(Gtk.Window):
 
     def oem_startup(self, widget):
         """Start up OEM installation"""
+        self.clear_window()
+
+        # show a confirmation window
+
+        label = Gtk.Label()
+        label.set_markup("""
+    <b>Are you sure you want to do an OEM installation?</b>
+
+    OEM installation should <b>ONLY</b> be used by OEMs, or those installing\t\t
+    Drauger OS for other people, ahead of time. It has several limitations\t\t
+    over a normal or quick installation:
+
+      * Takes up the entire drive it is installed to
+      * Locale, keyboard, and password must be set AFTER installation\t\t
+      * Hostname and username can not be set by the user
+      * Restricted Extras AND Updates are automatically installed
+      * A Swap file will automatically be generated to enable Hybrid Sleep\t\t
+""")
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 1, 1, 3, 1)
+
+        button1 = Gtk.Button.new_with_label("Proceed -->")
+        button1.connect("clicked", self.oem_run)
+        button1 = self._set_default_margins(button1)
+        self.grid.attach(button1, 3, 2, 1, 1)
+
+        button2 = Gtk.Button.new_with_label("Exit")
+        button2.connect("clicked", self.exit)
+        button2 = self._set_default_margins(button2)
+        self.grid.attach(button2, 2, 2, 1, 1)
+
+        button3 = Gtk.Button.new_with_label("<-- Back")
+        button3.connect("clicked", self.reset)
+        button3 = self._set_default_margins(button3)
+        self.grid.attach(button3, 1, 2, 1, 1)
+
+        self.show_all()
+
+    def oem_run(self, widget):
+        """Start up OEM installation"""
         self.data = "/etc/system-installer/oem-install.json"
         self.complete()
 
