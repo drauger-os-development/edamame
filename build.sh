@@ -19,8 +19,8 @@ mkdir ../"$FOLDER"
 if [ "$OPTIONS" != "--pool" ]; then
 	cd usr/share/system-installer
 	echo -e "\t###\tDOWNLOADING\t###\t"
-	rsync -vr rsync://apt.draugeros.org/aptsync/pool/main/l/linux-upstream kernel
-	rsync -vr rsync://apt.draugeros.org/aptsync/pool/main/l/linux-meta kernel
+	rsync -vr rsync://rsync.draugeros.org/apt/pool/main/l/linux-upstream kernel
+	rsync -vr rsync://rsync.draugeros.org/apt/pool/main/l/linux-meta kernel
 	echo -e "\t###\tDELETING CRUFT\t###\t"
 	list=$(ls kernel)
 	for each in $list; do
