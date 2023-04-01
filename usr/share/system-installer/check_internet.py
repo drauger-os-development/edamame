@@ -30,11 +30,14 @@ import common
 def ping(mirror):
     """Try doing a DNS resolution on the mirrors"""
     # We need just the domain name, so we have to parse things down a bit
-    mirror = mirror.split("/")[2]
+    if mirror[:4] == "http":
+        mirror = mirror.split("/")[2]
+    if mirror[-1] == "/":
+        mirror = mirror[:-1]
     try:
         res.resolve(mirror, "A")
         return True
-    except (res.NoNameserver, res.NoAnswer):
+    except (res.NoNameservers, res.NoAnswer):
         return False
     except res.NXDOMAIN:
         return None
