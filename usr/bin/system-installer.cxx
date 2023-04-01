@@ -1,7 +1,7 @@
 /*
  * system-installer.cxx
  *
- * Copyright 2022 Thomas Castleman <contact@draugeros.org>
+ * Copyright 2023 Thomas Castleman <contact@draugeros.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,7 +46,7 @@
 
 using namespace std;
 
-str VERSION = "2.5.0";
+str VERSION = "2.5.2";
 str R = "\033[0;31m";
 str G = "\033[0;32m";
 str Y = "\033[1;33m";
