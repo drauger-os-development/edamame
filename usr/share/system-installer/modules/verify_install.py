@@ -139,7 +139,7 @@ def verify(username, root, distro):
             for release in versions:
                 __eprint__(f"Generating Initramfs for Kernel v{ release }")
                 subproc.check_call(["mkinitramfs", "-o",
-                                   f"/boot/initramfs.img-{ release }",
+                                   f"/boot/initrd.img-{ release }",
                                    release])
             subproc.check_call(["update-systemd-boot"])
         cache.commit()
