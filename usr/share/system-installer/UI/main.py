@@ -1673,23 +1673,23 @@ Type. Minimum drives is: %s""" % (loops))
         self.grid.attach(label1, 1, 2, 2, 1)
 
         self.extras = Gtk.CheckButton.new_with_label("Install Restricted Extras")
-        if self.data["EXTRAS"] == 1:
+        if self.data["EXTRAS"]:
             self.extras.set_active(True)
         self.extras = self._set_default_margins(self.extras)
         self.grid.attach(self.extras, 1, 3, 2, 1)
 
-        #  label2 = Gtk.Label()
-        #  label2.set_markup("""
-        #  Update the system during installation""")
-        #  label2.set_justify(Gtk.Justification.LEFT)
-        #  label2 = self._set_default_margins(label2)
-        #  self.grid.attach(label2, 1, 4, 2, 1)
+        label2 = Gtk.Label()
+        label2.set_markup("""
+        Update the system during installation""")
+        label2.set_justify(Gtk.Justification.LEFT)
+        label2 = self._set_default_margins(label2)
+        self.grid.attach(label2, 1, 4, 2, 1)
 
-        #  self.updates = Gtk.CheckButton.new_with_label("Update during Installation")
-        #  if self.data["UPDATES"] == 1:
-            #  self.updates.set_active(True)
-        #  self.updates = self._set_default_margins(self.updates)
-        #  self.grid.attach(self.updates, 1, 5, 2, 1)
+        self.updates = Gtk.CheckButton.new_with_label("Update during Installation")
+        if self.data["UPDATES"]:
+            self.updates.set_active(True)
+        self.updates = self._set_default_margins(self.updates)
+        self.grid.attach(self.updates, 1, 5, 2, 1)
 
         label2 = Gtk.Label()
         label2.set_markup("""
@@ -1699,13 +1699,13 @@ Type. Minimum drives is: %s""" % (loops))
         self.grid.attach(label2, 1, 6, 2, 1)
 
         self.login = Gtk.CheckButton.new_with_label("Enable Auto-Login")
-        if self.data["LOGIN"] == 1:
+        if self.data["LOGIN"]:
             self.login.set_active(True)
         self.login = self._set_default_margins(self.login)
         self.grid.attach(self.login, 1, 7, 2, 1)
 
         self.compat_mode = Gtk.CheckButton.new_with_label("Enable Bootloader Compatibility Mode")
-        if self.data["COMPAT_MODE"] == 1:
+        if self.data["COMPAT_MODE"]:
             self.compat_mode.set_active(True)
         self.compat_mode = self._set_default_margins(self.compat_mode)
 
@@ -1735,8 +1735,7 @@ Type. Minimum drives is: %s""" % (loops))
     def options_next(self, button):
         """Set update and extras settings"""
         self.data["EXTRAS"] = self.extras.get_active()
-        #  self.data["UPDATES"] = self.updates.get_active()
-        self.data["UPDATES"] = False
+        self.data["UPDATES"] = self.updates.get_active()
         self.data["LOGIN"] = self.login.get_active()
         self.data["COMPAT_MODE"] = self.compat_mode.get_active()
         global OPTIONS_COMPLETION
