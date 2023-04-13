@@ -26,7 +26,7 @@ from __future__ import print_function
 from sys import stderr
 import os
 from shutil import move
-import subproc
+import subprocess as subproc
 import apt
 import auto_partitioner
 import common
