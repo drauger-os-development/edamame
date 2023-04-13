@@ -244,14 +244,14 @@ def install_kernel(release):
     # it's just easier and more reliable
     packages = ["linux-headers-" + release, "linux-image-" + release]
     install_command = ["dpkg", "--install"]
-    subproc.check_call(["apt-get", "purge", "-y"] + packages,
-                          stdout=stderr.buffer)
-    subproc.check_call(["apt-get", "autoremove", "-y", "--purge"],
-                          stdout=stderr.buffer)
+    subproc.check_call(["dpkg", "-P", "--force-all"] + packages,
+                       stdout=stderr.buffer)
     packages = [each for each in os.listdir("/repo") if "linux-" in each]
     os.chdir("/repo")
     subproc.check_call(install_command + packages, stdout=stderr.buffer)
     os.chdir("/")
+    subproc.check_call(["apt-get", "autopurge", "-y"],
+                       stdout=stderr.buffer)
 
 
 def install_bootloader(efi, root, release, distro, compat_mode):
@@ -391,6 +391,7 @@ def _install_systemd_boot(release, root, distro, compat_mode):
 def setup_lowlevel(efi, root, distro, compat_mode):
     """Set up kernel and bootloader"""
     release = subproc.check_output(["uname", "--release"]).decode()[0:-1]
+    eprint(f"Running kernel: { release }")
     install_kernel(release)
     set_plymouth_theme()
     __update__(91)
