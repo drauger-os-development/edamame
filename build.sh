@@ -5,6 +5,9 @@ ARCH=$(cat DEBIAN/control | grep 'Architecture: '| sed 's/Architecture: //g')
 FOLDER="$PAK\_$VERSION\_$ARCH"
 FOLDER=$(echo "$FOLDER" | sed 's/\\//g')
 OPTIONS="$1"
+SETTINGS=$(grep -v "^#" build.conf | sed 's/=/ /g')
+META_URL=$(echo "$SETTINGS" | grep "META_URL" | awk '{print $2}')
+PACK_URL=$(echo "$SETTINGS" | grep "PACK_URL" | awk '{print $2}')
 mkdir ../"$FOLDER"
 ##############################################################
 #							     #
@@ -19,8 +22,8 @@ mkdir ../"$FOLDER"
 if [ "$OPTIONS" != "--pool" ]; then
 	cd usr/share/system-installer
 	echo -e "\t###\tDOWNLOADING\t###\t"
-	rsync -vr rsync://rsync.draugeros.org/apt/pool/main/l/linux-upstream kernel
-	rsync -vr rsync://rsync.draugeros.org/apt/pool/main/l/linux-meta kernel
+	rsync -vr "$PACK_URL" kernel
+	rsync -vr "$META_URL" kernel
 	echo -e "\t###\tDELETING CRUFT\t###\t"
 	list=$(ls kernel)
 	for each in $list; do
@@ -115,6 +118,8 @@ fi
 rm "$base"/usr/bin/system-installer
 # delete C++ source from package
 rm "$FOLDER"/usr/bin/system-installer.cxx
+# delete Python cache files
+find "$FOLDER" -maxdepth 10 -type d -name __pycache__ -exec rm -rfv {} \;
 #build the shit
 dpkg-deb --build "$FOLDER"
 rm -rf "$FOLDER"
