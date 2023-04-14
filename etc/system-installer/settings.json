@@ -48,6 +48,8 @@
 						"mdswh": 128
 					}
 				},
-	"run_post_oem": ["/usr/share/drauger-welcome/main_ui.py"],
-	"kernel_meta_pkg": "linux-drauger"
+	"run_post_oem": ["/usr/bin/drauger-welcome"],
+	"kernel_meta_pkg": "linux-drauger",
+	"remove_pkgs": ["system-installer",
+			"persistence-daemon"]
 }

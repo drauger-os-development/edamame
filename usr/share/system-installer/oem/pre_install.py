@@ -3,7 +3,7 @@
 #
 #  pre_install.py
 #
-#  Copyright 2022 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2023 Thomas Castleman <contact@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -86,6 +86,8 @@ class Main(Gtk.Window):
         """Auto Partitioning Settings Window"""
         self.clear_window()
 
+        self.set_position(Gtk.WindowPosition.CENTER)
+
         # Get a list of disks and their capacity
         self.devices = json.loads(subprocess.check_output(["lsblk", "-n", "-i", "--json",
                                                            "-o", "NAME,SIZE,TYPE,FSTYPE"]).decode())
@@ -166,6 +168,8 @@ class Main(Gtk.Window):
     def define_array(self, widget, error=None):
         """Define btrfs RAID Array settings"""
         self.clear_window()
+
+        self.set_position(Gtk.WindowPosition.CENTER)
 
         dev = []
         for each2 in enumerate(self.devices):
@@ -507,6 +511,8 @@ Type. Minimum drives is: %s""" % (loops))
     def exit(self, button):
         """Exit dialog"""
         self.clear_window()
+
+        self.set_position(Gtk.WindowPosition.CENTER)
 
         label = Gtk.Label()
         label.set_markup("""\n<b>Are you sure you want to exit?</b>
