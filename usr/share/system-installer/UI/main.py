@@ -3,7 +3,7 @@
 #
 #  main.py
 #
-#  Copyright 2023 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2023 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@ import subprocess
 import gi
 import auto_partitioner as ap
 import traceback
+import rand
 
 gi.require_version('Gtk', '3.0')
 
@@ -409,6 +410,11 @@ class Main(Gtk.Window):
         self.compname = self._set_default_margins(self.compname)
         self.grid.attach(self.compname, 3, 4, 1, 1)
 
+        auto_gen_hostname = Gtk.Button.new_with_label("Auto-Generate Computer Name")
+        auto_gen_hostname.connect("clicked", self.generate_hostname)
+        auto_gen_hostname = self._set_default_margins(auto_gen_hostname)
+        self.grid.attach(auto_gen_hostname, 4, 4, 1, 1)
+
         label3 = Gtk.Label()
         label3.set_markup("    Password:   ")
         label3.set_justify(Gtk.Justification.RIGHT)
@@ -436,7 +442,7 @@ class Main(Gtk.Window):
         button1 = Gtk.Button.new_with_label("Okay -->")
         button1.connect("clicked", self.onnext2clicked)
         button1 = self._set_default_margins(button1)
-        self.grid.attach(button1, 3, 8, 1, 1)
+        self.grid.attach(button1, 4, 8, 1, 1)
 
         button2 = Gtk.Button.new_with_label("Exit")
         button2.connect("clicked", self.exit)
@@ -449,6 +455,37 @@ class Main(Gtk.Window):
         self.grid.attach(button3, 1, 8, 1, 1)
 
         self.show_all()
+
+    def generate_hostname(self, widget):
+        """Generate a hostname that follows these rules:
+        - 16 characters long
+        - Starts with "DRAUGER-", no quotation marks
+        - The remaining characters should be a randomly generated string of uppercase letters and numbers
+        - Avoid Letters:
+          - O, I
+        - Avoid numnbers:
+          - 0, 1
+        - Have no special characters"""
+        remaining_len = 8
+        allowed_letters = ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
+        allowed_numbers = [2, 3, 4, 5, 6, 7, 8, 9]
+        suffix = []
+        while remaining_len > 0:
+            if (random.randint(0, 10) % 2) == 0:
+                # letter
+                suffix.append(random.sample(allowed_letters, 1)[0])
+            else:
+                # number
+                suffix.append(str(random.sample(allowed_numbers, 1)[0]))
+            remaining_len -= 1
+        suffix = "".join(suffix)
+        output = "DRAUGER-%s" % (suffix)
+        
+        self.data["COMPUTER_NAME"] = output
+        self.compname.set_text(output)
+        
+        self.show_all()
+        
 
     def onnext2clicked(self, button):
         """Password, Username, and hostname Checker"""
