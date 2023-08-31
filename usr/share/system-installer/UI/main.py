@@ -32,7 +32,7 @@ import subprocess
 import gi
 import auto_partitioner as ap
 import traceback
-import rand
+import random
 
 gi.require_version('Gtk', '3.0')
 
