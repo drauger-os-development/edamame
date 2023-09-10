@@ -3,7 +3,7 @@
 #
 #  auto_partitioner.py
 #
-#  Copyright 2022 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2023 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -40,6 +40,11 @@ def gb_to_bytes(gb):
 def bytes_to_gb(b):
     """Convert Bytes to GB"""
     return b / (10 ** 9)
+
+
+def mb_to_bytes(mb):
+    """Convert MB to Bytes"""
+    return mb * (10 ** 6)
 
 
 def is_EFI():
