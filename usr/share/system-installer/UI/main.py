@@ -23,20 +23,20 @@
 #
 """Main Installation UI"""
 from __future__ import print_function
-import sys
 import re
 import json
 import os
-import common
 import subprocess
-import gi
-import auto_partitioner as ap
 import traceback
 import random
+import gi
 
 gi.require_version('Gtk', '3.0')
 
 from gi.repository import Gtk
+
+import common
+import auto_partitioner as ap
 
 
 def has_special_character(input_string):
@@ -1205,6 +1205,7 @@ Type. Minimum drives is: %s""" % (loops))
 
         self.root_parts = Gtk.ComboBoxText.new()
         self.root_parts = self._set_default_margins(self.root_parts)
+        self.root_parts.connect("changed", self.update_possible_home_parts)
         self.grid.attach(self.root_parts, 3, 3, 1, 1)
 
         root_info = Gtk.Button.new_with_label("Info on Root Partition")
@@ -1253,6 +1254,7 @@ Type. Minimum drives is: %s""" % (loops))
 
         self.home_parts = Gtk.ComboBoxText.new()
         self.home_parts = self._set_default_margins(self.home_parts)
+        self.home_parts.connect("changed", self.update_possible_root_parts)
         self.grid.attach(self.home_parts, 3, 7, 1, 1)
 
         home_info = Gtk.Button.new_with_label("Info on Home Partition")
@@ -1322,6 +1324,8 @@ Type. Minimum drives is: %s""" % (loops))
 
     def update_possible_root_parts(self, root_drive_dropdown):
         """Update possible root partitions based on given drive"""
+        if self.root.get_active_text() in ("", None):
+            return
         drives = ap.check_disk_state()
         parts = []
         for each in drives:
@@ -1336,12 +1340,15 @@ Type. Minimum drives is: %s""" % (loops))
         for each in parts:
             if each["fstype"] in ("ext4", "ext3", "btrfs", "xfs", "f2fs"):
                 if each["size"] >= ap.LIMITER:
-                    self.root_parts.append(each["name"], each["name"])
+                    if each["name"] != self.home_parts.get_active_text():
+                        self.root_parts.append(each["name"], each["name"])
 
         self.show_all()
 
     def update_possible_home_parts(self, root_drive_dropdown):
         """Update possible root partitions based on given drive"""
+        if self.home.get_active_text() in ("", None):
+            return
         drives = ap.check_disk_state()
         parts = []
         for each in drives:
@@ -1358,7 +1365,8 @@ Type. Minimum drives is: %s""" % (loops))
             if each["fstype"] in ("ext4", "ext3", "btrfs", "xfs", "f2fs",
                                   "jfs", "ext2"):
                 if each["size"] >= ap.gb_to_bytes(8):
-                    self.home_parts.append(each["name"], each["name"])
+                    if each["name"] != self.root_parts.get_active_text():
+                        self.home_parts.append(each["name"], each["name"])
 
         self.show_all()
 
@@ -1724,11 +1732,10 @@ Type. Minimum drives is: %s""" % (loops))
     def check_man_part_settings(self, button):
         """Check device paths provided for manual partitioner"""
         try:
-            efi = self.efi.get_text()
+            efi = self.efi_parts.get_active_text()
         except (AttributeError, NameError):
             efi = ""
-        if ((self.root.get_text() == "") or (
-                self.root.get_text()[0:5] != "/dev/")):
+        if self.root_parts.get_active_text() in ("", None):
             label = self.set_up_partitioner_label("ERROR: / NOT SET")
             try:
                 self.grid.remove(self.grid.get_child_at(1, 1))
@@ -1738,17 +1745,7 @@ Type. Minimum drives is: %s""" % (loops))
 
             self.show_all()
             return
-        elif not os.path.exists(self.root.get_text()):
-            label = self.set_up_partitioner_label("ERROR: Not a Valid Device on /")
-            try:
-                self.grid.remove(self.grid.get_child_at(1, 1))
-            except TypeError:
-                pass
-            self.grid.attach(label, 1, 1, 3, 1)
-
-            self.show_all()
-            return
-        elif (((efi == "") or (efi[0:5] != "/dev/")) and ap.is_EFI()):
+        elif (efi in ("", None)) and ap.is_EFI():
             label = self.set_up_partitioner_label(
                 "ERROR: System is running EFI. An EFI partition must be set.")
             try:
@@ -1759,68 +1756,8 @@ Type. Minimum drives is: %s""" % (loops))
 
             self.show_all()
             return
-        elif (not os.path.exists(efi) or (efi == "")) and ap.is_EFI():
-            label = Gtk.Label()
-            label = self.set_up_partitioner_label("ERROR: Not a Valid Device on /boot/efi")
-            try:
-                self.grid.remove(self.grid.get_child_at(1, 1))
-            except TypeError:
-                pass
-            self.grid.attach(label, 1, 1, 3, 1)
-
-            self.show_all()
-            return
-        elif ((self.home.get_text() != "") and (
-               self.home.get_text()[0:5] != "/dev/") and (
-               self.home.get_text() != "NULL")):
-            label = Gtk.Label()
-            label = self.set_up_partitioner_label("ERROR: invalid HOME partition device path")
-            try:
-                self.grid.remove(self.grid.get_child_at(1, 1))
-            except TypeError:
-                pass
-            self.grid.attach(label, 1, 1, 3, 1)
-
-            self.show_all()
-            return
-        elif (not os.path.exists(self.home.get_text()) and (
-                self.home.get_text() != "") and (
-                self.home.get_text() != "NULL")):
-            label = self.set_up_partitioner_label("ERROR: Not a Valid Device on /home")
-            try:
-                self.grid.remove(self.grid.get_child_at(1, 1))
-            except TypeError:
-                pass
-            self.grid.attach(label, 1, 1, 3, 1)
-
-            self.show_all()
-            return
-        elif ((self.swap.get_text() != "") and (
-                self.swap.get_text()[0:5] != "/dev/") and (
-                    self.swap.get_text().upper() != "FILE")):
-            label = self.set_up_partitioner_label(
-                "ERROR: SWAP must be set to a valid path, 'FILE', or empty.")
-            try:
-                self.grid.remove(self.grid.get_child_at(1, 1))
-            except TypeError:
-                pass
-            self.grid.attach(label, 1, 1, 3, 1)
-
-            self.show_all()
-        elif (not os.path.exists(self.swap.get_text()) and (
-                self.swap.get_text().upper() != "FILE") and (
-                    self.swap.get_text() != "")):
-            label = self.set_up_partitioner_label("ERROR: Not a Valid Device on SWAP")
-            try:
-                self.grid.remove(self.grid.get_child_at(1, 1))
-            except TypeError:
-                pass
-            self.grid.attach(label, 1, 1, 3, 1)
-
-            self.show_all()
-            return
-        if ((self.swap.get_text().upper() == "FILE") or (self.swap.get_text() == "")):
-            if ap.size_of_part(self.root.get_text()) < ap.get_min_root_size(bytes=False):
+        if ((self.swap_parts.get_active_text().upper() == "FILE") or (self.swap_parts.get_active_text() == "")):
+            if ap.size_of_part(self.root_parts.get_active_text()) < ap.get_min_root_size(bytes=False):
                 label_string = \
         f""" / is too small. Minimum Root Partition size is { round(ap.get_min_root_size(bytes=False)) } GB
         Make a swap partition to reduce this minimum to { round(ap.get_min_root_size(swap=False, bytes=False)) } GB
@@ -1835,7 +1772,7 @@ Type. Minimum drives is: %s""" % (loops))
                 self.show_all()
                 return
         else:
-            if ap.size_of_part(self.root.get_text()) < ap.get_min_root_size(swap=False, bytes=False):
+            if ap.size_of_part(self.root_parts.get_active_text()) < ap.get_min_root_size(swap=False, bytes=False):
                 label_string = f"/ is too small. Minimum Root Partition size is { round(ap.get_min_root_size(swap=False, bytes=False)) } GB"
                 label = self.set_up_partitioner_label(label_string)
                 try:
@@ -1859,15 +1796,15 @@ Type. Minimum drives is: %s""" % (loops))
             self.data["EFI"] = "NULL"
         else:
             self.data["EFI"] = efi
-        if self.home.get_text() in ("", " ", None):
+        if self.home_parts.get_active_text() in ("", " ", None):
             self.data["HOME"] = "NULL"
         else:
-            self.data["HOME"] = self.home.get_text()
-        if ((self.swap.get_text() in ("", " ", None)) or (
-                self.swap.get_text().upper() == "FILE")):
+            self.data["HOME"] = self.home_parts.get_active_text()
+        if ((self.swap_parts.get_active_text() in ("", " ", None)) or (
+                self.swap_parts.get_active_text().upper() == "FILE")):
             self.data["SWAP"] = "FILE"
         else:
-            self.data["SWAP"] = self.swap.get_text()
+            self.data["SWAP"] = self.swap_parts.get_active_text()
         global PART_COMPLETION
         PART_COMPLETION = "COMPLETED"
         self.main_menu("clicked")
