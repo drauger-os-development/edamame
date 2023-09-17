@@ -89,6 +89,7 @@ System Installer is designed to be as modular as possible. While it still has a 
 			- Returns `None`
 			- Should be multi-threaded in order to speed up installation
 			- The stock function is multi-threaded using the `multiprocessing` library
+
 The UI module is the most replaceable module. As long as the necessary functions are available to `engine.py`, it can easily be replaced with a Qt UI, a GTK UI that looks totally different, or something else!
 
 
@@ -116,6 +117,7 @@ Settings are defined in `/etc/system-installer/settings.json`
      - Higher numbers increase the likelyhood of internet working correctly
      - Lower numbers decrese installation time on slow internet connections
    - Optimal when 2 or 3
+   - **DEPRECATED** No longer used.
  - `partitioning`
    - Partitioning layout when using automatic partitioning
    - This is the ONLY entry here that is optional. If `partitioning` is not defined, an internally stored default will be used instead.
