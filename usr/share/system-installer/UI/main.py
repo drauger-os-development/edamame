@@ -1325,6 +1325,7 @@ Type. Minimum drives is: %s""" % (loops))
     def update_possible_root_parts(self, root_drive_dropdown):
         """Update possible root partitions based on given drive"""
         if self.root.get_active_text() in ("", None):
+            print("No drive selected for root. No action necessary")
             return
         drives = ap.check_disk_state()
         parts = []
@@ -1337,6 +1338,7 @@ Type. Minimum drives is: %s""" % (loops))
             return
         self.root_parts.set_active_id(None)
         self.root_parts.remove_all()
+        print(parts)
         for each in parts:
             if each["fstype"] in ("ext4", "ext3", "btrfs", "xfs", "f2fs"):
                 if each["size"] >= ap.LIMITER:
@@ -1348,6 +1350,7 @@ Type. Minimum drives is: %s""" % (loops))
     def update_possible_home_parts(self, root_drive_dropdown):
         """Update possible root partitions based on given drive"""
         if self.home.get_active_text() in ("", None):
+            print("No drive selected for home. No action necessary")
             return
         drives = ap.check_disk_state()
         parts = []
@@ -1361,6 +1364,7 @@ Type. Minimum drives is: %s""" % (loops))
                     break
         self.home_parts.set_active_id(None)
         self.home_parts.remove_all()
+        print(parts)
         for each in parts:
             if each["fstype"] in ("ext4", "ext3", "btrfs", "xfs", "f2fs",
                                   "jfs", "ext2"):
@@ -1372,6 +1376,9 @@ Type. Minimum drives is: %s""" % (loops))
 
     def update_possible_swap_parts(self, root_drive_dropdown):
         """Update possible root partitions based on given drive"""
+        if self.swap.get_active_text() in ("", None):
+            print("No drive selected for swap. No action necessary")
+            return
         drives = ap.check_disk_state()
         parts = []
         for each in drives:
@@ -1381,6 +1388,7 @@ Type. Minimum drives is: %s""" % (loops))
                     break
         self.swap_parts.set_active_id(None)
         self.swap_parts.remove_all()
+        print(parts)
         for each in parts:
             if each["fstype"] in ("linux-swap", "swap"):
                 self.swap_parts.append(each["name"], each["name"])
@@ -1389,6 +1397,9 @@ Type. Minimum drives is: %s""" % (loops))
 
     def update_possible_efi_parts(self, root_drive_dropdown):
         """Update possible root partitions based on given drive"""
+        if self.efi.get_active_text() in ("", None):
+            print("No drive selected for EFI. No action necessary")
+            return
         drives = ap.check_disk_state()
         parts = []
         for each in drives:
@@ -1400,6 +1411,7 @@ Type. Minimum drives is: %s""" % (loops))
             return
         self.efi_parts.set_active_id(None)
         self.efi_parts.remove_all()
+        print(parts)
         for each in parts:
             if each["fstype"] in ("exfat", "vfat", "fat32", "fat16", "fat12"):
                 if each["size"] >= ap.mb_to_bytes(125):
@@ -1793,7 +1805,7 @@ Type. Minimum drives is: %s""" % (loops))
         except TypeError:
             pass
         self.grid.attach(label, 1, 1, 3, 1)
-        self.data["ROOT"] = self.root.get_text()
+        self.data["ROOT"] = self.root_parts.get_active_text()
 
         self.show_all()
         if efi in ("", " ", None):
