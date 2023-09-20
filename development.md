@@ -17,7 +17,7 @@ The following are not required but may help out
 
  To install all of the dependencies at once, use
  ```bash
- sudo apt install -y python3 gir1.2-gtk-3.0 p7zip-full python3-parted python3-gnupg arch-install-scripts coreutils squashfs-tools pylint
+ sudo apt install -y python3 gir1.2-gtk-3.0 p7zip-full python3-parted python3-dev python3-gnupg arch-install-scripts coreutils squashfs-tools pylint
  ```
 
 # How to get started
