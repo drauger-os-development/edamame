@@ -216,6 +216,47 @@ class Main(Gtk.Window):
 
     def oem_startup(self, widget):
         """Start up OEM installation"""
+        self.clear_window()
+
+        # show a confirmation window
+
+        label = Gtk.Label()
+        label.set_markup("""
+    <b>Are you sure you want to do an OEM installation?</b>
+
+    OEM installation should <b>ONLY</b> be used by OEMs, or those installing\t\t
+    Drauger OS for other people, ahead of time. It has several limitations\t\t
+    over a normal or quick installation:
+
+      * Takes up the entire drive it is installed to
+      * Locale, keyboard, and password must be set AFTER installation\t\t
+      * Hostname and username can not be set by the user
+      * Restricted Extras AND Updates are automatically installed
+      * A Swap file will automatically be generated to enable Hybrid Sleep\t\t
+""")
+        label.set_justify(Gtk.Justification.LEFT)
+        label = self._set_default_margins(label)
+        self.grid.attach(label, 1, 1, 3, 1)
+
+        button1 = Gtk.Button.new_with_label("Proceed -->")
+        button1.connect("clicked", self.oem_run)
+        button1 = self._set_default_margins(button1)
+        self.grid.attach(button1, 3, 2, 1, 1)
+
+        button2 = Gtk.Button.new_with_label("Exit")
+        button2.connect("clicked", self.exit)
+        button2 = self._set_default_margins(button2)
+        self.grid.attach(button2, 2, 2, 1, 1)
+
+        button3 = Gtk.Button.new_with_label("<-- Back")
+        button3.connect("clicked", self.reset)
+        button3 = self._set_default_margins(button3)
+        self.grid.attach(button3, 1, 2, 1, 1)
+
+        self.show_all()
+
+    def oem_run(self, widget):
+        """Start up OEM installation"""
         self.data = "/etc/system-installer/oem-install.json"
         self.complete()
 
@@ -1632,23 +1673,23 @@ Type. Minimum drives is: %s""" % (loops))
         self.grid.attach(label1, 1, 2, 2, 1)
 
         self.extras = Gtk.CheckButton.new_with_label("Install Restricted Extras")
-        if self.data["EXTRAS"] == 1:
+        if self.data["EXTRAS"]:
             self.extras.set_active(True)
         self.extras = self._set_default_margins(self.extras)
         self.grid.attach(self.extras, 1, 3, 2, 1)
 
-        #  label2 = Gtk.Label()
-        #  label2.set_markup("""
-        #  Update the system during installation""")
-        #  label2.set_justify(Gtk.Justification.LEFT)
-        #  label2 = self._set_default_margins(label2)
-        #  self.grid.attach(label2, 1, 4, 2, 1)
+        label2 = Gtk.Label()
+        label2.set_markup("""
+        Update the system during installation""")
+        label2.set_justify(Gtk.Justification.LEFT)
+        label2 = self._set_default_margins(label2)
+        self.grid.attach(label2, 1, 4, 2, 1)
 
-        #  self.updates = Gtk.CheckButton.new_with_label("Update during Installation")
-        #  if self.data["UPDATES"] == 1:
-            #  self.updates.set_active(True)
-        #  self.updates = self._set_default_margins(self.updates)
-        #  self.grid.attach(self.updates, 1, 5, 2, 1)
+        self.updates = Gtk.CheckButton.new_with_label("Update during Installation")
+        if self.data["UPDATES"]:
+            self.updates.set_active(True)
+        self.updates = self._set_default_margins(self.updates)
+        self.grid.attach(self.updates, 1, 5, 2, 1)
 
         label2 = Gtk.Label()
         label2.set_markup("""
@@ -1658,13 +1699,13 @@ Type. Minimum drives is: %s""" % (loops))
         self.grid.attach(label2, 1, 6, 2, 1)
 
         self.login = Gtk.CheckButton.new_with_label("Enable Auto-Login")
-        if self.data["LOGIN"] == 1:
+        if self.data["LOGIN"]:
             self.login.set_active(True)
         self.login = self._set_default_margins(self.login)
         self.grid.attach(self.login, 1, 7, 2, 1)
 
         self.compat_mode = Gtk.CheckButton.new_with_label("Enable Bootloader Compatibility Mode")
-        if self.data["COMPAT_MODE"] == 1:
+        if self.data["COMPAT_MODE"]:
             self.compat_mode.set_active(True)
         self.compat_mode = self._set_default_margins(self.compat_mode)
 
@@ -1694,8 +1735,7 @@ Type. Minimum drives is: %s""" % (loops))
     def options_next(self, button):
         """Set update and extras settings"""
         self.data["EXTRAS"] = self.extras.get_active()
-        #  self.data["UPDATES"] = self.updates.get_active()
-        self.data["UPDATES"] = False
+        self.data["UPDATES"] = self.updates.get_active()
         self.data["LOGIN"] = self.login.get_active()
         self.data["COMPAT_MODE"] = self.compat_mode.get_active()
         global OPTIONS_COMPLETION

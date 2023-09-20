@@ -3,7 +3,7 @@
 #
 #  verify_install.py
 #
-#  Copyright 2022 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2023 Thomas Castleman <contact@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -24,11 +24,12 @@
 """Verify that installation completed correctly"""
 from __future__ import print_function
 from sys import stderr
-from os import path, remove
+import os
 from shutil import move
-import subprocess
+import subprocess as subproc
 import apt
 import auto_partitioner
+import common
 
 from modules import purge
 
@@ -47,7 +48,7 @@ def add_boot_entry(root, distro):
         disk = root[:8]
         part = root[8:]
 
-    subprocess.check_call(["efibootmgr", "--create", "--disk", disk, "--part",
+    subproc.check_call(["efibootmgr", "--create", "--disk", disk, "--part",
                            part, "--loader",
                            r"\EFI\systemd\systemd-bootx64.efi", "--label",
                            distro], stdout=stderr.buffer, stderr=stderr.buffer)
@@ -55,7 +56,7 @@ def add_boot_entry(root, distro):
 
 def set_default_entry(distro):
     """Set default boot entry"""
-    entries = subprocess.check_output(["efibootmgr"]).decode().split("\n")
+    entries = subproc.check_output(["efibootmgr"]).decode().split("\n")
     entries = [each.split(" ") for each in entries]
     del entries[0]
     del entries[0]
@@ -76,12 +77,12 @@ def set_default_entry(distro):
     order = ",".join(entries[0][1])
     # clean up a bit
     del entries, code
-    subprocess.check_call(["efibootmgr", "-o", order])
+    subproc.check_call(["efibootmgr", "-o", order])
 
 
 def is_default_entry(distro):
     """Check if we are the default boot entry"""
-    entries = subprocess.check_output(["efibootmgr"]).decode().split("\n")
+    entries = subproc.check_output(["efibootmgr"]).decode().split("\n")
     entries = [each.split(" ") for each in entries]
     del entries[0]
     del entries[0]
@@ -109,10 +110,10 @@ def is_default_entry(distro):
 def verify(username, root, distro):
     """Verify installation success"""
     __eprint__("    ###    verify_install.py STARTED    ###    ")
-    if path.isdir("/home/home/live"):
+    if os.path.isdir("/home/home/live"):
         move("/home/home/live", "/home/" + username)
     try:
-        remove("/home/" + username + "/Desktop/system-installer.desktop")
+        os.remove("/home/" + username + "/Desktop/system-installer.desktop")
     except FileNotFoundError:
         pass
     if auto_partitioner.is_EFI():
@@ -134,6 +135,13 @@ def verify(username, root, distro):
                     if (("grub" in each.name) and each.is_installed):
                         if "common" not in each.name:
                             each.mark_delete()
+            versions = common.unique([each.split("-")[1] for each in os.listdir("/boot") if len(each.split("-")) > 1])
+            for release in versions:
+                __eprint__(f"Generating Initramfs for Kernel v{ release }")
+                subproc.check_call(["mkinitramfs", "-o",
+                                   f"/boot/initrd.img-{ release }",
+                                   release])
+            subproc.check_call(["update-systemd-boot"])
         cache.commit()
         purge.autoremove(cache)
     cache.close()

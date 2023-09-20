@@ -2,6 +2,7 @@
 	"LANG": "OEM",
 	"TIME_ZONE": "OEM",
 	"AUTO_PART": true,
+	"COMPAT_MODE": true,
 	"ROOT": "OEM",
 	"EFI": "OEM",
 	"HOME": "OEM",

@@ -3,7 +3,7 @@
 #
 #  main.py
 #
-#  Copyright 2022 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2023 Thomas Castleman <contact@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -115,6 +115,8 @@ class Main(Gtk.Window):
         global DEFAULT
         self.clear_window()
 
+        self.set_position(Gtk.WindowPosition.CENTER)
+
         label = Gtk.Label()
         label.set_markup(DEFAULT)
         label.set_justify(Gtk.Justification.LEFT)
@@ -133,6 +135,8 @@ class Main(Gtk.Window):
     def user(self, button):
         """User setup Window"""
         self.clear_window()
+
+        self.set_position(Gtk.WindowPosition.CENTER)
 
         label = Gtk.Label()
         label.set_markup("""
@@ -220,6 +224,8 @@ class Main(Gtk.Window):
     def locale(self, button):
         """Language and Time Zone settings menu"""
         self.clear_window()
+
+        self.set_position(Gtk.WindowPosition.CENTER)
 
         label = Gtk.Label()
         label.set_markup("""
@@ -330,6 +336,8 @@ Sub-Region""")
     def keyboard(self, button):
         """Keyboard Settings Dialog"""
         self.clear_window()
+
+        self.set_position(Gtk.WindowPosition.CENTER)
 
         label = Gtk.Label()
         label.set_markup("""

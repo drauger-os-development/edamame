@@ -151,6 +151,11 @@ try:
             additional_settings = oem.pre_install.show_main()
             for each in additional_settings:
                 SETTINGS[each] = additional_settings[each]
+        if "COMPAT_MODE" not in SETTINGS:
+            # this is an old quick install file. It has likely worked for the user before.
+            # honor the file, but offer to update it
+            # TODO: Add offer to update Quick Install File
+            SETTINGS["COMPAT_MODE"] = False
 
 except TypeError:
     pass

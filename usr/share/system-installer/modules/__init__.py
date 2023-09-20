@@ -3,7 +3,7 @@
 #
 #  __init__.py
 #
-#  Copyright 2022 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2023 Thomas Castleman <contact@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -32,3 +32,4 @@ import modules.set_wallpaper as set_wallpaper
 import modules.make_user as make_user
 import modules.purge as purge
 import modules.verify_install as verify_install
+import modules.common as common
