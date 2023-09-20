@@ -1311,7 +1311,7 @@ Type. Minimum drives is: %s""" % (loops))
         self.grid.attach(button3, 1, 10, 1, 1)
 
         button4 = Gtk.Button.new_with_label("Refresh Drives")
-        if ap.is_EFI:
+        if ap.is_EFI():
             button4.connect("clicked", self.scan_for_usable_drives, self.root,
                             self.home, self.swap, self.efi)
         else:
@@ -1735,6 +1735,10 @@ Type. Minimum drives is: %s""" % (loops))
             efi = self.efi_parts.get_active_text()
         except (AttributeError, NameError):
             efi = ""
+        try:
+            swap = self.swap_parts.get_active_text()
+        except (AttributeError, NameError):
+            swap = ""
         if self.root_parts.get_active_text() in ("", None):
             label = self.set_up_partitioner_label("ERROR: / NOT SET")
             try:
@@ -1756,7 +1760,7 @@ Type. Minimum drives is: %s""" % (loops))
 
             self.show_all()
             return
-        if ((self.swap_parts.get_active_text().upper() == "FILE") or (self.swap_parts.get_active_text() == "")):
+        if ((swap.upper() == "FILE") or (swap == "")):
             if ap.size_of_part(self.root_parts.get_active_text()) < ap.get_min_root_size(bytes=False):
                 label_string = \
         f""" / is too small. Minimum Root Partition size is { round(ap.get_min_root_size(bytes=False)) } GB
@@ -1800,11 +1804,10 @@ Type. Minimum drives is: %s""" % (loops))
             self.data["HOME"] = "NULL"
         else:
             self.data["HOME"] = self.home_parts.get_active_text()
-        if ((self.swap_parts.get_active_text() in ("", " ", None)) or (
-                self.swap_parts.get_active_text().upper() == "FILE")):
+        if ((swap in ("", " ", None)) or (swap.upper() == "FILE")):
             self.data["SWAP"] = "FILE"
         else:
-            self.data["SWAP"] = self.swap_parts.get_active_text()
+            self.data["SWAP"] = swap
         global PART_COMPLETION
         PART_COMPLETION = "COMPLETED"
         self.main_menu("clicked")
