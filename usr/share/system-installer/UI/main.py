@@ -1338,7 +1338,6 @@ Type. Minimum drives is: %s""" % (loops))
             return
         self.root_parts.set_active_id(None)
         self.root_parts.remove_all()
-        print(parts)
         for each in parts:
             if each["fstype"] in ("ext4", "ext3", "btrfs", "xfs", "f2fs"):
                 if each["size"] >= ap.LIMITER:
@@ -1364,7 +1363,6 @@ Type. Minimum drives is: %s""" % (loops))
                     break
         self.home_parts.set_active_id(None)
         self.home_parts.remove_all()
-        print(parts)
         for each in parts:
             if each["fstype"] in ("ext4", "ext3", "btrfs", "xfs", "f2fs",
                                   "jfs", "ext2"):
@@ -1388,7 +1386,6 @@ Type. Minimum drives is: %s""" % (loops))
                     break
         self.swap_parts.set_active_id(None)
         self.swap_parts.remove_all()
-        print(parts)
         for each in parts:
             if each["fstype"] in ("linux-swap", "swap"):
                 self.swap_parts.append(each["name"], each["name"])
@@ -1411,7 +1408,6 @@ Type. Minimum drives is: %s""" % (loops))
             return
         self.efi_parts.set_active_id(None)
         self.efi_parts.remove_all()
-        print(parts)
         for each in parts:
             if each["fstype"] in ("exfat", "vfat", "fat32", "fat16", "fat12"):
                 if each["size"] >= ap.mb_to_bytes(125):
@@ -2164,11 +2160,9 @@ Sub-Region""")
         global OPTIONS_COMPLETION
         global PART_COMPLETION
         global USER_COMPLETION
-        if ((KEYBOARD_COMPLETION != "COMPLETED"
-            ) or (LOCALE_COMPLETION != "COMPLETED"
-                 ) or (OPTIONS_COMPLETION != "COMPLETED"
-                      ) or (PART_COMPLETION != "COMPLETED"
-                           ) or (USER_COMPLETION != "COMPLETED")):
+        if "COMPLETED" not in (KEYBOARD_COMPLETION, LOCALE_COMPLETION,
+                               OPTIONS_COMPLETION, PART_COMPLETION,
+                               USER_COMPLETION):
             self.label.set_markup("""
         Feel free to complete any of the below segments in any order.\t
         However, all segments must be completed.
