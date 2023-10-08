@@ -1282,12 +1282,6 @@ Type. Minimum drives is: %s""" % (loops))
         swap_info = self._set_default_margins(swap_info)
         self.grid.attach(swap_info, 4, 8, 1, 1)
 
-        #  label7 = Gtk.Label()
-        #  label7.set_markup("Must be linux-swap or file")
-        #  label7.set_justify(Gtk.Justification.RIGHT)
-        #  label7 = self._set_default_margins(label7)
-        #  self.grid.attach(label7, 3, 5, 1, 1)
-
         if ap.is_EFI():
             self.scan_for_usable_drives("clicked", self.root, self.home,
                                         self.swap, self.efi)
@@ -1327,6 +1321,7 @@ Type. Minimum drives is: %s""" % (loops))
         if self.root.get_active_text() in ("", None):
             print("No drive selected for root. No action necessary")
             return
+        flag = False
         drives = ap.check_disk_state()
         parts = []
         for each in drives:
@@ -1336,6 +1331,7 @@ Type. Minimum drives is: %s""" % (loops))
                     break
         if parts == []:
             return
+        setting = root_drive_dropdown.get_active_id()
         self.root_parts.set_active_id(None)
         self.root_parts.remove_all()
         for each in parts:
@@ -1343,24 +1339,36 @@ Type. Minimum drives is: %s""" % (loops))
                 if each["size"] >= ap.LIMITER:
                     if each["name"] != self.home_parts.get_active_text():
                         self.root_parts.append(each["name"], each["name"])
+                    if each["name"] == setting:
+                        flag = True
+        self.root_parts.append("Root Partition", "Root Partition")
+
+        if flag:
+            self.root_parts.set_active_id(setting)
+        elif self.data["ROOT"] not in ("", None, "NULL"):
+            self.root_parts.set_active_id(self.data["ROOT"])
+        else:
+            self.root_parts.set_active_id("Root Partition")
 
         self.show_all()
 
-    def update_possible_home_parts(self, root_drive_dropdown):
+    def update_possible_home_parts(self, home_drive_dropdown):
         """Update possible root partitions based on given drive"""
         if self.home.get_active_text() in ("", None):
             print("No drive selected for home. No action necessary")
             return
+        flag = False
         drives = ap.check_disk_state()
         parts = []
         for each in drives:
-            if each["name"] == root_drive_dropdown.get_active_id():
+            if each["name"] == home_drive_dropdown.get_active_id():
                 if each["fstype"] != None:
                     parts.append(each)
                 if "children" in each:
                     for each1 in each["children"]:
                         parts.append(each1)
                     break
+        setting = home_drive_dropdown.get_active_id()
         self.home_parts.set_active_id(None)
         self.home_parts.remove_all()
         for each in parts:
@@ -1369,49 +1377,83 @@ Type. Minimum drives is: %s""" % (loops))
                 if each["size"] >= ap.gb_to_bytes(8):
                     if each["name"] != self.root_parts.get_active_text():
                         self.home_parts.append(each["name"], each["name"])
+                    if each["name"] == setting:
+                        flag = True
+        self.home_parts.append("Home Partition", "Home Partition")
+
+        if flag:
+            self.home_parts.set_active_id(setting)
+        elif self.data["HOME"] not in ("", None, "NULL"):
+            self.home_parts.set_active_id(self.data["HOME"])
+        else:
+            self.home_parts.set_active_id("Home Partition")
 
         self.show_all()
 
-    def update_possible_swap_parts(self, root_drive_dropdown):
+    def update_possible_swap_parts(self, swap_drive_dropdown):
         """Update possible root partitions based on given drive"""
         if self.swap.get_active_text() in ("", None):
             print("No drive selected for swap. No action necessary")
             return
+        flag = False
         drives = ap.check_disk_state()
         parts = []
         for each in drives:
-            if each["name"] == root_drive_dropdown.get_active_id():
+            if each["name"] == swap_drive_dropdown.get_active_id():
                 if "children" in each:
                     parts = each["children"]
                     break
+        setting = swap_drive_dropdown.get_active_id()
         self.swap_parts.set_active_id(None)
         self.swap_parts.remove_all()
         for each in parts:
             if each["fstype"] in ("linux-swap", "swap"):
                 self.swap_parts.append(each["name"], each["name"])
+            if each["name"] == setting:
+                flag = True
+        self.swap_parts.append("Swap Partition", "Swap Partition")
+
+        if flag:
+            self.swap_parts.set_active_id(setting)
+        elif self.data["SWAP"] not in ("", None, "NULL"):
+            self.swap_parts.set_active_id(self.data["SWAP"])
+        else:
+            self.swap_parts.set_active_id("Swap Partition")
 
         self.show_all()
 
-    def update_possible_efi_parts(self, root_drive_dropdown):
+    def update_possible_efi_parts(self, efi_drive_dropdown):
         """Update possible root partitions based on given drive"""
         if self.efi.get_active_text() in ("", None):
             print("No drive selected for EFI. No action necessary")
             return
+        flag = False
         drives = ap.check_disk_state()
         parts = []
         for each in drives:
-            if each["name"] == root_drive_dropdown.get_active_id():
+            if each["name"] == efi_drive_dropdown.get_active_id():
                 if "children" in each:
                     parts = each["children"]
                     break
         if parts == []:
             return
+        setting = efi_drive_dropdown.get_active_id()
         self.efi_parts.set_active_id(None)
         self.efi_parts.remove_all()
         for each in parts:
             if each["fstype"] in ("exfat", "vfat", "fat32", "fat16", "fat12"):
                 if each["size"] >= ap.mb_to_bytes(125):
                     self.efi_parts.append(each["name"], each["name"])
+                if each["name"] == setting:
+                    flag = True
+        self.efi_parts.append("EFI Partition", "EFI Partition")
+
+        if flag:
+            self.efi_parts.set_active_id(setting)
+        elif self.data["EFI"] not in ("", None, "NULL"):
+            self.efi_parts.set_active_id(self.data["EFI"])
+        else:
+            self.efi_parts.set_active_id("EFI Partition")
 
         self.show_all()
 
@@ -1432,24 +1474,20 @@ Type. Minimum drives is: %s""" % (loops))
         try:
             if efi_dropdown is not None:
                 efi_selected = efi_dropdown.get_active_id()
-            else:
-                efi_selected = None
         except AttributeError:
             efi_selected = None
 
         # confirm previous settings
-        if (self.data["ROOT"] != root_selected) and (self.data["ROOT"] not in ("", None)):
-            root_selected = self.data["ROOT"]
-        if (self.data["HOME"] != home_selected) and (self.data["HOME"] not in ("", None)):
-            home_selected = self.data["HOME"]
-        if (self.data["SWAP"] != swap_selected) and (self.data["SWAP"] not in ("", None)):
-            swap_selected = self.data["SWAP"]
+        if root_selected in ("", None):
+            root_selected = ap.part_to_drive(self.data["ROOT"])
+        if home_selected in ("", None):
+            home_selected = ap.part_to_drive(self.data["HOME"])
+        if swap_selected in ("", None):
+            swap_selected = ap.part_to_drive(self.data["SWAP"])
         try:
             if efi_dropdown is not None:
-                if (self.data["EFI"] != efi_selected) and (self.data["EFI"] not in ("", None)):
-                    efi_selected = self.data["EFI"]
-            else:
-                efi_selected = None
+                if efi_selected in ("", None):
+                    efi_selected = ap.part_to_drive(self.data["EFI"])
         except AttributeError:
             pass
 
@@ -1476,19 +1514,36 @@ Type. Minimum drives is: %s""" % (loops))
 
         # custom attributes
         home_dropdown.append("(none)", "(none)")
+        home_dropdown.append("Drive with Home Partition", "Drive with Home Partition")
         swap_dropdown.append("FILE", "FILE")
+        swap_dropdown.append("Drive with Swap Partition","Drive with Swap Partition")
+        root_dropdown.append("Drive with Root Partition", "Drive with Root Partition")
+        try:
+            if efi_dropdown is not None:
+                efi_dropdown.append("Drive with EFI Partition", "Drive with EFI Partition")
+        except (AttributeError, NameError):
+            pass
 
         # re-apply settings
+        drives = set(drives)
         if root_selected in drives:
-            root_dropdown.set_active_id(each, each)
+            root_dropdown.set_active_id(root_selected)
+        else:
+            root_dropdown.set_active_id("Drive with Root Partition")
         if home_selected in drives:
-            home_dropdown.set_active_id(each, each)
+            home_dropdown.set_active_id(home_selected)
+        else:
+            home_dropdown.set_active_id("Drive with Home Partition")
         if swap_selected in drives:
-            swap_dropdown.set_active_id(each, each)
+            swap_dropdown.set_active_id(swap_selected)
+        else:
+            swap_dropdown.set_active_id("Drive with Swap Partition")
         try:
             if efi_dropdown is not None:
                 if efi_selected in drives:
-                    efi_dropdown.set_active_id(each, each)
+                    efi_dropdown.set_active_id(efi_selected)
+                else:
+                    efi_dropdown.set_active_id("Drive with EFI Partition")
         except AttributeError:
             pass
 
