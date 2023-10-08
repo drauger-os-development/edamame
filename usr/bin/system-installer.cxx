@@ -94,7 +94,7 @@ void launch(bool boot_time)
 	str command1 = "/usr/bin/xhost";
 	str enable = " +si:localuser:root";
 	str disable = " -si:localuser:root";
-	str command = "echo 'toor' | sudo -S /usr/share/system-installer/engine.py";
+	str command = "echo 'toor' | sudo -S nice -n -10 /usr/share/system-installer/engine.py";
 	run((command1 + enable).c_str());
 	cout << Y << "RUNNING LOG LOCATED AT /tmp/system-installer.log" << NC << endl;
 	wchar_t *program = Py_Init();
