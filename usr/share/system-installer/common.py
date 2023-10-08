@@ -3,7 +3,7 @@
 #
 #  common.py
 #
-#  Copyright 2023 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2023 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -71,3 +71,16 @@ def recursive_mkdir(path):
                 os.mkdir(dir)
             except FileExistsError:
                 pass
+
+def item_in_list(item, array):
+    """Check if an item is in a list. This is supposed to be faster than:
+
+    'item' in 'array'
+
+    This only speeds things up in situations with more than about 10 items in a list
+    """
+    new_arr = set(array)
+    for each in array:
+        if item == each:
+            return True
+    return False

@@ -52,6 +52,12 @@ def is_EFI():
     return os.path.isdir("/sys/firmware/efi")
 
 
+def part_to_drive(part):
+    """Get a drive from a griven partition
+    This is just an alias for get_drive_path()"""
+    return get_drive_path(part)
+
+
 # GET DEFAULT CONFIG
 LIMITER = gb_to_bytes(32)
 PARTITIONING_ENABLED = True
