@@ -486,7 +486,6 @@ class Main(Gtk.Window):
 
         self.show_all()
 
-
     def onnext2clicked(self, button):
         """Password, Username, and hostname Checker"""
         self.data["PASSWORD"] = self.password.get_text()
@@ -1068,7 +1067,7 @@ Type. Minimum drives is: %s""" % (loops))
 
                             if test_child not in new_dev_list:  # make sure child object is not already in dev_list
                                 new_dev_list.append(test_child)
-                    elif device["fstype"] != None:
+                    elif device["fstype"] is not None:
                         # if the drive has no partition table, just a file system,
                         # add it
                         if device["fstype"] != "squashfs":
@@ -1124,7 +1123,6 @@ Type. Minimum drives is: %s""" % (loops))
         self.data["ROOT"] = widget.get_active_id()
         self.auto_partition("clicked")
 
-
     def confirm_auto_part(self, button):
         """Force User to either pick a drive to install to, abort,
         or backtrack
@@ -1156,7 +1154,6 @@ Type. Minimum drives is: %s""" % (loops))
             global PART_COMPLETION
             PART_COMPLETION = "COMPLETED"
             self.main_menu("clicked")
-
 
     def set_up_partitioner_label(self, additional_message=""):
         """prepare top label for display on manual partitioner
@@ -1212,7 +1209,6 @@ Type. Minimum drives is: %s""" % (loops))
         root_info.connect("clicked", self.explain_root)
         root_info = self._set_default_margins(root_info)
         self.grid.attach(root_info, 4, 2, 1, 1)
-
 
         if ap.is_EFI():
             label3 = Gtk.Label()
@@ -1362,7 +1358,7 @@ Type. Minimum drives is: %s""" % (loops))
         parts = []
         for each in drives:
             if each["name"] == home_drive_dropdown.get_active_id():
-                if each["fstype"] != None:
+                if each["fstype"] is not None:
                     parts.append(each)
                 if "children" in each:
                     for each1 in each["children"]:
@@ -1516,7 +1512,7 @@ Type. Minimum drives is: %s""" % (loops))
         home_dropdown.append("(none)", "(none)")
         home_dropdown.append("Drive with Home Partition", "Drive with Home Partition")
         swap_dropdown.append("FILE", "FILE")
-        swap_dropdown.append("Drive with Swap Partition","Drive with Swap Partition")
+        swap_dropdown.append("Drive with Swap Partition", "Drive with Swap Partition")
         root_dropdown.append("Drive with Root Partition", "Drive with Root Partition")
         try:
             if efi_dropdown is not None:
