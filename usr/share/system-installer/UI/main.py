@@ -3,7 +3,7 @@
 #
 #  main.py
 #
-#  Copyright 2023 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2023 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -23,19 +23,20 @@
 #
 """Main Installation UI"""
 from __future__ import print_function
-import sys
 import re
 import json
 import os
-import common
 import subprocess
-import gi
-import auto_partitioner as ap
 import traceback
+import random
+import gi
 
 gi.require_version('Gtk', '3.0')
 
 from gi.repository import Gtk
+
+import common
+import auto_partitioner as ap
 
 
 def has_special_character(input_string):
@@ -409,6 +410,11 @@ class Main(Gtk.Window):
         self.compname = self._set_default_margins(self.compname)
         self.grid.attach(self.compname, 3, 4, 1, 1)
 
+        auto_gen_hostname = Gtk.Button.new_with_label("Auto-Generate Computer Name")
+        auto_gen_hostname.connect("clicked", self.generate_hostname)
+        auto_gen_hostname = self._set_default_margins(auto_gen_hostname)
+        self.grid.attach(auto_gen_hostname, 4, 4, 1, 1)
+
         label3 = Gtk.Label()
         label3.set_markup("    Password:   ")
         label3.set_justify(Gtk.Justification.RIGHT)
@@ -436,7 +442,7 @@ class Main(Gtk.Window):
         button1 = Gtk.Button.new_with_label("Okay -->")
         button1.connect("clicked", self.onnext2clicked)
         button1 = self._set_default_margins(button1)
-        self.grid.attach(button1, 3, 8, 1, 1)
+        self.grid.attach(button1, 4, 8, 1, 1)
 
         button2 = Gtk.Button.new_with_label("Exit")
         button2.connect("clicked", self.exit)
@@ -447,6 +453,36 @@ class Main(Gtk.Window):
         button3.connect("clicked", self.main_menu)
         button3 = self._set_default_margins(button3)
         self.grid.attach(button3, 1, 8, 1, 1)
+
+        self.show_all()
+
+    def generate_hostname(self, widget):
+        """Generate a hostname that follows these rules:
+        - 16 characters long
+        - Starts with "DRAUGER-", no quotation marks
+        - The remaining characters should be a randomly generated string of uppercase letters and numbers
+        - Avoid Letters:
+          - O, I
+        - Avoid numnbers:
+          - 0, 1
+        - Have no special characters"""
+        remaining_len = 8
+        allowed_letters = ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
+        allowed_numbers = [2, 3, 4, 5, 6, 7, 8, 9]
+        suffix = []
+        while remaining_len > 0:
+            if (random.randint(0, 10) % 2) == 0:
+                # letter
+                suffix.append(random.sample(allowed_letters, 1)[0])
+            else:
+                # number
+                suffix.append(str(random.sample(allowed_numbers, 1)[0]))
+            remaining_len -= 1
+        suffix = "".join(suffix)
+        output = "DRAUGER-%s" % (suffix)
+
+        self.data["COMPUTER_NAME"] = output
+        self.compname.set_text(output)
 
         self.show_all()
 
@@ -1031,7 +1067,7 @@ Type. Minimum drives is: %s""" % (loops))
 
                             if test_child not in new_dev_list:  # make sure child object is not already in dev_list
                                 new_dev_list.append(test_child)
-                    elif device["fstype"] != None:
+                    elif device["fstype"] is not None:
                         # if the drive has no partition table, just a file system,
                         # add it
                         if device["fstype"] != "squashfs":
@@ -1087,7 +1123,6 @@ Type. Minimum drives is: %s""" % (loops))
         self.data["ROOT"] = widget.get_active_id()
         self.auto_partition("clicked")
 
-
     def confirm_auto_part(self, button):
         """Force User to either pick a drive to install to, abort,
         or backtrack
@@ -1119,7 +1154,6 @@ Type. Minimum drives is: %s""" % (loops))
             global PART_COMPLETION
             PART_COMPLETION = "COMPLETED"
             self.main_menu("clicked")
-
 
     def set_up_partitioner_label(self, additional_message=""):
         """prepare top label for display on manual partitioner
@@ -1159,35 +1193,43 @@ Type. Minimum drives is: %s""" % (loops))
         label2.set_markup("ROOT Partition (Mounted at /)")
         label2.set_justify(Gtk.Justification.RIGHT)
         label2 = self._set_default_margins(label2)
-        self.grid.attach(label2, 1, 2, 1, 1)
+        self.grid.attach(label2, 1, 2, 2, 1)
 
-        self.root = Gtk.Entry()
-        self.root.set_text(self.data["ROOT"])
+        self.root = Gtk.ComboBoxText.new()
         self.root = self._set_default_margins(self.root)
-        self.grid.attach(self.root, 2, 2, 1, 1)
+        self.root.connect("changed", self.update_possible_root_parts)
+        self.grid.attach(self.root, 3, 2, 1, 1)
+
+        self.root_parts = Gtk.ComboBoxText.new()
+        self.root_parts = self._set_default_margins(self.root_parts)
+        self.root_parts.connect("changed", self.update_possible_home_parts)
+        self.grid.attach(self.root_parts, 3, 3, 1, 1)
 
         root_info = Gtk.Button.new_with_label("Info on Root Partition")
         root_info.connect("clicked", self.explain_root)
         root_info = self._set_default_margins(root_info)
-        self.grid.attach(root_info, 3, 2, 1, 1)
-
+        self.grid.attach(root_info, 4, 2, 1, 1)
 
         if ap.is_EFI():
             label3 = Gtk.Label()
             label3.set_markup("EFI Partition (Mounted at /boot/efi)")
             label3.set_justify(Gtk.Justification.RIGHT)
             label3 = self._set_default_margins(label3)
-            self.grid.attach(label3, 1, 3, 1, 1)
+            self.grid.attach(label3, 1, 4, 2, 1)
 
-            self.efi = Gtk.Entry()
-            self.efi.set_text(self.data["EFI"])
+            self.efi = Gtk.ComboBoxText.new()
             self.efi = self._set_default_margins(self.efi)
-            self.grid.attach(self.efi, 2, 3, 1, 1)
+            self.efi.connect("changed", self.update_possible_efi_parts)
+            self.grid.attach(self.efi, 3, 4, 1, 1)
+
+            self.efi_parts = Gtk.ComboBoxText.new()
+            self.efi_parts = self._set_default_margins(self.efi_parts)
+            self.grid.attach(self.efi_parts, 3, 5, 1, 1)
 
             efi_info = Gtk.Button.new_with_label("Info on EFI Partition")
             efi_info.connect("clicked", self.explain_efi)
             efi_info = self._set_default_margins(efi_info)
-            self.grid.attach(efi_info, 3, 3, 1, 1)
+            self.grid.attach(efi_info, 4, 4, 1, 1)
 
             #  label5 = Gtk.Label()
             #  label5.set_markup("Must be fat32")
@@ -1199,54 +1241,307 @@ Type. Minimum drives is: %s""" % (loops))
         label4.set_markup("Home Partition (Mounted at /home) (optional)")
         label4.set_justify(Gtk.Justification.RIGHT)
         label4 = self._set_default_margins(label4)
-        self.grid.attach(label4, 1, 4, 1, 1)
+        self.grid.attach(label4, 1, 6, 2, 1)
 
-        self.home = Gtk.Entry()
-        self.home.set_text(self.data["HOME"])
+        self.home = Gtk.ComboBoxText.new()
         self.home = self._set_default_margins(self.home)
-        self.grid.attach(self.home, 2, 4, 1, 1)
+        self.home.connect("changed", self.update_possible_home_parts)
+        self.grid.attach(self.home, 3, 6, 1, 1)
+
+        self.home_parts = Gtk.ComboBoxText.new()
+        self.home_parts = self._set_default_margins(self.home_parts)
+        self.home_parts.connect("changed", self.update_possible_root_parts)
+        self.grid.attach(self.home_parts, 3, 7, 1, 1)
 
         home_info = Gtk.Button.new_with_label("Info on Home Partition")
         home_info.connect("clicked", self.explain_home)
         home_info = self._set_default_margins(home_info)
-        self.grid.attach(home_info, 3, 4, 1, 1)
+        self.grid.attach(home_info, 4, 6, 1, 1)
 
         label6 = Gtk.Label()
         label6.set_markup("SWAP")
         label6.set_justify(Gtk.Justification.RIGHT)
         label6 = self._set_default_margins(label6)
-        self.grid.attach(label6, 1, 5, 1, 1)
+        self.grid.attach(label6, 1, 8, 2, 1)
 
-        self.swap = Gtk.Entry()
-        self.swap.set_text(self.data["SWAP"])
+        self.swap = Gtk.ComboBoxText.new()
         self.swap = self._set_default_margins(self.swap)
-        self.grid.attach(self.swap, 2, 5, 1, 1)
+        self.swap.connect("changed", self.update_possible_swap_parts)
+        self.grid.attach(self.swap, 3, 8, 1, 1)
+
+        self.swap_parts = Gtk.ComboBoxText.new()
+        self.swap_parts = self._set_default_margins(self.swap_parts)
+        self.grid.attach(self.swap_parts, 3, 9, 1, 1)
 
         swap_info = Gtk.Button.new_with_label("Info on SWAP")
         swap_info.connect("clicked", self.explain_swap)
         swap_info = self._set_default_margins(swap_info)
-        self.grid.attach(swap_info, 3, 5, 1, 1)
+        self.grid.attach(swap_info, 4, 8, 1, 1)
 
-        #  label7 = Gtk.Label()
-        #  label7.set_markup("Must be linux-swap or file")
-        #  label7.set_justify(Gtk.Justification.RIGHT)
-        #  label7 = self._set_default_margins(label7)
-        #  self.grid.attach(label7, 3, 5, 1, 1)
+        if ap.is_EFI():
+            self.scan_for_usable_drives("clicked", self.root, self.home,
+                                        self.swap, self.efi)
+        else:
+            self.scan_for_usable_drives("clicked", self.root, self.home,
+                                        self.swap)
 
         button1 = Gtk.Button.new_with_label("Okay -->")
         button1.connect("clicked", self.check_man_part_settings)
         button1 = self._set_default_margins(button1)
-        self.grid.attach(button1, 3, 6, 1, 1)
+        self.grid.attach(button1, 4, 10, 1, 1)
 
         button2 = Gtk.Button.new_with_label("Exit")
         button2.connect("clicked", self.exit)
         button2 = self._set_default_margins(button2)
-        self.grid.attach(button2, 2, 6, 1, 1)
+        self.grid.attach(button2, 3, 10, 1, 1)
 
-        button1 = Gtk.Button.new_with_label("<-- Back")
-        button1.connect("clicked", self.partitioning)
-        button1 = self._set_default_margins(button1)
-        self.grid.attach(button1, 1, 6, 1, 1)
+        button3 = Gtk.Button.new_with_label("<-- Back")
+        button3.connect("clicked", self.partitioning)
+        button3 = self._set_default_margins(button3)
+        self.grid.attach(button3, 1, 10, 1, 1)
+
+        button4 = Gtk.Button.new_with_label("Refresh Drives")
+        if ap.is_EFI():
+            button4.connect("clicked", self.scan_for_usable_drives, self.root,
+                            self.home, self.swap, self.efi)
+        else:
+            button4.connect("clicked", self.scan_for_usable_drives, self.root,
+                            self.home, self.swap)
+        button4 = self._set_default_margins(button4)
+        self.grid.attach(button4, 2, 10, 1, 1)
+
+        self.show_all()
+
+    def update_possible_root_parts(self, root_drive_dropdown):
+        """Update possible root partitions based on given drive"""
+        if self.root.get_active_text() in ("", None):
+            print("No drive selected for root. No action necessary")
+            return
+        flag = False
+        drives = ap.check_disk_state()
+        parts = []
+        for each in drives:
+            if each["name"] == root_drive_dropdown.get_active_id():
+                if "children" in each:
+                    parts = each["children"]
+                    break
+        if parts == []:
+            return
+        setting = root_drive_dropdown.get_active_id()
+        self.root_parts.set_active_id(None)
+        self.root_parts.remove_all()
+        for each in parts:
+            if each["fstype"] in ("ext4", "ext3", "btrfs", "xfs", "f2fs"):
+                if each["size"] >= ap.LIMITER:
+                    if each["name"] != self.home_parts.get_active_text():
+                        self.root_parts.append(each["name"], each["name"])
+                    if each["name"] == setting:
+                        flag = True
+        self.root_parts.append("Root Partition", "Root Partition")
+
+        if flag:
+            self.root_parts.set_active_id(setting)
+        elif self.data["ROOT"] not in ("", None, "NULL"):
+            self.root_parts.set_active_id(self.data["ROOT"])
+        else:
+            self.root_parts.set_active_id("Root Partition")
+
+        self.show_all()
+
+    def update_possible_home_parts(self, home_drive_dropdown):
+        """Update possible root partitions based on given drive"""
+        if self.home.get_active_text() in ("", None):
+            print("No drive selected for home. No action necessary")
+            return
+        flag = False
+        drives = ap.check_disk_state()
+        parts = []
+        for each in drives:
+            if each["name"] == home_drive_dropdown.get_active_id():
+                if each["fstype"] is not None:
+                    parts.append(each)
+                if "children" in each:
+                    for each1 in each["children"]:
+                        parts.append(each1)
+                    break
+        setting = home_drive_dropdown.get_active_id()
+        self.home_parts.set_active_id(None)
+        self.home_parts.remove_all()
+        for each in parts:
+            if each["fstype"] in ("ext4", "ext3", "btrfs", "xfs", "f2fs",
+                                  "jfs", "ext2"):
+                if each["size"] >= ap.gb_to_bytes(8):
+                    if each["name"] != self.root_parts.get_active_text():
+                        self.home_parts.append(each["name"], each["name"])
+                    if each["name"] == setting:
+                        flag = True
+        self.home_parts.append("Home Partition", "Home Partition")
+
+        if flag:
+            self.home_parts.set_active_id(setting)
+        elif self.data["HOME"] not in ("", None, "NULL"):
+            self.home_parts.set_active_id(self.data["HOME"])
+        else:
+            self.home_parts.set_active_id("Home Partition")
+
+        self.show_all()
+
+    def update_possible_swap_parts(self, swap_drive_dropdown):
+        """Update possible root partitions based on given drive"""
+        if self.swap.get_active_text() in ("", None):
+            print("No drive selected for swap. No action necessary")
+            return
+        flag = False
+        drives = ap.check_disk_state()
+        parts = []
+        for each in drives:
+            if each["name"] == swap_drive_dropdown.get_active_id():
+                if "children" in each:
+                    parts = each["children"]
+                    break
+        setting = swap_drive_dropdown.get_active_id()
+        self.swap_parts.set_active_id(None)
+        self.swap_parts.remove_all()
+        for each in parts:
+            if each["fstype"] in ("linux-swap", "swap"):
+                self.swap_parts.append(each["name"], each["name"])
+            if each["name"] == setting:
+                flag = True
+        self.swap_parts.append("Swap Partition", "Swap Partition")
+
+        if flag:
+            self.swap_parts.set_active_id(setting)
+        elif self.data["SWAP"] not in ("", None, "NULL"):
+            self.swap_parts.set_active_id(self.data["SWAP"])
+        else:
+            self.swap_parts.set_active_id("Swap Partition")
+
+        self.show_all()
+
+    def update_possible_efi_parts(self, efi_drive_dropdown):
+        """Update possible root partitions based on given drive"""
+        if self.efi.get_active_text() in ("", None):
+            print("No drive selected for EFI. No action necessary")
+            return
+        flag = False
+        drives = ap.check_disk_state()
+        parts = []
+        for each in drives:
+            if each["name"] == efi_drive_dropdown.get_active_id():
+                if "children" in each:
+                    parts = each["children"]
+                    break
+        if parts == []:
+            return
+        setting = efi_drive_dropdown.get_active_id()
+        self.efi_parts.set_active_id(None)
+        self.efi_parts.remove_all()
+        for each in parts:
+            if each["fstype"] in ("exfat", "vfat", "fat32", "fat16", "fat12"):
+                if each["size"] >= ap.mb_to_bytes(125):
+                    self.efi_parts.append(each["name"], each["name"])
+                if each["name"] == setting:
+                    flag = True
+        self.efi_parts.append("EFI Partition", "EFI Partition")
+
+        if flag:
+            self.efi_parts.set_active_id(setting)
+        elif self.data["EFI"] not in ("", None, "NULL"):
+            self.efi_parts.set_active_id(self.data["EFI"])
+        else:
+            self.efi_parts.set_active_id("EFI Partition")
+
+        self.show_all()
+
+    def scan_for_usable_drives(self, widget, root_dropdown, home_dropdown,
+                              swap_dropdown, efi_dropdown=None):
+        """Add available drives to drive dropdowns"""
+        # get drive names
+        drives_dict = ap.check_disk_state()
+        drives = []
+        for each in drives_dict:
+            if each["type"] == "disk":
+                drives.append(each["name"])
+
+        # get previous settings
+        root_selected = root_dropdown.get_active_id()
+        home_selected = home_dropdown.get_active_id()
+        swap_selected = swap_dropdown.get_active_id()
+        try:
+            if efi_dropdown is not None:
+                efi_selected = efi_dropdown.get_active_id()
+        except AttributeError:
+            efi_selected = None
+
+        # confirm previous settings
+        if root_selected in ("", None):
+            root_selected = ap.part_to_drive(self.data["ROOT"])
+        if home_selected in ("", None):
+            home_selected = ap.part_to_drive(self.data["HOME"])
+        if swap_selected in ("", None):
+            swap_selected = ap.part_to_drive(self.data["SWAP"])
+        try:
+            if efi_dropdown is not None:
+                if efi_selected in ("", None):
+                    efi_selected = ap.part_to_drive(self.data["EFI"])
+        except AttributeError:
+            pass
+
+        # wipe current dropdowns
+        root_dropdown.remove_all()
+        home_dropdown.remove_all()
+        swap_dropdown.remove_all()
+        try:
+            if efi_dropdown is not None:
+                efi_dropdown.remove_all()
+        except AttributeError:
+            pass
+
+        # repopulate
+        for each in drives:
+            root_dropdown.append(each, each)
+            home_dropdown.append(each, each)
+            swap_dropdown.append(each, each)
+            try:
+                if efi_dropdown is not None:
+                    efi_dropdown.append(each, each)
+            except AttributeError:
+                pass
+
+        # custom attributes
+        home_dropdown.append("(none)", "(none)")
+        home_dropdown.append("Drive with Home Partition", "Drive with Home Partition")
+        swap_dropdown.append("FILE", "FILE")
+        swap_dropdown.append("Drive with Swap Partition", "Drive with Swap Partition")
+        root_dropdown.append("Drive with Root Partition", "Drive with Root Partition")
+        try:
+            if efi_dropdown is not None:
+                efi_dropdown.append("Drive with EFI Partition", "Drive with EFI Partition")
+        except (AttributeError, NameError):
+            pass
+
+        # re-apply settings
+        drives = set(drives)
+        if root_selected in drives:
+            root_dropdown.set_active_id(root_selected)
+        else:
+            root_dropdown.set_active_id("Drive with Root Partition")
+        if home_selected in drives:
+            home_dropdown.set_active_id(home_selected)
+        else:
+            home_dropdown.set_active_id("Drive with Home Partition")
+        if swap_selected in drives:
+            swap_dropdown.set_active_id(swap_selected)
+        else:
+            swap_dropdown.set_active_id("Drive with Swap Partition")
+        try:
+            if efi_dropdown is not None:
+                if efi_selected in drives:
+                    efi_dropdown.set_active_id(efi_selected)
+                else:
+                    efi_dropdown.set_active_id("Drive with EFI Partition")
+        except AttributeError:
+            pass
 
         self.show_all()
 
@@ -1496,11 +1791,14 @@ Type. Minimum drives is: %s""" % (loops))
     def check_man_part_settings(self, button):
         """Check device paths provided for manual partitioner"""
         try:
-            efi = self.efi.get_text()
+            efi = self.efi_parts.get_active_text()
         except (AttributeError, NameError):
             efi = ""
-        if ((self.root.get_text() == "") or (
-                self.root.get_text()[0:5] != "/dev/")):
+        try:
+            swap = self.swap_parts.get_active_text()
+        except (AttributeError, NameError):
+            swap = ""
+        if self.root_parts.get_active_text() in ("", None):
             label = self.set_up_partitioner_label("ERROR: / NOT SET")
             try:
                 self.grid.remove(self.grid.get_child_at(1, 1))
@@ -1510,17 +1808,7 @@ Type. Minimum drives is: %s""" % (loops))
 
             self.show_all()
             return
-        elif not os.path.exists(self.root.get_text()):
-            label = self.set_up_partitioner_label("ERROR: Not a Valid Device on /")
-            try:
-                self.grid.remove(self.grid.get_child_at(1, 1))
-            except TypeError:
-                pass
-            self.grid.attach(label, 1, 1, 3, 1)
-
-            self.show_all()
-            return
-        elif (((efi == "") or (efi[0:5] != "/dev/")) and ap.is_EFI()):
+        elif (efi in ("", None)) and ap.is_EFI():
             label = self.set_up_partitioner_label(
                 "ERROR: System is running EFI. An EFI partition must be set.")
             try:
@@ -1531,68 +1819,8 @@ Type. Minimum drives is: %s""" % (loops))
 
             self.show_all()
             return
-        elif (not os.path.exists(efi) or (efi == "")) and ap.is_EFI():
-            label = Gtk.Label()
-            label = self.set_up_partitioner_label("ERROR: Not a Valid Device on /boot/efi")
-            try:
-                self.grid.remove(self.grid.get_child_at(1, 1))
-            except TypeError:
-                pass
-            self.grid.attach(label, 1, 1, 3, 1)
-
-            self.show_all()
-            return
-        elif ((self.home.get_text() != "") and (
-               self.home.get_text()[0:5] != "/dev/") and (
-               self.home.get_text() != "NULL")):
-            label = Gtk.Label()
-            label = self.set_up_partitioner_label("ERROR: invalid HOME partition device path")
-            try:
-                self.grid.remove(self.grid.get_child_at(1, 1))
-            except TypeError:
-                pass
-            self.grid.attach(label, 1, 1, 3, 1)
-
-            self.show_all()
-            return
-        elif (not os.path.exists(self.home.get_text()) and (
-                self.home.get_text() != "") and (
-                self.home.get_text() != "NULL")):
-            label = self.set_up_partitioner_label("ERROR: Not a Valid Device on /home")
-            try:
-                self.grid.remove(self.grid.get_child_at(1, 1))
-            except TypeError:
-                pass
-            self.grid.attach(label, 1, 1, 3, 1)
-
-            self.show_all()
-            return
-        elif ((self.swap.get_text() != "") and (
-                self.swap.get_text()[0:5] != "/dev/") and (
-                    self.swap.get_text().upper() != "FILE")):
-            label = self.set_up_partitioner_label(
-                "ERROR: SWAP must be set to a valid path, 'FILE', or empty.")
-            try:
-                self.grid.remove(self.grid.get_child_at(1, 1))
-            except TypeError:
-                pass
-            self.grid.attach(label, 1, 1, 3, 1)
-
-            self.show_all()
-        elif (not os.path.exists(self.swap.get_text()) and (
-                self.swap.get_text().upper() != "FILE") and (
-                    self.swap.get_text() != "")):
-            label = self.set_up_partitioner_label("ERROR: Not a Valid Device on SWAP")
-            try:
-                self.grid.remove(self.grid.get_child_at(1, 1))
-            except TypeError:
-                pass
-            self.grid.attach(label, 1, 1, 3, 1)
-
-            self.show_all()
-            return
-        if ((self.swap.get_text().upper() == "FILE") or (self.swap.get_text() == "")):
-            if ap.size_of_part(self.root.get_text()) < ap.get_min_root_size(bytes=False):
+        if ((swap.upper() == "FILE") or (swap == "")):
+            if ap.size_of_part(self.root_parts.get_active_text()) < ap.get_min_root_size(bytes=False):
                 label_string = \
         f""" / is too small. Minimum Root Partition size is { round(ap.get_min_root_size(bytes=False)) } GB
         Make a swap partition to reduce this minimum to { round(ap.get_min_root_size(swap=False, bytes=False)) } GB
@@ -1607,7 +1835,7 @@ Type. Minimum drives is: %s""" % (loops))
                 self.show_all()
                 return
         else:
-            if ap.size_of_part(self.root.get_text()) < ap.get_min_root_size(swap=False, bytes=False):
+            if ap.size_of_part(self.root_parts.get_active_text()) < ap.get_min_root_size(swap=False, bytes=False):
                 label_string = f"/ is too small. Minimum Root Partition size is { round(ap.get_min_root_size(swap=False, bytes=False)) } GB"
                 label = self.set_up_partitioner_label(label_string)
                 try:
@@ -1624,22 +1852,21 @@ Type. Minimum drives is: %s""" % (loops))
         except TypeError:
             pass
         self.grid.attach(label, 1, 1, 3, 1)
-        self.data["ROOT"] = self.root.get_text()
+        self.data["ROOT"] = self.root_parts.get_active_text()
 
         self.show_all()
         if efi in ("", " ", None):
             self.data["EFI"] = "NULL"
         else:
             self.data["EFI"] = efi
-        if self.home.get_text() in ("", " ", None):
+        if self.home_parts.get_active_text() in ("", " ", None):
             self.data["HOME"] = "NULL"
         else:
-            self.data["HOME"] = self.home.get_text()
-        if ((self.swap.get_text() in ("", " ", None)) or (
-                self.swap.get_text().upper() == "FILE")):
+            self.data["HOME"] = self.home_parts.get_active_text()
+        if ((swap in ("", " ", None)) or (swap.upper() == "FILE")):
             self.data["SWAP"] = "FILE"
         else:
-            self.data["SWAP"] = self.swap.get_text()
+            self.data["SWAP"] = swap
         global PART_COMPLETION
         PART_COMPLETION = "COMPLETED"
         self.main_menu("clicked")
@@ -1830,15 +2057,12 @@ Sub-Region""")
         if widget.get_active_id() is None:
             return
         zones = sorted(os.listdir("/usr/share/zoneinfo/" + widget.get_active_id()))
-        self.grid.remove(self.grid.get_child_at(2, 7))
-        self.sub_region = Gtk.ComboBoxText.new()
+        self.sub_region.remove_all()
         for each7 in zones:
             self.sub_region.append(each7, each7)
         time_zone = self.data["TIME_ZONE"].split("/")
         if len(time_zone) > 1:
             self.sub_region.set_active_id(time_zone[1])
-        self.sub_region = self._set_default_margins(self.sub_region)
-        self.grid.attach(self.sub_region, 2, 7, 1, 1)
 
         self.show_all()
 
@@ -1987,11 +2211,9 @@ Sub-Region""")
         global OPTIONS_COMPLETION
         global PART_COMPLETION
         global USER_COMPLETION
-        if ((KEYBOARD_COMPLETION != "COMPLETED"
-            ) or (LOCALE_COMPLETION != "COMPLETED"
-                 ) or (OPTIONS_COMPLETION != "COMPLETED"
-                      ) or (PART_COMPLETION != "COMPLETED"
-                           ) or (USER_COMPLETION != "COMPLETED")):
+        if "COMPLETED" not in (KEYBOARD_COMPLETION, LOCALE_COMPLETION,
+                               OPTIONS_COMPLETION, PART_COMPLETION,
+                               USER_COMPLETION):
             self.label.set_markup("""
         Feel free to complete any of the below segments in any order.\t
         However, all segments must be completed.

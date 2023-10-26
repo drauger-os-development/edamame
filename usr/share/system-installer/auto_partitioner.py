@@ -3,7 +3,7 @@
 #
 #  auto_partitioner.py
 #
-#  Copyright 2022 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2023 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -42,9 +42,20 @@ def bytes_to_gb(b):
     return b / (10 ** 9)
 
 
+def mb_to_bytes(mb):
+    """Convert MB to Bytes"""
+    return mb * (10 ** 6)
+
+
 def is_EFI():
     """Get if the current system is using EFI"""
     return os.path.isdir("/sys/firmware/efi")
+
+
+def part_to_drive(part):
+    """Get a drive from a griven partition
+    This is just an alias for get_drive_path()"""
+    return get_drive_path(part)
 
 
 # GET DEFAULT CONFIG
@@ -232,7 +243,7 @@ def check_disk_state():
         subprocess.check_call(["partprobe"])
     except subprocess.CalledProcessError:
         print("`partprobe` failed. Provided info may not be up-to-date.")
-    time.sleep(0.1)
+    time.sleep(0.2)
     command = ["lsblk", "--json", "--paths", "--bytes", "--output",
                "name,size,type,fstype"]
     data = json.loads(subprocess.check_output(command))["blockdevices"]

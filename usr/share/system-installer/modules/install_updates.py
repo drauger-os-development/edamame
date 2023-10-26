@@ -3,7 +3,7 @@
 #
 #  install_updates.py
 #
-#  Copyright 2023 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2023 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ def update_system():
     cache.update()
     cache.open()
     try:
-        cache.upgrade(dist_upgrade=True)
+        cache.upgrade()
     except apt.apt_pkg.Error:
         print("ERROR: Possible held packages. Update may be partially completed.")
     cache.commit()

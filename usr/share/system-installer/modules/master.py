@@ -3,7 +3,7 @@
 #
 #  master.py
 #
-#  Copyright 2023 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2023 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -250,8 +250,11 @@ def install_kernel(release):
     os.chdir("/repo")
     subproc.check_call(install_command + packages, stdout=stderr.buffer)
     os.chdir("/")
-    subproc.check_call(["apt-get", "autopurge", "-y"],
-                       stdout=stderr.buffer)
+    try:
+        subproc.check_call(["apt-get", "autopurge", "-y"],
+                           stdout=stderr.buffer)
+    except subproc.CalledProcessError:
+        eprint("WARNING: Clean up post-kernel install failed. This will likely be fixed later.")
 
 
 def install_bootloader(efi, root, release, distro, compat_mode):

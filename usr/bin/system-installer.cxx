@@ -1,7 +1,7 @@
 /*
  * system-installer.cxx
  *
- * Copyright 2023 Thomas Castleman <contact@draugeros.org>
+ * Copyright 2023 Thomas Castleman <batcastle@draugeros.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,7 +46,7 @@
 
 using namespace std;
 
-str VERSION = "2.5.5";
+str VERSION = "2.5.9";
 str R = "\033[0;31m";
 str G = "\033[0;32m";
 str Y = "\033[1;33m";
@@ -94,7 +94,7 @@ void launch(bool boot_time)
 	str command1 = "/usr/bin/xhost";
 	str enable = " +si:localuser:root";
 	str disable = " -si:localuser:root";
-	str command = "echo 'toor' | sudo -S /usr/share/system-installer/engine.py";
+	str command = "echo 'toor' | sudo -S nice -n -10 /usr/share/system-installer/engine.py";
 	run((command1 + enable).c_str());
 	cout << Y << "RUNNING LOG LOCATED AT /tmp/system-installer.log" << NC << endl;
 	wchar_t *program = Py_Init();

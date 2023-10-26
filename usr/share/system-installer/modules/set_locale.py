@@ -3,7 +3,7 @@
 #
 #  set_locale.py
 #
-#  Copyright 2022 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2023 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 from __future__ import print_function
 from sys import argv, stderr
 from os import remove
-from subprocess import check_call
+from subprocess import check_call, CalledProcessError
 
 
 def eprint(*args, **kwargs):
@@ -69,7 +69,7 @@ def _setlocale(locale):
     code = locale.split("_")[0]
     for each in enumerate(contents):
         if ((code + "_" in contents[each[0]]
-            ) and (".UTF-8 UTF-8" in contents[each[0]])):
+             ) and (".UTF-8 UTF-8" in contents[each[0]])):
             if contents[each[0]][0] == "#":
                 contents[each[0]] = contents[each[0]].split(" ")
                 del contents[each[0]][0]
@@ -82,8 +82,14 @@ def _setlocale(locale):
     contents = "\n".join(contents)
     with open("/etc/locale.gen", "w+") as new_gen:
         new_gen.write(contents)
-    check_call(["locale-gen"], stdout=stderr.buffer)
-    check_call(["update-locale", "LANG=%s.UTF-8" % (locale), "LANGUAGE"])
+    try:
+        check_call(["locale-gen"], stdout=stderr.buffer)
+    except CalledProcessError:
+        eprint("WARNING: `locale-gen' failed.")
+    try:
+        check_call(["update-locale", f"LANG={locale}.UTF-8", "LANGUAGE"])
+    except CalledProcessError:
+        eprint("WARNING: `update-locale' failed.")
 
 
 if __name__ == '__main__':
