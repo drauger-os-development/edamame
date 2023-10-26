@@ -69,7 +69,7 @@ def _setlocale(locale):
     code = locale.split("_")[0]
     for each in enumerate(contents):
         if ((code + "_" in contents[each[0]]
-            ) and (".UTF-8 UTF-8" in contents[each[0]])):
+             ) and (".UTF-8 UTF-8" in contents[each[0]])):
             if contents[each[0]][0] == "#":
                 contents[each[0]] = contents[each[0]].split(" ")
                 del contents[each[0]][0]
@@ -87,7 +87,7 @@ def _setlocale(locale):
     except CalledProcessError:
         eprint("WARNING: `locale-gen' failed.")
     try:
-        check_call(["update-locale", "LANG=%s.UTF-8" % (locale), "LANGUAGE"])
+        check_call(["update-locale", f"LANG={locale}.UTF-8", "LANGUAGE"])
     except CalledProcessError:
         eprint("WARNING: `update-locale' failed.")
 

@@ -3,7 +3,7 @@ scanner:
     linter: pycodestyle  # Other option is flake8
 
 pycodestyle:  # Same as scanner.linter value. Other option is flake8
-    max-line-length: 79  # Default is 79 in PEP 8
+    max-line-length: 100  # Default is 79 in PEP 8, 100 is used in pylint
     ignore:  # Errors and warnings to ignore
         - W191  
 
