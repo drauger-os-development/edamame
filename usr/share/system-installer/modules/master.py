@@ -221,21 +221,25 @@ User will need to remove manually.""")
 
 def set_plymouth_theme():
     """Ensure the plymouth theme is set correctly"""
-    subproc.Popen(["update-alternatives", "--install",
-                      "/usr/share/plymouth/themes/default.plymouth",
-                      "default.plymouth",
-                      "/usr/share/plymouth/themes/drauger-theme/drauger-theme.plymouth",
-                      "100", "--slave",
-                      "/usr/share/plymouth/themes/default.grub",
-                      "default.plymouth.grub",
-                      "/usr/share/plymouth/themes/drauger-theme/drauger-theme.grub"],
-                     stdout=stderr.buffer)
-    process = subproc.Popen(["update-alternatives", "--config",
-                                "default.plymouth"],
-                               stdout=stderr.buffer,
-                               stdin=subproc.PIPE,
-                               stderr=subproc.PIPE)
-    process.communicate(input=bytes("2\n", "utf-8"))
+    data = subproc.check_output(["update-alternatives","--query",
+                                 "default.plymouth"]).decode().split("\n")
+    data = [each for each in data if "Value:" in each][0].split()[1]
+    if "drauger-theme.plymouth" != data.split("/")[-1]:
+        subproc.Popen(["update-alternatives", "--install",
+                       "/usr/share/plymouth/themes/default.plymouth",
+                       "default.plymouth",
+                       "/usr/share/plymouth/themes/drauger-theme/drauger-theme.plymouth",
+                       "100", "--slave",
+                       "/usr/share/plymouth/themes/default.grub",
+                       "default.plymouth.grub",
+                       "/usr/share/plymouth/themes/drauger-theme/drauger-theme.grub"],
+                      stdout=stderr.buffer)
+        process = subproc.Popen(["update-alternatives", "--config",
+                                 "default.plymouth"],
+                                stdout=stderr.buffer,
+                                stdin=subproc.PIPE,
+                                stderr=subproc.PIPE)
+        process.communicate(input=bytes("2\n", "utf-8"))
 
 
 def install_kernel(release):
