@@ -2007,11 +2007,12 @@ Region""")
 
         time_zone = self.data["TIME_ZONE"].split("/")
         self.time_menu = Gtk.ComboBoxText.new()
-        zones = ["Africa", "America", "Antarctica", "Arctic", "Asia",
-                 "Atlantic", "Australia", "Brazil", "Canada", "Chile",
-                 "Europe", "Indian", "Mexico", "Pacific", "US"]
-        for each6 in zones:
-            self.time_menu.append(each6, each6)
+        zones_pre = os.listdir("/usr/share/zoneinfo")
+        zones = []
+        for each in zones_pre:
+            if os.path.isdir(f"/usr/share/zoneinfo/{each}"):
+                if each not in ("right", "posix"):
+                    self.time_menu.append(each, each)
         if len(time_zone) > 0:
             self.time_menu.set_active_id(time_zone[0])
         self.time_menu.connect("changed", self.update_subregion)
