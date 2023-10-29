@@ -58,7 +58,24 @@ fi
 
 # Pshyc - we're compiling shit now
 cd usr/bin
-g++ -fPIE -m64 -o system-installer system-installer.cxx $(python3.10-config --ldflags --cflags --embed)
+echo "Would you like to build with Python 3.10 or 3.11?"
+read -p "Python 3.10 [1], Python 3.11 [2], Exit [0]: " ans
+if $(echo "${ans,,}" | grep -qE "1|one|first|3.10"); then
+	vert="3.10"
+elif $(echo "${ans,,}" | grep -qE "2|two|second|3.11"); then
+	vert="3.11"
+elif $(echo "${ans,,}" | grep -qE "exit|quit|leave|e|q|x|0|no|zero"); then
+	echo "Exiting as requested..."
+	exit 1
+else
+	echo "Input not recognized. Defaulting to Python 3.10"
+fi
+{
+	g++ -fPIE -m64 -o system-installer system-installer.cxx $(python"${vert}"-config --ldflags --cflags --embed)
+} || {
+	echo "Build failed. Try making sure you have 'python${vert}-dev' and 'libpython${vert}-dev' installed" 1>&2
+	exit 2
+}
 cd ../..
 ##############################################################
 #							     #
