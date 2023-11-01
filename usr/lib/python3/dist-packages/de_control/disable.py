@@ -23,6 +23,7 @@
 #
 """Disable DE/WM or DE/WM features"""
 import subprocess
+import de_control._common
 
 def immersion():
     """disable Immersion within DE.

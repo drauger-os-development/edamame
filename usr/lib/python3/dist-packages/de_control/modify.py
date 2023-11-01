@@ -24,7 +24,7 @@
 """Modify DE/WM settings and configuration"""
 import sys
 import os
-import _common
+import de_control._common
 
 
 def __eprint__(*args, **kwargs):

@@ -24,7 +24,7 @@
 """Enable DE/WM or DE/WM features"""
 import subprocess
 import psutil
-import _common
+import de_control._common
 
 def immersion():
     """Enable Immersion within DE.
