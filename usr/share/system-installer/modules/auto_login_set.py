@@ -105,7 +105,14 @@ def auto_login_set(login, username):
 def determine_display_manager():
     """Determine which display manager is in use"""
     # get known DMs
-    recognized_dms = ("gdm3", "lightdm", "sddm", "lxdm", "nodm", "wdm", "xdm")
+    allowed_dms = ("gdm3", "lightdm", "sddm", "lxdm", "wdm", "xdm")
+    installed_dms = sp.check_output(["dpkg", "-l", "*dm"]).decode().split('\n')
+    installed_dms = [each for each in installed_dms if each[:2] == "ii"]
+    installed_dms = [each.split()[1] for each in installed_dms]
+    recognized_dms = []
+    for each in installed_dms:
+        if each in allowed_dms:
+            recognized_dms.append(each)
     dm_status = {}
     for each in recognized_dms:
         # get status of DMs
