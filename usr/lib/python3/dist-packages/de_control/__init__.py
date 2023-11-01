@@ -3,7 +3,7 @@
 #
 #  __init__.py
 #
-#  Copyright 2022 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2023 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -25,3 +25,4 @@
 import de_control.enable as enable
 import de_control.disable as disable
 import de_control.modify as modify
+import de_control._common as _common
