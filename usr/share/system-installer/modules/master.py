@@ -513,8 +513,11 @@ def _check_for_laptop():
     Returns True if it is a laptop, returns False otherwise.
     """
     try:
-        subproc.check_call(["laptop-detect"])
+        subproc.check_call(["/usr/bin/laptop-detect"])
     except subproc.CalledProcessError:
+        return False
+    except FileNotFoundError:
+        eprint("WARNING: Cannot determine if machine is laptop or desktop. Assuming Desktop...")
         return False
     return True
 
