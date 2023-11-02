@@ -24,14 +24,14 @@
 """Enable DE/WM or DE/WM features"""
 import subprocess
 import psutil
-import de_control._common
+import de_control._common as com
 
 def immersion():
     """Enable Immersion within DE.
 
     This may involve disabling desktop icons, removing panels, and more.
     """
-    de = _common.get_de()
+    de = com.get_de()
     if de == "XFCE":
         subprocess.Popen(["xfconf-query", "--channel", "xfce4-desktop",
                           "--property", "/desktop-icons/style", "--set", "0"])

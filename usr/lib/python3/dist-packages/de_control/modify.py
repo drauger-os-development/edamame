@@ -24,7 +24,7 @@
 """Modify DE/WM settings and configuration"""
 import sys
 import os
-import de_control._common
+import de_control._common as com
 
 
 def __eprint__(*args, **kwargs):
@@ -37,7 +37,7 @@ def for_desktop(username):
     experience.
     """
     __eprint__("DESKTOP DETECTED. EDITING PANEL ACCORDINGLY.")
-    de = _common.get_de()
+    de = com.get_de()
     if de == "XFCE":
         try:
             os.remove("/home/" + username + "/.config/xfce4/panel/battery-12.rc")

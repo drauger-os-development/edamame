@@ -23,14 +23,14 @@
 #
 """Disable DE/WM or DE/WM features"""
 import subprocess
-import de_control._common
+import de_control._common as com
 
 def immersion():
     """disable Immersion within DE.
 
     This may involve enabling desktop icons, re-adding panels, and more.
     """
-    de = _common.get_de()
+    de = com.get_de()
     if de == "XFCE":
         # restart panel
         subprocess.Popen(["xfce4-panel"])
