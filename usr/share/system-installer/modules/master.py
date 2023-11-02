@@ -307,6 +307,7 @@ def _install_grub(root):
 
 def _install_systemd_boot(release, root, distro, compat_mode):
     """set up and install systemd-boot"""
+    install_command = ["dpkg", "--install"]
     try:
         os.makedirs("/boot/efi/loader/entries", exist_ok=True)
     except FileExistsError:
@@ -347,16 +348,20 @@ def _install_systemd_boot(release, root, distro, compat_mode):
                      "/boot/efi/EFI/systemd/systemd-bootx64.efi")
         except FileExistsError:
             pass
-    #  with open("/boot/efi/loader/loader.conf", "w+") as loader_conf:
-        #  loader_conf.write(f"default {distro}\n")
-        #  loader_conf.write("timeout 5\nconsole-mode auto\neditor 1")
-    #  try:
-        #  subproc.check_call(["chattr", "-i", "/boot/efi/loader/loader.conf"],
-                              #  stdout=stderr.buffer)
-    #  except subproc.CalledProcessError:
-        #  eprint("CHATTR FAILED ON loader.conf, setting octal permissions to 444")
-        #  os.chmod("/boot/efi/loader/loader.conf", 0o444)
-    install_command = ["dpkg", "--install"]
+    except FileNotFoundError:
+        # using new installation method
+        packages = [each for each in os.listdir("/repo") if ("systemd-boot" in each) and ("manager" not in each)]
+        os.chdir("/repo")
+        depends = subproc.check_output(["dpkg", "-f"] + packages + ["depends"])
+        depends = depends.decode()[:-1].split(", ")
+        depends = [depends[each[0]].split(" ")[0] for each in enumerate(depends)]
+        for each in os.listdir():
+            for each1 in depends:
+                if ((each1 in each) and (each not in packages)):
+                    packages.append(each)
+                    break
+        subproc.check_call(install_command + packages,
+                           stdout=stderr.buffer)
     packages = [each for each in os.listdir("/repo") if "systemd-boot-manager" in each]
     os.chdir("/repo")
     depends = subproc.check_output(["dpkg", "-f"] + packages + ["depends"])
