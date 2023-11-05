@@ -379,22 +379,28 @@ def _install_systemd_boot(release, root, distro, compat_mode):
     subproc.check_call(install_command + packages,
                           stdout=stderr.buffer)
     os.chdir("/")
+    # This lib didn't exist before we installed this package.
+    # So we can only now import it
+    import systemd_boot_manager as sdbm
+    eprint(f"INFO: Setting default boot entry to {distro}.conf")
+    sdbm.update_defaults_file(f"{distro}.conf")
+    with open(sdbm.ROOT_DEVICE_FILE, "w") as conf:
+            conf.write(root)
+    uuid = sdbm.get_UUID(uuid="uuid")
+    sdbm.set_settings("key", "uuid")
+    if not os.path.exists(sdb,.UUID_FILE):
+        with open(sdbm.UUID_FILE, "w+") as file:
+            file.write(uuid)
     if compat_mode:
-        subproc.check_call(["systemd-boot-manager", "--compat-mode=enable"],
-                              stdout=stderr.buffer)
+        sdbm.set_settings("compat_mode", True, False)
     subproc.check_call(["systemd-boot-manager", "-e"],
                           stdout=stderr.buffer)
-    subproc.check_call(["systemd-boot-manager", "--apply-loader-config"],
-                          stdout=stderr.buffer)
-    subproc.check_call(["systemd-boot-manager", "-r"],
-                          stdout=stderr.buffer)
+    if os.path.exists(sdbm.SD_LOADER_DIR + "/loader.conf"):
+        os.remove(sdbm.SD_LOADER_DIR + "/loader.conf")
+    sdbm.check_loader()
     subproc.check_call(["systemd-boot-manager",
                            "--enforce-default-entry=enable"],
                           stdout=stderr.buffer)
-    # This lib didn't exist before we installed this package.
-    # So we can only now import it
-    import systemd_boot_manager
-    systemd_boot_manager.update_defaults_file(distro + ".conf")
     subproc.check_call(["systemd-boot-manager", "-u"],
                           stdout=stderr.buffer)
     check_systemd_boot(release, root, distro)
