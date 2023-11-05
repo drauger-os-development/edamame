@@ -388,7 +388,7 @@ def _install_systemd_boot(release, root, distro, compat_mode):
             conf.write(root)
     uuid = sdbm.get_UUID(False, uuid="uuid")
     sdbm.set_settings("key", "uuid")
-    if not os.path.exists(sdb.UUID_FILE):
+    if not os.path.exists(sdbm.UUID_FILE):
         with open(sdbm.UUID_FILE, "w+") as file:
             file.write(uuid)
     if compat_mode:
