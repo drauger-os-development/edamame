@@ -362,7 +362,7 @@ def _install_systemd_boot(release, root, distro, compat_mode):
                     break
         subproc.check_call(install_command + packages,
                            stdout=stderr.buffer)
-    packages = [each for each in os.listdir("/repo") if "systemd-boot-manager" in each]
+    packages = [each for each in os.listdir("/repo") if ("systemd-boot-manager" in each) or ("efibootmgr" in each)]
     os.chdir("/repo")
     depends = subproc.check_output(["dpkg", "-f"] + packages + ["depends"])
     depends = depends.decode()[:-1].split(", ")
