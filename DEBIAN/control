@@ -1,6 +1,6 @@
 Package: system-installer
-Version: 2.6.6
-Maintainer: Thomas Castleman <contact@draugeros.org>
+Version: 2.6.7
+Maintainer: Thomas Castleman <batcastle@draugeros.org>
 Homepage: https://github.com/drauger-os-development/system-installer
 Section: admin
 Architecture: amd64

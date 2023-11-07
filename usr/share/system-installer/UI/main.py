@@ -1324,7 +1324,6 @@ Type. Minimum drives is: %s""" % (loops))
             if each["name"] == root_drive_dropdown.get_active_id():
                 if "children" in each:
                     parts = each["children"]
-                    break
         if parts == []:
             return
         setting = root_drive_dropdown.get_active_id()
@@ -1358,12 +1357,9 @@ Type. Minimum drives is: %s""" % (loops))
         parts = []
         for each in drives:
             if each["name"] == home_drive_dropdown.get_active_id():
-                if each["fstype"] is not None:
-                    parts.append(each)
                 if "children" in each:
                     for each1 in each["children"]:
                         parts.append(each1)
-                    break
         setting = home_drive_dropdown.get_active_id()
         self.home_parts.set_active_id(None)
         self.home_parts.remove_all()
@@ -1398,7 +1394,6 @@ Type. Minimum drives is: %s""" % (loops))
             if each["name"] == swap_drive_dropdown.get_active_id():
                 if "children" in each:
                     parts = each["children"]
-                    break
         setting = swap_drive_dropdown.get_active_id()
         self.swap_parts.set_active_id(None)
         self.swap_parts.remove_all()
@@ -1430,7 +1425,6 @@ Type. Minimum drives is: %s""" % (loops))
             if each["name"] == efi_drive_dropdown.get_active_id():
                 if "children" in each:
                     parts = each["children"]
-                    break
         if parts == []:
             return
         setting = efi_drive_dropdown.get_active_id()
