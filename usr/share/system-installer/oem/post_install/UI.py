@@ -3,7 +3,7 @@
 #
 #  main.py
 #
-#  Copyright 2023 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2023 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -258,11 +258,12 @@ Region""")
         self.grid.attach(label3, 2, 4, 1, 1)
 
         self.time_menu = Gtk.ComboBoxText.new()
-        zones = ["Africa", "America", "Antarctica", "Arctic", "Asia",
-                 "Atlantic", "Australia", "Brazil", "Canada", "Chile",
-                 "Europe", "Indian", "Mexico", "Pacific", "US"]
-        for each6 in zones:
-            self.time_menu.append(each6, each6)
+        zones_pre = os.listdir("/usr/share/zoneinfo")
+        zones = []
+        for each in zones_pre:
+            if os.path.isdir(f"/usr/share/zoneinfo/{each}"):
+                if each not in ("right", "posix"):
+                    self.time_menu.append(each, each)
         self.time_menu.connect("changed", self.update_subregion)
         self.time_menu = self._set_default_margins(self.time_menu)
         self.grid.attach(self.time_menu, 2, 5, 1, 1)
@@ -360,6 +361,7 @@ Sub-Region""")
         model = keyboards["models"]
         for each8 in model:
             self.model_menu.append(model[each8], each8)
+        self.model_menu.set_active_id("pc105")
         self.model_menu = self._set_default_margins(self.model_menu)
         self.grid.attach(self.model_menu, 2, 2, 3, 1)
 
