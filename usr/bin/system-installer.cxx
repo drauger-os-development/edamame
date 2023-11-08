@@ -46,7 +46,7 @@
 
 using namespace std;
 
-str VERSION = "2.6.8";
+str VERSION = "2.7.0";
 str R = "\033[0;31m";
 str G = "\033[0;32m";
 str Y = "\033[1;33m";

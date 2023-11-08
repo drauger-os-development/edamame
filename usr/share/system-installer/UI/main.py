@@ -275,11 +275,13 @@ class Main(Gtk.Window):
         response = dialog.run()
         if response == Gtk.ResponseType.OK:
             self.data = dialog.get_filename()
+            dialog.destroy()
+            self.complete()
         elif response == Gtk.ResponseType.CANCEL:
             self.data = 1
+            dialog.destroy()
+            self.exit("clicked")
 
-        dialog.destroy()
-        self.exit("clicked")
 
     def add_filters(self, dialog):
         """Add Filters to Quick Install File Selection Window"""
