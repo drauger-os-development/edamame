@@ -134,7 +134,7 @@ try:
 \thas a JSON Syntax Error. Please correct this and try again.\t
 \tIf your problem persists, please create an issue on our Github.\t
 """)
-        sys.exit(2)
+                sys.exit(2)
         elif SETTINGS.split("/")[-1][-7:] == ".tar.xz":
             tar_file = tar.open(name=SETTINGS)
             tar_file.extractall(path=work_dir)
