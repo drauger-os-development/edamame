@@ -29,13 +29,14 @@ import os
 def unique(starting_list):
     """Function to get a list down to only unique elements"""
     # initialize a null list
-    unique_list = []
+    # unique_list = []
     # traverse for all elements
-    for each in starting_list:
+    # for each in starting_list:
         # check if exists in unique_list or not
-        if each not in unique_list:
-            unique_list.append(each)
-    return unique_list
+        # if each not in unique_list:
+            # unique_list.append(each)
+    # return unique_list
+    return list(set(starting_list))
 
 
 def eprint(*args, **kwargs):
