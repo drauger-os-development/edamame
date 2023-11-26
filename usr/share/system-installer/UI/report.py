@@ -3,7 +3,7 @@
 #
 #  report.py
 #
-#  Copyright 2023 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2023 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -374,8 +374,14 @@ If you would like a response, please leave:
     def preview_message(self, widget):
         """Preview Installation Report"""
         self.clear_window()
-        with open(self.path, "r") as mail:
-            text = mail.read()
+        try:
+            with open(self.path, "r") as mail:
+                text = mail.read()
+        except FileNotFoundError:
+            # this is handled during file generation, so this should never be used
+            path = getenv("HOME") + "/installation_report.txt"
+            with open(path) as mail:
+                text = mail.read()
         if len(text.split("\n")) > 36:
             self.scrolling = True
             self.set_default_size(775, 700)
@@ -419,7 +425,7 @@ If you would like a response, please leave:
         """write installation report to disk"""
         report_code = time.time()
         output = {}
-        self.path = "/var/log/installation_report-%s.dosir" % (report_code)
+        self.path = "/tmp/installation_report-%s.dosir" % (report_code)
         output['Installation Report Code'] = report_code
         try:
             ver = check_output(["system-installer", "-v"]).decode().split("\n")
@@ -469,7 +475,8 @@ If you would like a response, please leave:
             with open(self.path, "w+") as message:
                 json.dump(output, message, indent=1)
         except PermissionError:
-            with open(getenv("HOME") + "/installation_report.txt", "w+") as message:
+            self.path = getenv("HOME") + "/installation_report.txt"
+            with open(self.path, "w+") as message:
                 json.dump(output, message, indent=1)
 
     def message_accept(self, widget):
