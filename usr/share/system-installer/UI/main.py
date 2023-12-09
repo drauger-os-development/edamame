@@ -275,11 +275,13 @@ class Main(Gtk.Window):
         response = dialog.run()
         if response == Gtk.ResponseType.OK:
             self.data = dialog.get_filename()
+            dialog.destroy()
+            self.complete()
         elif response == Gtk.ResponseType.CANCEL:
             self.data = 1
+            dialog.destroy()
+            self.exit("clicked")
 
-        dialog.destroy()
-        self.exit("clicked")
 
     def add_filters(self, dialog):
         """Add Filters to Quick Install File Selection Window"""
@@ -1324,7 +1326,6 @@ Type. Minimum drives is: %s""" % (loops))
             if each["name"] == root_drive_dropdown.get_active_id():
                 if "children" in each:
                     parts = each["children"]
-                    break
         if parts == []:
             return
         setting = root_drive_dropdown.get_active_id()
@@ -1358,12 +1359,9 @@ Type. Minimum drives is: %s""" % (loops))
         parts = []
         for each in drives:
             if each["name"] == home_drive_dropdown.get_active_id():
-                if each["fstype"] is not None:
-                    parts.append(each)
                 if "children" in each:
                     for each1 in each["children"]:
                         parts.append(each1)
-                    break
         setting = home_drive_dropdown.get_active_id()
         self.home_parts.set_active_id(None)
         self.home_parts.remove_all()
@@ -1398,7 +1396,6 @@ Type. Minimum drives is: %s""" % (loops))
             if each["name"] == swap_drive_dropdown.get_active_id():
                 if "children" in each:
                     parts = each["children"]
-                    break
         setting = swap_drive_dropdown.get_active_id()
         self.swap_parts.set_active_id(None)
         self.swap_parts.remove_all()
@@ -1430,7 +1427,6 @@ Type. Minimum drives is: %s""" % (loops))
             if each["name"] == efi_drive_dropdown.get_active_id():
                 if "children" in each:
                     parts = each["children"]
-                    break
         if parts == []:
             return
         setting = efi_drive_dropdown.get_active_id()
@@ -2007,11 +2003,12 @@ Region""")
 
         time_zone = self.data["TIME_ZONE"].split("/")
         self.time_menu = Gtk.ComboBoxText.new()
-        zones = ["Africa", "America", "Antarctica", "Arctic", "Asia",
-                 "Atlantic", "Australia", "Brazil", "Canada", "Chile",
-                 "Europe", "Indian", "Mexico", "Pacific", "US"]
-        for each6 in zones:
-            self.time_menu.append(each6, each6)
+        zones_pre = os.listdir("/usr/share/zoneinfo")
+        zones = []
+        for each in zones_pre:
+            if os.path.isdir(f"/usr/share/zoneinfo/{each}"):
+                if each not in ("right", "posix"):
+                    self.time_menu.append(each, each)
         if len(time_zone) > 0:
             self.time_menu.set_active_id(time_zone[0])
         self.time_menu.connect("changed", self.update_subregion)

@@ -3,7 +3,7 @@
 #
 #  engine.py
 #
-#  Copyright 2023 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2023 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -124,16 +124,34 @@ try:
         sys.exit(2)
     elif os.path.exists(SETTINGS):
         if SETTINGS.split("/")[-1][-5:] == ".json":
-            with open(SETTINGS, "r") as quick_install_file:
-                SETTINGS = json.load(quick_install_file)
+            try:
+                with open(SETTINGS, "r") as quick_install_file:
+                    SETTINGS = json.load(quick_install_file)
+            except json.decoder.JSONDecodeError:
+                UI.error.show_error("""
+\t<b>JSON File Error</b>\t
+\tWe're sorry. The Quick Install file you provided\t
+\thas a JSON Syntax Error. Please correct this and try again.\t
+\tIf your problem persists, please create an issue on our Github.\t
+""")
+                sys.exit(2)
         elif SETTINGS.split("/")[-1][-7:] == ".tar.xz":
             tar_file = tar.open(name=SETTINGS)
             tar_file.extractall(path=work_dir)
             tar_file.close()
             if os.path.exists(work_dir + "/settings/installation-settings.json"):
-                with open(work_dir + "/settings/installation-settings.json",
-                          "r") as quick_install_file:
-                    SETTINGS = json.load(quick_install_file)
+                try:
+                    with open(work_dir + "/settings/installation-settings.json",
+                              "r") as quick_install_file:
+                        SETTINGS = json.load(quick_install_file)
+                except json.decoder.JSONDecodeError:
+                    UI.error.show_error("""
+\t<b>JSON File Error</b>\t
+\tWe're sorry. The Quick Install file you provided\t
+\thas a JSON Syntax Error. Please correct this and try again.\t
+\tIf your problem persists, please create an issue on our Github.\t
+""")
+                sys.exit(2)
             try:
                 net_settings = os.listdir(work_dir + "/settings/network-settings")
                 if len(net_settings) > 0:

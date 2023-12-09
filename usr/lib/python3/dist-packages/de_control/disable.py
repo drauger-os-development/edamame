@@ -3,7 +3,7 @@
 #
 #  disable.py
 #
-#  Copyright 2022 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2023 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -23,14 +23,20 @@
 #
 """Disable DE/WM or DE/WM features"""
 import subprocess
+import de_control._common as com
 
 def immersion():
     """disable Immersion within DE.
 
-    This may involve enabliong desktop icons, re-adding panels, and more.
+    This may involve enabling desktop icons, re-adding panels, and more.
     """
-    # restart panel
-    subprocess.Popen(["xfce4-panel"])
-    # bring back desktop icons
-    subprocess.Popen(["xfconf-query", "--channel", "xfce4-desktop",
-                      "--property", "/desktop-icons/style", "--set", "2"])
+    de = com.get_de()
+    if de == "XFCE":
+        # restart panel
+        subprocess.Popen(["xfce4-panel"])
+        # bring back desktop icons
+        subprocess.Popen(["xfconf-query", "--channel", "xfce4-desktop",
+                          "--property", "/desktop-icons/style", "--set", "2"])
+    elif de == "KDE":
+        # TODO: Add KDE Support
+        pass

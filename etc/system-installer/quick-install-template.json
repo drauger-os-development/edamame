@@ -13,6 +13,7 @@
 		"EXTRAS":true,
 		"UPDATES":false,
 		"LOGIN":false,
+        "COMPAT_MODE": false,
 		"MODEL":"Acer laptop",
 		"LAYOUT":"English(US)",
 		"VARIENT":"English(US) - English(US, euro on 5)",

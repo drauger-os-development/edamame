@@ -3,7 +3,7 @@
 #
 #  enable.py
 #
-#  Copyright 2022 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2023 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -24,16 +24,22 @@
 """Enable DE/WM or DE/WM features"""
 import subprocess
 import psutil
+import de_control._common as com
 
 def immersion():
     """Enable Immersion within DE.
 
     This may involve disabling desktop icons, removing panels, and more.
     """
-    subprocess.Popen(["xfconf-query", "--channel", "xfce4-desktop",
-                      "--property", "/desktop-icons/style", "--set", "0"])
-    # Kill Xfce4 Panel, makes this more emersive
-    for proc in psutil.process_iter():
-        # check whether the process name matches
-        if proc.name() == "xfce4-panel":
-            proc.terminate()
+    de = com.get_de()
+    if de == "XFCE":
+        subprocess.Popen(["xfconf-query", "--channel", "xfce4-desktop",
+                          "--property", "/desktop-icons/style", "--set", "0"])
+        # Kill Xfce4 Panel, makes this more emersive
+        for proc in psutil.process_iter():
+            # check whether the process name matches
+            if proc.name() == "xfce4-panel":
+                proc.terminate()
+    elif de == "KDE":
+        # TODO: Add KDE Support
+        pass

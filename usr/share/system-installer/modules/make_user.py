@@ -90,7 +90,7 @@ def make_user(username):
         passwd_file.write("\n".join(passwd))
     # Make sure groups are okay
     default_groups = ["adm", "sudo", "cdrom", "audio",
-                      "dip", "plugdev", "lpadmin"]
+                      "dip", "plugdev"]
     subprocess.check_output(["groupmod", "--new-name", username, "live"])
     subprocess.check_output(["usermod", "-G", ",".join(default_groups),
                              "-a", username])
