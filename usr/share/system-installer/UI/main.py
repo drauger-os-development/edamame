@@ -642,7 +642,7 @@ class Main(Gtk.Window):
             devices.append(each4)
         devices = [x for x in devices if x != []]
         for each4 in devices:
-            if each4["name"] == "sr0":
+            if "sr" in each4["name"]:
                 devices.remove(each4)
         for each4 in enumerate(devices):
             del devices[each4[0]]["type"]
