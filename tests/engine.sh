@@ -3,7 +3,7 @@
 #
 #  engine.sh
 #
-#  Copyright 2022 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2023 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ Y='\033[1;33m'
 NC='\033[0m'
 echo -e "$Y \bPYLINT: engine.py $NC"
 {
-	pylint ../usr/share/system-installer/engine.py 2>&1
+	pylint ../usr/share/edamame/engine.py 2>&1
 } && {
 	echo -e "-$G ENGINE.PY: GOOD"
 } || {

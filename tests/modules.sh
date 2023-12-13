@@ -3,7 +3,7 @@
 #
 #  modules.sh
 #
-#  Copyright 2022 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2023 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ R='\033[0;31m'
 G='\033[0;32m'
 Y='\033[1;33m'
 NC='\033[0m'
-cd ../usr/share/system-installer/modules
+cd ../usr/share/edamame/modules
 MODSH_LIST=$(ls *.sh)
 MODPY_LIST=$(ls *.py)
 for each in $MODSH_LIST; do

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC
+ "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+ "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<policyconfig>
+
+  <vendor>Drauger OS Development</vendor>
+  <vendor_url>https://draugeros.org</vendor_url>
+
+  <action id="org.drauger.edamame.policy">
+    <description>Use the PolicyKit backend to allow Edamame administrative access</description>
+    <message>Edamame needs Admin Privleges to install to your internal drive. Default Password is "toor".</message>
+    <message xml:lang="en_US">Edamame needs Admin Privleges to install to your internal drive. Default Password is "toor".</message>
+    <message xml:lang="en_AU">Edamame needs Admin Privleges to install to your internal drive. Default Password is "toor".</message>
+    <message xml:lang="en_GB">Edamame needs Admin Privleges to install to your internal drive. Default Password is "toor".</message>
+    <icon_name>alert</icon_name>
+    <defaults>
+      <allow_any>auth_admin</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>auth_admin</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/share/edamame/engine.py</annotate>
+    <annotate key="org.freedesktop.policykit.exec.allow_gui">true</annotate>
+  </action>
+
+</policyconfig>

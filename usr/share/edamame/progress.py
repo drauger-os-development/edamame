@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-#  __init__.py
+#  progress.py
 #
 #  Copyright 2023 Thomas Castleman <batcastle@draugeros.org>
 #
@@ -21,8 +21,5 @@
 #  MA 02110-1301, USA.
 #
 #
-"""DE/WM control lib for Edamame."""
-import de_control.enable as enable
-import de_control.disable as disable
-import de_control.modify as modify
-import de_control._common as _common
+import UI
+UI.progress.show_progress()

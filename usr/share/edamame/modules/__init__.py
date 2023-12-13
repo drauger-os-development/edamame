@@ -21,8 +21,15 @@
 #  MA 02110-1301, USA.
 #
 #
-"""DE/WM control lib for Edamame."""
-import de_control.enable as enable
-import de_control.disable as disable
-import de_control.modify as modify
-import de_control._common as _common
+"""Import modules as proper names"""
+import modules.master as master
+import modules.make_swap as make_swap
+import modules.auto_login_set as auto_login_set
+import modules.set_locale as set_locale
+import modules.set_time as set_time
+import modules.install_updates as install_updates
+import modules.set_wallpaper as set_wallpaper
+import modules.make_user as make_user
+import modules.purge as purge
+import modules.verify_install as verify_install
+import modules.common as common

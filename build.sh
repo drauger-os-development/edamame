@@ -20,7 +20,7 @@ mkdir ../"$FOLDER"
 # Instead of compiling, we are building a tar.xz archive of the latest kernel package
 # Don't make the archive if --pool passed
 if [ "$OPTIONS" != "--pool" ]; then
-	cd usr/share/system-installer
+	cd usr/share/edamame
 	echo -e "\t###\tDOWNLOADING\t###\t"
 	rsync -vr "$PACK_URL" kernel
 	rsync -vr "$META_URL" kernel
@@ -71,7 +71,7 @@ else
 	echo "Input not recognized. Defaulting to Python 3.10"
 fi
 {
-	g++ -fPIE -m64 -o system-installer system-installer.cxx $(python"${vert}"-config --ldflags --cflags --embed)
+	g++ -fPIE -m64 -o edamame edamame.cxx $(python"${vert}"-config --ldflags --cflags --embed)
 } || {
 	echo "Build failed. Try making sure you have 'python${vert}-dev' and 'libpython${vert}-dev' installed" 1>&2
 	exit 2
@@ -129,12 +129,12 @@ base="$PWD"
 cd ..
 #DELETE STUFF HERE
 if [ "$OPTIONS" != "--pool" ]; then
-	rm "$base"/usr/share/system-installer/kernel.tar.xz
+	rm "$base"/usr/share/edamame/kernel.tar.xz
 fi
 # delete binary files from repo
-rm "$base"/usr/bin/system-installer
+rm "$base"/usr/bin/edamame
 # delete C++ source from package
-rm "$FOLDER"/usr/bin/system-installer.cxx
+rm "$FOLDER"/usr/bin/edamame.cxx
 # delete Python cache files
 find "$FOLDER" -maxdepth 10 -type d -name __pycache__ -exec rm -rfv {} \;
 #build the shit

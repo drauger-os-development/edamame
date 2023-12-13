@@ -4,7 +4,7 @@
 - [ ] Document how to conduct tests
 - [ ] Include testing in the development page as a "to do" checklist before creating a pull request
 
-# system-installer
+# Edamame
 
 ## auto_partitioner.py
 | Function Name | Pylint | Unit/Doc Tests | Type Hinting |

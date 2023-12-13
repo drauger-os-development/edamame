@@ -21,8 +21,10 @@
 #  MA 02110-1301, USA.
 #
 #
-"""DE/WM control lib for Edamame."""
-import de_control.enable as enable
-import de_control.disable as disable
-import de_control.modify as modify
-import de_control._common as _common
+"""UI for Edamame"""
+import UI.confirm as confirm
+import UI.error as error
+import UI.main as main
+import UI.progress as progress
+import UI.report as report
+import UI.success as success

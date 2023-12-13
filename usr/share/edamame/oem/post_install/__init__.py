@@ -21,8 +21,6 @@
 #  MA 02110-1301, USA.
 #
 #
-"""DE/WM control lib for Edamame."""
-import de_control.enable as enable
-import de_control.disable as disable
-import de_control.modify as modify
-import de_control._common as _common
+"""Configure an OEM installation"""
+import oem.post_install.UI as UI
+import oem.post_install.configure as configure
