@@ -122,7 +122,7 @@ def verify(username, root, distro):
         if status in (False, None):
             if status is None:
                 add_boot_entry(root, distro)
-                set_default_entry(disto)
+                set_default_entry(distro)
     cache = apt.cache.Cache()
     cache.open()
     if username != "drauger-user":
