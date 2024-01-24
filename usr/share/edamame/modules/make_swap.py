@@ -3,7 +3,7 @@
 #
 #  make_swap.py
 #
-#  Copyright 2023 Thomas Castleman <batcastle@draugeros.org>
+#  Copyright 2024 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ def make_swap():
     # get data we need to get total system memory
     swap = mem.total
     # you would think more threads would make it use more
-    # CPU time and write faster but testing suggestes otherwise
+    # CPU time and write faster but testing suggests otherwise
     # testing says once you hit the same number of threads
     # the CPU has, there's no more you can get
     swap = round((swap + ((swap / 1024 ** 3) ** 0.5) * 1024 ** 3))
