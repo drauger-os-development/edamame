@@ -69,7 +69,7 @@ def set_default_entry(distro):
         else:
             del entries[each]
     for each in enumerate(entries):
-        entries[each[0]][1] = " ".join(entries[each[0]][1:])
+        entries[each[0]][1] = " ".join(entries[each[0]][1:]).split('\t')[0]
         if len(entries[each[0]]) > 2:
             del entries[each[0]][2:]
         entries[each[0]][0] = entries[each[0]][0][4:-1]
@@ -82,8 +82,8 @@ def set_default_entry(distro):
     if code == "":
         __eprint__("\t\t\t### WARNING ###")
         __eprint__("SYSTEMD-BOOT DOES NOT APPEAR TO BE ADDED TO THE EFI BOOT ORDER.")
-        __eprint__(f"entries data structure: {entries}")
-        __eprint__(f"Boot entry code: {code}")
+        #__eprint__(f"entries data structure: {entries}")
+        #__eprint__(f"Boot entry code: {code}")
     del entries[0][1][entries[0][1].index(code)]
     entries[0][1].insert(0, code)
     order = ",".join(entries[0][1])
