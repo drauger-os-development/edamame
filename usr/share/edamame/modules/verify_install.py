@@ -58,9 +58,16 @@ def set_default_entry(distro):
     """Set default boot entry"""
     entries = subproc.check_output(["efibootmgr"]).decode().split("\n")
     entries = [each.split(" ") for each in entries]
-    del entries[0]
-    del entries[0]
-    del entries[-1]
+    for each in range(len(entries) - 1, -1, -1):
+        if entries[each] == [""]:
+            del entries[each]
+            continue
+        if entries[each][0][:4] == "Boot":
+            if not entries[each][0][4].isnumeric():
+                if entries[each][0][:9] != "BootOrder":
+                    del entries[each]
+        else:
+            del entries[each]
     for each in enumerate(entries):
         entries[each[0]][1] = " ".join(entries[each[0]][1:])
         if len(entries[each[0]]) > 2:
@@ -72,6 +79,9 @@ def set_default_entry(distro):
         if each[1] in ("UEFI OS", "Linux Boot Manager", distro):
             code = each[0]
             break
+    if code == "":
+        __eprint__("\t\t\t### WARNING ###")
+        __eprint__("SYSTEMD-BOOT DOES NOT APPEAR TO BE ADDED TO THE EFI BOOT ORDER.")
     del entries[0][1][entries[0][1].index(code)]
     entries[0][1].insert(0, code)
     order = ",".join(entries[0][1])
