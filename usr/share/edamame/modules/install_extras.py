@@ -27,6 +27,7 @@ from sys import stderr
 import apt
 import subprocess as subproc
 import urllib3
+import os
 
 import modules.purge as purge
 
@@ -137,6 +138,7 @@ def install_extras():
         else:
             install_list.append("nvidia-driver-latest")
     # Install everything we want
+    os.environ["DEBIAN_FRONTEND"] = "noninteractive"
     subproc.check_call(["apt-get", "install", "-o", "Dpkg::Options::='--force-confold'", "--force-yes", "-y"] + install_list)
     # Purge all the stuff we don't want
     purge.purge_package("gstreamer1.0-fluendo-mp3")
