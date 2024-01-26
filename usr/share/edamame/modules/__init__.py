@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-#  disable.py
+#  __init__.py
 #
 #  Copyright 2024 Thomas Castleman <batcastle@draugeros.org>
 #
@@ -21,22 +21,15 @@
 #  MA 02110-1301, USA.
 #
 #
-"""Disable DE/WM or DE/WM features"""
-import subprocess
-import de_control._common as com
-
-def immersion():
-    """disable Immersion within DE.
-
-    This may involve enabling desktop icons, re-adding panels, and more.
-    """
-    de = com.get_de()
-    if de == "XFCE":
-        # restart panel
-        subprocess.Popen(["xfce4-panel"])
-        # bring back desktop icons
-        subprocess.Popen(["xfconf-query", "--channel", "xfce4-desktop",
-                          "--property", "/desktop-icons/style", "--set", "2"])
-    elif de == "KDE":
-        # TODO: Add KDE Support
-        pass
+"""Import modules as proper names"""
+import modules.master as master
+import modules.make_swap as make_swap
+import modules.auto_login_set as auto_login_set
+import modules.set_locale as set_locale
+import modules.set_time as set_time
+import modules.install_updates as install_updates
+import modules.set_wallpaper as set_wallpaper
+import modules.make_user as make_user
+import modules.purge as purge
+import modules.verify_install as verify_install
+import modules.common as common

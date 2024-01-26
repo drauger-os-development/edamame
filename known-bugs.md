@@ -11,3 +11,7 @@ List of known bugs
 		- What few systems do have enough drives for this issue to arise are either;
 			- A server (which Drauger OS should not be running on)
 			- A SUPER high-end machine which likely supports UEFI
+			
+- Wi-Fi passwords stored in a KDE Wallet Keychain do not get copied to a newly installed system
+	- **WORK AROUND** - When adding a Wi-Fi password to a live system, have the Wi-Fi network be added for the entire system. This will ensure the network configuration will be carried over
+	- **FIX** - Disable the KDE Wallet Subsystem before building your ISO. This will force all Wi-Fi networks to be added for the entire system.

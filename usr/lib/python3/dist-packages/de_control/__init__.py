@@ -3,7 +3,7 @@
 #
 #  __init__.py
 #
-#  Copyright 2023 Thomas Castleman <batcastle@draugeros.org>
+#  Copyright 2024 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 #  MA 02110-1301, USA.
 #
 #
-"""DE/WM control lib for system-installer."""
+"""DE/WM control lib for Edamame."""
 import de_control.enable as enable
 import de_control.disable as disable
 import de_control.modify as modify

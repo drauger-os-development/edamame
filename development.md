@@ -1,6 +1,6 @@
 # Development environment setup
 
-The following packages are required in order to do development for `system-installer`. Most of these packages are available in most distributions of Linux and many come pre-installed in some distros.
+The following packages are required in order to do development for `edamame`. Most of these packages are available in most distributions of Linux and many come pre-installed in some distros.
 
  * `python3`
  * `gir1.2-gtk-3.0`
@@ -8,6 +8,8 @@ The following packages are required in order to do development for `system-insta
  * `python3-parted`
  * `python3-gnupg`
  * `python3-dnspython`
+ * `python3-dev`
+ * `libpython3-dev`
 
 The following are not required but may help out
  * `arch-install-scripts`
@@ -17,7 +19,7 @@ The following are not required but may help out
 
  To install all of the dependencies at once, use
  ```bash
- sudo apt install -y python3 gir1.2-gtk-3.0 p7zip-full python3-parted python3-dev python3-gnupg arch-install-scripts coreutils squashfs-tools pylint
+ sudo apt install -y python3 gir1.2-gtk-3.0 p7zip-full python3-parted python3-dev python3-gnupg arch-install-scripts coreutils squashfs-tools pylint libpython3-dev
  ```
 
 # How to get started
@@ -25,9 +27,9 @@ The following are not required but may help out
 Do you know some programming and want to help out, but haven't worked on someone else's codebase before?  This section is here for you.  These are some recommended steps on how to contribute without diving into specifics.
 
 1. Create a Github account (if necessary)
-    * It is strongly recommended to protect your github account with 2FA to protect us from your account being compromized.
+    * It is strongly recommended to protect your GitHub account with 2FA to protect us from your account being compromised.
     * SMS 2FA is not recommended
-2. Download and install a git management tool.  
+2. Download and install a git management tool.
     * [Gitkraken](https://www.gitkraken.com) is recommended 
     * The rest of the guide assumes you are using Gitkraken.
 3. Go to preferences==>SSH.  Generate a new private/public key.
@@ -38,10 +40,10 @@ Do you know some programming and want to help out, but haven't worked on someone
 8. Click on code ==> SSH and copy the URL provided
 9. Go into Gitkraken and clone your forked repository using the SSH URL
 10. When viewing your repository in Gitkraken, find the dev branch (remote) and have Gitkraken checkout.  You should be checked out to the current dev branch of your repository
-    * While you are working, changes might be made to the Drauger OS repository you forked.  
+    * While you are working, changes might be made to the Drauger OS repository you forked.
     * If changes affect the files you are working on, you may need to rebase from your repository's page.  Be aware that your work may be lost, so backup your working files.
-    * If you rebase, don't forget to pull from gitkraken.
-11. Make the desired changes and commits.  
+    * If you rebase, don't forget to pull from Gitkraken.
+11. Make the desired changes and commits.
 12. Push your commits to your repository as necessary
 13. When you are finished making your changes, run through the pre-pull checklist
 14. Go to the pull requests section of the Drauger OS repository and generate a pull request
@@ -63,7 +65,7 @@ A good rule of thumb is if your Python code gets a score of `7.5` or higher from
 # Unit test instructions
 _more coming soon_
 
-You can find a number of tests to make sure your programs work correctly in the `tests` directory. These are currently tailored to how these programs are written, i.e. they work Python scripts. None of the UI is tested yet. Feel free to write more tests and request their addition in a pull request.
+You can find a number of tests to make sure your programs work correctly in the `tests` directories. These are currently tailored to how these programs are written, i.e. they work for Python scripts. None of the UI is tested yet. Feel free to write more tests and request their addition in a pull request.
 
 If, after modifying a function, the unit test fails, fix the issue in the function.  Don't modify the unit test unless the functions interface has changed
 

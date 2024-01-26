@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Edamame
+Version=2.7.5
+Exec=/usr/bin/edamame --boot-time
+Comment=Install Linux to your internal drive
+Type=Application
+Terminal=false
+StartupNotify=true
+Encoding=UTF-8
+Categories=Application;GTK;System;Utility;
+Name[en_US]=edamame.desktop

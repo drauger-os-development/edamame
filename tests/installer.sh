@@ -3,7 +3,7 @@
 #
 #  installer.sh
 #
-#  Copyright 2022 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2024 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ Y='\033[1;33m'
 NC='\033[0m'
 echo -e "$Y \PYLINT: installer.py $NC"
 {
-	pylint ../usr/share/system-installer/installer.py 2>&1
+	pylint ../usr/share/edamame/installer.py 2>&1
 } && {
 	echo -e "-$G INSTALLER.PY: GOOD"
 } || {

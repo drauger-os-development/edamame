@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-#  disable.py
+#  install_updates.py
 #
 #  Copyright 2024 Thomas Castleman <batcastle@draugeros.org>
 #
@@ -21,22 +21,31 @@
 #  MA 02110-1301, USA.
 #
 #
-"""Disable DE/WM or DE/WM features"""
-import subprocess
-import de_control._common as com
+"""Install system updates from apt"""
+from __future__ import print_function
+from sys import stderr
+import apt
 
-def immersion():
-    """disable Immersion within DE.
+import modules.purge as purge
 
-    This may involve enabling desktop icons, re-adding panels, and more.
-    """
-    de = com.get_de()
-    if de == "XFCE":
-        # restart panel
-        subprocess.Popen(["xfce4-panel"])
-        # bring back desktop icons
-        subprocess.Popen(["xfconf-query", "--channel", "xfce4-desktop",
-                          "--property", "/desktop-icons/style", "--set", "2"])
-    elif de == "KDE":
-        # TODO: Add KDE Support
-        pass
+
+# Make it easier for us to print to stderr
+def __eprint__(*args, **kwargs):
+    """Make it easier for us to print to stderr"""
+    print(*args, file=stderr, **kwargs)
+
+
+def update_system():
+    """update system through package manager"""
+    __eprint__("    ###    install_updates.py STARTED    ###    ")
+    cache = apt.cache.Cache()
+    cache.update()
+    cache.open()
+    try:
+        cache.upgrade()
+    except apt.apt_pkg.Error:
+        print("ERROR: Possible held packages. Update may be partially completed.")
+    cache.commit()
+    purge.autoremove(cache)
+    cache.close()
+    __eprint__("    ###    install_updates.py CLOSED    ###    ")
