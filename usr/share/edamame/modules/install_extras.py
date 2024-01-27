@@ -139,8 +139,12 @@ def install_extras():
             install_list.append("nvidia-driver-latest")
     # Install everything we want
     os.environ["DEBIAN_FRONTEND"] = "noninteractive"
-    subproc.check_call(["apt-get", "install", "-o", "Dpkg::Options::='--force-confold'", "--force-yes", "-y"] + install_list)
+    with cache.actiongroup():
+        for each in install_list:
+            cache[each].mark_install()
+    #subproc.check_call(["apt-get", "install", "-o", "Dpkg::Options::='--force-confold'", "--force-yes", "-y"] + install_list)
     # Purge all the stuff we don't want
+    cache.commit()
     purge.purge_package("gstreamer1.0-fluendo-mp3")
     cache.close()
     __eprint__("    ###    install_extras.py CLOSED    ###    ")
