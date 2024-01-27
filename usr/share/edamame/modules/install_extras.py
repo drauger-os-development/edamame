@@ -97,7 +97,7 @@ def install_extras():
     # Make sure our cache is up to date and open
     cache = apt.cache.Cache()
     cache.update()
-    # cache.open()
+    cache.open()
     NVIDIA = False
     # Check PCI list
     pci = subproc.check_output(["lspci", "-q"]).decode()
