@@ -127,7 +127,10 @@ def verify(username, root, distro):
     try:
         os.remove("/home/" + username + "/Desktop/edamame.desktop")
     except FileNotFoundError:
-        pass
+        try:
+            os.remove("/home/" + username + "/Desktop/system-installer.desktop")
+        except FileNotFoundError:
+            pass
     if auto_partitioner.is_EFI():
         # on UEFI, set as default entry
         status = is_default_entry(distro)
