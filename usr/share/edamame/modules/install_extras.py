@@ -27,6 +27,7 @@ from sys import stderr
 import apt
 import subprocess as subproc
 import urllib3
+import os
 
 import modules.purge as purge
 
@@ -96,7 +97,7 @@ def install_extras():
     # Make sure our cache is up to date and open
     cache = apt.cache.Cache()
     cache.update()
-    # cache.open()
+    cache.open()
     NVIDIA = False
     # Check PCI list
     pci = subproc.check_output(["lspci", "-q"]).decode()
@@ -137,8 +138,13 @@ def install_extras():
         else:
             install_list.append("nvidia-driver-latest")
     # Install everything we want
-    subproc.check_call(["apt-get", "install", "-o", "Dpkg::Options::='--force-confold'", "--force-yes", "-y"] + install_list)
+    os.environ["DEBIAN_FRONTEND"] = "noninteractive"
+    with cache.actiongroup():
+        for each in install_list:
+            cache[each].mark_install()
+    #subproc.check_call(["apt-get", "install", "-o", "Dpkg::Options::='--force-confold'", "--force-yes", "-y"] + install_list)
     # Purge all the stuff we don't want
+    cache.commit()
     purge.purge_package("gstreamer1.0-fluendo-mp3")
     cache.close()
     __eprint__("    ###    install_extras.py CLOSED    ###    ")
