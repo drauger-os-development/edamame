@@ -28,6 +28,7 @@ import apt
 import subprocess as subproc
 import urllib3
 import os
+import json
 
 import modules.purge as purge
 
@@ -80,7 +81,7 @@ def determine_driver(card):
 def detect_nvidia():
     """Detect what NVIDIA card is in use"""
     try:
-        pci = subproc.check_output("lspci -qmm | grep 'NVIDIA' | grep -E 'VGA|3D'", shell=True).decode().split('\n')
+        pci = subproc.check_output("lspci -qmm | grep -i 'nvidia' | grep -E 'VGA|3D'", shell=True).decode().split('\n')
     except subproc.CalledProcessError:
         return None
     pci = pci[0]
@@ -89,6 +90,30 @@ def detect_nvidia():
         index = pci.split().index("Rev.")
         pci = " ".join(pci.split()[:index])
     return pci
+
+
+def detect_realtek():
+    """Detect what Realtek card is in use"""
+    try:
+        pci = subproc.check_output("lspci -qmm | grep -i 'realtek'", shell=True).decode().split('\n')[0]
+    except subproc.CalledProcessError:
+        return None
+    toggle = False
+    start = 0
+    count = 2
+    device = None
+    for each in enumerate(pci):
+        if (not toggle) and (each[1] == '"'):
+            toggle = True
+            start = each[0]
+        elif (toggle) and (each[1] == '"'):
+            toggle = False
+            if count == 0:
+               device = pci[start + 1:each[0]].split(" ")[0].lower()
+               break
+            else:
+                count -= 1
+    return device
 
 
 def install_extras():
@@ -102,21 +127,34 @@ def install_extras():
     # Check PCI list
     pci = subproc.check_output(["lspci", "-q"]).decode()
     # Install list, append extra stuff to this
-    install_list = ["ubuntu-restricted-extras", "ubuntu-restricted-addons"]
+    standard_install_list = ["ubuntu-restricted-extras", "ubuntu-restricted-addons"]
+    additional_install_list = []
     # Broadcom wifi cards (my condolences to all users of these infernal things)
     if "broadcom" in pci.lower():
         # Newer cards take different drivers from older cards
         for each in ("BCM43142", "BCM4331", "BCM4360", "BCM4352"):
             if each in pci:
-                install_list = install_list + ["broadcom-sta-dkms", "dkms",
+                additional_install_list = additional_install_list + ["broadcom-sta-dkms", "dkms",
                                                "wireless-tools"]
                 break
-        if len(install_list) == 2:
+        if len(additional_install_list) == 2:
             for each in ("BCM4311", "BCM4312", "BCM4313", "BCM4321", "BCM4322",
                          "BCM43224", "BCM43225", "BCM43227", "BCM43228"):
                 if each in pci:
-                    install_list.append("bcmwl-kernel-source")
+                    additional_install_list.append("bcmwl-kernel-source")
                     break
+    # Realtek cards. Not as bad as Broadcom, but still suck
+    if "realtek" in pci.lower():
+        with open("/etc/edamame/realtek.json", "r") as file:
+            drivers = json.load(file)
+        device = detect_realtek()
+        try:
+            driver = drivers[device]
+            additional_install_list.append(driver)
+        except KeyError:
+            __eprint__("\t\t\t### WARNING ###")
+            __eprint__(f"NO REALTEK DRIVER FOUND FOR DEVICE: {device}")
+            __eprint__("IT IS LIKELY THAT ANY DRIVERS NEEDED ARE BUILT INTO THE KERNEL.")
     # Nvidia graphics cards
     if "nvidia" in pci.lower():
         needed_driver = determine_driver(detect_nvidia())
@@ -128,23 +166,35 @@ def install_extras():
                 break
         if needed_driver < nvidia_driver:
             if f"nvidia-driver-{needed_driver}" in cache:
-                install_list.append(f"nvidia-driver-{needed_driver}")
-                install_list.append("disable-nouveau")
+                additional_install_list.append(f"nvidia-driver-{needed_driver}")
+                additional_install_list.append("disable-nouveau")
             else:
-                __eprint__("    ### WARNING ###")
+                __eprint__("\t\t\t### WARNING ###")
                 __eprint__(f"NO NVIDIA DRIVER FOUND MATCHING MAJOR VERSION CODE: {needed_driver}")
                 __eprint__("IT IS LIKELY THAT ANY AVAILABLE DRIVERS THAT __MIGHT__ WORK ARE TOO HEAVY FOR YOUR SYSTEM.")
                 __eprint__("WE __STRONGLY__ SUGGEST THAT YOU REMAIN USING THE OPEN-SOURCE NOUVEAU DRIVERS.")
         else:
-            install_list.append("nvidia-driver-latest")
+            additional_install_list.append("nvidia-driver-latest")
     # Install everything we want
     os.environ["DEBIAN_FRONTEND"] = "noninteractive"
-    with cache.actiongroup():
-        for each in install_list:
-            cache[each].mark_install()
-    #subproc.check_call(["apt-get", "install", "-o", "Dpkg::Options::='--force-confold'", "--force-yes", "-y"] + install_list)
+    try:
+        with cache.actiongroup():
+            for each in standard_install_list:
+                cache[each].mark_install()
+        cache.commit()
+    except apt.cache.FetchFailedException:
+        __eprint__("\t\t\t### WARNING ###")
+        __eprint__("INSTALLATION OF STANDARD RESTRICTED EXTRAS FAILED. CONTINUING TO DRIVERS...")
+     try:
+        with cache.actiongroup():
+            for each in additional_install_list:
+                cache[each].mark_install()
+        cache.commit()
+    except apt.cache.FetchFailedException:
+        __eprint__("\t\t\t### WARNING ###")
+        __eprint__("INSTALLATION OF DRIVERS FAILED.")
     # Purge all the stuff we don't want
-    cache.commit()
+
     purge.purge_package("gstreamer1.0-fluendo-mp3")
     cache.close()
     __eprint__("    ###    install_extras.py CLOSED    ###    ")
