@@ -118,7 +118,7 @@ def detect_realtek():
 
 def install_extras():
     """Install Restrcted Extras from apt"""
-    __eprint__("    ###    install_extras.py STARTED    ###    ")
+    __eprint__("\t\t\t###    install_extras.py STARTED    ###    ")
     # Make sure our cache is up to date and open
     cache = apt.cache.Cache()
     cache.update()
