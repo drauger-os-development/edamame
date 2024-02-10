@@ -185,7 +185,7 @@ def install_extras():
     except apt.cache.FetchFailedException:
         __eprint__("\t\t\t### WARNING ###")
         __eprint__("INSTALLATION OF STANDARD RESTRICTED EXTRAS FAILED. CONTINUING TO DRIVERS...")
-     try:
+    try:
         with cache.actiongroup():
             for each in additional_install_list:
                 cache[each].mark_install()
