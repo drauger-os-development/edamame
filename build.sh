@@ -127,8 +127,10 @@ fi
 ##############################################################
 cp nuitka_compile.sh ../"$FOLDER"/
 cp compile.conf ../"$FOLDER"/
+base="$PWD"
 cd ../"$FOLDER"/
 ./nuitka_compile.sh
+cd "$base"
 ##############################################################
 #                                                            #
 #                                                            #
@@ -145,6 +147,7 @@ tar --verbose --create --xz -f changelog.gz changelog 1>/dev/null
 rm changelog
 cd ../../../..
 base="$PWD"
+cp -R usr/share/doc/$PAK ../"$FOLDER"/usr/share/doc/$PAK
 cd ..
 #DELETE STUFF HERE
 if [ "$OPTIONS" != "--pool" ]; then
