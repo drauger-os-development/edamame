@@ -118,6 +118,25 @@ fi
 if [ -d srv ]; then
 	cp -R srv ../"$FOLDER"/srv
 fi
+##############################################################
+#                                                            #
+#                                                            #
+#  COMPILE ANYTHING NECSSARY HERE                            #
+#                                                            #
+#                                                            #
+##############################################################
+cp nuitka_compile.sh ../"$FOLDER"/
+cp compile.conf ../"$FOLDER"/
+cd ../"$FOLDER"/
+./nuitka_compile.sh
+##############################################################
+#                                                            #
+#                                                            #
+#  REMEMBER TO DELETE SOURCE FILES FROM TMP                  #
+#  FOLDER BEFORE BUILD                                       #
+#                                                            #
+#                                                            #
+##############################################################
 cp -R DEBIAN ../"$FOLDER"/DEBIAN
 mkdir -p usr/share/doc/$PAK
 git log > usr/share/doc/$PAK/changelog
