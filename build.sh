@@ -130,6 +130,7 @@ cp compile.conf ../"$FOLDER"/
 base="$PWD"
 cd ../"$FOLDER"/
 ./nuitka_compile.sh
+rm -v nuitka_compile.sh compile.conf
 cd "$base"
 ##############################################################
 #                                                            #
