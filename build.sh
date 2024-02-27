@@ -129,7 +129,7 @@ cp nuitka_compile.sh ../"$FOLDER"/
 cp compile.conf ../"$FOLDER"/
 base="$PWD"
 cd ../"$FOLDER"/
-./nuitka_compile.sh
+./nuitka_compile.sh --python-ver=$ver
 rm -v nuitka_compile.sh compile.conf
 cd "$base"
 ##############################################################

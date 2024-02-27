@@ -7,10 +7,11 @@
 if $(echo "$*" | grep -qE "\-\-help|\-h"); then
     echo -e "Nuitka Compile Script, v0.0.3
 
-\t--dry-run                  Print what would be run if fully ran.
-\t--force, -f                Force running on raw Git repo. (Risk of potential data loss)
-\t--help, -h                 Print this help dialog and exit.
-\t--preserve-source, -p      Build, but do not delete source files after build.
+\t--dry-run                        Print what would be run if fully ran.
+\t--force, -f                      Force running on raw Git repo. (Risk of potential data loss)
+\t--help, -h                       Print this help dialog and exit.
+\t--preserve-source, -p            Build, but do not delete source files after build.
+\t--python-ver={python version}    Compile with this Python version. If not used, will use the default system version.
 "
     exit
 fi
@@ -32,6 +33,24 @@ if $(ls -a | grep -q ".git"); then
         exit 1
     fi
 fi
+
+if $(echo "$*" | grep -qE "\-\-python\-ver"); then
+    for each in "$*"; do
+        if $(echo "$each" | grep -qE "\-\-python\-ver"); then
+            python_ver=$(echo "$each" | sed 's/=/ /g' | awk '{print $2}' | sed 's/python//g')
+            which python${python_ver} 1>/dev/null 2>/dev/null
+            if [ "$?" != "0" ]; then
+                echo "ERROR: Python version $python_ver not found. Defaulting to default system version."
+                python_ver=""
+            fi
+            break
+	fi
+    done
+fi
+if [ "$python_ver" == "" ]; then
+    python_ver=$(file $(which python3) | awk '{print $5}' | sed 's/python//g')
+fi
+pyver="python${python_ver}"
 
 which nuitka 1>/dev/null 2>/dev/null
 if [ "$?" == "1" ]; then
@@ -63,13 +82,13 @@ if [ "$module_files" != "" ]; then
         for each in $module_files; do
             name=${each##*/}
             echo -e "\t\t\t### BUILDING $name ###"
-            $nuitka_command --module $global_settings $module_settings $each
+            $pyver $nuitka_command --module $global_settings $module_settings $each
             dest=${each%/*}
             source=$(ls ${name%.py}*.so)
             mv -v "$source" "$dest"
         done
     else
-        echo "Would run: $nuitka_command --module $global_settings $module_settings"
+        echo "Would run: $pyver $nuitka_command --module $global_settings $module_settings"
         echo "On each of: $module_files"
     fi
 else
@@ -80,9 +99,9 @@ fi
 # Compile Modules
 if [ "$sa_files" != "" ]; then
     if [ "$dry_run" == "0" ]; then
-        $nuitka_command --standalone $global_settings $standalone_settings $standalone_files
+        $pyver $nuitka_command --standalone $global_settings $standalone_settings $standalone_files
     else
-        echo "Would run: $nuitka_command --standalone $global_settings $standalone_settings $standalone_files"
+        echo "Would run: $pyver $nuitka_command --standalone $global_settings $standalone_settings $standalone_files"
     fi
 else
     echo "NOTE: No standalone files defined for compilation. Skipping standalone compilation..."
