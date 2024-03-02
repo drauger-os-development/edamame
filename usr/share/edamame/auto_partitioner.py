@@ -515,10 +515,20 @@ def make_part_boot(part_path):
     partitions = disk.getPrimaryPartitions()
     # mark designated partition as bootable
     try:
-        if "nvme" in part_path:
-            partitions[int(part_path[part_path.index("p") + 1:])].setFlag(parted.PARTITION_BOOT)
+        if ("nvme" in part_path) or ("mmc" in part_path):
+            flags = partitions[int(part_path[part_path.index("p") + 1:])].getFlagsAsString().split(", ")
+            if "boot" not in flags:
+                partitions[int(part_path[part_path.index("p") + 1:])].setFlag(parted.PARTITION_BOOT)
+            else:
+                common.eprint(f"{ part_path } already marked as boot. Not re-marking.")
+                return
         else:
-            partitions[int(part_path[8:])].setFlag(parted.PARTITION_BOOT)
+            flags = partitions[int(part_path[8:])].getFlagsAsString().split(", ")
+            if "boot" not in flags:
+                partitions[int(part_path[8:])].setFlag(parted.PARTITION_BOOT)
+            else:
+                common.eprint(f"{ part_path } already marked as boot. Not re-marking.")
+                return
     except IndexError:
         return
     # We don't have commitment issues here!
@@ -638,7 +648,7 @@ Possible values:
             part2 = __make_home__(device, new_start=root_end)
         common.eprint("\t###\tauto_partioner.py CLOSED\t###\t")
         return __generate_return_data__(home, efi, part1, part2, part3)
-    if home in ("NULL", "null", None):
+    if home in ("NULL", "null", None, "Home Partition", "home partition"):
         # If home == any possible 'null' value,
         # we KNOW there are no partitons because we made a
         # new partition table
