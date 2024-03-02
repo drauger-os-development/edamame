@@ -10,7 +10,7 @@ if $(echo "$*" | grep -qE "\-\-help|\-h"); then
 \t--dry-run                        Print what would be run if fully ran.
 \t--force, -f                      Force running on raw Git repo. (Risk of potential data loss)
 \t--help, -h                       Print this help dialog and exit.
-\t--preserve-source, -p            Build, but do not delete source files after build.
+\t--preserve-source                Build, but do not delete source files after build.
 \t--python-ver={python version}    Compile with this Python version. If not used, will use the default system version.
 "
     exit
@@ -125,7 +125,7 @@ fi
 
             ### CLEAN UP ###
 if [ "$dry_run" == "0" ]; then
-    if $(echo "$*" | grep -qE "\-\-preserve\-source|\-p"); then
+    if $(echo "$*" | grep -qE "\-\-preserve\-source"); then
         echo "NOTE: Not deleting source files!"
     else
         rm -vf $module_files $standalone_files
