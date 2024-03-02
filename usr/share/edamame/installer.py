@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.11
 # -*- coding: utf-8 -*-
 #
 #  installer.py
@@ -220,40 +220,6 @@ def install(settings, local_repo):
     shutil.move("/mnt/etc/resolv.conf", "/mnt/etc/resolv.conf.save")
     shutil.copyfile("/etc/resolv.conf", "/mnt/etc/resolv.conf")
     __update__(36)
-    # Check to make sure all these vars are set
-    # if not, set them to some defaults
-    if settings["LANG"] == "":
-        common.eprint("$LANG_SET is not set. Defaulting to english")
-        settings["LANG"] = "english"
-    if settings["TIME_ZONE"] == "":
-        common.eprint("$TIME_ZONE is not set. Defaulting to EST")
-        settings["TIME_ZONE"] = "America/New_York"
-    if settings["USERNAME"] == "":
-        common.eprint("$USERNAME is not set. No default. Prompting user . . .")
-        settings["USERNAME"] = check_output(["zenity", "--entry",
-                                             r"""--text=\"We're sorry.
-                                             We lost your username somewhere in the chain.
-                                             What was it again?\""""]
-                                            ).decode()
-        settings["USERNAME"] = settings["USERNAME"][0:-1]
-    if settings["COMPUTER_NAME"] == "":
-        common.eprint("$COMP_NAME is not set. Defaulting to drauger-system-installed")
-        settings["COMPUTER_NAME"] = "drauger-system-installed"
-    if settings["PASSWORD"] == "":
-        common.eprint("$PASSWORD is not set. No default. Prompting user . . .")
-        settings["PASSWORD"] = check_output(["zenity", "--entry",
-                                             "--hide-text",
-                                             r"""--text=\"We're sorry.
-                                             We lost your password somewhere in the chain.
-                                             What was it again?\""""]
-                                            ).decode()
-        settings["PASSWORD"] = settings["PASSWORD"][0:-1]
-    if settings["EXTRAS"] == "":
-        common.eprint("$EXTRAS is not set. Defaulting to false.")
-        settings["EXTRAS"] = False
-    if settings["UPDATES"] == "":
-        common.eprint("$UPDATES is not set. Defaulting to false.")
-        settings["UPDATES"] = False
     # Copy live system networking settings into installed system
     shutil.rmtree("/mnt/etc/NetworkManager/system-connections")
     shutil.copytree("/etc/NetworkManager/system-connections",
