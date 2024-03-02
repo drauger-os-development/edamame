@@ -5,7 +5,7 @@
             ### SETUP ###
 
 if $(echo "$*" | grep -qE "\-\-help|\-h"); then
-    echo -e "Nuitka Compile Script, v0.0.3
+    echo -e "Nuitka Compile Script, v0.0.5
 
 \t--dry-run                        Print what would be run if fully ran.
 \t--force, -f                      Force running on raw Git repo. (Risk of potential data loss)
@@ -73,6 +73,22 @@ standalone_files=$(echo "$settings" | grep "^sa " | awk '{print $2}')
 standalone_settings=$(echo "$settings" | grep "^sa_options=" | sed 's/sa_options=//g' | sed 's/"//g')
 global_settings=$(echo "$settings" | grep "^global_options=" | sed 's/global_options=//g' | sed 's/"//g')
 job_count=$(echo "$settings" | grep "^jobs=" | sed 's/jobs=//g' | sed 's/"//g')
+
+# Get Python version
+if $(echo "$*" | grep -qE "\-\-python\-version"); then
+    for each in "$*"; do
+        if $(echo "$each" | grep -q "\-\-python\-version"); then
+            py_vert=$(echo "$each" | sed 's/=/ /g' | awk '{print $2}')
+            py_command="python$py_vert"
+        fi
+    done
+    if [ "$py_command" == "python" ]; then
+        py_command=""
+    else
+        echo "NOTE: USING PYTHON $py_vert!"
+        py_command=$py_command -m
+    fi
+fi
 
             ### COMPILATION ###
 
