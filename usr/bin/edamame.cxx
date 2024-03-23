@@ -33,20 +33,12 @@
  // import libs
  #include <iostream>
  #include <string>
- // #include <bits/stdc++.h>
- // #include <sys/stat.h>
- // #include <sstream>
  #include <vector>
- // #include <unistd.h>
- // #include <regex>
- // #include <stdlib.h>
  #include <fstream>
- #include <Python.h>
- // #include <stdio.h>
 
 using namespace std;
 
-str VERSION = "2.8.4";
+str VERSION = "2.8.5";
 str R = "\033[0;31m";
 str G = "\033[0;32m";
 str Y = "\033[1;33m";
@@ -59,14 +51,6 @@ str HELP = "\n"
 "\t-v, --version           print current version.\n"
 "\n"
 "Pass nothing to start installer.\n";
-
-wchar_t* Py_Init()
-{
-	wchar_t *program = Py_DecodeLocale("edamame", NULL);
-	Py_SetProgramName(program);
-	Py_Initialize();
-	return program;
-}
 
 str run(const char* cmd) {
     char buffer[128];
@@ -97,12 +81,8 @@ void launch(bool boot_time)
 	str command = "echo 'toor' | sudo -S nice -n -10 /usr/share/edamame/engine.py";
 	run((command1 + enable).c_str());
 	cout << Y << "RUNNING LOG LOCATED AT /tmp/edamame.log" << NC << endl;
-	wchar_t *program = Py_Init();
 	if (boot_time)
 	{
-
-		PyRun_SimpleString("import de_control.enable as de_enable\n"
-	                       "de_enable.immersion()\n");
 		FILE* file = fopen("/tmp/edamame.log", "w");
 		if (file != NULL)
 		{
@@ -117,16 +97,6 @@ void launch(bool boot_time)
 	}
 	command = command + " 2>/tmp/edamame.log 1>&2";
 	run(command.c_str());
-	if (boot_time)
-	{
-		PyRun_SimpleString("import de_control.disable as de_disable\n"
-	                       "de_disable.immersion()\n");
-		if (Py_FinalizeEx() < 0)
-		{
-			exit(120);
-		}
-		PyMem_RawFree(program);
-	}
 	run((command1 + disable).c_str());
 }
 

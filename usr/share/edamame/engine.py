@@ -39,8 +39,10 @@ import common
 import auto_partitioner
 import oem
 import modules
+import de_control.Immersion as Immersion
 
 common.eprint(f"    ###    {sys.argv[0]} STARTED    ###    ")
+
 
 def copy_log_to_disk():
     """Copy Installation Log to installation location"""
@@ -58,7 +60,16 @@ This is a stand-in file.
 
 with open("/etc/edamame/settings.json") as config_file:
     CONFIG = json.loads(config_file.read())
+
+
+def shutdown(boot_time: bool, immersion_obj: Immersion, exit_code: int) -> None:
+    if boot_time:
+        immersion_obj.disable()
+    sys.exit(exit_code)
+
+
 BOOT_TIME = False
+immerse = Immersion()
 if len(sys.argv) > 1:
     if sys.argv[1] == "--boot-time":
         # OEM post-install configuration, on-boot installation, and more
@@ -77,10 +88,11 @@ if len(sys.argv) > 1:
             # Not wanted to be running ootb
             sys.exit(0)
         BOOT_TIME = True
+        immerse.enable()
 MEMCHECK = psutil.virtual_memory().total
 if (MEMCHECK / 1024 ** 2) < 1024:
     UI.error.show_error("\n\tRAM is less than 1 GB.\t\n")
-    sys.exit(2)
+    shutdown(BOOT_TIME, immerse, 2)
 
 DISK = auto_partitioner.check_disk_state()
 for each in range(len(DISK) - 1, -1, -1):
@@ -88,7 +100,7 @@ for each in range(len(DISK) - 1, -1, -1):
         del DISK[each]
 if len(DISK) < 1:
     UI.error.show_error("\n\tNo 32 GB or Larger Drives detected\t\n")
-    sys.exit(2)
+    shutdown(BOOT_TIME, immerse, 2)
 if not check_kernel_versions.check_kernel_versions(CONFIG["local_repo"],
                                                    CONFIG["kernel_meta_pkg"]):
     UI.error.show_error("""
@@ -96,7 +108,7 @@ if not check_kernel_versions.check_kernel_versions(CONFIG["local_repo"],
 \tPlease reboot and retry installation.\t
 \tIf your problem persists, please create an issue on our Github.\t
 """)
-    sys.exit(2)
+    shutdown(BOOT_TIME, immerse, 2)
 work_dir = "/tmp/quick-install_working-dir"
 
 # Check if the installer has already been run
@@ -108,12 +120,12 @@ if len(os.listdir("/mnt")) > 0:
 \tIn order to prevent various bugs from occuring, users\t
 \tare required to reboot before re-attempting installation.\t
 """, report=False)
-    sys.exit(2)
+    shutdown(BOOT_TIME, immerse, 2)
 SETTINGS = UI.main.show_main(boot_time=BOOT_TIME)
 try:
     if ((SETTINGS == 1) or (len(SETTINGS) == 0)):
         print("Returned data from UI appears empty. Assuming installation was canceled...")
-        sys.exit(1)
+        shutdown(BOOT_TIME, immerse, 1)
     elif SETTINGS == 2:
         UI.error.show_error("""
 \t<b>Unknown Error</b>\t
@@ -121,7 +133,7 @@ try:
 \tPlease reboot and retry installation.\t
 \tIf your problem persists, please create an issue on our Github.\t
 """)
-        sys.exit(2)
+        shutdown(BOOT_TIME, immerse, 2)
     elif os.path.exists(SETTINGS):
         if SETTINGS.split("/")[-1][-5:] == ".json":
             try:
@@ -134,7 +146,7 @@ try:
 \thas a JSON Syntax Error. Please correct this and try again.\t
 \tIf your problem persists, please create an issue on our Github.\t
 """)
-                sys.exit(2)
+                shutdown(BOOT_TIME, immerse, 2)
         elif SETTINGS.split("/")[-1][-7:] == ".tar.xz":
             tar_file = tar.open(name=SETTINGS)
             tar_file.extractall(path=work_dir)
@@ -151,7 +163,7 @@ try:
 \thas a JSON Syntax Error. Please correct this and try again.\t
 \tIf your problem persists, please create an issue on our Github.\t
 """)
-                sys.exit(2)
+                shutdown(BOOT_TIME, immerse, 2)
             try:
                 net_settings = os.listdir(work_dir + "/settings/network-settings")
                 if len(net_settings) > 0:
@@ -203,4 +215,4 @@ if INSTALL:
         UI.error.show_error("""\n\tError detected.\t
 \tPlease see /tmp/edamame.log for details.\t\n""")
 else:
-    sys.exit(1)
+    shutdown(BOOT_TIME, immerse, 1)

@@ -71,7 +71,7 @@ else
 	echo "Input not recognized. Defaulting to Python 3.10"
 fi
 {
-	g++ -fPIE -m64 -o edamame edamame.cxx $(python"${vert}"-config --ldflags --cflags --embed)
+	g++ -fPIE -m64 -o edamame edamame.cxx
 } || {
 	echo "Build failed. Try making sure you have 'python${vert}-dev' and 'libpython${vert}-dev' installed" 1>&2
 	exit 2
