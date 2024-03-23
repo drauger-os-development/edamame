@@ -1,0 +1,22 @@
+{
+    "rtl8111b": "r8168-dkms",
+    "rtl8111c": "r8168-dkms",
+    "rtl8111d": "r8168-dkms",
+    "rtl8111e": "r8168-dkms",
+    "rtl8111f": "r8168-dkms",
+    "rtl8111g(s)": "r8168-dkms",
+    "rtl8111h(s)": "r8168-dkms",
+    "rtl8118(a)(s)": "r8168-dkms",
+    "rtl8119i": "r8168-dkms",
+    "rtl8111l": "r8168-dkms",
+    "rtl8168b": "r8168-dkms",
+    "rtl8168e": "r8168-dkms",
+    "rtl8168h": "r8168-dkms",
+    "rtl8111dp": "r8168-dkms",
+    "rtl8111ep": "r8168-dkms",
+    "rtl8111fp": "r8168-dkms",
+    "rtl8411": "r8168-dkms",
+    "rtl8411b": "r8168-dkms",
+    "rtl8821ce": "rtl8821ce-dkms"
+}
+

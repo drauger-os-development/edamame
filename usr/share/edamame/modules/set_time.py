@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3.11
 # -*- coding: utf-8 -*-
 #
 #  set_time.py

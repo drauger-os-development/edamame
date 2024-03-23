@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=Install Drauger OS
 Version=1.0
-Exec=/usr/bin/Edamame
+Exec=/usr/bin/edamame
 Icon=system-installer
 Type=Application
 Terminal=false

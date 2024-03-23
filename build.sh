@@ -71,7 +71,7 @@ else
 	echo "Input not recognized. Defaulting to Python 3.10"
 fi
 {
-	g++ -fPIE -m64 -o edamame edamame.cxx $(python"${vert}"-config --ldflags --cflags --embed)
+	g++ -fPIE -m64 -o edamame edamame.cxx
 } || {
 	echo "Build failed. Try making sure you have 'python${vert}-dev' and 'libpython${vert}-dev' installed" 1>&2
 	exit 2
@@ -118,6 +118,28 @@ fi
 if [ -d srv ]; then
 	cp -R srv ../"$FOLDER"/srv
 fi
+##############################################################
+#                                                            #
+#                                                            #
+#  COMPILE ANYTHING NECSSARY HERE                            #
+#                                                            #
+#                                                            #
+##############################################################
+cp nuitka_compile.sh ../"$FOLDER"/
+cp compile.conf ../"$FOLDER"/
+base="$PWD"
+cd ../"$FOLDER"/
+./nuitka_compile.sh --python-ver=$vert
+rm -v nuitka_compile.sh compile.conf
+cd "$base"
+##############################################################
+#                                                            #
+#                                                            #
+#  REMEMBER TO DELETE SOURCE FILES FROM TMP                  #
+#  FOLDER BEFORE BUILD                                       #
+#                                                            #
+#                                                            #
+##############################################################
 cp -R DEBIAN ../"$FOLDER"/DEBIAN
 mkdir -p usr/share/doc/$PAK
 git log > usr/share/doc/$PAK/changelog
@@ -126,6 +148,7 @@ tar --verbose --create --xz -f changelog.gz changelog 1>/dev/null
 rm changelog
 cd ../../../..
 base="$PWD"
+cp -R usr/share/doc/$PAK ../"$FOLDER"/usr/share/doc/$PAK
 cd ..
 #DELETE STUFF HERE
 if [ "$OPTIONS" != "--pool" ]; then
