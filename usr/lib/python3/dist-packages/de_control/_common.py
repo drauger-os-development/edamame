@@ -24,5 +24,6 @@
 """Common internal functions for de_control"""
 import os
 
+
 def get_de():
     return os.getenv("XDG_CURRENT_DESKTOP").upper()
