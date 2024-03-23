@@ -78,15 +78,15 @@ class Main(Gtk.Window):
 <b>Drive 1:</b>   %s
 
 <b>Drive 2:</b>   %s""" % (settings["raid_array"]["raid_type"],
-                    settings["raid_array"]["disks"]["1"],
-                    settings["raid_array"]["disks"]["2"])
+                           settings["raid_array"]["disks"]["1"],
+                           settings["raid_array"]["disks"]["2"])
                 if settings["raid_array"]["raid_type"].lower() == "raid10":
                     label = label + """
 
 <b>Drive 3:</b>   %s
 
 <b>Drive 4:</b>   %s""" % (settings["raid_array"]["disks"]["3"],
-                    settings["raid_array"]["disks"]["4"])
+                           settings["raid_array"]["disks"]["4"])
             else:
                 label = label + """
 <b>HOME:</b>      %s""" % (settings["HOME"])
@@ -98,12 +98,12 @@ class Main(Gtk.Window):
 <b>SWAP:</b>      %s
 
 <b>HOME:</b>     %s""" % (settings["ROOT"], settings["EFI"],
-                    settings["SWAP"], settings["HOME"])
+                          settings["SWAP"], settings["HOME"])
 
         label5.set_markup(label)
         label5.set_justify(Gtk.Justification.CENTER)
         label5 = self._set_default_margins(label5)
-        self.grid.attach(label5, 1, 3, 2,(len(label.split("\n")) / 2))
+        self.grid.attach(label5, 1, 3, 2, (len(label.split("\n")) / 2))
 
         if "OEM" not in settings.values():
             # Attach the same separator in multiple places

@@ -26,16 +26,16 @@ from sys import argv
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
-import UI.report as report
+from UI import report
 
 
 class Main(report.Main):
     """UI Error Class"""
-    def __init__(self, display, report):
+    def __init__(self, display, report_setting):
         """set up Error UI"""
         super(Main, self).__init__()
         self.display = display
-        self.enable_reporting = report
+        self.enable_reporting = report_setting
         self.scrolling = False
         self.main_menu("clicked")
 
@@ -75,12 +75,13 @@ class Main(report.Main):
         self.show_all()
 
 
-def show_error(display: str, report: bool = True):
+def show_error(display: str, report_setting: bool = True):
     """Show Error Dialog
 
-    `display` is displayed to the user as the main error text, along with instructions on how to send an installation report.
+    `display` is displayed to the user as the main error text,
+    along with instructions on how to send an installation report.
     `report` controls whether or not the user can send an installation report"""
-    window = Main(display, report)
+    window = Main(display, report_setting)
     window.set_decorated(True)
     window.set_resizable(False)
     window.set_position(Gtk.WindowPosition.CENTER)
