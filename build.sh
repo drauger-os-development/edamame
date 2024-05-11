@@ -78,6 +78,18 @@ fi
 	echo "Build failed. Try making sure you have 'python${vert}-dev' and 'libpython${vert}-dev' installed" 1>&2
 	exit 2
 }
+files_to_edit=$(find "." -maxdepth 10 -type f -name '*.py' -print)
+shebang='#!/usr/bin/env'
+if [ "$vert" == "dnc" ]; then
+	shebang="$shebang python3"
+elif [ "$vert" == "3.11" ]; then
+	shebang="$shebang python3.11"
+elif [ "$vert" == "3.12" ]; then
+	shebang="$shebang python3.12"
+fi
+for each in $files_to_edit; do
+	sed -i "s/#\!shebang/$shebang/" $each
+done
 cd ../..
 ##############################################################
 #							     #
@@ -169,3 +181,6 @@ fi
 #build the shit
 dpkg-deb --build "$FOLDER"
 rm -rf "$FOLDER"
+for each in $files_to_edit; do
+	sed -i "s/$shebang/#\!shebang/" $each
+done

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.11
+#!shebang
 # -*- coding: utf-8 -*-
 #
 #  auto_login_set.py
