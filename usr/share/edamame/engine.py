@@ -39,7 +39,7 @@ import common
 import auto_partitioner
 import oem
 import modules
-import de_control.Immersion as Immersion
+import de_control as dec
 
 common.eprint(f"    ###    {sys.argv[0]} STARTED    ###    ")
 
@@ -62,14 +62,14 @@ with open("/etc/edamame/settings.json") as config_file:
     CONFIG = json.loads(config_file.read())
 
 
-def shutdown(boot_time: bool, immersion_obj: Immersion, exit_code: int) -> None:
+def shutdown(boot_time: bool, immersion_obj: dec.Immersion, exit_code: int) -> None:
     if boot_time:
         immersion_obj.disable()
     sys.exit(exit_code)
 
 
 BOOT_TIME = False
-immerse = Immersion()
+immerse = dec.Immersion()
 if len(sys.argv) > 1:
     if sys.argv[1] == "--boot-time":
         # OEM post-install configuration, on-boot installation, and more
