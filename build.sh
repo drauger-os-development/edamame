@@ -58,17 +58,19 @@ fi
 
 # Pshyc - we're compiling shit now
 cd usr/bin
-echo "Would you like to build with Python 3.10 or 3.11?"
-read -p "Python 3.10 [1], Python 3.11 [2], Exit [0]: " ans
-if $(echo "${ans,,}" | grep -qE "1|one|first|3.10"); then
-	vert="3.10"
+echo "Would you like to build with Python 3.11, or 3.12?"
+read -p "Exit [0], Do Not Compile [1], Python 3.11 [2], Python 3.12 [3], : " ans
+if $(echo "${ans,,}" | grep -qE "1|one|first"); then
+	vert="dnc"
 elif $(echo "${ans,,}" | grep -qE "2|two|second|3.11"); then
 	vert="3.11"
+elif $(echo "${ans,,}" | grep -qE "3|three|third|3.12"); then
+	vert="3.12"
 elif $(echo "${ans,,}" | grep -qE "exit|quit|leave|e|q|x|0|no|zero"); then
 	echo "Exiting as requested..."
 	exit 1
 else
-	echo "Input not recognized. Defaulting to Python 3.10"
+	echo "Input not recognized. Defaulting to Python 3.11"
 fi
 {
 	g++ -fPIE -m64 -o edamame edamame.cxx
@@ -125,13 +127,15 @@ fi
 #                                                            #
 #                                                            #
 ##############################################################
-cp nuitka_compile.sh ../"$FOLDER"/
-cp compile.conf ../"$FOLDER"/
-base="$PWD"
-cd ../"$FOLDER"/
-./nuitka_compile.sh --python-ver=$vert
-rm -v nuitka_compile.sh compile.conf
-cd "$base"
+if [[ "$vert" != "dnc" ]]; then
+	cp nuitka_compile.sh ../"$FOLDER"/
+	cp compile.conf ../"$FOLDER"/
+	base="$PWD"
+	cd ../"$FOLDER"/
+	./nuitka_compile.sh --python-ver=$vert
+	rm -v nuitka_compile.sh compile.conf
+	cd "$base"
+fi
 ##############################################################
 #                                                            #
 #                                                            #
@@ -159,7 +163,9 @@ rm "$base"/usr/bin/edamame
 # delete C++ source from package
 rm "$FOLDER"/usr/bin/edamame.cxx
 # delete Python cache files
-find "$FOLDER" -maxdepth 10 -type d -name __pycache__ -exec rm -rfv {} \;
+if [[ "$vert" != "dnc" ]]; then
+	find "$FOLDER" -maxdepth 10 -type d -name __pycache__ -exec rm -rfv {} \;
+fi
 #build the shit
 dpkg-deb --build "$FOLDER"
 rm -rf "$FOLDER"
