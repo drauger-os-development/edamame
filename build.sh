@@ -80,7 +80,7 @@ fi
 }
 cd ../..
 files_to_edit=$(find "." -maxdepth 10 -type f -name '*.py' -print)
-shebang='#!/usr/bin/env'
+shebang='\#\!/usr/bin/env'
 if [ "$vert" == "dnc" ]; then
 	shebang="$shebang python3"
 elif [ "$vert" == "3.11" ]; then
@@ -89,7 +89,7 @@ elif [ "$vert" == "3.12" ]; then
 	shebang="$shebang python3.12"
 fi
 for each in $files_to_edit; do
-	sed -i "s/#\!shebang/$shebang/" $each
+	sed -i "s:\#\!shebang:$shebang:" $each
 done
 ##############################################################
 #							     #
@@ -181,6 +181,7 @@ fi
 #build the shit
 dpkg-deb --build "$FOLDER"
 rm -rf "$FOLDER"
+cd "$base"
 for each in $files_to_edit; do
-	sed -i "s/$shebang/#\!shebang/" $each
+	sed -i "s:$shebang:\#\!shebang:" $each
 done
