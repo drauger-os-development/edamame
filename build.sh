@@ -78,6 +78,7 @@ fi
 	echo "Build failed. Try making sure you have 'python${vert}-dev' and 'libpython${vert}-dev' installed" 1>&2
 	exit 2
 }
+cd ../..
 files_to_edit=$(find "." -maxdepth 10 -type f -name '*.py' -print)
 shebang='#!/usr/bin/env'
 if [ "$vert" == "dnc" ]; then
@@ -90,7 +91,6 @@ fi
 for each in $files_to_edit; do
 	sed -i "s/#\!shebang/$shebang/" $each
 done
-cd ../..
 ##############################################################
 #							     #
 #							     #
