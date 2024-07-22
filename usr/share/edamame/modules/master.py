@@ -247,7 +247,7 @@ def install_kernel(release):
     # we are going to do offline kernel installation from now on.
     # it's just easier and more reliable
     packages = ["linux-headers-" + release, "linux-image-" + release]
-    install_command = ["dpkg", "--install"]
+    install_command = ["dpkg", "--install", "--force-confnew"]
     subproc.check_call(["dpkg", "-P", "--force-all"] + packages,
                        stdout=stderr.buffer)
     packages = [each for each in os.listdir("/repo") if "linux-" in each]
@@ -307,7 +307,7 @@ def _install_grub(root):
 
 def _install_systemd_boot(release, root, distro, compat_mode):
     """set up and install systemd-boot"""
-    install_command = ["dpkg", "--install"]
+    install_command = ["dpkg", "--install", "--force-confnew"]
     try:
         os.makedirs("/boot/efi/loader/entries", exist_ok=True)
     except FileExistsError:
@@ -543,6 +543,7 @@ def handle_laptops(username):
 
 def install(settings, distro):
     """Entry point for installation procedure"""
+    os.environ["DEBIAN_FRONTEND"] = "noninteractive"
     processes_to_do = dir(MainInstallation)
     for each in range(len(processes_to_do) - 1, -1, -1):
         if processes_to_do[each][0] == "_":
