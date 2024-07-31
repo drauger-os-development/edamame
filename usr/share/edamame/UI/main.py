@@ -2101,8 +2101,12 @@ Sub-Region""")
         self.grid.attach(model_label, 1, 2, 1, 1)
 
         self.model_menu = Gtk.ComboBoxText.new()
-        with open("/etc/edamame/keyboards.json", "r") as file:
-            keyboards = json.load(file)
+        try:
+            with open("/etc/edamame/keyboards.json", "r") as file:
+                keyboards = json.load(file)
+        except FileNotFoundError:
+            with open("/tmp/keyboards.json", "r") as file:
+                keyboards = json.load(file)
         layout_list = keyboards["layouts"]
         model = keyboards["models"]
         for each8 in model:
@@ -2334,7 +2338,11 @@ def make_kbd_names():
             data[-1] = "}}"
             break
     data = "\n".join(data)
-    os.chdir("/etc/edamame")
+    try:
+        os.chdir("/etc/edamame")
+    except FileNotFoundError:
+        common.eprint("WARNING: /etc/edamame not found. In testing?")
+        os.chdir("/tmp")
     with open("keyboards.json", "w+") as file:
         file.write(data)
 
