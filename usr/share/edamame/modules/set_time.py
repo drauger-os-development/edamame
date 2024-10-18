@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!shebang
 # -*- coding: utf-8 -*-
 #
 #  set_time.py

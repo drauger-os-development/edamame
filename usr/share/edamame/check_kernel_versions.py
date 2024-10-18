@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!shebang
 # -*- coding: utf-8 -*-
 #
 #  check_kernel_version.py

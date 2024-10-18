@@ -58,25 +58,39 @@ fi
 
 # Pshyc - we're compiling shit now
 cd usr/bin
-echo "Would you like to build with Python 3.10 or 3.11?"
-read -p "Python 3.10 [1], Python 3.11 [2], Exit [0]: " ans
-if $(echo "${ans,,}" | grep -qE "1|one|first|3.10"); then
-	vert="3.10"
+echo "Would you like to build with Python 3.11, or 3.12?"
+read -p "Exit [0], Do Not Compile [1], Python 3.11 [2], Python 3.12 [3], : " ans
+if $(echo "${ans,,}" | grep -qE "1|one|first"); then
+	vert="dnc"
 elif $(echo "${ans,,}" | grep -qE "2|two|second|3.11"); then
 	vert="3.11"
+elif $(echo "${ans,,}" | grep -qE "3|three|third|3.12"); then
+	vert="3.12"
 elif $(echo "${ans,,}" | grep -qE "exit|quit|leave|e|q|x|0|no|zero"); then
 	echo "Exiting as requested..."
 	exit 1
 else
-	echo "Input not recognized. Defaulting to Python 3.10"
+	echo "Input not recognized. Defaulting to Python 3.11"
 fi
 {
-	g++ -fPIE -m64 -o edamame edamame.cxx $(python"${vert}"-config --ldflags --cflags --embed)
+	g++ -fPIE -m64 -o edamame edamame.cxx
 } || {
 	echo "Build failed. Try making sure you have 'python${vert}-dev' and 'libpython${vert}-dev' installed" 1>&2
 	exit 2
 }
 cd ../..
+files_to_edit=$(find "." -maxdepth 10 -type f -name '*.py' -print)
+shebang='\#\!/usr/bin/env'
+if [ "$vert" == "dnc" ]; then
+	shebang="$shebang python3"
+elif [ "$vert" == "3.11" ]; then
+	shebang="$shebang python3.11"
+elif [ "$vert" == "3.12" ]; then
+	shebang="$shebang python3.12"
+fi
+for each in $files_to_edit; do
+	sed -i "s:\#\!shebang:$shebang:" $each
+done
 ##############################################################
 #							     #
 #							     #
@@ -118,6 +132,30 @@ fi
 if [ -d srv ]; then
 	cp -R srv ../"$FOLDER"/srv
 fi
+##############################################################
+#                                                            #
+#                                                            #
+#  COMPILE ANYTHING NECSSARY HERE                            #
+#                                                            #
+#                                                            #
+##############################################################
+if [[ "$vert" != "dnc" ]]; then
+	cp nuitka_compile.sh ../"$FOLDER"/
+	cp compile.conf ../"$FOLDER"/
+	base="$PWD"
+	cd ../"$FOLDER"/
+	./nuitka_compile.sh --python-ver=$vert
+	rm -v nuitka_compile.sh compile.conf
+	cd "$base"
+fi
+##############################################################
+#                                                            #
+#                                                            #
+#  REMEMBER TO DELETE SOURCE FILES FROM TMP                  #
+#  FOLDER BEFORE BUILD                                       #
+#                                                            #
+#                                                            #
+##############################################################
 cp -R DEBIAN ../"$FOLDER"/DEBIAN
 mkdir -p usr/share/doc/$PAK
 git log > usr/share/doc/$PAK/changelog
@@ -126,6 +164,7 @@ tar --verbose --create --xz -f changelog.gz changelog 1>/dev/null
 rm changelog
 cd ../../../..
 base="$PWD"
+cp -R usr/share/doc/$PAK ../"$FOLDER"/usr/share/doc/$PAK
 cd ..
 #DELETE STUFF HERE
 if [ "$OPTIONS" != "--pool" ]; then
@@ -136,7 +175,13 @@ rm "$base"/usr/bin/edamame
 # delete C++ source from package
 rm "$FOLDER"/usr/bin/edamame.cxx
 # delete Python cache files
-find "$FOLDER" -maxdepth 10 -type d -name __pycache__ -exec rm -rfv {} \;
+if [[ "$vert" != "dnc" ]]; then
+	find "$FOLDER" -maxdepth 10 -type d -name __pycache__ -exec rm -rfv {} \;
+fi
 #build the shit
 dpkg-deb --build "$FOLDER"
 rm -rf "$FOLDER"
+cd "$base"
+for each in $files_to_edit; do
+	sed -i "s:$shebang:\#\!shebang:" $each
+done

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!shebang
 # -*- coding: utf-8 -*-
 #
 #  make_swap.py

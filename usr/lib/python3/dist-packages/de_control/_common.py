@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!shebang
 # -*- coding: utf-8 -*-
 #
 #  _common.py
@@ -23,6 +23,7 @@
 #
 """Common internal functions for de_control"""
 import os
+
 
 def get_de():
     return os.getenv("XDG_CURRENT_DESKTOP").upper()

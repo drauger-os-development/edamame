@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!shebang
 # -*- coding: utf-8 -*-
 #
 #  __init__.py
@@ -22,7 +22,8 @@
 #
 #
 """DE/WM control lib for Edamame."""
-import de_control.enable as enable
-import de_control.disable as disable
+from de_control.immersion import Immersion as Immersion
 import de_control.modify as modify
 import de_control._common as _common
+
+del immersion
