@@ -1,7 +1,7 @@
 #!shebang
 # -*- coding: utf-8 -*-
 #
-#  __init__.py
+#  progress.py
 #
 #  Copyright 2024 Thomas Castleman <batcastle@draugeros.org>
 #
@@ -21,9 +21,5 @@
 #  MA 02110-1301, USA.
 #
 #
-"""DE/WM control lib for Edamame."""
-from de_control.immersion import Immersion as Immersion
-import de_control.modify as modify
-import de_control._common as _common
-
-del immersion
+import UI
+UI.progress.show_progress()

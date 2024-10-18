@@ -1,9 +1,9 @@
-#!/usr/bin/env python3
+#!shebang
 # -*- coding: utf-8 -*-
 #
 #  modify.py
 #
-#  Copyright 2022 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2024 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 """Modify DE/WM settings and configuration"""
 import sys
 import os
+import de_control._common as com
 
 
 def __eprint__(*args, **kwargs):
@@ -36,18 +37,25 @@ def for_desktop(username):
     experience.
     """
     __eprint__("DESKTOP DETECTED. EDITING PANEL ACCORDINGLY.")
-    try:
-        os.remove("/home/" + username + "/.config/xfce4/panel/battery-12.rc")
-    except FileNotFoundError:
-        pass
-    with open("/home/" + username + "/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml", "r") as file:
-        xml = file.read().split("\n")
-    for each in range(len(xml) - 1, -1, -1):
-        if "battery" in xml[each]:
-            del xml[each]
-    xml = "\n".join(xml)
-    with open("/home/" + username + "/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml", "w") as file:
-        file.write(xml)
+    de = com.get_de()
+    if de == "XFCE":
+        config = f"/home/{ username }/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml"
+        try:
+            os.remove("/home/" + username + "/.config/xfce4/panel/battery-12.rc")
+        except FileNotFoundError:
+            pass
+        with open(config, "r") as file:
+            xml = file.read().split("\n")
+        for each in range(len(xml) - 1, -1, -1):
+            if "battery" in xml[each]:
+                del xml[each]
+        xml = "\n".join(xml)
+        with open(config, "w") as file:
+            file.write(xml)
+    elif de == "KDE":
+        __eprint__("WARNING: KDE detected. KDE support not yet implemented.")
+    else:
+        __eprint__(f"WARNING: { de } not a recognized DE.")
 
 
 def for_laptop():

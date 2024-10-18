@@ -1,0 +1,55 @@
+{
+	"squashfs_Location": "/run/live/medium/live/filesystem.squashfs",
+	"local_repo": "/run/live/medium/repo",
+	"distro": "Drauger OS",
+	"report": {
+				"recv_keys": "https://download.draugeros.org/keys/public_keys.asc",
+				"upload": "rsync://rsync.draugeros.org/reports-upload"
+				},
+	"ping servers": [
+					"draugeros.org",
+					"ubuntu.com",
+					"debian.org",
+					"google.com",
+					"example.com"
+				   ],
+	"ping count": 2,
+	"partitioning": {
+					"EFI": {
+						"EFI": {
+								"START": 0,
+								"END": 500
+								},
+						"ROOT":{
+								"START": 501,
+								"END": "40%",
+								"fs": "btrfs"
+								},
+						"HOME":{
+								"START": "40%",
+								"END": "100%",
+								"fs": "btrfs"
+							   }
+							},
+					"BIOS": {
+						"ROOT":{
+							"START": 0,
+							"END": "40%",
+							"fs": "ext4"
+							},
+						"HOME":{
+							"START": "40%",
+							"END": "100%",
+							"fs": "btrfs"
+						   }
+					},
+					"GENERAL": {
+						"min root size": 23000,
+						"mdswh": 128
+					}
+				},
+	"run_post_oem": ["/usr/bin/drauger-welcome"],
+	"kernel_meta_pkg": "linux-drauger",
+	"remove_pkgs": ["edamame",
+					"persistence-daemon"]
+}

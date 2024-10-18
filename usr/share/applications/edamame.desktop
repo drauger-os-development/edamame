@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Install Drauger OS
+Version=1.0
+Exec=/usr/bin/edamame
+Icon=system-installer
+Type=Application
+Terminal=false
+StartupNotify=true
+Encoding=UTF-8
+Categories=System;
+Comment=Install Linux to your internal drive
+X-AppStream-Ignore=true

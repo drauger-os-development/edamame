@@ -1,7 +1,7 @@
 #!shebang
 # -*- coding: utf-8 -*-
 #
-#  __init__.py
+#  install_updates.py
 #
 #  Copyright 2024 Thomas Castleman <batcastle@draugeros.org>
 #
@@ -21,9 +21,31 @@
 #  MA 02110-1301, USA.
 #
 #
-"""DE/WM control lib for Edamame."""
-from de_control.immersion import Immersion as Immersion
-import de_control.modify as modify
-import de_control._common as _common
+"""Install system updates from apt"""
+from __future__ import print_function
+from sys import stderr
+import apt
 
-del immersion
+import modules.purge as purge
+
+
+# Make it easier for us to print to stderr
+def __eprint__(*args, **kwargs):
+    """Make it easier for us to print to stderr"""
+    print(*args, file=stderr, **kwargs)
+
+
+def update_system():
+    """update system through package manager"""
+    __eprint__("    ###    install_updates.py STARTED    ###    ")
+    cache = apt.cache.Cache()
+    cache.update()
+    cache.open()
+    try:
+        cache.upgrade()
+    except apt.apt_pkg.Error:
+        print("ERROR: Possible held packages. Update may be partially completed.")
+    cache.commit()
+    purge.autoremove(cache)
+    cache.close()
+    __eprint__("    ###    install_updates.py CLOSED    ###    ")

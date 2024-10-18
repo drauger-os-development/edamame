@@ -1,7 +1,7 @@
 #!shebang
 # -*- coding: utf-8 -*-
 #
-#  __init__.py
+#  _common.py
 #
 #  Copyright 2024 Thomas Castleman <batcastle@draugeros.org>
 #
@@ -21,9 +21,9 @@
 #  MA 02110-1301, USA.
 #
 #
-"""DE/WM control lib for Edamame."""
-from de_control.immersion import Immersion as Immersion
-import de_control.modify as modify
-import de_control._common as _common
+"""Common internal functions for de_control"""
+import os
 
-del immersion
+
+def get_de():
+    return os.getenv("XDG_CURRENT_DESKTOP").upper()

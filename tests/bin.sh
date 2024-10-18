@@ -3,7 +3,7 @@
 #
 #  bin.sh
 #
-#  Copyright 2022 Thomas Castleman <contact@draugeros.org>
+#  Copyright 2024 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -67,25 +67,25 @@ for each in $list; do
 			fi
 		fi
 	done
-	if [ "$each" == "system-installer" ]; then
+	if [ "$each" == "edamame" ]; then
 		echo -e "\n- $Y \bTESTING INSTALLATION MODE$NC"
 		output=$(python3 -I ../usr/bin/$each)
 		stdin="localuser:root being added to access control list
-RUNNING LOG LOCATED AT /tmp/system-installer.log
+RUNNING LOG LOCATED AT /tmp/edamame.log
 localuser:root being removed from access control list"
 		if [ "$output" == "$stdin" ]; then
 			echo -e "\n- $G \bINSTALL MODE STDOUT: GOOD$NC"
 		else
 			echo -e "\n- $Y \bINSTALL MODE STDOUT: UNEXPECTED OUTPUT:$NC\n$output"
 		fi
-		if [ -f /tmp/system-installer.log ]; then
+		if [ -f /tmp/edamame.log ]; then
 			echo -e "\n- $G \bLOG FILE: EXISTS$NC"
 		else
-			echo -e "\n- $R \bLOG FILE: MISSING /tmp/system-installer.log$NC"
+			echo -e "\n- $R \bLOG FILE: MISSING /tmp/edamame.log$NC"
 			exit 1
 		fi
-		log_output=$(</tmp/system-installer.log)
-		stdin="Error accessing /usr/share/system-installer/engine.py: No such file or directory"
+		log_output=$(</tmp/edamame.log)
+		stdin="Error accessing /usr/share/edamame/engine.py: No such file or directory"
 		if [ "$log_output" == "$stdin" ]; then
 			echo -e "\n- $G \bATTEMPTED TO CALL engine.py: TRUE$NC"
 		else

@@ -21,9 +21,6 @@
 #  MA 02110-1301, USA.
 #
 #
-"""DE/WM control lib for Edamame."""
-from de_control.immersion import Immersion as Immersion
-import de_control.modify as modify
-import de_control._common as _common
-
-del immersion
+"""Configure an OEM installation"""
+import oem.post_install.UI as UI
+import oem.post_install.configure as configure

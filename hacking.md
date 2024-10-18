@@ -1,9 +1,9 @@
 HACKING
 ---
 
-Hacking on `system-installer` is meant to be relatively easy. Some points of note:
+Hacking on `edamame` is meant to be relatively easy. Some points of note:
 
- * Most scripts in `/usr/share/system-installer/modules` are copied into the `chroot` during the configuration portion of the installation
+ * Most scripts in `/usr/share/edamame/modules` are copied into the `chroot` during the configuration portion of the installation
  * If you want to have something else done during installation, perform the following:
    * In `master.py` in the `MainInstallation` class, write a function to perform the action you need.
    * Do not put `self` in  the arguments
@@ -14,7 +14,7 @@ Hacking on `system-installer` is meant to be relatively easy. Some points of not
 
 However, there are some limitations:
 
- * Anything with "partitioner" in the name in `/usr/share/system-installer/modules` will not be copied into the `chroot`
+ * Anything with "partitioner" in the name in `/usr/share/edamame/modules` will not be copied into the `chroot`
  * `dpkg` and it's front end `apt` must be present for installation, as they are used for installing the kernel
  * A file, `kernel.7z`, is created upon creation of the *.deb package. This file is necessary as it provides a fall-back kernel for installation when the internet is inaccessible.
 
@@ -25,7 +25,7 @@ Installation Procedure
 
   2. Mount the partitions in the places they will be in the finished system, this includes swap if it is already present.
 
-  3. Extract the squashfs, the path to which is defined in `/etc/system-installer/settings.json`
+  3. Extract the squashfs, the path to which is defined in `/etc/edamame/settings.json`
 
   4. Move the files extracted from the squashfs to the installation directory - this is to circumvent a bug with `unsquashfs` where it won't actually place the files where they are supposed to go. It will instead make a folder named `squashfs-root`, and extract the squashfs there.
 
@@ -46,10 +46,10 @@ Installation Procedure
 Project Layout
 ---
 
-System Installer is designed to be as modular as possible. While it still has a long way to go, there are 2 main modules:
+Edamame is designed to be as modular as possible. While it still has a long way to go, there are 2 main modules:
 
 - UI Module
- 	- Located at `/usr/share/system-installer/UI`
+ 	- Located at `/usr/share/edamame/UI`
  	- Essential Functions:
  		- `UI.error.show_error()`
  			- Takes a markup formatted string
@@ -65,17 +65,17 @@ System Installer is designed to be as modular as possible. While it still has a 
  		- `UI.progress.show_progress()`
  			- Takes no arguments
  			- Returns `None`
- 			- Monitors `/tmp/system-installer.log` and `/tmp/system-installer-progress.log` to show the user what is being done during install and how far along install is.
+ 			- Monitors `/tmp/edamame.log` and `/tmp/edamame-progress.log` to show the user what is being done during install and how far along install is.
  		- `UI.success.show_success()`
  			- Takes settings dictionary as argument
  			- Shows user installation success window
  			- Allows user to dump settings to JSON file for usage with Quick Install later on
  				- Also will grab network settings, wallpaper, and more if requested. A spec for Quick Install formatting will be released later.
- 			- All other functions included in this window are at the developer's discretion as nothing else is used elsewhere in System Installer
+ 			- All other functions included in this window are at the developer's discretion as nothing else is used elsewhere in Edamame
  			- Returns `None`
 
 - Installation Module
-	- Located at `/usr/share/system-installer/modules`
+	- Located at `/usr/share/edamame/modules`
 	- The installation module can be further broken down into sub modules, each with it's own segment of installation it works on.
 	- Everything in this module is orchestrated by the `master.py` file
 	- Essential Functions:
@@ -89,18 +89,19 @@ System Installer is designed to be as modular as possible. While it still has a 
 			- Returns `None`
 			- Should be multi-threaded in order to speed up installation
 			- The stock function is multi-threaded using the `multiprocessing` library
+
 The UI module is the most replaceable module. As long as the necessary functions are available to `engine.py`, it can easily be replaced with a Qt UI, a GTK UI that looks totally different, or something else!
 
 
 Settings
 ---
 
-Settings are defined in `/etc/system-installer/settings.json`
+Settings are defined in `/etc/edamame/settings.json`
 
  - `squashfs_location`
    - Location of the squashfs file to unpack
  - `distro`
-   - Name of the distro `system-installer` is running on. Use this for branding.
+   - Name of the distro `edamame` is running on. Use this for branding.
  - `report`
    - `recv_keys`
      - URL to download Public GPG keys from for encryption.
@@ -113,9 +114,10 @@ Settings are defined in `/etc/system-installer/settings.json`
    - Optimal with 2 - 4 URLS
  - `ping count`
    - Number of times to ping each URL in `ping servers`
-     - Higher numbers increase the likelyhood of internet working correctly
-     - Lower numbers decrese installation time on slow internet connections
+     - Higher numbers increase the likelihood of internet working correctly
+     - Lower numbers decrease installation time on slow internet connections
    - Optimal when 2 or 3
+   - **DEPRECATED** No longer used.
  - `partitioning`
    - Partitioning layout when using automatic partitioning
    - This is the ONLY entry here that is optional. If `partitioning` is not defined, an internally stored default will be used instead.
@@ -139,9 +141,9 @@ Notable files for hacking
 
 ```
 build.sh
-/usr/share/system-installer/installer.py
-/usr/share/system-installer/modules
-/usr/share/system-installer/UI
+/usr/share/edamame/installer.py
+/usr/share/edamame/modules
+/usr/share/edamame/UI
 /usr/lib/python3/dist-packages/de_control
-/etc/system-installer/settings.json
+/etc/edamame/settings.json
 ```
