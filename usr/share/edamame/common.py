@@ -85,3 +85,23 @@ def item_in_list(item, array):
         if item == each:
             return True
     return False
+
+
+def determine_toolkit():
+    """Determine System UI toolkit"""
+    UI_by_DE = {
+            "gnome": "GTK",
+            "xfce": "GTK",
+            "lxde": "GTK",
+            "mate": "GTK",
+            "unity": "GTK",
+            "cinnamon": "GTK",
+            "pantheon": "GTK",
+            "kde": "Qt",
+            "lxqt": "Qt",
+            "lomiri": "Qt",
+            "dde": "Qt",
+            "deepin": "Qt"
+
+        }
+    return UI_by_DE[os.environ["XDG_CURRENT_DESKTOP"].lower()]

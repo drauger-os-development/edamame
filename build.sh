@@ -81,13 +81,15 @@ fi
 cd ../..
 files_to_edit=$(find "." -maxdepth 10 -type f -name '*.py' -print)
 shebang='\#\!/usr/bin/env'
+py_ver=""
 if [ "$vert" == "dnc" ]; then
-	shebang="$shebang python3"
+	py_ver="python3"
 elif [ "$vert" == "3.11" ]; then
-	shebang="$shebang python3.11"
+	py_ver="python3.11"
 elif [ "$vert" == "3.12" ]; then
-	shebang="$shebang python3.12"
+	py_ver="python3.12"
 fi
+shebang="$shebang $py_ver"
 for each in $files_to_edit; do
 	sed -i "s:\#\!shebang:$shebang:" $each
 done
@@ -146,6 +148,7 @@ if [[ "$vert" != "dnc" ]]; then
 	cd ../"$FOLDER"/
 	./nuitka_compile.sh --python-ver=$vert
 	rm -v nuitka_compile.sh compile.conf
+	sed -i "s/^Depends:/& lib${py_vert},/" DEBIAN/control
 	cd "$base"
 fi
 ##############################################################
@@ -178,6 +181,8 @@ rm "$FOLDER"/usr/bin/edamame.cxx
 if [[ "$vert" != "dnc" ]]; then
 	find "$FOLDER" -maxdepth 10 -type d -name __pycache__ -exec rm -rfv {} \;
 fi
+# Insert other deps into control file
+sed -i "s/<\!--python_vert-->/$py_vert/g" "$FOLDER/DEBIAN/control"
 #build the shit
 dpkg-deb --build "$FOLDER"
 rm -rf "$FOLDER"

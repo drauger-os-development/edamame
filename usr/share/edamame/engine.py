@@ -43,6 +43,8 @@ import de_control as dec
 
 common.eprint(f"    ###    {sys.argv[0]} STARTED    ###    ")
 
+UI = UI.load_UI("GTK")
+
 
 def copy_log_to_disk():
     """Copy Installation Log to installation location"""

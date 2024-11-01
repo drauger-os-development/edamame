@@ -21,12 +21,10 @@
 #  MA 02110-1301, USA.
 #
 #
-import os
-import importlib
-
 """UI for Edamame"""
-def load_UI(ui_type: str) -> bool:
-    """Load the specified UI type"""
-    if os.path.exists(f"UI/{ui_type}_UI"):
-        return importlib.import_module(f"UI.{ui_type}_UI")
-    raise ImportError(f"Module {ui_type}_UI is not present!")
+import UI.GTK_UI.confirm as confirm
+import UI.GTK_UI.error as error
+import UI.GTK_UI.main as main
+import UI.GTK_UI.progress as progress
+import UI.GTK_UI.report as report
+import UI.GTK_UI.success as success
