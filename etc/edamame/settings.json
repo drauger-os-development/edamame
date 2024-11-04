@@ -18,10 +18,10 @@
 					"EFI": {
 						"EFI": {
 								"START": 0,
-								"END": 500
+								"END": 1024
 								},
 						"ROOT":{
-								"START": 501,
+								"START": 1025,
 								"END": "40%",
 								"fs": "btrfs"
 								},
