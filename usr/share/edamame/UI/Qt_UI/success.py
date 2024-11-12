@@ -40,6 +40,10 @@ except ImportError:
     except ImportError:
         import report
 import common
+try:
+    import UI.Qt_UI.qt_common as QCommon
+except ImportError:
+    import qt_common as QCommon
 
 
 class Main(report.Main):
@@ -372,6 +376,7 @@ def show_success(settings):
     """Show Success UI"""
     app = QtWidgets.QApplication([sys.argv[0]])
     window = Main(settings)
+    window = QCommon.set_window_nonresizeable(window)
     # window.set_resizable(False)
     # window.set_position(Gtk.WindowPosition.CENTER)
     window.show()

@@ -23,6 +23,8 @@
 #
 """Common Qt Functions"""
 from qtpy import QtCore, QtWidgets
+
+
 def set_window_nonresizeable(qt_window):
     """Set a Qt Window resizable or not"""
     qt_window.grid.setSizeConstraint(QtWidgets.QLayout.SetFixedSize)

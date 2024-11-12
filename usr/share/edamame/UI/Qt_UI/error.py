@@ -31,6 +31,10 @@ except ImportError:
         from Qt_UI import report
     except ImportError:
         import report
+try:
+    import UI.Qt_UI.qt_common as QCommon
+except ImportError:
+    import qt_common as QCommon
 
 
 class Main(report.Main):
@@ -82,8 +86,7 @@ def show_error(display: str, report_setting: bool = True):
     `report` controls whether or not the user can send an installation report"""
     app = QtWidgets.QApplication([argv[0]])
     window = Main(display, report_setting)
-    # window.set_position(Gtk.WindowPosition.CENTER)
-    # window.clicked.connect("delete-event", Main.exit)
+    window = QCommon.set_window_nonresizeable(window)
     window.show()
     app.exec()
 

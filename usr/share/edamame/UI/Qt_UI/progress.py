@@ -147,6 +147,7 @@ def show_progress():
     global window
     window = Main(distro)
     window = QCommon.set_window_undecorated(window)
+    window = QCommon.set_window_nonresizeable(window)
     window.show()
     app.exec()
 

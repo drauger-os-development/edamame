@@ -351,6 +351,7 @@ def show_confirm(settings, boot_time=False):
     window = Main(settings)
     if boot_time:
         window = QCommon.set_window_undecorated(window)
+    window = QCommon.set_window_nonresizeable(window)
     window.show()
     app.exec()
     return window.install
