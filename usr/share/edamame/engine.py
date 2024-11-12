@@ -45,7 +45,7 @@ common.eprint(f"    ###    {sys.argv[0]} STARTED    ###    ")
 
 
 
-def copy_log_to_disk():
+def copy_log_to_disk() -> None:
     """Copy Installation Log to installation location"""
     try:
         shutil.copyfile("/tmp/edamame.log",
