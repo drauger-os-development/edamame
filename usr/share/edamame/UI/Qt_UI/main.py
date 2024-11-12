@@ -136,19 +136,6 @@ class Main(QtWidgets.QWidget):
         # Open initial window
         self.reset("clicked")
 
-    def show_all(self):
-        """Final work to prepare the window to be shown"""
-        self.resize(self.sizeHint())
-        size = (self.size().width(), self.size().height())
-        print(f"Window size: {size}")
-        size_offset = (round(size[0] / 2), round(size[1]/ 2))
-        position = (round(self.screen_size[0] / 2), round(self.screen_size[1] / 2))
-        self.move(position[0] - size_offset[0], position[1] - size_offset[1])
-        # size = (self.size().width(), self.size().height())
-        # self.setFixedSize(size[0], size[1])
-
-
-
     def _set_default_margins(self, widget):
         """Set default margin size"""
         try:
@@ -192,8 +179,6 @@ An example of one of these can be found at /etc/edamame/quick-install-template.j
         button2 = self._set_default_margins(button2)
         self.grid.addWidget(button2, 2, 1, 1, 1)
 
-        self.show_all()
-
     def reset(self, button):
         """Main Splash Window"""
         global DEFAULT
@@ -224,8 +209,6 @@ An example of one of these can be found at /etc/edamame/quick-install-template.j
         button4.clicked.connect(self.oem_startup)
         button4 = self._set_default_margins(button4)
         self.grid.addWidget(button4, 2, 3, 1, 1)
-
-        self.show_all()
 
     def oem_startup(self, widget):
         """Start up OEM installation"""
@@ -265,8 +248,6 @@ over a normal or quick installation:\n
         button3.clicked.connect(self.reset)
         button3 = self._set_default_margins(button3)
         self.grid.addWidget(button3, 2, 1, 1, 1)
-
-        self.show_all()
 
     def oem_run(self, widget):
         """Start up OEM installation"""
@@ -372,8 +353,6 @@ over a normal or quick installation:\n
         button2 = self._set_default_margins(button2)
         self.grid.addWidget(button2, 8, 1, 1, 1)
 
-        self.show_all()
-
     def user(self, button):
         """User setup Window"""
         self.clear_window()
@@ -450,8 +429,6 @@ over a normal or quick installation:\n
         button3 = self._set_default_margins(button3)
         self.grid.addWidget(button3, 8, 1, 1, 1)
 
-        self.show_all()
-
     def generate_hostname(self, widget):
         """Generate a hostname that follows these rules:
         - 16 characters long
@@ -494,7 +471,7 @@ over a normal or quick installation:\n
             label5 = self._set_default_margins(label5)
             try:
                 self.grid.itemAtPosition(7, 1).widget().setParent(None)
-            except TypeError:
+            except (TypeError, AttributeError):
                 pass
             self.grid.addWidget(label5, 7, 1, 1, 3)
         elif len(self.data["PASSWORD"]) < SETTINGS["min_password_length"]:
@@ -504,7 +481,7 @@ over a normal or quick installation:\n
             label5 = self._set_default_margins(label5)
             try:
                 self.grid.itemAtPosition(7, 1).widget().setParent(None)
-            except TypeError:
+            except (TypeError, AttributeError):
                 pass
             self.grid.addWidget(label5, 7, 1, 1, 3)
         elif has_special_character(self.data["USERNAME"]):
@@ -514,7 +491,7 @@ over a normal or quick installation:\n
             label5 = self._set_default_margins(label5)
             try:
                 self.grid.itemAtPosition(7, 1).widget().setParent(None)
-            except TypeError:
+            except (TypeError, AttributeError):
                 pass
             self.grid.addWidget(label5, 7, 1, 1, 3)
         elif " " in self.data["USERNAME"]:
@@ -524,7 +501,7 @@ over a normal or quick installation:\n
             label5 = self._set_default_margins(label5)
             try:
                 self.grid.itemAtPosition(7, 1).widget().setParent(None)
-            except TypeError:
+            except (TypeError, AttributeError):
                 pass
             self.grid.addWidget(label5, 7, 1, 1, 3)
         elif len(self.data["USERNAME"]) < 1:
@@ -534,7 +511,7 @@ over a normal or quick installation:\n
             label5 = self._set_default_margins(label5)
             try:
                 self.grid.itemAtPosition(7, 1).widget().setParent(None)
-            except TypeError:
+            except (TypeError, AttributeError):
                 pass
             self.grid.addWidget(label5, 7, 1, 1, 3)
         elif has_special_character(self.data["COMPUTER_NAME"]):
@@ -544,7 +521,7 @@ over a normal or quick installation:\n
             label5 = self._set_default_margins(label5)
             try:
                 self.grid.itemAtPosition(7, 1).widget().setParent(None)
-            except TypeError:
+            except (TypeError, AttributeError):
                 pass
             self.grid.addWidget(label5, 7, 1, 1, 3)
         elif " " in self.data["COMPUTER_NAME"]:
@@ -554,7 +531,7 @@ over a normal or quick installation:\n
             label5 = self._set_default_margins(label5)
             try:
                 self.grid.itemAtPosition(7, 1).widget().setParent(None)
-            except TypeError:
+            except (TypeError, AttributeError):
                 pass
             self.grid.addWidget(label5, 7, 1, 1, 3)
         elif len(self.data["COMPUTER_NAME"]) < 1:
@@ -564,14 +541,13 @@ over a normal or quick installation:\n
             label5 = self._set_default_margins(label5)
             try:
                 self.grid.itemAtPosition(7, 1).widget().setParent(None)
-            except TypeError:
+            except (TypeError, AttributeError):
                 pass
             self.grid.addWidget(label5, 7, 1, 1, 3)
         else:
             global USER_COMPLETION
             USER_COMPLETION = "COMPLETED"
             self.main_menu("clicked")
-        self.show_all()
 
     def partitioning(self, button):
         """Partitioning Main Window"""
@@ -610,8 +586,6 @@ now.\n
         button3.clicked.connect(self.main_menu)
         button3 = self._set_default_margins(button3)
         self.grid.addWidget(button3, 5, 1, 1, 1)
-
-        self.show_all()
 
     def auto_partition(self, button):
         """Auto Partitioning Settings Window"""
@@ -698,8 +672,6 @@ now.\n
         button3.clicked.connect(self.partitioning)
         button3 = self._set_default_margins(button3)
         self.grid.addWidget(button3, 6, 1, 1, 1)
-
-        self.show_all()
 
     def define_array(self, widget, error=None):
         """Define btrfs RAID Array settings"""
@@ -807,8 +779,6 @@ Type. Minimum drives is: %s""" % (loops))
         button3 = self._set_default_margins(button3)
         self.grid.addWidget(button3, 9, 2, 1, 1)
 
-        self.show_all()
-
     # I know there is a better way to assign disks than this, or at least a
     # Better way to define these functions. But this was the simplest way I can
     # Think to do it right now. In the future, I want to add the ability to
@@ -896,8 +866,6 @@ Type. Minimum drives is: %s""" % (loops))
         button3 = self._set_default_margins(button3)
         self.grid.addWidget(button3, 9, 2, 1, 1)
 
-        self.show_all()
-
     def cement_raid_array(self, widget):
         """Set alternate settings so that the RAID Array can be handled internally"""
         self.data["HOME"] = self.data["raid_array"]["disks"]["1"]
@@ -950,8 +918,6 @@ Type. Minimum drives is: %s""" % (loops))
             devices.setCurrentText(drive)
             self.make_space_parts(devices)
 
-        self.show_all()
-
     def make_space_parts(self, widget):
         """Set partitions to show for make_space()"""
         self.parts.remove_all()
@@ -995,8 +961,6 @@ Type. Minimum drives is: %s""" % (loops))
         button2 = self._set_default_margins(button2)
         self.grid.addWidget(button2, 6, 1, 1, 1)
 
-        self.show_all()
-
     def remove_part(self, widget):
         """Interface for removing partitions"""
         part = self.parts.currentText()
@@ -1017,12 +981,10 @@ Type. Minimum drives is: %s""" % (loops))
             self.data["HOME"] = "MAKE"
         else:
             try:
-                self.grid.itemAt((4, 1)).widget().setParent(None)
-            except TypeError:
+                self.grid.itemAtPosition(4, 1).widget().setParent(None)
+            except (TypeError, AttributeError):
                 pass
             self.data["HOME"] = ""
-
-        self.show_all()
 
     def auto_home_setup2(self, widget):
         """Provide options for prexisting home partitions"""
@@ -1089,8 +1051,6 @@ Type. Minimum drives is: %s""" % (loops))
         else:
             self.data["HOME"] = "MAKE"
 
-        self.show_all()
-
     def select_home_part(self, widget):
         """Set pre-existing home partition, based on user input"""
         if os.path.exists(widget):
@@ -1098,8 +1058,6 @@ Type. Minimum drives is: %s""" % (loops))
 
     def _set_root_part(self, widget):
         """set root drive"""
-        print("HERE!")
-        print(widget)
         self.data["ROOT"] = widget
         # self.auto_partition("clicked")
 
@@ -1116,8 +1074,8 @@ Type. Minimum drives is: %s""" % (loops))
         self.data["SWAP"] = "FILE"
         if self.disks.currentText() is None:
             try:
-                self.grid.itemAt((1, 1)).widget().setParent(None)
-            except TypeError:
+                self.grid.itemAtPosition(1, 1).widget().setParent(None)
+            except (TypeError, AttributeError):
                 pass
             label = QtWidgets.QLabel("""
 Which drive would you like to install to?\n
@@ -1135,8 +1093,6 @@ Which drive would you like to install to?\n
             PART_COMPLETION = "COMPLETED"
             self.main_menu("clicked")
 
-        self.show_all()
-
     def set_up_partitioner_label(self, additional_message=""):
         """prepare top label for display on manual partitioner
 
@@ -1146,7 +1102,7 @@ Which drive would you like to install to?\n
         Return value:
         label -- the top label ready for additional formatting and display
         """
-        label = QtWidgets.QLabel
+        label = QtWidgets.QLabel()
 
         input_string = """
 What are the mount points for the partitions you wish to be used?\n
@@ -1253,12 +1209,7 @@ Leave empty the partitions you don't want.\n
         swap_info = self._set_default_margins(swap_info)
         self.grid.addWidget(swap_info, 8, 4, 1, 1)
 
-        if ap.is_EFI():
-            self.scan_for_usable_drives("clicked", self.root, self.home,
-                                        self.swap, self.efi)
-        else:
-            self.scan_for_usable_drives("clicked", self.root, self.home,
-                                        self.swap)
+        self.scan_for_usable_drives("clicked")
 
         button1 = QtWidgets.QPushButton("Okay -->")
         button1.clicked.connect(self.check_man_part_settings)
@@ -1282,8 +1233,6 @@ Leave empty the partitions you don't want.\n
             button4.clicked.connect(self.scan_for_usable_drives)
         button4 = self._set_default_margins(button4)
         self.grid.addWidget(button4, 10, 2, 1, 1)
-
-        self.show_all()
 
     def update_possible_root_parts(self, root_drive_dropdown):
         """Update possible root partitions based on given drive"""
@@ -1319,8 +1268,6 @@ Leave empty the partitions you don't want.\n
         else:
             self.root_parts.setCurrentText("Root Partition")
 
-        self.show_all()
-
     def update_possible_home_parts(self, home_drive_dropdown):
         """Update possible root partitions based on given drive"""
         if self.home.currentText() in ("", None):
@@ -1334,7 +1281,7 @@ Leave empty the partitions you don't want.\n
                 if "children" in each:
                     for each1 in each["children"]:
                         parts.append(each1)
-        setting = home_drive_dropdown.currentText()
+        setting = home_drive_dropdown
         self.home_parts.setCurrentText(None)
         for each in range(self.home_parts.count() - 1, -1, -1):
             self.home_parts.removeItem(each)
@@ -1354,8 +1301,6 @@ Leave empty the partitions you don't want.\n
             self.home_parts.setCurrentText(self.data["HOME"])
         else:
             self.home_parts.setCurrentText("Home Partition")
-
-        self.show_all()
 
     def update_possible_swap_parts(self, swap_drive_dropdown):
         """Update possible root partitions based on given drive"""
@@ -1386,8 +1331,6 @@ Leave empty the partitions you don't want.\n
             self.swap_parts.setCurrentText(self.data["SWAP"])
         else:
             self.swap_parts.setCurrentText("Swap Partition")
-
-        self.show_all()
 
     def update_possible_efi_parts(self, efi_drive_dropdown):
         """Update possible root partitions based on given drive"""
@@ -1421,8 +1364,6 @@ Leave empty the partitions you don't want.\n
             self.efi_parts.setCurrentText(self.data["EFI"])
         else:
             self.efi_parts.setCurrentText("EFI Partition")
-
-        self.show_all()
 
     def scan_for_usable_drives(self, widget):
         """Add available drives to drive dropdowns"""
@@ -1523,7 +1464,6 @@ Leave empty the partitions you don't want.\n
                     efi_dropdown.setCurrentText("Drive with EFI Partition")
         except AttributeError:
             pass
-        self.show_all()
 
     def explain_root(self, button):
         """Explain Root Partition requierments and limitations"""
@@ -1578,8 +1518,6 @@ providing great file system performance.\n""")
         button1.clicked.connect(self.input_part)
         button1 = self._set_default_margins(button1)
         self.grid.addWidget(button1, 6, 1, 1, 1)
-
-        self.show_all()
 
     def explain_efi(self, button):
         """Explain efi Partition requierments and limitations"""
@@ -1637,8 +1575,6 @@ This partition must also have the \"boot\" and \"esp\" flags set.\n""")
         button1 = self._set_default_margins(button1)
         self.grid.addWidget(button1, 6, 1, 1, 1)
 
-        self.show_all()
-
     def explain_home(self, button):
         """Explain home Partition requierments and limitations"""
         self.clear_window()
@@ -1693,8 +1629,6 @@ solid-state drives.""")
         button1.clicked.connect(self.input_part)
         button1 = self._set_default_margins(button1)
         self.grid.addWidget(button1, 6, 1, 1, 1)
-
-        self.show_all()
 
     def explain_swap(self, button):
         """Explain swap partitions and files"""
@@ -1759,8 +1693,6 @@ size will be generated for you.""")
         button1 = self._set_default_margins(button1)
         self.grid.addWidget(button1, 6, 1, 1, 1)
 
-        self.show_all()
-
     def check_man_part_settings(self, button):
         """Check device paths provided for manual partitioner"""
         try:
@@ -1774,8 +1706,8 @@ size will be generated for you.""")
         if self.root_parts.currentText() in ("", None):
             label = self.set_up_partitioner_label("ERROR: / NOT SET")
             try:
-                self.grid.itemAt((1, 1)).widget().setParent(None)
-            except TypeError:
+                self.grid.itemAtPosition(1, 1).widget().setParent(None)
+            except (TypeError, AttributeError):
                 pass
             self.grid.addWidget(label, 1, 1, 1, 3)
             return
@@ -1783,8 +1715,8 @@ size will be generated for you.""")
             label = self.set_up_partitioner_label(
                 "ERROR: System is running EFI. An EFI partition must be set.")
             try:
-                self.grid.itemAt((1, 1)).widget().setParent(None)
-            except TypeError:
+                self.grid.itemAtPosition(1, 1).widget().setParent(None)
+            except (TypeError, AttributeError):
                 pass
             self.grid.addWidget(label, 1, 1, 1, 3)
             return
@@ -1795,8 +1727,8 @@ size will be generated for you.""")
 Make a swap partition to reduce this minimum to { round(ap.get_min_root_size(swap=False, bytes=False)) } GB"""
                 label = self.set_up_partitioner_label(label_string)
                 try:
-                    self.grid.itemAt((1, 1)).widget().setParent(None)
-                except TypeError:
+                    self.grid.itemAtPosition(1, 1).widget().setParent(None)
+                except (TypeError, AttributeError):
                     pass
                 self.grid.addWidget(label, 1, 1, 1, 3)
                 return
@@ -1805,15 +1737,15 @@ Make a swap partition to reduce this minimum to { round(ap.get_min_root_size(swa
                 label_string = f"/ is too small. Minimum Root Partition size is { round(ap.get_min_root_size(swap=False, bytes=False)) } GB"
                 label = self.set_up_partitioner_label(label_string)
                 try:
-                    self.grid.itemAt((1, 1)).widget().setParent(None)
-                except TypeError:
+                    self.grid.itemAtPosition(1, 1).widget().setParent(None)
+                except (TypeError, AttributeError):
                     pass
                 self.grid.addWidget(label, 1, 1, 1, 3)
                 return
         label = self.set_up_partitioner_label()
         try:
-            self.grid.itemAt((1, 1)).widget().setParent(None)
-        except TypeError:
+            self.grid.itemAtPosition(1, 1).widget().setParent(None)
+        except (TypeError, AttributeError):
             pass
         self.grid.addWidget(label, 1, 1, 1, 3)
         self.data["ROOT"] = self.root_parts.currentText()
@@ -1822,7 +1754,7 @@ Make a swap partition to reduce this minimum to { round(ap.get_min_root_size(swa
             self.data["EFI"] = "NULL"
         else:
             self.data["EFI"] = efi
-        if self.home_parts.currentText() in ("", " ", None):
+        if self.home_parts.currentText() in ("", " ", None, "Home Partition"):
             self.data["HOME"] = "NULL"
         else:
             self.data["HOME"] = self.home_parts.currentText()
@@ -1913,8 +1845,6 @@ with some UEFI systems. Does **NOT** require internet.""")
         buton3 = self._set_default_margins(button3)
         self.grid.addWidget(button3, 10, 1, 1, 1)
 
-        self.show_all()
-
     def options_next(self, button):
         """Set update and extras settings"""
         self.data["EXTRAS"] = self.extras.isChecked()
@@ -1998,8 +1928,6 @@ with some UEFI systems. Does **NOT** require internet.""")
         self.grid.addWidget(button3, 8, 1, 1, 1)
 
         self.update_subregion(self.time_menu)
-
-        self.show_all()
 
     def update_subregion(self, widget):
         """Narrow subregions to possible areas
@@ -2124,8 +2052,6 @@ with some UEFI systems. Does **NOT** require internet.""")
         button3 = self._set_default_margins(button3)
         self.grid.addWidget(button3, 6, 1, 1, 1)
 
-        self.show_all()
-
     def varient_narrower(self, widget):
         """Narrow down possible keyboard varients"""
         term = self.layout_menu.currentData()
@@ -2137,7 +2063,6 @@ with some UEFI systems. Does **NOT** require internet.""")
         if self.data["VARIENT"] != "":
             self.varient_menu.setCurrentText(self.data["VARIENT"])
         self.varient_menu = self._set_default_margins(self.varient_menu)
-        self.show_all()
 
     def on_keyboard_completed(self, button):
         """Set default keyboard layout if user did not specify one"""
@@ -2224,19 +2149,20 @@ Exiting now will cause all your settings to be lost.""")
         no = self._set_default_margins(no)
         self.grid.addWidget(no, 2, 2, 1, 1)
 
-        self.show_all()
-
     def _exit(self, button):
         """Exit"""
-        self.close
+        self.close()
         self.data = 1
         return 1
 
     def clear_window(self):
         """Clear Window"""
-        for i in range(self.grid.count() - 1, -1, -1):
-            self.grid.itemAt(i).widget().setParent(None)
-        self.resize(0, 0)
+        for i in range(self.grid.rowCount() - 1, -1, -1):
+            for i2 in range(self.grid.columnCount() - 1, -1, -1):
+                try:
+                    self.grid.itemAtPosition(i, i2).widget().setParent(None)
+                except (TypeError, AttributeError):
+                    pass
 
 
 def show_main(boot_time=False):
@@ -2246,6 +2172,7 @@ def show_main(boot_time=False):
     window = Main(app.primaryScreen().size())
     if boot_time:
         window = QCommon.set_window_undecorated(window)
+    window = QCommon.set_window_nonresizeable(window)
     # window.set_resizable(False)
     window.show()
     app.exec()
