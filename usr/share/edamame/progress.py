@@ -22,4 +22,5 @@
 #
 #
 import UI
+UI = UI.load_UI("GTK")
 UI.progress.show_progress()

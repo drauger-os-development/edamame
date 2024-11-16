@@ -22,13 +22,9 @@
 #
 #
 """UI for Edamame"""
-import os
-import importlib
-
-
-def load_UI(ui_type: str) -> bool:
-    """Load the specified UI type"""
-    ui = ui_type.upper()
-    if os.path.exists(f"UI/{ui}_UI"):
-        return importlib.import_module(f"UI.{ui}_UI")
-    raise ImportError(f"Module {ui}_UI is not present!")
+import UI.QT_UI.confirm as confirm
+import UI.QT_UI.error as error
+import UI.QT_UI.main as main
+import UI.QT_UI.progress as progress
+import UI.QT_UI.report as report
+import UI.QT_UI.success as success

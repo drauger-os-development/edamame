@@ -44,7 +44,8 @@ import de_control as dec
 common.eprint(f"    ###    {sys.argv[0]} STARTED    ###    ")
 
 
-def copy_log_to_disk():
+
+def copy_log_to_disk() -> None:
     """Copy Installation Log to installation location"""
     try:
         shutil.copyfile("/tmp/edamame.log",
@@ -89,6 +90,16 @@ if len(sys.argv) > 1:
             sys.exit(0)
         BOOT_TIME = True
         immerse.enable()
+    elif "--gui=" in sys.argv[1]:
+        gui = sys.argv[1].split("=")[-1]
+        try:
+            UI = UI.load_UI(gui.upper())
+        except ImportError:
+            common.eprint(f"FATAL ERROR: GUI METHOD '{gui}' DOES NOT EXIST!")
+            sys.exit(1)
+else:
+    UI = UI.load_UI("GTK")
+
 MEMCHECK = psutil.virtual_memory().total
 if (MEMCHECK / 1024 ** 2) < 1024:
     UI.error.show_error("\n\tRAM is less than 1 GB.\t\n")

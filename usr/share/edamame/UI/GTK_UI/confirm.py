@@ -24,6 +24,7 @@
 """Confirm UI for Edamame"""
 from __future__ import print_function
 from sys import argv, stderr
+import json
 import auto_partitioner as ap
 import gi
 gi.require_version('Gtk', '3.0')
@@ -336,3 +337,8 @@ def show_confirm(settings, boot_time=False):
     data = window.return_install()
     window.exit("clicked")
     return data
+
+
+if __name__ == "__main__":
+    settings = json.loads(argv[1])
+    print(show_confirm(settings))
