@@ -1092,7 +1092,7 @@ Which drive would you like to install to?\n
             self.grid.addWidget(label, 1, 1, 1, 3)
 
         else:
-            self.data["ROOT"] = self.disks.currentText()
+            self.data["ROOT"] = self.disks.currentText().split()[0]
             global PART_COMPLETION
             PART_COMPLETION = "COMPLETED"
             self.main_menu("clicked")
