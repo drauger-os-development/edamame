@@ -96,7 +96,7 @@ void launch(str arg)
 	}
 	elif (arg != "")
 	{
-		command = command + "--gui=" + arg;
+		command = command + " --gui=" + arg;
 	}
 	command = command + " 2>/tmp/edamame.log 1>&2";
 	chdir("/usr/share/edamame");
