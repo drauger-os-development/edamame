@@ -47,8 +47,12 @@ def has_special_character(input_string):
     return True
 
 
-with open("../../../../../etc/edamame/settings.json") as config_file:
-    SETTINGS = json.loads(config_file.read())
+try:
+    with open("../../../../../etc/edamame/settings.json") as config_file:
+        SETTINGS = json.loads(config_file.read())
+except FileNotFoundError:
+    with open("../../../etc/edamame/settings.json") as config_file:
+        SETTINGS = json.loads(config_file.read())
 
 
 DEFAULT = f"""
