@@ -1,0 +1,13 @@
+Package: edamame-common
+Version: 2.9.4
+Maintainer: Thomas Castleman <batcastle@draugeros.org>
+Homepage: https://github.com/drauger-os-development/edamame
+Section: admin
+Architecture: amd64
+Priority: important
+Replaces: edamame (<=2.9.3)
+Depends: arch-install-scripts, <!--python_vert-->, bash, coreutils (>=8.28-1ubuntu1), apt (>=1.6.11), squashfs-tools (>=1:4.3-6ubuntu0.18.04.1), grub2-common (>=2.02-2ubuntu8.13), initramfs-tools (>=0.130ubuntu3.8), systemd (>=237-3ubuntu10.24), locales (>=2.27-3ubuntu1), procps (>=2:3.3.12-3ubuntu1.1), grep (>=3.1-2), keyboard-configuration, util-linux (>=2.34-0.1ubuntu2), python3-parted (>=3.11.2), python3-psutil (>=5.5.0), python3-apt (>=2.0.0), python3-urllib3 (>=1.26.5-1~exp1), python3-dnspython, tzdata, laptop-detect (>=0.16), edamame-gtk (>=2.9.4) | edamame-qt (>=2.9.4)
+Description: Edamame System Installation utility - Common Files
+ Edamame System Installation utility for Debian-based Operating Systems.
+ .
+ This is the common core files for Edamame.

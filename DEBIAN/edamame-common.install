@@ -1,0 +1,17 @@
+etc/*
+usr/bin/*
+usr/lib/*
+usr/share/applications/*
+usr/share/doc/*
+usr/share/polkit-1/*
+usr/share/edamame/auto_partitoner.py
+usr/share/edamame/check_internet.py
+usr/share/edamame/check_kernel_versions.py
+usr/share/edamame/chroot.py
+usr/share/edamame/common.py
+usr/share/edamame/engine.py
+usr/share/edamame/installer.py
+usr/share/edamame/progress.py
+usr/share/edamame/success.py
+usr/share/edamame/UI/__init__.py
+usr/share/edamame/modules/*
