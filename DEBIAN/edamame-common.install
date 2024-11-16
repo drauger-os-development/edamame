@@ -4,7 +4,7 @@ usr/lib/*
 usr/share/applications/*
 usr/share/doc/*
 usr/share/polkit-1/*
-usr/share/edamame/auto_partitoner.py
+usr/share/edamame/auto_partitioner.py
 usr/share/edamame/check_internet.py
 usr/share/edamame/check_kernel_versions.py
 usr/share/edamame/chroot.py
