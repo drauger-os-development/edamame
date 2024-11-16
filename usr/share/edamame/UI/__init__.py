@@ -21,10 +21,11 @@
 #  MA 02110-1301, USA.
 #
 #
+"""UI for Edamame"""
 import os
 import importlib
 
-"""UI for Edamame"""
+
 def load_UI(ui_type: str) -> bool:
     """Load the specified UI type"""
     if os.path.exists(f"UI/{ui_type}_UI"):
