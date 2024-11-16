@@ -206,15 +206,20 @@ INSTALL = UI.confirm.show_confirm(SETTINGS, boot_time=BOOT_TIME)
 if INSTALL:
     try:
         # Run the progress bar in the background
-        process = subprocess.Popen("/usr/share/edamame/progress.py")
+        command = ["/usr/share/edamame/progress.py"]
+        if "--gui=" in sys.argv[1]:
+            command.append(sys.argv[1])
+        process = subprocess.Popen(command)
         pid = process.pid
         SETTINGS["INTERNET"] = check_internet.has_internet()
         installer.install(SETTINGS, CONFIG["local_repo"])
         shutil.rmtree("/mnt/repo")
         common.eprint(f"    ###    {sys.argv[0]} CLOSED    ###    ")
         copy_log_to_disk()
-        subprocess.Popen(["su", "live", "-c",
-                          f"/usr/share/edamame/success.py \'{json.dumps(SETTINGS)}\'"])
+        command = ["su", "live", "-c", f"/usr/share/edamame/success.py \'{json.dumps(SETTINGS)}\'"]
+        if "--gui=" in sys.argv[1]:
+            command.append(sys.argv[1])
+        subprocess.Popen(command)
         os.kill(pid, 15)
     except Exception as error:
         os.kill(pid, 15)

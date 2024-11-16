@@ -24,7 +24,15 @@
 from json import loads
 from sys import argv
 import UI
-UI = UI.load_UI("GTK")
+
+for each in argv:
+    if "--gui=" in each:
+        gui = each.split("=")[-1]
+        UI = UI.load_UI(gui)
+        break
+
+if "load_UI" in dir(UI):
+    UI = UI.load_UI("GTK")
 
 SETTINGS = loads(argv[1])
 UI.success.show_success(SETTINGS)
