@@ -28,7 +28,7 @@ import json
 from os import remove
 from qtpy import QtCore, QtWidgets, QtGui
 try:
-    import UI.Qt_UI.qt_common as QCommon
+    import UI.QT_UI.qt_common as QCommon
 except ImportError:
     import qt_common as QCommon
 

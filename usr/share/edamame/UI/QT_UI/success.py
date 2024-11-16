@@ -33,15 +33,15 @@ import tarfile as tar
 import urllib.parse as urlp
 from qtpy import QtGui, QtWidgets, QtCore
 try:
-    from UI.Qt_UI import report
+    from UI.QT_UI import report
 except ImportError:
     try:
-        from Qt_UI import report
+        from QT_UI import report
     except ImportError:
         import report
 import common
 try:
-    import UI.Qt_UI.qt_common as QCommon
+    import UI.QT_UI.qt_common as QCommon
 except ImportError:
     import qt_common as QCommon
 

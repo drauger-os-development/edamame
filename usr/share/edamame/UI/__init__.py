@@ -28,6 +28,7 @@ import importlib
 
 def load_UI(ui_type: str) -> bool:
     """Load the specified UI type"""
-    if os.path.exists(f"UI/{ui_type}_UI"):
-        return importlib.import_module(f"UI.{ui_type}_UI")
-    raise ImportError(f"Module {ui_type}_UI is not present!")
+    ui = ui_type.upper()
+    if os.path.exists(f"UI/{ui}_UI"):
+        return importlib.import_module(f"UI.{ui}_UI")
+    raise ImportError(f"Module {ui}_UI is not present!")

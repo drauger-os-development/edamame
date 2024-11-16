@@ -22,9 +22,9 @@
 #
 #
 """UI for Edamame"""
-import UI.Qt_UI.confirm as confirm
-import UI.Qt_UI.error as error
-import UI.Qt_UI.main as main
-import UI.Qt_UI.progress as progress
-import UI.Qt_UI.report as report
-import UI.Qt_UI.success as success
+import UI.QT_UI.confirm as confirm
+import UI.QT_UI.error as error
+import UI.QT_UI.main as main
+import UI.QT_UI.progress as progress
+import UI.QT_UI.report as report
+import UI.QT_UI.success as success

@@ -27,7 +27,7 @@ import sys
 import json
 from qtpy import QtGui, QtWidgets, QtCore
 try:
-    import UI.Qt_UI.qt_common as QCommon
+    import UI.QT_UI.qt_common as QCommon
 except ImportError:
     import qt_common as QCommon
 import auto_partitioner as ap

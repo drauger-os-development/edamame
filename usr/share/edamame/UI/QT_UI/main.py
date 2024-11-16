@@ -34,7 +34,7 @@ from qtpy import QtGui, QtWidgets, QtCore
 import common
 import auto_partitioner as ap
 try:
-    import UI.Qt_UI.qt_common as QCommon
+    import UI.QT_UI.qt_common as QCommon
 except ImportError:
     import qt_common as QCommon
 
