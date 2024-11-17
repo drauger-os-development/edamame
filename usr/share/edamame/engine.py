@@ -206,6 +206,7 @@ INSTALL = UI.confirm.show_confirm(SETTINGS, boot_time=BOOT_TIME)
 if INSTALL:
     try:
         # Run the progress bar in the background
+        cwd = os.getcwd()
         command = ["/usr/share/edamame/progress.py"]
         if "--gui=" in sys.argv[1]:
             command.append(sys.argv[1])
@@ -219,6 +220,8 @@ if INSTALL:
         command = ["su", "live", "-c", f"/usr/share/edamame/success.py \'{json.dumps(SETTINGS)}\'"]
         if "--gui=" in sys.argv[1]:
             command[-1] = command[-1] + " " + sys.argv[1]
+        # we need to be in a certain directory when we run the success window code
+        os.chdir(cwd)
         subprocess.Popen(command)
         os.kill(pid, 15)
     except Exception as error:
