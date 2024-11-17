@@ -98,8 +98,8 @@ the log file (located at /tmp/edamame.log) to: contact@draugeros.org""")
                 text = text.split("\n")
                 text = text[-8:]
                 for each in enumerate(text):
-                    if len(each[1]) > 90:
-                        text[each[0]] = each[1][:90]
+                    if len(each[1]) > 80:
+                        text[each[0]] = each[1][:80]
                 text = "\n".join(text)
             self.file_contents.setText(text)
         except FileNotFoundError:
