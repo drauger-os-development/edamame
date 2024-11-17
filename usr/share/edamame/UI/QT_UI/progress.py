@@ -94,15 +94,12 @@ the log file (located at /tmp/edamame.log) to: contact@draugeros.org""")
         try:
             with open("/tmp/edamame.log", "r") as read_file:
                 text = read_file.read()
-            if len(text.split("\n")) > 10:
+            if len(text.split("\n")) > 9:
                 text = text.split("\n")
-                text = text[-9:]
+                text = text[-8:]
                 for each in enumerate(text):
-                    if len(text[each[0]]) > 90:
-                        text[each[0]] = text[each[0]][:90]
-                    elif len(text[each[0]]) < 90:
-                        multiplyer = 90 - len(text[each[0]])
-                        text[each[0]] = text[each[0]] + (" " * multiplyer)
+                    if len(each[1]) > 90:
+                        text[each[0]] = each[1][:90]
                 text = "\n".join(text)
             self.file_contents.setText(text)
         except FileNotFoundError:
