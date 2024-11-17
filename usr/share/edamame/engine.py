@@ -218,7 +218,7 @@ if INSTALL:
         copy_log_to_disk()
         command = ["su", "live", "-c", f"/usr/share/edamame/success.py \'{json.dumps(SETTINGS)}\'"]
         if "--gui=" in sys.argv[1]:
-            command.append(sys.argv[1])
+            command[-1] = command[-1] + " " + sys.argv[1]
         subprocess.Popen(command)
         os.kill(pid, 15)
     except Exception as error:

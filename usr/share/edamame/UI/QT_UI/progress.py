@@ -71,6 +71,7 @@ the log file (located at /tmp/edamame.log) to: contact@draugeros.org""")
         self.file_contents.setReadOnly(True)
         self.file_contents.setCursorWidth(0)
         self.file_contents.setCurrentFont(QtGui.QFont("Ubuntu Mono"))
+        self.file_contents.setLineWrapMode(QtWidgets.QTextEdit.NoWrap)
         # self.text = self._set_default_margins(self.text)
         self.grid.addWidget(self.file_contents, 5, 1, 1, 1)
 
