@@ -1,7 +1,7 @@
 #!shebang
 # -*- coding: utf-8 -*-
 #
-#  __init__.py
+#  qt_common.py
 #
 #  Copyright 2024 Thomas Castleman <batcastle@draugeros.org>
 #
@@ -21,14 +21,17 @@
 #  MA 02110-1301, USA.
 #
 #
-"""UI for Edamame"""
-import os
-import importlib
+"""Common Qt Functions"""
+from qtpy import QtCore, QtWidgets
 
 
-def load_UI(ui_type: str) -> bool:
-    """Load the specified UI type"""
-    ui = ui_type.upper()
-    if os.path.exists(f"UI/{ui}_UI"):
-        return importlib.import_module(f"UI.{ui}_UI")
-    raise ImportError(f"Module {ui}_UI is not present!")
+def set_window_nonresizeable(qt_window):
+    """Set a Qt Window resizable or not"""
+    qt_window.grid.setSizeConstraint(QtWidgets.QLayout.SetFixedSize)
+    return qt_window
+
+
+def set_window_undecorated(qt_window: QtWidgets.QWidget) -> QtWidgets.QWidget:
+    """Set a Qt Window decorated or not"""
+    qt_window.setWindowFlag(QtCore.Qt.FramelessWindowHint)
+    return qt_window

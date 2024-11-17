@@ -29,15 +29,14 @@
 #define float_list vector<float>
 #define bool_list vector<bool>
 
- // import libs
- #include <iostream>
- #include <string>
- #include <vector>
- #include <fstream>
+// import libs
+#include <iostream>
+#include <string>
+#include <unistd.h>
 
 using namespace std;
 
-str VERSION = "2.9.0";
+str VERSION = "2.9.8";
 str R = "\033[0;31m";
 str G = "\033[0;32m";
 str Y = "\033[1;33m";
@@ -45,6 +44,7 @@ str NC = "\033[0m";
 str HELP = "\n"
 "Edamame, Version " + VERSION + "\n"
 "\n"
+"\t    --gui               specify the GUI to use. May throw an error if given toolkit is not available."
 "\t-h, --help              print this help dialoge.\n"
 "\t    --boot-time         launch Edamame in boot-time mode.\n"
 "\t-v, --version           print current version.\n"
@@ -72,7 +72,7 @@ str run(const char* cmd) {
 
 
 // Launch with boot time parameter
-void launch(bool boot_time)
+void launch(str arg)
 {
 	str command1 = "/usr/bin/xhost";
 	str enable = " +si:localuser:root";
@@ -80,7 +80,7 @@ void launch(bool boot_time)
 	str command = "echo 'toor' | sudo -S nice -n -10 /usr/share/edamame/engine.py";
 	run((command1 + enable).c_str());
 	cout << Y << "RUNNING LOG LOCATED AT /tmp/edamame.log" << NC << endl;
-	if (boot_time)
+	if (arg == "boot_time")
 	{
 		FILE* file = fopen("/tmp/edamame.log", "w");
 		if (file != NULL)
@@ -94,7 +94,12 @@ void launch(bool boot_time)
 		}
 		command = command + " --boot-time";
 	}
+	elif (arg != "")
+	{
+		command = command + " --gui=" + arg;
+	}
 	command = command + " 2>/tmp/edamame.log 1>&2";
+	chdir("/usr/share/edamame");
 	run(command.c_str());
 	run((command1 + disable).c_str());
 }
@@ -102,7 +107,7 @@ void launch(bool boot_time)
 // Launch with no parameter
 void launch()
 {
-	launch(false);
+	launch("");
 }
 
 
@@ -114,20 +119,31 @@ int main(int argc, char **argv)
 	    if ((arg == "-v") || (arg == "--version"))
 		{
 	        cout << "\n" << VERSION << "\n" << endl;
+			return 0;
 		}
 	    elif ((arg == "-h") || (arg == "--help"))
 		{
 	        cout << HELP << endl;
+			return 0;
 		}
 	    elif (arg == "--boot-time")
 		{
-	        launch(true);
+	        launch("boot_time");
+			return 0;
 		}
-	    else
+		elif (arg == "--gui")
 		{
-	        cerr << "Option " << arg << " not recognized." << endl;
-	        cerr << HELP << endl;
+			if (argc > 2)
+			{
+				launch(argv[2]);
+				return 0;
+			}
+			cout << "No GUI method selected. Please select a GUI method to use." << endl;
+			return 1;
 		}
+	    cerr << "Option '" << arg << "' not recognized." << endl;
+		cerr << HELP << endl;
+		return 1;
 	}
 	else
 	{

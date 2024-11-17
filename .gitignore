@@ -4,3 +4,4 @@ changelog.gz
 changelog
 *.o
 *.so
+build/

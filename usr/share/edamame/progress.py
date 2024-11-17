@@ -22,4 +22,12 @@
 #
 #
 import UI
+import sys
+
+if "--gui=" in sys.argv[1]:
+    gui = sys.argv[1].split("=")[-1]
+    UI = UI.load_UI(gui)
+else:
+    UI = UI.load_UI("GTK")
+
 UI.progress.show_progress()

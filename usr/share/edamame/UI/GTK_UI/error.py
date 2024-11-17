@@ -26,7 +26,7 @@ from sys import argv
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
-from UI import report
+from UI.GTK_UI import report
 
 
 class Main(report.Main):

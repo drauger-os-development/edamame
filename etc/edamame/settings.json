@@ -18,10 +18,10 @@
 					"EFI": {
 						"EFI": {
 								"START": 0,
-								"END": 500
+								"END": 1024
 								},
 						"ROOT":{
-								"START": 501,
+								"START": 1025,
 								"END": "40%",
 								"fs": "btrfs"
 								},
@@ -51,5 +51,8 @@
 	"run_post_oem": ["/usr/bin/drauger-welcome"],
 	"kernel_meta_pkg": "linux-drauger",
 	"remove_pkgs": ["edamame",
-					"persistence-daemon"]
+					"persistence-daemon"],
+	"hostname_prepend": "DRAUGER",
+	"hostname_append_len": 8,
+	"min_password_length": 4
 }

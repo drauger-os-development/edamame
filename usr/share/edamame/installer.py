@@ -33,6 +33,7 @@ import chroot
 import common
 import auto_partitioner
 
+UI = UI.load_UI("GTK")
 
 def __mount__(device, path_dir):
     """Mount device at path
