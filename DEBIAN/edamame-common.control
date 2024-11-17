@@ -1,5 +1,5 @@
 Package: edamame-common
-Version: 2.9.8
+Version: 2.9.9
 Maintainer: Thomas Castleman <batcastle@draugeros.org>
 Homepage: https://github.com/drauger-os-development/edamame
 Section: admin
@@ -10,4 +10,4 @@ Depends: arch-install-scripts, <!--python_vert-->, bash, coreutils (>=8.28-1ubun
 Description: Edamame System Installation utility - Common Files
  Edamame System Installation utility for Debian-based Operating Systems.
  .
- This is the common core files for Edamame.
+ These are the common core files for Edamame.

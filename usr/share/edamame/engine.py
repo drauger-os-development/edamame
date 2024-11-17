@@ -209,7 +209,10 @@ INSTALL = UI.confirm.show_confirm(SETTINGS, boot_time=BOOT_TIME)
 if INSTALL:
     try:
         # Run the progress bar in the background
-        cwd = os.getcwd()
+        # we need to be in a certain directory when we run the
+        # progress window code
+        cwd = "/".join(sys.argv[0].split("/")[:-1])
+        os.chdir(cwd)
         command = ["/usr/share/edamame/progress.py"]
         if "--gui=" in sys.argv[1]:
             command.append(sys.argv[1])
