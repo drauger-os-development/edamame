@@ -140,5 +140,7 @@ mv "$FOLDER/DEBIAN/edamame-common.control" "$FOLDER/DEBIAN/control"
 # mv "$FOLDER/DEBIAN/edamame-common.install" "$FOLDER/DEBIAN/install"
 dpkg-deb --build "$FOLDER"
 rm -rfv "$FOLDER"
-
+cd "$base"
+mkdir build
+mv -v ../edamame-common*.deb ./build/
 echo "$PAK Version: $VERSION built!"

@@ -68,4 +68,7 @@ cd "$base"
 for each in $files_to_edit; do
 	sed -i "s:$shebang:\#\!shebang:" $each
 done
+cd "$base"
+mkdir build
+mv -v ../edamame-qt*.deb ./build/
 echo "$PAK Version: $VERSION built!"
