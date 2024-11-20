@@ -33,7 +33,6 @@ import chroot
 import common
 import auto_partitioner
 
-UI = UI.load_UI("GTK")
 
 def __mount__(device, path_dir):
     """Mount device at path
@@ -58,7 +57,7 @@ def __update__(percentage):
             progress.write(str(percentage))
 
 
-def install(settings, local_repo):
+def install(settings: dict, local_repo: str, ui_type: str) -> None:
     """Begin installation proceidure
 
     settings should be a dictionary with the following values:
@@ -86,6 +85,7 @@ def install(settings, local_repo):
     json.loads()["DATA"] to see an example of acceptable settings
     """
     common.eprint("    ###    installer.py STARTED    ###    ")
+    UI = UI.load_UI(ui_type)
     work_dir = "/tmp/quick-install_working-dir"
     # STEP 1: Partion and format the drive ( if needed )
     if settings["AUTO_PART"]:
