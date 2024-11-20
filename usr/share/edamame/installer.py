@@ -181,7 +181,7 @@ def install(settings: dict, local_repo: str, ui_type: str) -> None:
                     "/mnt/tmp/edamame-progress.log")
     os.remove("/tmp/edamame-progress.log")
     os.symlink("/mnt/tmp/edamame-progress.log",
-            "/tmp/edamame-progress.log")
+               "/tmp/edamame-progress.log")
     __update__(32)
     # STEP 4: Update fstab
     common.eprint("    ###    Updating FSTAB    ###    ")
@@ -253,8 +253,7 @@ def install(settings: dict, local_repo: str, ui_type: str) -> None:
         common.eprint("    ###    SYSTEMD-BOOT NOT CONFIGURED. CORRECTING . . .    ###    ")
         check_call(["arch-chroot", "/mnt", "systemd-boot-manager", "-r"])
     try:
-        shutil.rmtree("/mnt/home/" + settings["USERNAME"] +
-                      "/.config/xfce4/panel/launcher-3")
+        shutil.rmtree(f"/mnt/home/{settings["USERNAME"]}/.config/xfce4/panel/launcher-3")
     except FileNotFoundError:
         pass
     __update__(100)
