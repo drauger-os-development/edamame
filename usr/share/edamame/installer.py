@@ -33,7 +33,6 @@ import chroot
 import common
 import auto_partitioner
 
-UI = UI.load_UI("GTK")
 
 def __mount__(device, path_dir):
     """Mount device at path
@@ -58,7 +57,7 @@ def __update__(percentage):
             progress.write(str(percentage))
 
 
-def install(settings, local_repo):
+def install(settings: dict, local_repo: str, ui_type: str) -> None:
     """Begin installation proceidure
 
     settings should be a dictionary with the following values:
@@ -86,6 +85,7 @@ def install(settings, local_repo):
     json.loads()["DATA"] to see an example of acceptable settings
     """
     common.eprint("    ###    installer.py STARTED    ###    ")
+    UI = UI.load_UI(ui_type)
     work_dir = "/tmp/quick-install_working-dir"
     # STEP 1: Partion and format the drive ( if needed )
     if settings["AUTO_PART"]:
@@ -181,7 +181,7 @@ def install(settings, local_repo):
                     "/mnt/tmp/edamame-progress.log")
     os.remove("/tmp/edamame-progress.log")
     os.symlink("/mnt/tmp/edamame-progress.log",
-            "/tmp/edamame-progress.log")
+               "/tmp/edamame-progress.log")
     __update__(32)
     # STEP 4: Update fstab
     common.eprint("    ###    Updating FSTAB    ###    ")
@@ -253,8 +253,7 @@ def install(settings, local_repo):
         common.eprint("    ###    SYSTEMD-BOOT NOT CONFIGURED. CORRECTING . . .    ###    ")
         check_call(["arch-chroot", "/mnt", "systemd-boot-manager", "-r"])
     try:
-        shutil.rmtree("/mnt/home/" + settings["USERNAME"] +
-                      "/.config/xfce4/panel/launcher-3")
+        shutil.rmtree(f"/mnt/home/{settings["USERNAME"]}/.config/xfce4/panel/launcher-3")
     except FileNotFoundError:
         pass
     __update__(100)
