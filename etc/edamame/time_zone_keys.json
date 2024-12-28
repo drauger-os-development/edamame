@@ -1,0 +1,122 @@
+{
+  "Africa": {
+    "Egypt": 0,
+    "Nigeria": 0,
+    "South Africa": 0,
+    "Swahili": 0,
+    "Democratic Republic of the Congo": 0,
+    "Togo": 0,
+    "Amharic": 0,
+    "Morocco": 0,
+    "Bambara": 0,
+    "Algeria": 0,
+    "Cameroon": 0,
+    "Ghana": 0,
+    "Wolof": 0,
+    "Tswana": 0,
+    "NKo": 0
+  },
+  "America": {
+    "Latin America": 0
+  },
+  "Antarctica": {},
+  "Arctic": {},
+  "Asia": {
+    "Chinese": 0,
+    "Indian": 0,
+    "Japanese": 0,
+    "Cambodia": 0,
+    "Korean": 0,
+    "Mongolian": 0,
+    "Nepali": 0,
+    "Lao": 0,
+    "Russia": 0,
+    "Taiwan": 0,
+    "Pakistan": 0,
+    "Vietnam": 0,
+    "Uzbek": 0,
+    "Thai": 0,
+    "Turkmen": 0,
+    "Kazakh": 0,
+    "Arabic": 1,
+    "Iraq": 0,
+    "Syria": 0,
+    "Azerbaijani": 0,
+    "Bangla": 0,
+    "Burmese": 0,
+    "Dari": 0,
+    "Dhivehi": 0,
+    "Dzongkha": 0,
+    "Hebrew": 0,
+    "Tajik": 0,
+    "Kyrgyz": 0,
+    "Malay": 0,
+    "Sinhala": 0,
+    "Persian": 0
+  },
+  "Atlantic": {
+    "Icelandic": 0
+  },
+  "Australia": {
+    "Australia": 0
+  },
+  "Brazil": {
+    "Brazil": 0
+  },
+  "Canada": {
+    "Canada": 0
+  },
+  "Chile": {},
+  "Etc": {},
+  "Europe": {
+    "Dutch": 0,
+    "UK": 0,
+    "Finnish": 0,
+    "French": 1,
+    "German": 0,
+    "Greek": 0,
+    "Irish": 0,
+    "Italian": 0,
+    "Norwegian": 0,
+    "Polish": 0,
+    "Portuguese": 1,
+    "Spanish": 1,
+    "Swedish": 0,
+    "Switzerland": 0,
+    "Turkish": 0,
+    "Ukranian": 0,
+    "Belrusian": 0,
+    "Croatian": 0,
+    "Georgian": 0,
+    "Slovenian": 0,
+    "Macedonian": 0,
+    "Czech": 0,
+    "Danish": 0,
+    "Albanian": 0,
+    "Armenian": 0,
+    "Belgian": 0,
+    "Bosnian": 0,
+    "Bulgarian": 0,
+    "Estonian": 0,
+    "Faroese": 0,
+    "Hungarian": 0,
+    "Latvian": 0,
+    "Lithuanian": 0,
+    "Maltese": 0,
+    "Moldavian": 0,
+    "Montenegrin": 0,
+    "Slovak": 0,
+    "Serbian": 0,
+    "Romanian": 0
+  },
+  "Indian": {},
+  "Mexico": {},
+  "Pacific": {
+    "Filipino": 0,
+    "New Zealand": 0,
+    "Indonesian": 0
+  },
+  "US": {
+    "US": 0
+  }
+}

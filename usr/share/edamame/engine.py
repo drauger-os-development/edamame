@@ -72,6 +72,7 @@ def shutdown(boot_time: bool, immersion_obj: dec.Immersion,
 
 BOOT_TIME = False
 immerse = dec.Immersion()
+gui = "gtk"
 if len(sys.argv) > 1:
     if sys.argv[1] == "--boot-time":
         # OEM post-install configuration, on-boot installation, and more
@@ -93,13 +94,12 @@ if len(sys.argv) > 1:
         immerse.enable()
     elif "--gui=" in sys.argv[1]:
         gui = sys.argv[1].split("=")[-1]
-        try:
-            UI = UI.load_UI(gui.upper())
-        except ImportError:
-            common.eprint(f"FATAL ERROR: GUI METHOD '{gui}' DOES NOT EXIST!")
-            sys.exit(1)
-else:
-    UI = UI.load_UI("GTK")
+
+try:
+    UI = UI.load_UI(gui.upper())
+except ImportError:
+    common.eprint(f"FATAL ERROR: GUI METHOD '{gui}' DOES NOT EXIST!")
+    sys.exit(1)
 
 MEMCHECK = psutil.virtual_memory().total
 if (MEMCHECK / 1024 ** 2) < 1024:
@@ -219,7 +219,7 @@ if INSTALL:
         process = subprocess.Popen(command)
         pid = process.pid
         SETTINGS["INTERNET"] = check_internet.has_internet()
-        installer.install(SETTINGS, CONFIG["local_repo"])
+        installer.install(SETTINGS, CONFIG["local_repo"], ui_type=gui)
         shutil.rmtree("/mnt/repo")
         common.eprint(f"    ###    {sys.argv[0]} CLOSED    ###    ")
         copy_log_to_disk()
