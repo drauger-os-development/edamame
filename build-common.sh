@@ -73,7 +73,7 @@ else
 	echo "Input not recognized. Defaulting to Python 3.11"
 fi
 {
-	g++ -fPIE -m64 -o edamame edamame.cxx
+	g++ -pie -m64 -O3 -s -o edamame edamame.cxx
 } || {
 	echo "Build failed. Try making sure you have 'python${vert}-dev' and 'libpython${vert}-dev' installed" 1>&2
 	exit 2

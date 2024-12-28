@@ -99,7 +99,11 @@ void launch(str arg)
 		command = command + " --gui=" + arg;
 	}
 	command = command + " 2>/tmp/edamame.log 1>&2";
-	chdir("/usr/share/edamame");
+	if (chdir("/usr/share/edamame") != 0 )
+	{
+		cout << R << "COULD NOT CHANGE DIRECTORY! EXITING!" << NC << endl;
+		return;
+	}
 	run(command.c_str());
 	run((command1 + disable).c_str());
 }
