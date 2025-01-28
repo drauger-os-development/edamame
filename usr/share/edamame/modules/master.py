@@ -261,12 +261,12 @@ def install_kernel(release):
         eprint("WARNING: Clean up post-kernel install failed. This will likely be fixed later.")
 
 
-def install_bootloader(efi, root, release, distro, compat_mode):
+def install_bootloader(efi, root, release, distro, compat_mode, upgraded=False):
     """Determine whether bootloader needs to be systemd-boot (for UEFI)
     or GRUB (for BIOS)
     and install the correct one."""
     if efi not in ("NULL", None, "", False):
-        _install_systemd_boot(release, root, distro, compat_mode)
+        _install_systemd_boot(release, root, distro, compat_mode, upgraded)
     else:
         _install_grub(root)
 
@@ -305,9 +305,12 @@ def _install_grub(root):
                           stdout=stderr.buffer)
 
 
-def _install_systemd_boot(release, root, distro, compat_mode):
+def _install_systemd_boot(release, root, distro, compat_mode, upgraded):
     """set up and install systemd-boot"""
-    install_command = ["dpkg", "--install", "--force-confnew"]
+    if upgraded:
+        install_command = ["apt", "install", "-y", "--assume-yes"]
+    else:
+        install_command = ["dpkg", "--install", "--force-confnew"]
     try:
         os.makedirs("/boot/efi/loader/entries", exist_ok=True)
     except FileExistsError:
@@ -355,27 +358,28 @@ def _install_systemd_boot(release, root, distro, compat_mode):
         depends = subproc.check_output(["dpkg", "-f"] + packages + ["depends"])
         depends = depends.decode()[:-1].split(", ")
         depends = [depends[each[0]].split(" ")[0] for each in enumerate(depends)]
-        for each in os.listdir():
-            for each1 in depends:
-                if ((each1 in each) and (each not in packages)):
-                    packages.append(each)
-                    break
-        subproc.check_call(install_command + packages,
-                           stdout=stderr.buffer)
-    packages = [each for each in os.listdir("/repo") if ("systemd-boot-manager" in each) or ("efibootmgr" in each)]
-    os.chdir("/repo")
-    depends = subproc.check_output(["dpkg", "-f"] + packages + ["depends"])
-    depends = depends.decode()[:-1].split(", ")
-    # List of dependencies
-    depends = [depends[each[0]].split(" ")[0] for each in enumerate(depends)]
-    # depends is just a list of package names. We now need to go through the list
-    # of files in this folder, and if the package name is in the file name, add
-    # it to the list `packages`
-    for each in os.listdir():
-        for each1 in depends:
-            if ((each1 in each) and (each not in packages)):
-                packages.append(each)
-                break
+        if not upgraded:
+            for each in os.listdir():
+                for each1 in depends:
+                    if ((each1 in each) and (each not in packages)):
+                        packages.append(each)
+                        break
+            packages = [each for each in os.listdir("/repo") if ("systemd-boot-manager" in each) or ("efibootmgr" in each)]
+            os.chdir("/repo")
+            depends = subproc.check_output(["dpkg", "-f"] + packages + ["depends"])
+            depends = depends.decode()[:-1].split(", ")
+            # List of dependencies
+            depends = [depends[each[0]].split(" ")[0] for each in enumerate(depends)]
+            # depends is just a list of package names. We now need to go through the list
+            # of files in this folder, and if the package name is in the file name, add
+            # it to the list `packages`
+            for each in os.listdir():
+                for each1 in depends:
+                    if ((each1 in each) and (each not in packages)):
+                        packages.append(each)
+                        break
+        else:
+            packages = [each.split("_")[0] for each in packages]
     subproc.check_call(install_command + packages,
                           stdout=stderr.buffer)
     os.chdir("/")
@@ -406,7 +410,7 @@ def _install_systemd_boot(release, root, distro, compat_mode):
     check_systemd_boot(release, root, distro)
 
 
-def setup_lowlevel(efi, root, distro, compat_mode):
+def setup_lowlevel(efi, root, distro, compat_mode, upgraded=False):
     """Set up kernel and bootloader"""
     release = subproc.check_output(["uname", "--release"]).decode()[0:-1]
     eprint(f"Running kernel: { release }")
@@ -416,7 +420,7 @@ def setup_lowlevel(efi, root, distro, compat_mode):
     eprint("\n    ###    MAKING INITRAMFS    ###    ")
     subproc.check_call(["mkinitramfs", "-o", "/boot/initrd.img-" + release],
                           stdout=stderr.buffer)
-    install_bootloader(efi, root, release, distro, compat_mode)
+    install_bootloader(efi, root, release, distro, compat_mode, upgraded)
     sleep(0.5)
     os.symlink("/boot/initrd.img-" + release, "/boot/initrd.img")
     os.symlink("/boot/vmlinuz-" + release, "/boot/vmlinuz")
@@ -551,7 +555,7 @@ def install(settings, distro):
     MainInstallation(processes_to_do, settings)
     handle_laptops(settings["USERNAME"])
     setup_lowlevel(settings["EFI"], settings["ROOT"], distro,
-                   settings["COMPAT_MODE"])
+                   settings["COMPAT_MODE"], settings["UPDATES"])
     verify(settings["USERNAME"], settings["ROOT"], distro)
     if "PURGE" in settings:
         purge_package(settings["PURGE"])
