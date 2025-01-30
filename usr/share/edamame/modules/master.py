@@ -418,8 +418,11 @@ def setup_lowlevel(efi, root, distro, compat_mode, upgraded=False):
     set_plymouth_theme()
     __update__(91)
     eprint("\n    ###    MAKING INITRAMFS    ###    ")
+    if not os.path.exists("/var/tmp"):
+        os.mkdir("/var/tmp")
+        os.chmod("/var/tmp", 0o777)
     subproc.check_call(["mkinitramfs", "-o", "/boot/initrd.img-" + release],
-                          stdout=stderr.buffer)
+                       stdout=stderr.buffer)
     install_bootloader(efi, root, release, distro, compat_mode, upgraded)
     sleep(0.5)
     os.symlink("/boot/initrd.img-" + release, "/boot/initrd.img")
