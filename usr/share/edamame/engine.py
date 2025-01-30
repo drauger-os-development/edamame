@@ -214,8 +214,11 @@ if INSTALL:
         cwd = "/".join(sys.argv[0].split("/")[:-1])
         os.chdir(cwd)
         command = ["/usr/share/edamame/progress.py"]
-        if "--gui=" in sys.argv[1]:
-            command.append(sys.argv[1])
+        if len(sys.argv) > 1:
+            if "--gui=" in sys.argv[1]:
+                command.append(sys.argv[1])
+        else:
+            command.append(gui)
         process = subprocess.Popen(command)
         pid = process.pid
         SETTINGS["INTERNET"] = check_internet.has_internet()
@@ -225,8 +228,11 @@ if INSTALL:
         copy_log_to_disk()
         command = ["su", "live", "-c",
                    f"/usr/share/edamame/success.py \'{json.dumps(SETTINGS)}\'"]
-        if "--gui=" in sys.argv[1]:
-            command[-1] = command[-1] + " " + sys.argv[1]
+        if len(sys.argv) > 1:
+            if "--gui=" in sys.argv[1]:
+                command[-1] = f"{command[-1]} {sys.argv[1]}"
+        else:
+            command[-1] =  f"{command[-1]} {gui}"
         # we need to be in a certain directory when we run the
         # success window code
         os.chdir(cwd)
