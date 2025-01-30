@@ -85,7 +85,7 @@ def install(settings: dict, local_repo: str, ui_type: str) -> None:
     json.loads()["DATA"] to see an example of acceptable settings
     """
     common.eprint("    ###    installer.py STARTED    ###    ")
-    UI = UI.load_UI(ui_type)
+    ui = UI.load_UI(ui_type)
     work_dir = "/tmp/quick-install_working-dir"
     # STEP 1: Partion and format the drive ( if needed )
     if settings["AUTO_PART"]:
@@ -134,7 +134,7 @@ def install(settings: dict, local_repo: str, ui_type: str) -> None:
         config = json.loads(file.read())
     if not os.path.exists(config["squashfs_Location"]):
         common.eprint("\n    SQUASHFS FILE DOES NOT EXIST    \n")
-        UI.error.show_error("\n\tSQUASHFS FILE DOES NOT EXIST\t\n")
+        ui.error.show_error("\n\tSQUASHFS FILE DOES NOT EXIST\t\n")
     __update__(17)
     os.chdir("/mnt")
     common.eprint("CLEANING INSTALLATION DIRECTORY")
