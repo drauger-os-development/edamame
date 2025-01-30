@@ -308,7 +308,7 @@ def _install_grub(root):
 def _install_systemd_boot(release, root, distro, compat_mode, upgraded):
     """set up and install systemd-boot"""
     if upgraded:
-        install_command = ["apt", "install", "-y", "--assume-yes"]
+        install_command = ["apt-get", "install", "-y", "--assume-yes"]
     else:
         install_command = ["dpkg", "--install", "--force-confnew"]
     try:
