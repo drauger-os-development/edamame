@@ -24,10 +24,13 @@
 import UI
 import sys
 
-if "--gui=" in sys.argv[1]:
-    gui = sys.argv[1].split("=")[-1]
-    UI = UI.load_UI(gui)
-else:
-    UI = UI.load_UI("GTK")
+try:
+    if "--gui=" in sys.argv[1]:
+        gui = sys.argv[1].split("=")[-1].upper()
+        ui = UI.load_UI(gui)
+    else:
+        ui = UI.load_UI("GTK")
+except IndexError:
+    ui = UI.load_UI("GTK")
 
-UI.progress.show_progress()
+ui.progress.show_progress()

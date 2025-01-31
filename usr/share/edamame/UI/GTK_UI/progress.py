@@ -22,7 +22,6 @@
 #
 #
 """Progress Window GUI"""
-import sys
 import signal
 import json
 import gi
@@ -159,13 +158,13 @@ def show_progress():
     signal.signal(signal.SIGTERM, handle_sig_term)
     global window
     window = Worker(distro)
-    exit_status = window.run(sys.argv)
+    exit_status = window.run([])
 
 
 def handle_sig_term(signum, frame):
     global window
     window.win.destroy()
-    sys.exit()
+    exit()
 
 
 if __name__ == '__main__':

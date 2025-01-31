@@ -309,6 +309,12 @@ def _install_systemd_boot(release, root, distro, compat_mode, upgraded):
     """set up and install systemd-boot"""
     if upgraded:
         install_command = ["apt-get", "install", "-y", "--assume-yes"]
+        try:
+            subproc.check_call(["apt-get", "update"])
+        except subproc.CalledProcessError:
+            # We might have lost internet access. Fall back to local archive
+            install_command = ["dpkg", "--install", "--force-confnew"]
+            upgraded = False
     else:
         install_command = ["dpkg", "--install", "--force-confnew"]
     try:
