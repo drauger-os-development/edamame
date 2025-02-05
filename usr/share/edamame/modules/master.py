@@ -310,13 +310,20 @@ def _install_systemd_boot(release, root, distro, compat_mode, upgraded):
     if upgraded:
         install_command = ["apt-get", "install", "-y", "--assume-yes"]
         try:
-            subproc.check_call(["apt-get", "update"])
+            apt_output = subproc.check_output(["apt-get", "update"])
+            apt_output = apt_output.decode()
+            if apt_output[:3].lower() == "ign":
+                # We lost internet. Revert to local archive
+                install_command = ["dpkg", "--install", "--force-confnew"]
+                upgraded = False
         except subproc.CalledProcessError:
             # We might have lost internet access. Fall back to local archive
             install_command = ["dpkg", "--install", "--force-confnew"]
             upgraded = False
     else:
         install_command = ["dpkg", "--install", "--force-confnew"]
+
+    # This can be done at any point, but lets just go ahead and do it.
     try:
         os.makedirs("/boot/efi/loader/entries", exist_ok=True)
     except FileExistsError:
@@ -328,10 +335,14 @@ def _install_systemd_boot(release, root, distro, compat_mode, upgraded):
     os.environ["SYSTEMD_RELAX_ESP_CHECKS"] = "1"
     with open("/etc/environment", "a") as envi:
         envi.write("export SYSTEMD_RELAX_ESP_CHECKS=1")
+
+    # At this point, we need to essentially check and see if systemd-boot is installed.
     try:
         subproc.check_call(["bootctl", "--path=/boot/efi", "install"],
                               stdout=stderr.buffer)
+        # It is, we just ran installation. We're done here basically.
     except subproc.CalledProcessError as e:
+        # Installation ran into an issue, but we have systemd-boot. Manually install it.
         eprint("WARNING: bootctl issued CalledProcessError:")
         eprint(e)
         eprint("Performing manual installation of systemd-boot.")
@@ -358,13 +369,16 @@ def _install_systemd_boot(release, root, distro, compat_mode, upgraded):
         except FileExistsError:
             pass
     except FileNotFoundError:
+        # We do NOT have systemd-boot installed. Install it.
         # using new installation method
         packages = [each for each in os.listdir("/repo") if ("systemd-boot" in each) and ("manager" not in each)]
         os.chdir("/repo")
         depends = subproc.check_output(["dpkg", "-f"] + packages + ["depends"])
         depends = depends.decode()[:-1].split(", ")
         depends = [depends[each[0]].split(" ")[0] for each in enumerate(depends)]
+        # Check if updates where installed
         if not upgraded:
+            # Updates WERE NOT installed
             for each in os.listdir():
                 for each1 in depends:
                     if ((each1 in each) and (each not in packages)):
@@ -385,6 +399,7 @@ def _install_systemd_boot(release, root, distro, compat_mode, upgraded):
                         packages.append(each)
                         break
         else:
+            # Updates WERE installed
             packages = [each.split("_")[0] for each in packages]
     subproc.check_call(install_command + packages,
                           stdout=stderr.buffer)
