@@ -371,7 +371,9 @@ def _install_systemd_boot(release, root, distro, compat_mode, upgraded):
     except FileNotFoundError:
         # We do NOT have systemd-boot installed. Install it.
         # using new installation method
-        packages = [each for each in os.listdir("/repo") if ("systemd-boot" in each) and ("manager" not in each)]
+
+        # Get packages for systemd-boot
+        packages = [each for each in os.listdir("/repo") if "systemd-boot" in each]
         os.chdir("/repo")
         depends = subproc.check_output(["dpkg", "-f"] + packages + ["depends"])
         depends = depends.decode()[:-1].split(", ")
@@ -384,9 +386,12 @@ def _install_systemd_boot(release, root, distro, compat_mode, upgraded):
                     if ((each1 in each) and (each not in packages)):
                         packages.append(each)
                         break
-            packages = [each for each in os.listdir("/repo") if ("systemd-boot-manager" in each) or ("efibootmgr" in each)]
+
+            # Get packages for systemd-boot-manager
+            packages = [each for each in packages if "systemd-boot-manager" not in each]
+            new_packages = [each for each in os.listdir("/repo") if ("systemd-boot-manager" in each) or ("efibootmgr" in each)]
             os.chdir("/repo")
-            depends = subproc.check_output(["dpkg", "-f"] + packages + ["depends"])
+            depends = subproc.check_output(["dpkg", "-f"] + new_packages + ["depends"])
             depends = depends.decode()[:-1].split(", ")
             # List of dependencies
             depends = [depends[each[0]].split(" ")[0] for each in enumerate(depends)]
@@ -395,12 +400,14 @@ def _install_systemd_boot(release, root, distro, compat_mode, upgraded):
             # it to the list `packages`
             for each in os.listdir():
                 for each1 in depends:
-                    if ((each1 in each) and (each not in packages)):
-                        packages.append(each)
+                    if ((each1 in each) and (each not in new_packages)):
+                        new_packages.append(each)
                         break
+            packages = packages + new_packages
         else:
             # Updates WERE installed
             packages = [each.split("_")[0] for each in packages]
+            packages.append("efibootmgr")
     subproc.check_call(install_command + packages,
                           stdout=stderr.buffer)
     os.chdir("/")
