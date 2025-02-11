@@ -56,4 +56,4 @@ def auto_load_ui():
 
         If the UI for the currently in use toolkit does not exist, the same error as that one liner will be thrown.
     """
-    return UI.load_UI(UI.UI_in_use())
+    return load_UI(UI_in_use())
