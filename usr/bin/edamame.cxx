@@ -1,7 +1,7 @@
 /*
  * edamame.cxx
  *
- * Copyright 2024 Thomas Castleman <batcastle@draugeros.org>
+ * Copyright 2025 Thomas Castleman <batcastle@draugeros.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@
 
 using namespace std;
 
-str VERSION = "3.0.1";
+str VERSION = "3.0.2";
 str R = "\033[0;31m";
 str G = "\033[0;32m";
 str Y = "\033[1;33m";
