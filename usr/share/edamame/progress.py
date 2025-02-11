@@ -29,8 +29,8 @@ try:
         gui = sys.argv[1].split("=")[-1].upper()
         ui = UI.load_UI(gui)
     else:
-        ui = UI.load_UI("GTK")
+        ui = UI.auto_load_ui()
 except IndexError:
-    ui = UI.load_UI("GTK")
+    ui = UI.auto_load_ui()
 
 ui.progress.show_progress()

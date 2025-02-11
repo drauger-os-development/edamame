@@ -72,7 +72,7 @@ def shutdown(boot_time: bool, immersion_obj: dec.Immersion,
 
 BOOT_TIME = False
 immerse = dec.Immersion()
-gui = "gtk"
+gui = UI.UI_in_use()
 if len(sys.argv) > 1:
     if sys.argv[1] == "--boot-time":
         # OEM post-install configuration, on-boot installation, and more
@@ -93,10 +93,10 @@ if len(sys.argv) > 1:
         BOOT_TIME = True
         immerse.enable()
     elif "--gui=" in sys.argv[1]:
-        gui = sys.argv[1].split("=")[-1]
+        gui = sys.argv[1].split("=")[-1].upper()
 
 try:
-    UI = UI.load_UI(gui.upper())
+    UI = UI.load_UI(gui)
 except ImportError:
     common.eprint(f"FATAL ERROR: GUI METHOD '{gui}' DOES NOT EXIST!")
     sys.exit(1)
