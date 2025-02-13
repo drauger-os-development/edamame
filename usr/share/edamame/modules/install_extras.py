@@ -26,9 +26,9 @@ from __future__ import print_function
 from sys import stderr
 import apt
 import subprocess as subproc
-import urllib3
 import os
 import json
+import gzip
 
 import modules.purge as purge
 
@@ -39,57 +39,140 @@ def __eprint__(*args, **kwargs):
     print(*args, file=stderr, **kwargs)
 
 
-def http_get(url):
-    """Preform HTTP GET request"""
-    http = urllib3.PoolManager()
-    data = http.request("GET", url).data.decode()
-    return data
+def check_compat(version_number: int, card: tuple) -> bool:
+    """Download driver meta package"""
+    try:
+        subproc.check_call(["apt-get", "download", f"nvidia-driver-{version_number}"])
+    except subproc.CalledProcessError:
+        # We likely lost internet. Return False since we don't know for sure.
+        return False
 
+    # Extract Data
+    files = os.listdir()
+    deb_file = None
+    for each in files:
+        if f"nvidia-driver-{version_number}" in each:
+            if ".deb" == each[-4:]:
+                deb_file = each
+                break
+    # File has gone missing. Return False.
+    if deb_file == None:
+        return False
+    test_folder = f"test-nvidia-driver-{version_number}"
+    os.mkdir(test_folder)
+    try:
+        subproc.check_call(["dpkg", "--extract", deb_file, test_folder])
+    except subproc.CalledProcessError:
+        # Something is corrupt with the deb package. Return False.
+        return False
 
-def determine_driver(card):
-    """Determine which Nvidia driver is needed for a given card."""
-    # Get Nvidia driver archive page
-    data = http_get("https://www.nvidia.com/en-us/drivers/unix/")
-    # Parse the page
-    data = data.split('\n')
-    for each in data:
-        if "Linux x86_64/AMD64" in each:
-            linux_drivers = each.split("<br>")[1:-1]
+    # Open and read the ReadMe file
+    needed_file = f"{test_folder}/usr/share/doc/nvidia-driver-{version_number}/README.txt.gz"
+    with gzip.open(needed_file, "rt") as file:
+        contents = file.read().split("\n")
+
+    # Parse Readme
+    passed_toc = False
+    key = "Appendix A. Supported NVIDIA GPU Products"
+    line_num = 0
+    for each in contents:
+        if each == key:
+            if passed_toc:
+                line_num += 1
+                contents = contents[line_num:]
+                break
+            else:
+                passed_toc = True
+        line_num += 1
+    key = "A1. CURRENT NVIDIA GPUS"
+    line_num = 0
+    for each in contents:
+        if each == key:
+            if passed_toc:
+                line_num += 1
+                contents = contents[line_num:]
+                break
+            else:
+                passed_toc = True
+        line_num += 1
+    contents = contents[4:]
+    line_num = 0
+    for each in contents:
+        if each == "":
             break
-    drivers = {}
-    """
-    Associate each driver with it's download page link
-    We do this because the download page has the information on it as to which cards each driver supports
-    """
-    for each in linux_drivers:
-        partial_parse = each.split("href=\"")[1].split('"')
-        driver_code = partial_parse[1][1:].split(".")[0].strip()
-        link = partial_parse[0].strip()
-        if driver_code not in drivers.keys():
-            drivers[driver_code] = link
-    # Search driver download page for mentions of card installed
-    options = []
-    for each in drivers:
-        data = http_get(drivers[each])
-        if card in data:
-            options.append(int(each))
-    # sort all options and return the one with the largest version code
-    # This code is going to be the most recent driver
-    options.sort()
-    return options[-1]
+        line_num += 1
+    contents = contents[:line_num]
+    for each in enumerate(contents):
+        contents[each[0]] = each[1].split("  ")
+        contents[each[0]] = [each1 for each1 in contents[each[0]] if each1 != ""]
+        contents[each[0]][0] = contents[each[0]][0][1:]
+        contents[each[0]][1] = contents[each[0]][1][:4]
+        if contents[each[0]][0][:7].lower() == "nvidia ":
+            contents[each[0]][0] = contents[each[0]][0][7:]
 
-def detect_nvidia():
+    # check for support
+    supported = False
+    for each in contents:
+        if each[0].lower() == card[1].lower():
+            if each[1].lower() == card[0].lower():
+                supported = True
+
+    # Clean up
+    os.remove(deb_file)
+    subproc.check_call(["rm", "-rf", test_folder]) # This is easier than calling whatever the Pythonic way of removing folders recursively is.
+
+    return supported
+
+
+def determine_driver(card: tuple) -> int:
+    """Determine which Nvidia driver is needed for a given card."""
+    # Get Nvidia drivers available in apt
+    packages = subproc.check_output(["apt-cache", "search", "^nvidia-driver-"]).decode()
+    packages = packages.split("\n")
+
+    # Filter the packages
+    for each in range(len(packages) - 1, -1, -1):
+        if "nvidia-driver-" != packages[each][:14]:
+            del packages[each]
+        elif "open" in packages[each].split(" - ")[0]:
+            del packages[each]
+        elif "server" in packages[each].split(" - ")[0]:
+            del packages[each]
+        elif "core" in packages[each].split(" - ")[0]:
+            del packages[each]
+        elif "lrm" in packages[each].split(" - ")[0]:
+            del packages[each]
+        else:
+            packages[each] = packages[each].split(" - ")[0]
+    del packages[packages.index("nvidia-driver-latest")]
+
+    # Parse package names
+    packages = [int(each.split("-")[-1]) for each in packages]
+    packages.sort(reverse=True)
+
+    # Check for compatability
+    for each in packages:
+        if check_compat(each, card):
+            return each
+    # Nothing is compatable. Return None.
+    return None
+
+
+def detect_nvidia() -> tuple:
     """Detect what NVIDIA card is in use"""
     try:
-        pci = subproc.check_output("lspci -qmm | grep -i 'nvidia' | grep -E 'VGA|3D'", shell=True).decode().split('\n')
+        pci = subproc.check_output("lspci -qnnmm | grep -i 'nvidia' | grep -E 'VGA|3D'", shell=True).decode().split('\n')
     except subproc.CalledProcessError:
         return None
     pci = pci[0]
+    pci = pci.split('" "')[2]
+    card_name = pci[list(pci).index('[') + 1:list(pci).index(']')]
+    pci = pci.split(f"[{card_name}] ")[1]
     pci = pci[list(pci).index('[') + 1:list(pci).index(']')]
-    if "Rev." in pci:
-        index = pci.split().index("Rev.")
-        pci = " ".join(pci.split()[:index])
-    return pci
+    if "Rev." in card_name:
+        index = card_name.split().index("Rev.")
+        card_name = " ".join(card_name.split()[:index])
+    return (pci, card_name)
 
 
 def detect_realtek():
@@ -157,6 +240,7 @@ def install_extras():
             __eprint__("IT IS LIKELY THAT ANY DRIVERS NEEDED ARE BUILT INTO THE KERNEL.")
     # Nvidia graphics cards
     if "nvidia" in pci.lower():
+        # Figure our what driver we need
         needed_driver = determine_driver(detect_nvidia())
         latest_deps_raw = subproc.check_output(["apt-cache", "depends", "nvidia-driver-latest"]).decode().split('\n')[1:]
         latest_deps = [each.split(": ")[1] for each in latest_deps_raw]
