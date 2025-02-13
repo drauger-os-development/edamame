@@ -28,6 +28,7 @@ import modules.auto_login_set as auto_login_set
 import modules.set_locale as set_locale
 import modules.set_time as set_time
 import modules.install_updates as install_updates
+import modules.install_extras as install_extras
 import modules.set_wallpaper as set_wallpaper
 import modules.make_user as make_user
 import modules.purge as purge
