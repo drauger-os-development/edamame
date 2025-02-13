@@ -142,6 +142,8 @@ def determine_driver(card: tuple) -> int:
             del packages[each]
         elif "lrm" in packages[each].split(" - ")[0]:
             del packages[each]
+        elif "transitional" in packages[each].lower():
+            del packages[each]
         else:
             packages[each] = packages[each].split(" - ")[0]
     del packages[packages.index("nvidia-driver-latest")]
