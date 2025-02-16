@@ -66,49 +66,62 @@ def check_compat(version_number: int, card: tuple) -> bool:
         # Something is corrupt with the deb package. Return False.
         return False
 
-    # Open and read the ReadMe file
-    needed_file = f"{test_folder}/usr/share/doc/nvidia-driver-{version_number}/README.txt.gz"
-    with gzip.open(needed_file, "rt") as file:
-        contents = file.read().split("\n")
+    if not os.path.exists(f"{test_folder}/usr/share/doc/nvidia-driver-{version_number}/supported-gpus.json"):
+        # Open and read the ReadMe file
+        needed_file = f"{test_folder}/usr/share/doc/nvidia-driver-{version_number}/README.txt.gz"
+        with gzip.open(needed_file, "rt") as file:
+            contents = file.read().split("\n")
 
-    # Parse Readme
-    passed_toc = False
-    key = "Appendix A. Supported NVIDIA GPU Products"
-    line_num = 0
-    for each in contents:
-        if each == key:
-            if passed_toc:
-                line_num += 1
-                contents = contents[line_num:]
+        # Parse Readme
+        passed_toc = False
+        key = "Appendix A. Supported NVIDIA GPU Products"
+        line_num = 0
+        for each in contents:
+            if each == key:
+                if passed_toc:
+                    line_num += 1
+                    contents = contents[line_num:]
+                    break
+                else:
+                    passed_toc = True
+            line_num += 1
+        key = "A1. CURRENT NVIDIA GPUS"
+        line_num = 0
+        for each in contents:
+            if each == key:
+                if passed_toc:
+                    line_num += 1
+                    contents = contents[line_num:]
+                    break
+                else:
+                    passed_toc = True
+            line_num += 1
+        contents = contents[4:]
+        line_num = 0
+        for each in contents:
+            if each == "":
                 break
-            else:
-                passed_toc = True
-        line_num += 1
-    key = "A1. CURRENT NVIDIA GPUS"
-    line_num = 0
-    for each in contents:
-        if each == key:
-            if passed_toc:
-                line_num += 1
-                contents = contents[line_num:]
-                break
-            else:
-                passed_toc = True
-        line_num += 1
-    contents = contents[4:]
-    line_num = 0
-    for each in contents:
-        if each == "":
-            break
-        line_num += 1
-    contents = contents[:line_num]
-    for each in enumerate(contents):
-        contents[each[0]] = each[1].split("  ")
-        contents[each[0]] = [each1 for each1 in contents[each[0]] if each1 != ""]
-        contents[each[0]][0] = contents[each[0]][0][1:]
-        contents[each[0]][1] = contents[each[0]][1][:4]
-        if contents[each[0]][0][:7].lower() == "nvidia ":
-            contents[each[0]][0] = contents[each[0]][0][7:]
+            line_num += 1
+        contents = contents[:line_num]
+        for each in enumerate(contents):
+            contents[each[0]] = each[1].split("  ")
+            contents[each[0]] = [each1 for each1 in contents[each[0]] if each1 != ""]
+            contents[each[0]][0] = contents[each[0]][0][1:]
+            contents[each[0]][1] = contents[each[0]][1][:4]
+            if contents[each[0]][0][:7].lower() == "nvidia ":
+                contents[each[0]][0] = contents[each[0]][0][7:]
+
+    else:
+        # Driver 470 has a JSON file we can parse, instead of parsing that README. So, lets use it.
+        # The README is formatted differently anyways.
+        with open(f"{test_folder}/usr/share/doc/nvidia-driver-{version_number}/supported-gpus.json", "r") as file:
+            contents = json.load(file)["chips"]
+        for each in range(len(contents) - 1, -1, -1):
+            if "legacybranch" in contents[each].keys():
+                del contents[each]
+        supported = []
+        for each in contents:
+            supported.append([each["name"], each["devid"][2:]])
 
     # check for support
     supported = False
