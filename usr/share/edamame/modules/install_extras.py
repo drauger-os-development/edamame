@@ -42,7 +42,9 @@ def __eprint__(*args, **kwargs):
 def check_compat(version_number: int, card: tuple) -> bool:
     """Download driver meta package"""
     try:
-        subproc.check_call(["apt-get", "download", f"nvidia-driver-{version_number}"])
+        subproc.check_call(["apt-get", "download",
+                            f"nvidia-driver-{version_number}"],
+                           stdout=subproc.DEVNULL, stderr=subproc.STDOUT)
     except subproc.CalledProcessError:
         # We likely lost internet. Return False since we don't know for sure.
         return False
@@ -126,12 +128,8 @@ def check_compat(version_number: int, card: tuple) -> bool:
     # check for support
     supported = False
     for each in supported_cards:
-        try:
-            if each[0].lower() == card[1].lower():
-                if each[1].lower() == card[0].lower():
-                    supported = True
-        except KeyError:
-            print(each)
+        if each[1].lower() == card[0].lower():
+            supported = True
 
     # Clean up
     os.remove(deb_file)
