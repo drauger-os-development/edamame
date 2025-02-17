@@ -256,44 +256,57 @@ def install_extras():
     # Nvidia graphics cards
     if "nvidia" in pci.lower():
         # Figure our what driver we need
-        needed_driver = determine_driver(detect_nvidia())
+        nvidia_card = detect_nvidia()
+        needed_driver = determine_driver(nvidia_card)
         latest_deps_raw = subproc.check_output(["apt-cache", "depends", "nvidia-driver-latest"]).decode().split('\n')[1:]
         latest_deps = [each.split(": ")[1] for each in latest_deps_raw]
         for each in latest_deps:
             if "nvidia-driver" in each:
                 nvidia_driver = int(each.split("-")[-1])
                 break
-        if needed_driver < nvidia_driver:
-            if f"nvidia-driver-{needed_driver}" in cache:
-                additional_install_list.append(f"nvidia-driver-{needed_driver}")
-                additional_install_list.append("disable-nouveau")
+        if needed_driver is not None:
+            if needed_driver < nvidia_driver:
+                if f"nvidia-driver-{needed_driver}" in cache:
+                    additional_install_list.append(f"nvidia-driver-{needed_driver}")
+                    additional_install_list.append("disable-nouveau")
+                else:
+                    __eprint__("\t\t\t### WARNING ###")
+                    __eprint__(f"NO NVIDIA DRIVER FOUND MATCHING MAJOR VERSION CODE: {needed_driver}")
+                    __eprint__("IT IS LIKELY THAT ANY AVAILABLE DRIVERS THAT __MIGHT__ WORK ARE TOO HEAVY FOR YOUR SYSTEM.")
+                    __eprint__("WE __STRONGLY__ SUGGEST THAT YOU REMAIN USING THE OPEN-SOURCE NOUVEAU DRIVERS.")
             else:
-                __eprint__("\t\t\t### WARNING ###")
-                __eprint__(f"NO NVIDIA DRIVER FOUND MATCHING MAJOR VERSION CODE: {needed_driver}")
-                __eprint__("IT IS LIKELY THAT ANY AVAILABLE DRIVERS THAT __MIGHT__ WORK ARE TOO HEAVY FOR YOUR SYSTEM.")
-                __eprint__("WE __STRONGLY__ SUGGEST THAT YOU REMAIN USING THE OPEN-SOURCE NOUVEAU DRIVERS.")
+                additional_install_list.append("nvidia-driver-latest")
         else:
-            additional_install_list.append("nvidia-driver-latest")
+            __eprint__("\t\t\t### WARNING ###")
+            __eprint__(f"NO NVIDIA DRIVER FOUND FOR GRAPHICS CARD: {nvidia_card}")
+            __eprint__("IT IS LIKELY THAT ANY AVAILABLE DRIVERS THAT __MIGHT__ WORK ARE TOO HEAVY FOR YOUR SYSTEM.")
+            __eprint__("WE __STRONGLY__ SUGGEST THAT YOU REMAIN USING THE OPEN-SOURCE NOUVEAU DRIVERS.")
     # Install everything we want
     os.environ["DEBIAN_FRONTEND"] = "noninteractive"
     try:
+        __eprint__("Attempting to install standard restricted extra packages...")
         with cache.actiongroup():
             for each in standard_install_list:
+                __eprint__(f"Installing `{each}'...")
                 cache[each].mark_install()
         cache.commit()
     except apt.cache.FetchFailedException:
         __eprint__("\t\t\t### WARNING ###")
         __eprint__("INSTALLATION OF STANDARD RESTRICTED EXTRAS FAILED. CONTINUING TO DRIVERS...")
     try:
-        with cache.actiongroup():
-            for each in additional_install_list:
-                cache[each].mark_install()
-        cache.commit()
+        if len(additional_install_list) > 0:
+            __eprint__("Attempting to install restricted driver packages...")
+            with cache.actiongroup():
+                for each in additional_install_list:
+                    __eprint__(f"Installing `{each}'...")
+                    cache[each].mark_install()
+            cache.commit()
     except apt.cache.FetchFailedException:
         __eprint__("\t\t\t### WARNING ###")
         __eprint__("INSTALLATION OF DRIVERS FAILED.")
     # Purge all the stuff we don't want
 
+    __eprint__(f"Attempting to remove `gstreamer1.0-fluendo-mp3' if present, for better MP3 audio quality...")
     purge.purge_package("gstreamer1.0-fluendo-mp3")
     cache.close()
-    __eprint__("    ###    install_extras.py CLOSED    ###    ")
+    __eprint__("\t\t\t###    install_extras.py CLOSED    ###    ")
