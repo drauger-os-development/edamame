@@ -102,14 +102,14 @@ def check_compat(version_number: int, card: tuple) -> bool:
             if each == "":
                 break
             line_num += 1
-        contents = contents[:line_num]
-        for each in enumerate(contents):
-            contents[each[0]] = each[1].split("  ")
-            contents[each[0]] = [each1 for each1 in contents[each[0]] if each1 != ""]
-            contents[each[0]][0] = contents[each[0]][0][1:]
-            contents[each[0]][1] = contents[each[0]][1][:4]
-            if contents[each[0]][0][:7].lower() == "nvidia ":
-                contents[each[0]][0] = contents[each[0]][0][7:]
+        supported_cards = contents[:line_num]
+        for each in enumerate(supported_cards):
+            supported_cards[each[0]] = each[1].split("  ")
+            supported_cards[each[0]] = [each1 for each1 in supported_cards[each[0]] if each1 != ""]
+            supported_cards[each[0]][0] = supported_cards[each[0]][0][1:]
+            supported_cards[each[0]][1] = supported_cards[each[0]][1][:4]
+            if supported_cards[each[0]][0][:7].lower() == "nvidia ":
+                supported_cards[each[0]][0] = supported_cards[each[0]][0][7:]
 
     else:
         # Driver 470 has a JSON file we can parse, instead of parsing that README. So, lets use it.
@@ -119,16 +119,19 @@ def check_compat(version_number: int, card: tuple) -> bool:
         for each in range(len(contents) - 1, -1, -1):
             if "legacybranch" in contents[each].keys():
                 del contents[each]
-        supported = []
+        supported_cards = []
         for each in contents:
-            supported.append([each["name"], each["devid"][2:]])
+            supported_cards.append([each["name"], each["devid"][2:]])
 
     # check for support
     supported = False
-    for each in contents:
-        if each[0].lower() == card[1].lower():
-            if each[1].lower() == card[0].lower():
-                supported = True
+    for each in supported_cards:
+        try:
+            if each[0].lower() == card[1].lower():
+                if each[1].lower() == card[0].lower():
+                    supported = True
+        except KeyError:
+            print(each)
 
     # Clean up
     os.remove(deb_file)
