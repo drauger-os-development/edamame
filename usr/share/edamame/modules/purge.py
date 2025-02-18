@@ -25,7 +25,7 @@
 import apt
 
 
-def purge_package(pkg_name):
+def purge_package(pkg_name: list) -> None:
     """Purge packages from system using apt
 
     arguments: pkg_name
@@ -46,7 +46,7 @@ def purge_package(pkg_name):
     cache.close()
 
 
-def autoremove(cache):
+def autoremove(cache) -> None:
     """Auto-remove emulation using apt Python library"""
     # the autoremove function does not exist. So, emulate it
     cache.open()

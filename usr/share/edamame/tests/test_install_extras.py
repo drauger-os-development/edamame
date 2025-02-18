@@ -21,7 +21,7 @@
 #  MA 02110-1301, USA.
 #
 #
-"""Test Common Library"""
+"""Test install_extras Library"""
 from modules import install_extras as ie
 
 

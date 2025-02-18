@@ -34,7 +34,7 @@ def eprint(*args, **kwargs):
 
 def auto_login_set(login, username):
     """Set Auto-Login Setting for the current user"""
-    eprint("    ###    auto_login_set.py started    ###    ")
+    eprint("\t\t\t###    auto_login_set.py started    ###    ")
     new_conf = ""
     accepted = ("lightdm", "sddm")
     dm = determine_display_manager()
@@ -99,7 +99,7 @@ def auto_login_set(login, username):
         for each in new_conf:
             conf.write(each)
             conf.write('\n')
-    eprint("    ###    auto_login_set.py closed    ###    ")
+    eprint("\t\t\t###    auto_login_set.py closed    ###    ")
 
 
 def determine_display_manager():

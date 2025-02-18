@@ -121,7 +121,7 @@ def is_default_entry(distro):
 
 def verify(username, root, distro):
     """Verify installation success"""
-    __eprint__("    ###    verify_install.py STARTED    ###    ")
+    __eprint__("\t\t\t###    verify_install.py STARTED    ###    ")
     if os.path.isdir("/home/home/live"):
         move("/home/home/live", "/home/" + username)
     try:
@@ -160,4 +160,4 @@ def verify(username, root, distro):
         cache.commit()
         purge.autoremove(cache)
     cache.close()
-    __eprint__("    ###    verify_install.py CLOSED    ###    ")
+    __eprint__("\t\t\t###    verify_install.py CLOSED    ###    ")
