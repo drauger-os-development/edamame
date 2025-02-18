@@ -40,7 +40,8 @@ test_nvidia = [
         [("13D8", "Nvidia GeForce GTX 970M"), True],
         [("1E87", "Nvidia GeForce RTX 2080"), True],
         [("1183", "Nvidia GeForce GTX 660 Ti"), True],
-        [("1081", "Nvidia GeForce GTX 570"), False]
+        [("1081", "Nvidia GeForce GTX 570"), False],
+        [("06C0", "Nvidia GeForce GTX 480"), False]
     ]
 
 def test_determine_driver():
