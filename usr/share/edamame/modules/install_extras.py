@@ -260,6 +260,7 @@ def install_extras():
         nvidia_card = detect_nvidia()
         needed_driver = determine_driver(nvidia_card)
         latest_deps_raw = subproc.check_output(["apt-cache", "depends", "nvidia-driver-latest"]).decode().split('\n')[1:]
+        latest_deps_raw = [each for each in latest_deps_raw if each != ""]
         latest_deps = [each.split(": ")[1] for each in latest_deps_raw]
         for each in latest_deps:
             if "nvidia-driver" in each:
