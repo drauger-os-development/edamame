@@ -1,7 +1,7 @@
-#!shebang
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-#  __init__.py
+#  test_install_extras.py
 #
 #  Copyright 2025 Thomas Castleman <batcastle@draugeros.org>
 #
@@ -21,10 +21,21 @@
 #  MA 02110-1301, USA.
 #
 #
-"""UI for Edamame"""
-import UI.GTK_UI.confirm as confirm
-import UI.GTK_UI.error as error
-import UI.GTK_UI.main as main
-import UI.GTK_UI.progress as progress
-import UI.GTK_UI.report as report
-import UI.GTK_UI.success as success
+"""Test auto_login_set Library"""
+import os
+from modules import auto_login_set as als
+
+
+def test_determine_dm_allowed():
+    """Check to ensure we are detecting an allowed DisplayManager"""
+    dm = als.determine_display_manager()
+    assert dm in ("gdm3", "lightdm", "sddm", "lxdm", "wdm", "xdm")
+
+
+def test_determine_dm_correct():
+    """Check we got the correct DM"""
+    dm = als.determine_display_manager()
+    if os.path.exists('/etc/X11/default-display-manager'):
+        with open('/etc/X11/default-display-manager', 'r') as f:
+            display_manager = f.readline().strip().split('/')[-1]
+    assert dm.lower() == display_manager.lower()

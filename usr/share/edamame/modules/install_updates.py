@@ -3,7 +3,7 @@
 #
 #  install_updates.py
 #
-#  Copyright 2024 Thomas Castleman <batcastle@draugeros.org>
+#  Copyright 2025 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@ def __eprint__(*args, **kwargs):
 
 def update_system():
     """update system through package manager"""
-    __eprint__("    ###    install_updates.py STARTED    ###    ")
+    __eprint__("\t\t\t###    install_updates.py STARTED    ###    ")
     cache = apt.cache.Cache()
     cache.update()
     cache.open()
@@ -48,4 +48,4 @@ def update_system():
     cache.commit()
     purge.autoremove(cache)
     cache.close()
-    __eprint__("    ###    install_updates.py CLOSED    ###    ")
+    __eprint__("\t\t\t###    install_updates.py CLOSED    ###    ")

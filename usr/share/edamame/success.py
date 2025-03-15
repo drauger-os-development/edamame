@@ -3,7 +3,7 @@
 #
 #  success.py
 #
-#  Copyright 2024 Thomas Castleman <batcastle@draugeros.org>
+#  Copyright 2025 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -25,14 +25,14 @@ from json import loads
 from sys import argv
 import UI
 
+ui = None
 for each in argv:
     if "--gui=" in each:
-        gui = each.split("=")[-1]
-        UI = UI.load_UI(gui)
+        gui = each.split("=")[-1].upper()
+        ui = UI.load_UI(gui)
         break
-
-if "load_UI" in dir(UI):
-    UI = UI.load_UI("GTK")
+if ui is None:
+    ui = UI.auto_load_ui()
 
 SETTINGS = loads(argv[1])
-UI.success.show_success(SETTINGS)
+ui.success.show_success(SETTINGS)

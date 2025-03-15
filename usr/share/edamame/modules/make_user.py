@@ -3,7 +3,7 @@
 #
 #  make_user.py
 #
-#  Copyright 2024 Thomas Castleman <batcastle@draugeros.org>
+#  Copyright 2025 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -54,7 +54,7 @@ def make_user(username):
     This function is also responsible for setting up a user's home directory
     as well as their groups.
     """
-    eprint("    ###    make_user.py STARTED    ###    ")
+    eprint("\t\t\t###    make_user.py STARTED    ###    ")
     new_home = "/home/" + username
     if os.path.exists(new_home):
         eprint("Original home folder found. Substituting it in . . .")
@@ -109,4 +109,4 @@ def make_user(username):
     os.chown(new_home, 1000, 1000)
     os.chmod(new_home, 0o755)
     set_wallpaper.set_wallpaper(username)
-    eprint("    ###    make_user.py CLOSED    ###    ")
+    eprint("\t\t\t###    make_user.py CLOSED    ###    ")

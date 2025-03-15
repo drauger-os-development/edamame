@@ -1,7 +1,7 @@
 /*
  * edamame.cxx
  *
- * Copyright 2024 Thomas Castleman <batcastle@draugeros.org>
+ * Copyright 2025 Thomas Castleman <batcastle@draugeros.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@
 
 using namespace std;
 
-str VERSION = "3.0.0";
+str VERSION = "3.0.3";
 str R = "\033[0;31m";
 str G = "\033[0;32m";
 str Y = "\033[1;33m";
@@ -99,7 +99,11 @@ void launch(str arg)
 		command = command + " --gui=" + arg;
 	}
 	command = command + " 2>/tmp/edamame.log 1>&2";
-	chdir("/usr/share/edamame");
+	if (chdir("/usr/share/edamame") != 0 )
+	{
+		cout << R << "COULD NOT CHANGE DIRECTORY! EXITING!" << NC << endl;
+		return;
+	}
 	run(command.c_str());
 	run((command1 + disable).c_str());
 }

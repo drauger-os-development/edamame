@@ -3,7 +3,7 @@
 #
 #  progress.py
 #
-#  Copyright 2024 Thomas Castleman <batcastle@draugeros.org>
+#  Copyright 2025 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -24,10 +24,13 @@
 import UI
 import sys
 
-if "--gui=" in sys.argv[1]:
-    gui = sys.argv[1].split("=")[-1]
-    UI = UI.load_UI(gui)
-else:
-    UI = UI.load_UI("GTK")
+try:
+    if "--gui=" in sys.argv[1]:
+        gui = sys.argv[1].split("=")[-1].upper()
+        ui = UI.load_UI(gui)
+    else:
+        ui = UI.auto_load_ui()
+except IndexError:
+    ui = UI.auto_load_ui()
 
-UI.progress.show_progress()
+ui.progress.show_progress()
