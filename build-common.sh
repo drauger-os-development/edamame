@@ -79,7 +79,7 @@ fi
 	exit 2
 }
 cd ../..
-files_to_edit=$(find "." -maxdepth 10 -type f -name '*.py' -print)
+files_to_edit=$(find "." -maxdepth 10 -type f -name '*.py' -print | grep -v "test")
 shebang='\#\!/usr/bin/env'
 py_ver=""
 if [ "$vert" == "dnc" ]; then
