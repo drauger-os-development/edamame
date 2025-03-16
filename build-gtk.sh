@@ -14,7 +14,7 @@ mkdir ../"$FOLDER"
 #							                                 #
 ##############################################################
 
-files_to_edit=$(find "$PWD" -maxdepth 10 -type f -name '*.py' -print)
+files_to_edit=$(find "$PWD" -maxdepth 10 -type f -name '*.py' -print | grep -v "test")
 shebang='\#\!/usr/bin/env'
 py_ver="python3"
 shebang="$shebang $py_ver"
