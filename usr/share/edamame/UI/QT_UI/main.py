@@ -22,7 +22,6 @@
 #
 #
 """Main Installation UI"""
-from __future__ import print_function
 import re
 import sys
 import json
@@ -51,8 +50,12 @@ try:
     with open("../../../../../etc/edamame/settings.json") as config_file:
         SETTINGS = json.loads(config_file.read())
 except FileNotFoundError:
-    with open("../../../etc/edamame/settings.json") as config_file:
-        SETTINGS = json.loads(config_file.read())
+    try:
+        with open("../../../etc/edamame/settings.json") as config_file:
+            SETTINGS = json.loads(config_file.read())
+    except FileNotFoundError:
+        with open("/etc/edamame/settings.json") as config_file:
+            SETTINGS = json.loads(config_file.read())
 
 
 DEFAULT = f"""
@@ -1989,8 +1992,12 @@ with some UEFI systems. Does **NOT** require internet.""")
         self.grid.addWidget(model_label, 2, 1, 1, 1)
 
         self.model_menu = QtWidgets.QComboBox()
-        with open("/etc/edamame/keyboards.json", "r") as file:
-            keyboards = json.load(file)
+        try:
+            with open("/etc/edamame/keyboards.json", "r") as file:
+                keyboards = json.load(file)
+        except FileNotFoundError:
+            with open("keyboards.json", "r") as file:
+                keyboards = json.load(file)
         layout_list = keyboards["layouts"]
         model = keyboards["models"]
         for each8 in model:
@@ -2219,7 +2226,10 @@ def make_kbd_names():
             data[-1] = "}}"
             break
     data = "\n".join(data)
-    os.chdir("/etc/edamame")
+    try:
+        os.chdir("/etc/edamame")
+    except FileNotFoundError:
+        common.eprint("CANNOT FIND /etc/edamame, IN TESTING?")
     with open("keyboards.json", "w+") as file:
         file.write(data)
 
