@@ -1546,14 +1546,14 @@ using UEFI firmware.\n
 \n
 Since you booted your system in UEFI mode, you are\n
 required to have one of these partitions.\n""")
-        label4.setAlignment(QtCore.Qt.AlignCenter)
-        label4.setTextFormat(QtCore.Qt.MarkdownText)
+        label.setAlignment(QtCore.Qt.AlignCenter)
+        label.setTextFormat(QtCore.Qt.MarkdownText)
         label = self._set_default_margins(label)
         self.grid.addWidget(label, 3, 1, 1, 1)
 
         label = QtWidgets.QLabel("EFI Partition Requirements")
-        label4.setAlignment(QtCore.Qt.AlignCenter)
-        label4.setTextFormat(QtCore.Qt.MarkdownText)
+        label.setAlignment(QtCore.Qt.AlignCenter)
+        label.setTextFormat(QtCore.Qt.MarkdownText)
         label = self._set_default_margins(label)
         self.grid.addWidget(label, 2, 2, 1, 1)
 
