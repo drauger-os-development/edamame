@@ -660,10 +660,11 @@ now.\n
         button1 = self._set_default_margins(button1)
         self.grid.addWidget(button1, 6, 5, 1, 1)
 
-        button5 = QtWidgets.QPushButton("Make RAID Array")
-        button5.clicked.connect(self.define_array)
-        button5 = self._set_default_margins(button5)
-        self.grid.addWidget(button5, 6, 4, 1, 1)
+        if ap.get_drive_count() >= 3:
+            button5 = QtWidgets.QPushButton("Make RAID Array")
+            button5.clicked.connect(self.define_array)
+            button5 = self._set_default_margins(button5)
+            self.grid.addWidget(button5, 6, 4, 1, 1)
 
         button4 = QtWidgets.QPushButton("Make Space")
         button4.clicked.connect(self.make_space)

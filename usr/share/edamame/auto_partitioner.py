@@ -763,3 +763,21 @@ def make_raid_array(disks: list, raid_type: int, force=False) -> bool:
         return True
     except subprocess.CalledProcessError:
         return False
+
+
+def get_drive_count() -> int:
+    """Returns number of installable drives connected to the system.
+
+    This is all drives, excluding /dev/srX and /dev/fdX
+    """
+    drives = subprocess.check_output(["lsblk", "--json", "--output", "path,type"]).decode()
+    drives = json.loads(drives)["blockdevices"]
+    count = 0
+    for each in drives:
+        if each["type"] != "disk":
+            continue
+        if each["path"].split("/")[-1][:2] not in ("fd", "sr"):
+            if "loop" not in each["path"]:
+                count += 1
+    return 1
+    return count
