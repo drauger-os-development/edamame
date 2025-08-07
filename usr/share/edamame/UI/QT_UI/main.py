@@ -1561,10 +1561,9 @@ required to have one of these partitions.\n""")
         label = self._set_default_margins(label)
         self.grid.addWidget(label, 2, 2, 1, 1)
 
-        label = QtWidgets.QLabel("""
-EFI Partitions are expected to be no smaller than 200 MB,\n
-(although we suggest about 1 GB) and use a FAT32 or FAT16\n
-file system. We suggest using a FAT32 file system as it\n
+        label = QtWidgets.QLabel(f"""
+EFI Partitions are expected to be no smaller than { ap.get_min_efi_size() } MB,\n
+and use a FAT32 or FAT16 file system. We suggest using a FAT32 file system as it\n
 is the most widely supported.\n
 \n
 This partition must also have the \"boot\" and \"esp\" flags set.\n""")
@@ -1722,6 +1721,16 @@ size will be generated for you.""")
         elif (efi in ("", None)) and ap.is_EFI():
             label = self.set_up_partitioner_label(
                 "ERROR: System is running EFI. An EFI partition must be set.")
+            try:
+                self.grid.itemAtPosition(1, 1).widget().setParent(None)
+            except (TypeError, AttributeError):
+                pass
+            self.grid.addWidget(label, 1, 1, 1, 3)
+            return
+        if ap.size_of_part(efi) < ap.get_min_efi_size():
+            label_string = \
+        f"""EFI Partition is too small. Minimum EFI Partition size is { ap.get_min_efi_size() } MB"""
+            label = self.set_up_partitioner_label(label_string)
             try:
                 self.grid.itemAtPosition(1, 1).widget().setParent(None)
             except (TypeError, AttributeError):
