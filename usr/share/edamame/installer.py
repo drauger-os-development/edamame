@@ -53,7 +53,7 @@ def __mount__(device, path_dir, ui):
             retry_count += 1
             time.sleep(0.1)
             continue
-        mountpoints = json.loads(check_output(["lsblk", "--json", "--output", "path,mountpoints", device]).decode())["blockdevice"]
+        mountpoints = json.loads(check_output(["lsblk", "--json", "--output", "path,mountpoints", device]).decode())["blockdevices"]
         for each in mountpoints:
             if each["path"] == device:
                 if path_dir in each["mountpoints"]:
