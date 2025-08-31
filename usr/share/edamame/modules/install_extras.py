@@ -292,7 +292,7 @@ def install_extras():
                 __eprint__(f"Installing `{each}'...")
                 cache[each].mark_install()
         cache.commit()
-    except apt.cache.FetchFailedException:
+    except (apt.cache.FetchFailedException, apt.cache.LockFailedException):
         __eprint__("\t\t\t### WARNING ###")
         __eprint__("INSTALLATION OF STANDARD RESTRICTED EXTRAS FAILED. CONTINUING TO DRIVERS...")
     try:
@@ -303,7 +303,7 @@ def install_extras():
                     __eprint__(f"Installing `{each}'...")
                     cache[each].mark_install()
             cache.commit()
-    except apt.cache.FetchFailedException:
+    except (apt.cache.FetchFailedException, apt.cache.LockFailedException):
         __eprint__("\t\t\t### WARNING ###")
         __eprint__("INSTALLATION OF DRIVERS FAILED.")
     # Purge all the stuff we don't want

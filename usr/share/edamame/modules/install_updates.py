@@ -45,7 +45,11 @@ def update_system():
         cache.upgrade()
     except apt.apt_pkg.Error:
         print("ERROR: Possible held packages. Update may be partially completed.")
-    cache.commit()
+    try:
+        cache.commit()
+    except apt.cache.LockFailedException:
+        print("Could not lock dpkg. Updates failed...")
     purge.autoremove(cache)
     cache.close()
+    update_flatpak()
     __eprint__("\t\t\t###    install_updates.py CLOSED    ###    ")
