@@ -95,7 +95,8 @@ config = {
                         },
                 "GENERAL": {
                     "min root size": 23000,
-                    "mdswh": 128
+                    "mdswh": 128,
+                    "min efi size": 1024
                         }
             }
         }
@@ -232,6 +233,21 @@ def get_min_root_size(swap=True, ram_size=False, ram_size_unit=True,
     if not bytes:
         min_root_size = bytes_to_gb(min_root_size)
     return min_root_size
+
+
+def get_min_efi_size():
+    """Get the minimum size for the EFI partition. Returns int for minimum size, -1 if none found."""
+    if is_EFI():
+        try:
+            if "min efi size" in config["partitioning"]["GENERAL"]:
+                try:
+                    return int(config["partitioning"]["GENERAL"]["min efi size"])
+                except ValueError:
+                    return -1
+        except KeyError:
+            return -1
+    return -1
+
 
 
 def check_disk_state():
