@@ -27,6 +27,7 @@ import os
 import shutil
 import tarfile as tar
 import json
+import time
 import UI
 import modules
 import chroot
@@ -34,16 +35,37 @@ import common
 import auto_partitioner
 
 
-def __mount__(device, path_dir):
+def __mount__(device, path_dir, ui):
     """Mount device at path
     It would be much lighter weight to use ctypes to do this
     But, that keeps throwing an 'Invalid Argument' error.
     Calling Mount with check_call is the safer option.
     """
-    try:
-        check_call(["mount", device, path_dir])
-    except CalledProcessError:
-        pass
+    retry_count = 0
+    while True:
+        if retry_count > 5:
+            ui.error.show_error(f"\n\tCOULD NOT MOUNT {device} AT {path_dir}!\t\n")
+        breakout = False
+        try:
+            check_call(["mount", "-o", "rw", device, path_dir])
+        except CalledProcessError:
+            print("Mounting Drive Failed. Delaying and retrying...")
+            retry_count += 1
+            time.sleep(0.1)
+            continue
+        mountpoints = json.loads(check_output(["lsblk", "--json", "--output", "path,mountpoints", device]).decode())["blockdevice"]
+        for each in mountpoints:
+            if each["path"] == device:
+                if path_dir in each["mountpoints"]:
+                    breakout = True
+                    break
+        if breakout:
+            break
+        print("Drive Mounting failed silently. Delaying and Retrying...")
+        retry_count += 1
+        time.sleep(0.1)
+
+
 
 
 def __update__(percentage):
@@ -105,7 +127,7 @@ def install(settings: dict, local_repo: str, ui_type: str) -> None:
         os.remove("/tmp/edamame-progress.log")
     __update__(12)
     # STEP 2: Mount the new partitions
-    __mount__(settings["ROOT"], "/mnt")
+    __mount__(settings["ROOT"], "/mnt", ui)
     if settings["EFI"] not in ("NULL", None, "", False):
         try:
             os.mkdir("/mnt/boot")
@@ -115,13 +137,13 @@ def install(settings: dict, local_repo: str, ui_type: str) -> None:
             os.mkdir("/mnt/boot/efi")
         except FileExistsError:
             pass
-        __mount__(settings["EFI"], "/mnt/boot/efi")
+        __mount__(settings["EFI"], "/mnt/boot/efi", ui)
     if settings["HOME"] not in ("NULL", None, ""):
         try:
             os.mkdir("/mnt/home")
         except FileExistsError:
             common.eprint("/mnt/home exists when it shouldn't. We have issues...")
-        __mount__(settings["HOME"], "/mnt/home")
+        __mount__(settings["HOME"], "/mnt/home", ui)
     if settings["SWAP"] != "FILE":
         # This can happen in the background. No biggie.
         Popen(["swapon", settings["SWAP"]])
