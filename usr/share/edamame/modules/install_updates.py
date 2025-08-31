@@ -25,6 +25,7 @@
 from __future__ import print_function
 from sys import stderr
 import apt
+import subprocess as subproc
 
 import modules.purge as purge
 
@@ -33,6 +34,14 @@ import modules.purge as purge
 def __eprint__(*args, **kwargs):
     """Make it easier for us to print to stderr"""
     print(*args, file=stderr, **kwargs)
+
+
+def update_flatpak():
+    """Update any installed Flatpaks
+
+    We only do this for system-wide installations, in order to avoid possible issues.
+    """
+    subproc.check_call(["flatpak", "update", "-y"])
 
 
 def update_system():
