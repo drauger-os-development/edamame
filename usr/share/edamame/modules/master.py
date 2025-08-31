@@ -168,8 +168,6 @@ class MainInstallation():
             with open("/usr/share/X11/xkb/rules/base.lst", "r") as xkb_conf:
                 kcd = xkb_conf.read()
             kcd = kcd.split("\n")
-            for each1 in enumerate(kcd):
-                kcd[each1[0]] = kcd[each1[0]].split()
             try:
                 os.remove("/etc/default/keyboard")
             except FileNotFoundError:
@@ -180,12 +178,12 @@ class MainInstallation():
             for each1 in kcd:
                 if len(each1) < 1:
                     continue
-                if each1[0] == MODEL:
-                    xkbm = MODEL
-                elif each1[0] == LAYOUT:
-                    xkbl = LAYOUT
-                elif each1[0] == VARIENT:
-                    xkbv = VARIENT
+                if MODEL in each1:
+                    xkbm = each1.split()[0]
+                elif LAYOUT in each1:
+                    xkbl = each1.split()[0]
+                elif VARIENT in each1:
+                    xkbv = each1.split()[0]
             if "" == xkbm:
                 print(f"{MODEL} not in XKeyboard Rules List. Invalid.")
             if "" == xkbl:
