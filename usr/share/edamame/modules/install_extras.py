@@ -138,6 +138,30 @@ def check_compat(version_number: int, card: tuple) -> bool:
     return supported
 
 
+def cache_commit(cache):
+    """Run apt.cache.commit(), with error handling"""
+    try:
+        cache.commit()
+    except apt.cache.LockFailedException:
+        try:
+            os.mkdir("/var/cache")
+        except FileExistsError:
+            pass
+        try:
+            os.mkdir("/var/cache/apt")
+        except FileExistsError:
+            pass
+        try:
+            os.mkdir("/var/cache/apt/archives")
+        except FileExistsError:
+            pass
+        with open("/var/cache/apt/archives/lock", "w+") as file:
+            file.write("")
+        os.chmod("/var/cache/apt/archives/lock", 0o640)
+        os.chown("/var/cache/apt/archives/lock", 0, 0)
+        cache.commit()
+
+
 def determine_driver(card: tuple) -> int:
     """Determine which Nvidia driver is needed for a given card."""
     # Get Nvidia drivers available in apt
@@ -291,7 +315,7 @@ def install_extras():
             for each in standard_install_list:
                 __eprint__(f"Installing `{each}'...")
                 cache[each].mark_install()
-        cache.commit()
+        cache_commit(cache)
     except (apt.cache.FetchFailedException, apt.cache.LockFailedException):
         __eprint__("\t\t\t### WARNING ###")
         __eprint__("INSTALLATION OF STANDARD RESTRICTED EXTRAS FAILED. CONTINUING TO DRIVERS...")
@@ -302,7 +326,7 @@ def install_extras():
                 for each in additional_install_list:
                     __eprint__(f"Installing `{each}'...")
                     cache[each].mark_install()
-            cache.commit()
+            cache_commit(cache)
     except (apt.cache.FetchFailedException, apt.cache.LockFailedException):
         __eprint__("\t\t\t### WARNING ###")
         __eprint__("INSTALLATION OF DRIVERS FAILED.")
