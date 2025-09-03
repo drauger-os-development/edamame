@@ -327,9 +327,10 @@ def install_extras():
                     __eprint__(f"Installing `{each}'...")
                     cache[each].mark_install()
             cache_commit(cache)
-    except (apt.cache.FetchFailedException, apt.cache.LockFailedException):
+    except (apt.cache.FetchFailedException, apt.cache.LockFailedException) as e:
         __eprint__("\t\t\t### WARNING ###")
         __eprint__("INSTALLATION OF DRIVERS FAILED.")
+        __eprint__(f"ERROR WAS:\n{e}")
     # Purge all the stuff we don't want
 
     __eprint__(f"Attempting to remove `gstreamer1.0-fluendo-mp3' if present, for better MP3 audio quality...")
