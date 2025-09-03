@@ -316,9 +316,10 @@ def install_extras():
                 __eprint__(f"Installing `{each}'...")
                 cache[each].mark_install()
         cache_commit(cache)
-    except (apt.cache.FetchFailedException, apt.cache.LockFailedException):
+    except (apt.cache.FetchFailedException, apt.cache.LockFailedException) as e:
         __eprint__("\t\t\t### WARNING ###")
         __eprint__("INSTALLATION OF STANDARD RESTRICTED EXTRAS FAILED. CONTINUING TO DRIVERS...")
+        __eprint__(f"ERROR WAS:\n{e}")
     try:
         if len(additional_install_list) > 0:
             __eprint__("Attempting to install restricted driver packages...")
