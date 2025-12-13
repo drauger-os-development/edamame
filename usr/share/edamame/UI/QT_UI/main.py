@@ -1969,7 +1969,10 @@ with some UEFI systems. Does **NOT** require internet.""")
     def on_locale_completed(self, button):
         """Set default language and time zone if user did not set them"""
         if self.lang_menu.currentText() is not None:
-            self.data["LANG"] = self.lang_menu.currentText()
+            try:
+                self.data["LANG"] = self.lang_menu.currentData()
+            except:
+                self.data["LANG"] = self.langs[self.lang_menu.currentText()]
         else:
             self.data["LANG"] = "en"
 
