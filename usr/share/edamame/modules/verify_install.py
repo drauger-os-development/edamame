@@ -149,7 +149,15 @@ def verify(username, root, distro):
                 for each in cache:
                     if (("grub" in each.name) and each.is_installed):
                         if "common" not in each.name:
-                            each.mark_delete()
+                            try:
+                                each.mark_delete()
+                            except:
+                                __eprint__(f"A problem occured trying to remove package `{each.name}' for removal. Skipping...")
+                                try:
+                                    each.mark_keep()
+                                except:
+                                    # Insert shocked pikachu meme here
+                                    print("Further errors occured! Ignoring...")
             versions = common.unique([each.split("-")[1] for each in os.listdir("/boot") if len(each.split("-")) > 1])
             for release in versions:
                 __eprint__(f"Generating Initramfs for Kernel v{ release }")
