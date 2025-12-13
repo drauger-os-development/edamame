@@ -69,28 +69,74 @@ def __update__(percentage):
 class MainInstallation():
     """Main Installation Procedure, minus low-level stuff"""
     def __init__(self, processes_to_do, settings):
-        for each1 in processes_to_do:
-            process_new = getattr(MainInstallation, each1, self)
-            args_list = getfullargspec(process_new)[0]
-            args = []
-            for each in args_list:
-                args.append(settings[each])
-            globals()[each1] = multiprocessing.Process(target=process_new,
-                                                       args=args)
-            globals()[each1].start()
+        # for each1 in processes_to_do:
+        #     process_new = getattr(MainInstallation, each1, self)
+        #     args_list = getfullargspec(process_new)[0]
+        #     args = []
+        #     for each in args_list:
+        #         args.append(settings[each])
+        #     globals()[each1] = multiprocessing.Process(target=process_new,
+        #                                                args=args)
+        #     globals()[each1].start()
         offset = 39
         ending = 51
         iterator = round(ending / len(processes_to_do))
         # We COULD set point equal to iterator, but we don't want the iterator
         # to change, so re-doing the math is safer, albiet slower.
         point = round(ending / len(processes_to_do))
+        # while len(processes_to_do) > 0:
+        #     for each in range(len(processes_to_do) - 1, -1, -1):
+        #         if not globals()[processes_to_do[each]].is_alive():
+        #             globals()[processes_to_do[each]].join()
+        #             del processes_to_do[each]
+        #             __update__(point + offset)
+        #             point += iterator
+
+        """
+        NEW PROCESS SPAWNER!!!
+
+        This new spawner is designed to scale with how many cores a given CPU has, so we don't over extend our resources
+        """
+        working = {}
         while len(processes_to_do) > 0:
-            for each in range(len(processes_to_do) - 1, -1, -1):
-                if not globals()[processes_to_do[each]].is_alive():
-                    globals()[processes_to_do[each]].join()
-                    del processes_to_do[each]
+            # First, check if we have any processes that are completed that we need to close
+            for each in working:
+                if not working[each].is_alive():
+                    # We have a process to clean up
+                    working[each].join()
+                    del processes_to_do[processes_to_do.index(each)]
+                    del working[each]
                     __update__(point + offset)
                     point += iterator
+            # Second, check how many processes we have running against how many cores we have
+            if len(working) < os.cpu_count():
+                # We have fewer processes than CPUs.
+                if len(processes_to_do) > len(working):
+                    """
+                        Processes that are spawned remain in the "to-do" list until done.
+                        So, the to-do list is always greater than or equal in length to the list of currently running processes
+                    """
+                    new = None
+                    for each in processes_to_do:
+                        if each not in working.keys():
+                            new = each
+                            break
+                    if new is None:
+                        continue
+                    process_new = getattr(MainInstallation, new, self)
+                    args_list = getfullargspec(process_new)[0]
+                    args = []
+                    for each in args_list:
+                        args.append(settings[each])
+                    working[new] = multiprocessing.Process(target=process_new, args=args)
+                    working[new].start()
+                else:
+                    # We don't want to sit and spin and waste CPU time. Just sleep...
+                    sleep(0.1)
+            else:
+                # We don't want to sit and spin and waste CPU time. Just sleep...
+                sleep(0.1)
+
 
     def time_set(TIME_ZONE):
         """Set system time"""
