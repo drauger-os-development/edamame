@@ -55,7 +55,10 @@ def set_locale(lang_set):
     for each in range(len(data) - 1, -1, -1):
         if lang_set + "_" not in data[each]:
             del data[each]
-    _setlocale(data[0])
+    if len(data) == 0:
+        eprint(f"No appropriate langauages found for: {lang_set}")
+    else:
+        _setlocale(data[0])
 
     eprint("    ###    set_locale.py STOPPED    ###    ")
 

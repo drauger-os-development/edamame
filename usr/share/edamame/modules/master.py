@@ -136,6 +136,8 @@ class MainInstallation():
             else:
                 # We don't want to sit and spin and waste CPU time. Just sleep...
                 sleep(0.1)
+            # This line is temporary, for debugging purposes.
+            eprint(f"Running Processes: {len(working)}\nProcesses to do: {len(processes_to_do) - len(working)}")
 
 
     def time_set(TIME_ZONE):
@@ -181,6 +183,11 @@ class MainInstallation():
     def apt(UPDATES, EXTRAS):
         """Run commands for apt sequentially to avoid front-end lock"""
         # MainInstallation.__install_updates__(UPDATES, INTERNET)
+        # There should be nothing running that is updating the CHROOT, kill the lock
+        if os.path.exists("/var/cache/apt/archives/lock"):
+            os.remove("/var/cache/apt/archives/lock")
+        if os.path.exists("/var/lib/apt/lists/lock"):
+            os.remove("/var/lib/apt/lists/lock")
         if UPDATES:
             install_updates.update_system()
         if EXTRAS:
