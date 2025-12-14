@@ -100,14 +100,17 @@ class MainInstallation():
         working = {}
         while len(processes_to_do) > 0:
             # First, check if we have any processes that are completed that we need to close
+            to_del = []
             for each in working:
                 if not working[each].is_alive():
                     # We have a process to clean up
                     working[each].join()
                     del processes_to_do[processes_to_do.index(each)]
-                    del working[each]
+                    to_del.append(each)
                     __update__(point + offset)
                     point += iterator
+            for each in to_del:
+                del working[each]
             # Second, check how many processes we have running against how many cores we have
             if len(working) < os.cpu_count():
                 # We have fewer processes than CPUs.
