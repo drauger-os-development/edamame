@@ -140,7 +140,7 @@ class MainInstallation():
                 # We don't want to sit and spin and waste CPU time. Just sleep...
                 sleep(0.1)
             # This line is temporary, for debugging purposes.
-            eprint(f"Running Processes: {len(working)}\nProcesses to do: {len(processes_to_do) - len(working)}")
+            # eprint(f"Running Processes: {len(working)}\nProcesses to do: {len(processes_to_do) - len(working)}")
 
 
     def time_set(TIME_ZONE):
