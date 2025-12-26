@@ -15,4 +15,3 @@ usr/share/edamame/progress.py
 usr/share/edamame/success.py
 usr/share/edamame/UI/__init__.py
 usr/share/edamame/modules/*
-usr/share/edamame/oem/*

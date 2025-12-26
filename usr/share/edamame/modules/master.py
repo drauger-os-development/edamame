@@ -69,28 +69,79 @@ def __update__(percentage):
 class MainInstallation():
     """Main Installation Procedure, minus low-level stuff"""
     def __init__(self, processes_to_do, settings):
-        for each1 in processes_to_do:
-            process_new = getattr(MainInstallation, each1, self)
-            args_list = getfullargspec(process_new)[0]
-            args = []
-            for each in args_list:
-                args.append(settings[each])
-            globals()[each1] = multiprocessing.Process(target=process_new,
-                                                       args=args)
-            globals()[each1].start()
+        # for each1 in processes_to_do:
+        #     process_new = getattr(MainInstallation, each1, self)
+        #     args_list = getfullargspec(process_new)[0]
+        #     args = []
+        #     for each in args_list:
+        #         args.append(settings[each])
+        #     globals()[each1] = multiprocessing.Process(target=process_new,
+        #                                                args=args)
+        #     globals()[each1].start()
         offset = 39
         ending = 51
         iterator = round(ending / len(processes_to_do))
         # We COULD set point equal to iterator, but we don't want the iterator
         # to change, so re-doing the math is safer, albiet slower.
         point = round(ending / len(processes_to_do))
+        # while len(processes_to_do) > 0:
+        #     for each in range(len(processes_to_do) - 1, -1, -1):
+        #         if not globals()[processes_to_do[each]].is_alive():
+        #             globals()[processes_to_do[each]].join()
+        #             del processes_to_do[each]
+        #             __update__(point + offset)
+        #             point += iterator
+
+        """
+        NEW PROCESS SPAWNER!!!
+
+        This new spawner is designed to scale with how many cores a given CPU has, so we don't over extend our resources
+        """
+        working = {}
         while len(processes_to_do) > 0:
-            for each in range(len(processes_to_do) - 1, -1, -1):
-                if not globals()[processes_to_do[each]].is_alive():
-                    globals()[processes_to_do[each]].join()
-                    del processes_to_do[each]
+            # First, check if we have any processes that are completed that we need to close
+            to_del = []
+            for each in working:
+                if not working[each].is_alive():
+                    # We have a process to clean up
+                    working[each].join()
+                    del processes_to_do[processes_to_do.index(each)]
+                    to_del.append(each)
                     __update__(point + offset)
                     point += iterator
+            for each in to_del:
+                del working[each]
+            # Second, check how many processes we have running against how many cores we have
+            if len(working) < os.cpu_count():
+                # We have fewer processes than CPUs.
+                if len(processes_to_do) > len(working):
+                    """
+                        Processes that are spawned remain in the "to-do" list until done.
+                        So, the to-do list is always greater than or equal in length to the list of currently running processes
+                    """
+                    new = None
+                    for each in processes_to_do:
+                        if each not in working.keys():
+                            new = each
+                            break
+                    if new is None:
+                        continue
+                    process_new = getattr(MainInstallation, new, self)
+                    args_list = getfullargspec(process_new)[0]
+                    args = []
+                    for each in args_list:
+                        args.append(settings[each])
+                    working[new] = multiprocessing.Process(target=process_new, args=args)
+                    working[new].start()
+                else:
+                    # We don't want to sit and spin and waste CPU time. Just sleep...
+                    sleep(0.1)
+            else:
+                # We don't want to sit and spin and waste CPU time. Just sleep...
+                sleep(0.1)
+            # This line is temporary, for debugging purposes.
+            # eprint(f"Running Processes: {len(working)}\nProcesses to do: {len(processes_to_do) - len(working)}")
+
 
     def time_set(TIME_ZONE):
         """Set system time"""
@@ -135,6 +186,11 @@ class MainInstallation():
     def apt(UPDATES, EXTRAS):
         """Run commands for apt sequentially to avoid front-end lock"""
         # MainInstallation.__install_updates__(UPDATES, INTERNET)
+        # There should be nothing running that is updating the CHROOT, kill the lock
+        if os.path.exists("/var/cache/apt/archives/lock"):
+            os.remove("/var/cache/apt/archives/lock")
+        if os.path.exists("/var/lib/apt/lists/lock"):
+            os.remove("/var/lib/apt/lists/lock")
         if UPDATES:
             install_updates.update_system()
         if EXTRAS:
@@ -168,8 +224,6 @@ class MainInstallation():
             with open("/usr/share/X11/xkb/rules/base.lst", "r") as xkb_conf:
                 kcd = xkb_conf.read()
             kcd = kcd.split("\n")
-            for each1 in enumerate(kcd):
-                kcd[each1[0]] = kcd[each1[0]].split()
             try:
                 os.remove("/etc/default/keyboard")
             except FileNotFoundError:
@@ -180,12 +234,12 @@ class MainInstallation():
             for each1 in kcd:
                 if len(each1) < 1:
                     continue
-                if each1[0] == MODEL:
-                    xkbm = MODEL
-                elif each1[0] == LAYOUT:
-                    xkbl = LAYOUT
-                elif each1[0] == VARIENT:
-                    xkbv = VARIENT
+                if MODEL in each1:
+                    xkbm = each1.split()[0]
+                elif LAYOUT in each1:
+                    xkbl = each1.split()[0]
+                elif VARIENT in each1:
+                    xkbv = each1.split()[0]
             if "" == xkbm:
                 print(f"{MODEL} not in XKeyboard Rules List. Invalid.")
             if "" == xkbl:

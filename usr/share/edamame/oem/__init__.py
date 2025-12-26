@@ -21,6 +21,39 @@
 #  MA 02110-1301, USA.
 #
 #
-"""OEM installation Logic"""
-import oem.post_install as post_install
-import oem.pre_install as pre_install
+"""UI for Edamame"""
+import os
+import importlib
+
+
+def load_UI(ui_type: str):
+    """Load the specified UI type"""
+    ui = ui_type.upper()
+    if os.path.exists(f"oem/{ui}_UI"):
+        return importlib.import_module(f"oem.{ui}_UI")
+    raise ImportError(f"Module {ui}_UI is not present!")
+
+
+def available_UIs() -> list:
+    """List available GUIs/toolkits"""
+    uis = os.listdir("UI")
+    output = [each.split("_")[0] for each in uis if "_UI" == each[-3:]]
+    return output
+
+
+def UI_in_use() -> str:
+    """Tell what UI toolkit is in use."""
+    desktop = os.getenv("XDG_CURRENT_DESKTOP")
+    if desktop.lower() in ("kde", "lxqt", "dde", "lomiri", "ukui"):
+        return "QT"
+    if desktop.lower() in ("gnome", "mate", "xfce", "lxde", "cinnamon", "unity", "budgie", "pantheon", "sugar", "phosh"):
+        return "GTK"
+
+
+def auto_load_ui():
+    """This function is equivlent to:
+        UI.load_UI(UI.UI_in_use())
+
+        If the UI for the currently in use toolkit does not exist, the same error as that one liner will be thrown.
+    """
+    return load_UI(UI_in_use())

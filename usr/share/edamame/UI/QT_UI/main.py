@@ -22,7 +22,6 @@
 #
 #
 """Main Installation UI"""
-from __future__ import print_function
 import re
 import sys
 import json
@@ -51,8 +50,12 @@ try:
     with open("../../../../../etc/edamame/settings.json") as config_file:
         SETTINGS = json.loads(config_file.read())
 except FileNotFoundError:
-    with open("../../../etc/edamame/settings.json") as config_file:
-        SETTINGS = json.loads(config_file.read())
+    try:
+        with open("../../../etc/edamame/settings.json") as config_file:
+            SETTINGS = json.loads(config_file.read())
+    except FileNotFoundError:
+        with open("/etc/edamame/settings.json") as config_file:
+            SETTINGS = json.loads(config_file.read())
 
 
 DEFAULT = f"""
@@ -657,10 +660,11 @@ now.\n
         button1 = self._set_default_margins(button1)
         self.grid.addWidget(button1, 6, 5, 1, 1)
 
-        button5 = QtWidgets.QPushButton("Make RAID Array")
-        button5.clicked.connect(self.define_array)
-        button5 = self._set_default_margins(button5)
-        self.grid.addWidget(button5, 6, 4, 1, 1)
+        if ap.get_drive_count() >= 3:
+            button5 = QtWidgets.QPushButton("Make RAID Array")
+            button5.clicked.connect(self.define_array)
+            button5 = self._set_default_margins(button5)
+            self.grid.addWidget(button5, 6, 4, 1, 1)
 
         button4 = QtWidgets.QPushButton("Make Space")
         button4.clicked.connect(self.make_space)
@@ -1546,21 +1550,20 @@ using UEFI firmware.\n
 \n
 Since you booted your system in UEFI mode, you are\n
 required to have one of these partitions.\n""")
-        label4.setAlignment(QtCore.Qt.AlignCenter)
-        label4.setTextFormat(QtCore.Qt.MarkdownText)
+        label.setAlignment(QtCore.Qt.AlignCenter)
+        label.setTextFormat(QtCore.Qt.MarkdownText)
         label = self._set_default_margins(label)
         self.grid.addWidget(label, 3, 1, 1, 1)
 
         label = QtWidgets.QLabel("EFI Partition Requirements")
-        label4.setAlignment(QtCore.Qt.AlignCenter)
-        label4.setTextFormat(QtCore.Qt.MarkdownText)
+        label.setAlignment(QtCore.Qt.AlignCenter)
+        label.setTextFormat(QtCore.Qt.MarkdownText)
         label = self._set_default_margins(label)
         self.grid.addWidget(label, 2, 2, 1, 1)
 
-        label = QtWidgets.QLabel("""
-EFI Partitions are expected to be no smaller than 200 MB,\n
-(although we suggest about 1 GB) and use a FAT32 or FAT16\n
-file system. We suggest using a FAT32 file system as it\n
+        label = QtWidgets.QLabel(f"""
+EFI Partitions are expected to be no smaller than { ap.get_min_efi_size() } MB,\n
+and use a FAT32 or FAT16 file system. We suggest using a FAT32 file system as it\n
 is the most widely supported.\n
 \n
 This partition must also have the \"boot\" and \"esp\" flags set.\n""")
@@ -1718,6 +1721,16 @@ size will be generated for you.""")
         elif (efi in ("", None)) and ap.is_EFI():
             label = self.set_up_partitioner_label(
                 "ERROR: System is running EFI. An EFI partition must be set.")
+            try:
+                self.grid.itemAtPosition(1, 1).widget().setParent(None)
+            except (TypeError, AttributeError):
+                pass
+            self.grid.addWidget(label, 1, 1, 1, 3)
+            return
+        if ap.size_of_part(efi) < ap.get_min_efi_size():
+            label_string = \
+        f"""EFI Partition is too small. Minimum EFI Partition size is { ap.get_min_efi_size() } MB"""
+            label = self.set_up_partitioner_label(label_string)
             try:
                 self.grid.itemAtPosition(1, 1).widget().setParent(None)
             except (TypeError, AttributeError):
@@ -1956,7 +1969,10 @@ with some UEFI systems. Does **NOT** require internet.""")
     def on_locale_completed(self, button):
         """Set default language and time zone if user did not set them"""
         if self.lang_menu.currentText() is not None:
-            self.data["LANG"] = self.lang_menu.currentText()
+            try:
+                self.data["LANG"] = self.lang_menu.currentData()
+            except:
+                self.data["LANG"] = self.langs[self.lang_menu.currentText()]
         else:
             self.data["LANG"] = "en"
 
@@ -1989,8 +2005,12 @@ with some UEFI systems. Does **NOT** require internet.""")
         self.grid.addWidget(model_label, 2, 1, 1, 1)
 
         self.model_menu = QtWidgets.QComboBox()
-        with open("/etc/edamame/keyboards.json", "r") as file:
-            keyboards = json.load(file)
+        try:
+            with open("/etc/edamame/keyboards.json", "r") as file:
+                keyboards = json.load(file)
+        except FileNotFoundError:
+            with open("keyboards.json", "r") as file:
+                keyboards = json.load(file)
         layout_list = keyboards["layouts"]
         model = keyboards["models"]
         for each8 in model:
@@ -2219,7 +2239,10 @@ def make_kbd_names():
             data[-1] = "}}"
             break
     data = "\n".join(data)
-    os.chdir("/etc/edamame")
+    try:
+        os.chdir("/etc/edamame")
+    except FileNotFoundError:
+        common.eprint("CANNOT FIND /etc/edamame, IN TESTING?")
     with open("keyboards.json", "w+") as file:
         file.write(data)
 

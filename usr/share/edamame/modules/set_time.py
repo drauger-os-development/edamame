@@ -34,9 +34,15 @@ def eprint(*args, **kwargs):
 
 def _link(location):
     """Set time zone and localtime. Also, enable NTP sync."""
-    remove("/etc/localtime")
+    try:
+        remove("/etc/localtime")
+    except FileNotFoundError:
+        eprint("localtime file not found. No need to remove.")
     symlink("/usr/share/zoneinfo/%s" % (location), "/etc/localtime")
-    remove("/etc/timezone")
+    try:
+        remove("/etc/timezone")
+    except FileNotFoundError:
+         eprint("timezone file not found. No need to remove.")
     with open("/etc/timezone", "w+") as timezone:
         timezone.write(location)
     Popen(["timedatectl", "set-ntp", "true"])

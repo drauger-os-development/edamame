@@ -45,7 +45,8 @@
 					},
 					"GENERAL": {
 						"min root size": 23000,
-						"mdswh": 128
+						"mdswh": 128,
+						"min efi size": 1024
 					}
 				},
 	"run_post_oem": ["/usr/bin/drauger-welcome"],

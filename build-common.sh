@@ -79,7 +79,7 @@ fi
 	exit 2
 }
 cd ../..
-files_to_edit=$(find "." -maxdepth 10 -type f -name '*.py' -print)
+files_to_edit=$(find "." -maxdepth 10 -type f -name '*.py' -print | grep -v "test")
 shebang='\#\!/usr/bin/env'
 py_ver=""
 if [ "$vert" == "dnc" ]; then
@@ -129,9 +129,7 @@ rm -v "$base"/usr/bin/edamame
 # delete C++ source from package
 rm -v "$FOLDER"/usr/bin/edamame.cxx
 # delete Python cache files
-if [[ "$vert" != "dnc" ]]; then
-	find "$FOLDER" -maxdepth 10 -type d -name __pycache__ -exec rm -rfv {} \;
-fi
+find "$FOLDER" -maxdepth 10 -type d -name __pycache__ -exec rm -rfv {} \;
 # Insert other deps into control file
 sed -i "s/<\!--python_vert-->/$py_vert/g" "$FOLDER/DEBIAN/edamame-common.control"
 sed -i "s/ , //g" "$FOLDER/DEBIAN/edamame-common.control"

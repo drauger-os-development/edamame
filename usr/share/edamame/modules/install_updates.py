@@ -24,7 +24,9 @@
 """Install system updates from apt"""
 from __future__ import print_function
 from sys import stderr
+import os
 import apt
+import subprocess as subproc
 
 import modules.purge as purge
 
@@ -33,6 +35,38 @@ import modules.purge as purge
 def __eprint__(*args, **kwargs):
     """Make it easier for us to print to stderr"""
     print(*args, file=stderr, **kwargs)
+
+
+def update_flatpak():
+    """Update any installed Flatpaks
+
+    We only do this for system-wide installations, in order to avoid possible issues.
+    """
+    subproc.check_call(["flatpak", "update", "-y"])
+
+
+def cache_commit(cache):
+    """Run apt.cache.commit(), with error handling"""
+    try:
+        cache.commit()
+    except apt.cache.LockFailedException:
+        try:
+            os.mkdir("/var/cache")
+        except FileExistsError:
+            pass
+        try:
+            os.mkdir("/var/cache/apt")
+        except FileExistsError:
+            pass
+        try:
+            os.mkdir("/var/cache/apt/archives")
+        except FileExistsError:
+            pass
+        with open("/var/cache/apt/archives/lock", "w+") as file:
+            file.write("")
+        os.chmod("/var/cache/apt/archives/lock", 0o640)
+        os.chown("/var/cache/apt/archives/lock", 0, 0)
+        cache.commit()
 
 
 def update_system():
@@ -45,7 +79,11 @@ def update_system():
         cache.upgrade()
     except apt.apt_pkg.Error:
         print("ERROR: Possible held packages. Update may be partially completed.")
-    cache.commit()
+    try:
+        cache_commit(cache)
+    except apt.cache.LockFailedException:
+        print("Could not lock dpkg. Updates failed...")
     purge.autoremove(cache)
     cache.close()
+    update_flatpak()
     __eprint__("\t\t\t###    install_updates.py CLOSED    ###    ")
