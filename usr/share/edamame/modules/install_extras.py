@@ -336,7 +336,7 @@ def install_extras():
             try:
                 cache_commit(cache)
             except apt.apt_pkg.Error:
-            subproc.check_call(["apt-get", "-o", 'Dpkg::Options::="--force-confold"', "--force-yes", "-y", "install"] + additional_install_list)
+                subproc.check_call(["apt-get", "-o", 'Dpkg::Options::="--force-confold"', "--force-yes", "-y", "install"] + additional_install_list)
     except (apt.cache.FetchFailedException, apt.cache.LockFailedException) as e:
         __eprint__("\t\t\t### WARNING ###")
         __eprint__("INSTALLATION OF DRIVERS FAILED.")
