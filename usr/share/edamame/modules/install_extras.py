@@ -321,7 +321,7 @@ def install_extras():
         cache_commit(cache)
     except (apt.cache.FetchFailedException, apt.cache.LockFailedException, apt.apt_pkg.Error):
         try:
-            subproc.check_call(["apt-get", "-o", 'Dpkg::Options::="--force-confold"', "--force-yes", "-y", "install"] + standard_install_list)
+            subproc.check_call(["apt-get", "--force-yes", "-y", "install"] + standard_install_list)
         except subproc.CalledProcessError:
             __eprint__("\t\t\t### WARNING ###")
             __eprint__("INSTALLATION OF STANDARD RESTRICTED EXTRAS FAILED. CONTINUING TO DRIVERS...")
@@ -335,7 +335,7 @@ def install_extras():
             cache_commit(cache)
     except (apt.cache.FetchFailedException, apt.cache.LockFailedException, apt.apt_pkg.Error):
         try:
-            subproc.check_call(["apt-get", "-o", 'Dpkg::Options::="--force-confold"', "--force-yes", "-y", "install"] + additional_install_list)
+            subproc.check_call(["apt-get", "--force-yes", "-y", "install"] + additional_install_list)
         except subproc.CalledProcessError:
             __eprint__("\t\t\t### WARNING ###")
             __eprint__("INSTALLATION OF DRIVERS FAILED.")
