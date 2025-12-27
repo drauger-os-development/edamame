@@ -42,7 +42,7 @@ def update_flatpak():
 
     We only do this for system-wide installations, in order to avoid possible issues.
     """
-    subproc.check_call(["flatpak", "update", "-y"])
+    subproc.check_call(["flatpak", "--system", "update", "-y"])
 
 
 def cache_commit(cache):
@@ -73,16 +73,19 @@ def update_system():
     """update system through package manager"""
     __eprint__("\t\t\t###    install_updates.py STARTED    ###    ")
     cache = apt.cache.Cache()
-    cache.update()
+    try:
+        cache.update()
+    except apt.cache.FetchFailedException:
+        subproc.check_call(["apt-get", "update"])
     cache.open()
     try:
         cache.upgrade()
-    except apt.apt_pkg.Error:
-        print("ERROR: Possible held packages. Update may be partially completed.")
-    try:
         cache_commit(cache)
-    except apt.cache.LockFailedException:
-        print("Could not lock dpkg. Updates failed...")
+    except (apt.cache.FetchFailedException, apt.cache.LockFailedException, apt.apt_pkg.Error):
+            try:
+                subproc.check_call(["apt-get", "--force-yes", "-y", "upgrade"])
+            except subproc.CalledProcessError:
+                print("ERROR: Possible held packages. Update may be partially completed.")
     purge.autoremove(cache)
     cache.close()
     update_flatpak()

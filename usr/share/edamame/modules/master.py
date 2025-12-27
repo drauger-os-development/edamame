@@ -302,6 +302,8 @@ def install_kernel(release):
     # it's just easier and more reliable
     packages = ["linux-headers-" + release, "linux-image-" + release]
     install_command = ["dpkg", "--install", "--force-confnew"]
+    if not os.path.exists("/var/run"):
+        os.mkdir("/var/run")
     subproc.check_call(["dpkg", "-P", "--force-all"] + packages,
                        stdout=stderr.buffer)
     packages = [each for each in os.listdir("/repo") if "linux-" in each]
