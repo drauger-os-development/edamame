@@ -3,7 +3,7 @@
 #
 #  set_time.py
 #
-#  Copyright 2024 Thomas Castleman <batcastle@draugeros.org>
+#  Copyright 2025 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -34,9 +34,15 @@ def eprint(*args, **kwargs):
 
 def _link(location):
     """Set time zone and localtime. Also, enable NTP sync."""
-    remove("/etc/localtime")
+    try:
+        remove("/etc/localtime")
+    except FileNotFoundError:
+        eprint("localtime file not found. No need to remove.")
     symlink("/usr/share/zoneinfo/%s" % (location), "/etc/localtime")
-    remove("/etc/timezone")
+    try:
+        remove("/etc/timezone")
+    except FileNotFoundError:
+         eprint("timezone file not found. No need to remove.")
     with open("/etc/timezone", "w+") as timezone:
         timezone.write(location)
     Popen(["timedatectl", "set-ntp", "true"])

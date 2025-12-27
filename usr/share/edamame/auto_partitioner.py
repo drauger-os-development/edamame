@@ -3,7 +3,7 @@
 #
 #  auto_partitioner.py
 #
-#  Copyright 2024 Thomas Castleman <batcastle@draugeros.org>
+#  Copyright 2025 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -95,7 +95,8 @@ config = {
                         },
                 "GENERAL": {
                     "min root size": 23000,
-                    "mdswh": 128
+                    "mdswh": 128,
+                    "min efi size": 1024
                         }
             }
         }
@@ -232,6 +233,21 @@ def get_min_root_size(swap=True, ram_size=False, ram_size_unit=True,
     if not bytes:
         min_root_size = bytes_to_gb(min_root_size)
     return min_root_size
+
+
+def get_min_efi_size():
+    """Get the minimum size for the EFI partition. Returns int for minimum size, -1 if none found."""
+    if is_EFI():
+        try:
+            if "min efi size" in config["partitioning"]["GENERAL"]:
+                try:
+                    return int(config["partitioning"]["GENERAL"]["min efi size"])
+                except ValueError:
+                    return -1
+        except KeyError:
+            return -1
+    return -1
+
 
 
 def check_disk_state():
@@ -763,3 +779,21 @@ def make_raid_array(disks: list, raid_type: int, force=False) -> bool:
         return True
     except subprocess.CalledProcessError:
         return False
+
+
+def get_drive_count() -> int:
+    """Returns number of installable drives connected to the system.
+
+    This is all drives, excluding /dev/srX and /dev/fdX
+    """
+    drives = subprocess.check_output(["lsblk", "--json", "--output", "path,type"]).decode()
+    drives = json.loads(drives)["blockdevices"]
+    count = 0
+    for each in drives:
+        if each["type"] != "disk":
+            continue
+        if each["path"].split("/")[-1][:2] not in ("fd", "sr"):
+            if "loop" not in each["path"]:
+                count += 1
+    return 1
+    return count

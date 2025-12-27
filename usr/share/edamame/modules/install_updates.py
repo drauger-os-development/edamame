@@ -3,7 +3,7 @@
 #
 #  install_updates.py
 #
-#  Copyright 2024 Thomas Castleman <batcastle@draugeros.org>
+#  Copyright 2025 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -24,7 +24,9 @@
 """Install system updates from apt"""
 from __future__ import print_function
 from sys import stderr
+import os
 import apt
+import subprocess as subproc
 
 import modules.purge as purge
 
@@ -35,17 +37,56 @@ def __eprint__(*args, **kwargs):
     print(*args, file=stderr, **kwargs)
 
 
+def update_flatpak():
+    """Update any installed Flatpaks
+
+    We only do this for system-wide installations, in order to avoid possible issues.
+    """
+    subproc.check_call(["flatpak", "--system", "update", "-y"])
+
+
+def cache_commit(cache):
+    """Run apt.cache.commit(), with error handling"""
+    try:
+        cache.commit()
+    except apt.cache.LockFailedException:
+        try:
+            os.mkdir("/var/cache")
+        except FileExistsError:
+            pass
+        try:
+            os.mkdir("/var/cache/apt")
+        except FileExistsError:
+            pass
+        try:
+            os.mkdir("/var/cache/apt/archives")
+        except FileExistsError:
+            pass
+        with open("/var/cache/apt/archives/lock", "w+") as file:
+            file.write("")
+        os.chmod("/var/cache/apt/archives/lock", 0o640)
+        os.chown("/var/cache/apt/archives/lock", 0, 0)
+        cache.commit()
+
+
 def update_system():
     """update system through package manager"""
-    __eprint__("    ###    install_updates.py STARTED    ###    ")
+    __eprint__("\t\t\t###    install_updates.py STARTED    ###    ")
     cache = apt.cache.Cache()
-    cache.update()
+    try:
+        cache.update()
+    except apt.cache.FetchFailedException:
+        subproc.check_call(["apt-get", "update"])
     cache.open()
     try:
         cache.upgrade()
-    except apt.apt_pkg.Error:
-        print("ERROR: Possible held packages. Update may be partially completed.")
-    cache.commit()
+        cache_commit(cache)
+    except (apt.cache.FetchFailedException, apt.cache.LockFailedException, apt.apt_pkg.Error):
+            try:
+                subproc.check_call(["apt-get", "--force-yes", "-y", "upgrade"])
+            except subproc.CalledProcessError:
+                print("ERROR: Possible held packages. Update may be partially completed.")
     purge.autoremove(cache)
     cache.close()
-    __eprint__("    ###    install_updates.py CLOSED    ###    ")
+    update_flatpak()
+    __eprint__("\t\t\t###    install_updates.py CLOSED    ###    ")

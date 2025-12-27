@@ -3,7 +3,7 @@
 #
 #  engine.py
 #
-#  Copyright 2024 Thomas Castleman <batcastle@draugeros.org>
+#  Copyright 2025 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -44,11 +44,11 @@ import de_control as dec
 common.eprint(f"    ###    {sys.argv[0]} STARTED    ###    ")
 
 
-def copy_log_to_disk():
+def copy_log_to_disk() -> None:
     """Copy Installation Log to installation location"""
     try:
         shutil.copyfile("/tmp/edamame.log",
-                     "/mnt/var/log/edamame.log")
+                        "/mnt/var/log/edamame.log")
     except FileNotFoundError:
         common.eprint("    ###    Log Not Found. Testing?    ###    ")
         with open("/tmp/edamame.log", "w+") as log:
@@ -56,13 +56,15 @@ def copy_log_to_disk():
 This is a stand-in file.
 """)
         shutil.copyfile("/tmp/edamame.log",
-                     "/mnt/var/log/edamame.log")
+                        "/mnt/var/log/edamame.log")
+
 
 with open("/etc/edamame/settings.json") as config_file:
     CONFIG = json.loads(config_file.read())
 
 
-def shutdown(boot_time: bool, immersion_obj: dec.Immersion, exit_code: int) -> None:
+def shutdown(boot_time: bool, immersion_obj: dec.Immersion,
+             exit_code: int) -> None:
     if boot_time:
         immersion_obj.disable()
     sys.exit(exit_code)
@@ -70,6 +72,7 @@ def shutdown(boot_time: bool, immersion_obj: dec.Immersion, exit_code: int) -> N
 
 BOOT_TIME = False
 immerse = dec.Immersion()
+gui = UI.UI_in_use()
 if len(sys.argv) > 1:
     if sys.argv[1] == "--boot-time":
         # OEM post-install configuration, on-boot installation, and more
@@ -89,6 +92,15 @@ if len(sys.argv) > 1:
             sys.exit(0)
         BOOT_TIME = True
         immerse.enable()
+    elif "--gui=" in sys.argv[1]:
+        gui = sys.argv[1].split("=")[-1].upper()
+
+try:
+    UI = UI.load_UI(gui)
+except ImportError:
+    common.eprint(f"FATAL ERROR: GUI METHOD '{gui}' DOES NOT EXIST!")
+    sys.exit(1)
+
 MEMCHECK = psutil.virtual_memory().total
 if (MEMCHECK / 1024 ** 2) < 1024:
     UI.error.show_error("\n\tRAM is less than 1 GB.\t\n")
@@ -168,7 +180,7 @@ try:
                 net_settings = os.listdir(work_dir + "/settings/network-settings")
                 if len(net_settings) > 0:
                     shutil.copytree(net_settings + "/settings/network-settings",
-                             "/etc/NetworkManager/system-connections")
+                                    "/etc/NetworkManager/system-connections")
                     common.eprint("\t###\tNOTE: NETWORK SETTINGS COPIED TO LIVE SYSTEM\t###\t")
             except FileNotFoundError:
                 pass
@@ -176,13 +188,15 @@ try:
             # Parse out just the data. Ignore everything else.
             SETTINGS = SETTINGS["DATA"]
         if "OEM" in SETTINGS.values():
-            # This is an OEM installation. Parts will be skipped now and handled later.
+            # This is an OEM installation. Parts will be skipped
+            # now and handled later.
             # Other parts will be automated
             additional_settings = oem.pre_install.show_main()
             for each in additional_settings:
                 SETTINGS[each] = additional_settings[each]
         if "COMPAT_MODE" not in SETTINGS:
-            # this is an old quick install file. It has likely worked for the user before.
+            # this is an old quick install file. It has likely worked
+            # for the user before.
             # honor the file, but offer to update it
             # TODO: Add offer to update Quick Install File
             SETTINGS["COMPAT_MODE"] = False
@@ -195,15 +209,34 @@ INSTALL = UI.confirm.show_confirm(SETTINGS, boot_time=BOOT_TIME)
 if INSTALL:
     try:
         # Run the progress bar in the background
-        process = subprocess.Popen("/usr/share/edamame/progress.py")
+        # we need to be in a certain directory when we run the
+        # progress window code
+        cwd = "/".join(sys.argv[0].split("/")[:-1])
+        os.chdir(cwd)
+        command = ["/usr/share/edamame/progress.py"]
+        if len(sys.argv) > 1:
+            if "--gui=" in sys.argv[1]:
+                command.append(sys.argv[1])
+        else:
+            command.append(gui)
+        process = subprocess.Popen(command)
         pid = process.pid
         SETTINGS["INTERNET"] = check_internet.has_internet()
-        installer.install(SETTINGS, CONFIG["local_repo"])
+        installer.install(SETTINGS, CONFIG["local_repo"], ui_type=gui)
         shutil.rmtree("/mnt/repo")
         common.eprint(f"    ###    {sys.argv[0]} CLOSED    ###    ")
         copy_log_to_disk()
-        subprocess.Popen(["su", "live", "-c",
-                          f"/usr/share/edamame/success.py \'{json.dumps(SETTINGS)}\'"])
+        command = ["su", "live", "-c",
+                   f"/usr/share/edamame/success.py \'{json.dumps(SETTINGS)}\'"]
+        if len(sys.argv) > 1:
+            if "--gui=" in sys.argv[1]:
+                command[-1] = f"{command[-1]} {sys.argv[1]}"
+        else:
+            command[-1] =  f"{command[-1]} {gui}"
+        # we need to be in a certain directory when we run the
+        # success window code
+        os.chdir(cwd)
+        subprocess.Popen(command)
         os.kill(pid, 15)
     except Exception as error:
         os.kill(pid, 15)

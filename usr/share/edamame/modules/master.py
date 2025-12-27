@@ -3,7 +3,7 @@
 #
 #  master.py
 #
-#  Copyright 2024 Thomas Castleman <batcastle@draugeros.org>
+#  Copyright 2025 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -69,28 +69,79 @@ def __update__(percentage):
 class MainInstallation():
     """Main Installation Procedure, minus low-level stuff"""
     def __init__(self, processes_to_do, settings):
-        for each1 in processes_to_do:
-            process_new = getattr(MainInstallation, each1, self)
-            args_list = getfullargspec(process_new)[0]
-            args = []
-            for each in args_list:
-                args.append(settings[each])
-            globals()[each1] = multiprocessing.Process(target=process_new,
-                                                       args=args)
-            globals()[each1].start()
+        # for each1 in processes_to_do:
+        #     process_new = getattr(MainInstallation, each1, self)
+        #     args_list = getfullargspec(process_new)[0]
+        #     args = []
+        #     for each in args_list:
+        #         args.append(settings[each])
+        #     globals()[each1] = multiprocessing.Process(target=process_new,
+        #                                                args=args)
+        #     globals()[each1].start()
         offset = 39
         ending = 51
         iterator = round(ending / len(processes_to_do))
         # We COULD set point equal to iterator, but we don't want the iterator
         # to change, so re-doing the math is safer, albiet slower.
         point = round(ending / len(processes_to_do))
+        # while len(processes_to_do) > 0:
+        #     for each in range(len(processes_to_do) - 1, -1, -1):
+        #         if not globals()[processes_to_do[each]].is_alive():
+        #             globals()[processes_to_do[each]].join()
+        #             del processes_to_do[each]
+        #             __update__(point + offset)
+        #             point += iterator
+
+        """
+        NEW PROCESS SPAWNER!!!
+
+        This new spawner is designed to scale with how many cores a given CPU has, so we don't over extend our resources
+        """
+        working = {}
         while len(processes_to_do) > 0:
-            for each in range(len(processes_to_do) - 1, -1, -1):
-                if not globals()[processes_to_do[each]].is_alive():
-                    globals()[processes_to_do[each]].join()
-                    del processes_to_do[each]
+            # First, check if we have any processes that are completed that we need to close
+            to_del = []
+            for each in working:
+                if not working[each].is_alive():
+                    # We have a process to clean up
+                    working[each].join()
+                    del processes_to_do[processes_to_do.index(each)]
+                    to_del.append(each)
                     __update__(point + offset)
                     point += iterator
+            for each in to_del:
+                del working[each]
+            # Second, check how many processes we have running against how many cores we have
+            if len(working) < os.cpu_count():
+                # We have fewer processes than CPUs.
+                if len(processes_to_do) > len(working):
+                    """
+                        Processes that are spawned remain in the "to-do" list until done.
+                        So, the to-do list is always greater than or equal in length to the list of currently running processes
+                    """
+                    new = None
+                    for each in processes_to_do:
+                        if each not in working.keys():
+                            new = each
+                            break
+                    if new is None:
+                        continue
+                    process_new = getattr(MainInstallation, new, self)
+                    args_list = getfullargspec(process_new)[0]
+                    args = []
+                    for each in args_list:
+                        args.append(settings[each])
+                    working[new] = multiprocessing.Process(target=process_new, args=args)
+                    working[new].start()
+                else:
+                    # We don't want to sit and spin and waste CPU time. Just sleep...
+                    sleep(0.1)
+            else:
+                # We don't want to sit and spin and waste CPU time. Just sleep...
+                sleep(0.1)
+            # This line is temporary, for debugging purposes.
+            # eprint(f"Running Processes: {len(working)}\nProcesses to do: {len(processes_to_do) - len(working)}")
+
 
     def time_set(TIME_ZONE):
         """Set system time"""
@@ -135,6 +186,11 @@ class MainInstallation():
     def apt(UPDATES, EXTRAS):
         """Run commands for apt sequentially to avoid front-end lock"""
         # MainInstallation.__install_updates__(UPDATES, INTERNET)
+        # There should be nothing running that is updating the CHROOT, kill the lock
+        if os.path.exists("/var/cache/apt/archives/lock"):
+            os.remove("/var/cache/apt/archives/lock")
+        if os.path.exists("/var/lib/apt/lists/lock"):
+            os.remove("/var/lib/apt/lists/lock")
         if UPDATES:
             install_updates.update_system()
         if EXTRAS:
@@ -168,8 +224,6 @@ class MainInstallation():
             with open("/usr/share/X11/xkb/rules/base.lst", "r") as xkb_conf:
                 kcd = xkb_conf.read()
             kcd = kcd.split("\n")
-            for each1 in enumerate(kcd):
-                kcd[each1[0]] = kcd[each1[0]].split()
             try:
                 os.remove("/etc/default/keyboard")
             except FileNotFoundError:
@@ -180,12 +234,12 @@ class MainInstallation():
             for each1 in kcd:
                 if len(each1) < 1:
                     continue
-                if each1[0] == MODEL:
-                    xkbm = MODEL
-                elif each1[0] == LAYOUT:
-                    xkbl = LAYOUT
-                elif each1[0] == VARIENT:
-                    xkbv = VARIENT
+                if MODEL in each1:
+                    xkbm = each1.split()[0]
+                elif LAYOUT in each1:
+                    xkbl = each1.split()[0]
+                elif VARIENT in each1:
+                    xkbv = each1.split()[0]
             if "" == xkbm:
                 print(f"{MODEL} not in XKeyboard Rules List. Invalid.")
             if "" == xkbl:
@@ -248,6 +302,8 @@ def install_kernel(release):
     # it's just easier and more reliable
     packages = ["linux-headers-" + release, "linux-image-" + release]
     install_command = ["dpkg", "--install", "--force-confnew"]
+    if not os.path.exists("/var/run"):
+        os.mkdir("/var/run")
     subproc.check_call(["dpkg", "-P", "--force-all"] + packages,
                        stdout=stderr.buffer)
     packages = [each for each in os.listdir("/repo") if "linux-" in each]
@@ -261,12 +317,12 @@ def install_kernel(release):
         eprint("WARNING: Clean up post-kernel install failed. This will likely be fixed later.")
 
 
-def install_bootloader(efi, root, release, distro, compat_mode):
+def install_bootloader(efi, root, release, distro, compat_mode, upgraded=False):
     """Determine whether bootloader needs to be systemd-boot (for UEFI)
     or GRUB (for BIOS)
     and install the correct one."""
     if efi not in ("NULL", None, "", False):
-        _install_systemd_boot(release, root, distro, compat_mode)
+        _install_systemd_boot(release, root, distro, compat_mode, upgraded)
     else:
         _install_grub(root)
 
@@ -305,9 +361,25 @@ def _install_grub(root):
                           stdout=stderr.buffer)
 
 
-def _install_systemd_boot(release, root, distro, compat_mode):
+def _install_systemd_boot(release, root, distro, compat_mode, upgraded):
     """set up and install systemd-boot"""
-    install_command = ["dpkg", "--install", "--force-confnew"]
+    if upgraded:
+        install_command = ["apt-get", "install", "-y", "--assume-yes"]
+        try:
+            apt_output = subproc.check_output(["apt-get", "update"])
+            apt_output = apt_output.decode()
+            if apt_output[:3].lower() == "ign":
+                # We lost internet. Revert to local archive
+                install_command = ["dpkg", "--install", "--force-confnew"]
+                upgraded = False
+        except subproc.CalledProcessError:
+            # We might have lost internet access. Fall back to local archive
+            install_command = ["dpkg", "--install", "--force-confnew"]
+            upgraded = False
+    else:
+        install_command = ["dpkg", "--install", "--force-confnew"]
+
+    # This can be done at any point, but lets just go ahead and do it.
     try:
         os.makedirs("/boot/efi/loader/entries", exist_ok=True)
     except FileExistsError:
@@ -319,10 +391,14 @@ def _install_systemd_boot(release, root, distro, compat_mode):
     os.environ["SYSTEMD_RELAX_ESP_CHECKS"] = "1"
     with open("/etc/environment", "a") as envi:
         envi.write("export SYSTEMD_RELAX_ESP_CHECKS=1")
+
+    # At this point, we need to essentially check and see if systemd-boot is installed.
     try:
         subproc.check_call(["bootctl", "--path=/boot/efi", "install"],
                               stdout=stderr.buffer)
+        # It is, we just ran installation. We're done here basically.
     except subproc.CalledProcessError as e:
+        # Installation ran into an issue, but we have systemd-boot. Manually install it.
         eprint("WARNING: bootctl issued CalledProcessError:")
         eprint(e)
         eprint("Performing manual installation of systemd-boot.")
@@ -349,33 +425,45 @@ def _install_systemd_boot(release, root, distro, compat_mode):
         except FileExistsError:
             pass
     except FileNotFoundError:
+        # We do NOT have systemd-boot installed. Install it.
         # using new installation method
-        packages = [each for each in os.listdir("/repo") if ("systemd-boot" in each) and ("manager" not in each)]
+
+        # Get packages for systemd-boot
+        packages = [each for each in os.listdir("/repo") if "systemd-boot" in each]
         os.chdir("/repo")
         depends = subproc.check_output(["dpkg", "-f"] + packages + ["depends"])
         depends = depends.decode()[:-1].split(", ")
         depends = [depends[each[0]].split(" ")[0] for each in enumerate(depends)]
-        for each in os.listdir():
-            for each1 in depends:
-                if ((each1 in each) and (each not in packages)):
-                    packages.append(each)
-                    break
-        subproc.check_call(install_command + packages,
-                           stdout=stderr.buffer)
-    packages = [each for each in os.listdir("/repo") if ("systemd-boot-manager" in each) or ("efibootmgr" in each)]
-    os.chdir("/repo")
-    depends = subproc.check_output(["dpkg", "-f"] + packages + ["depends"])
-    depends = depends.decode()[:-1].split(", ")
-    # List of dependencies
-    depends = [depends[each[0]].split(" ")[0] for each in enumerate(depends)]
-    # depends is just a list of package names. We now need to go through the list
-    # of files in this folder, and if the package name is in the file name, add
-    # it to the list `packages`
-    for each in os.listdir():
-        for each1 in depends:
-            if ((each1 in each) and (each not in packages)):
-                packages.append(each)
-                break
+        # Check if updates where installed
+        if not upgraded:
+            # Updates WERE NOT installed
+            for each in os.listdir():
+                for each1 in depends:
+                    if ((each1 in each) and (each not in packages)):
+                        packages.append(each)
+                        break
+
+            # Get packages for systemd-boot-manager
+            packages = [each for each in packages if "systemd-boot-manager" not in each]
+            new_packages = [each for each in os.listdir("/repo") if ("systemd-boot-manager" in each) or ("efibootmgr" in each)]
+            os.chdir("/repo")
+            depends = subproc.check_output(["dpkg", "-f"] + new_packages + ["depends"])
+            depends = depends.decode()[:-1].split(", ")
+            # List of dependencies
+            depends = [depends[each[0]].split(" ")[0] for each in enumerate(depends)]
+            # depends is just a list of package names. We now need to go through the list
+            # of files in this folder, and if the package name is in the file name, add
+            # it to the list `packages`
+            for each in os.listdir():
+                for each1 in depends:
+                    if ((each1 in each) and (each not in new_packages)):
+                        new_packages.append(each)
+                        break
+            packages = packages + new_packages
+        else:
+            # Updates WERE installed
+            packages = [each.split("_")[0] for each in packages]
+            packages.append("efibootmgr")
     subproc.check_call(install_command + packages,
                           stdout=stderr.buffer)
     os.chdir("/")
@@ -406,7 +494,7 @@ def _install_systemd_boot(release, root, distro, compat_mode):
     check_systemd_boot(release, root, distro)
 
 
-def setup_lowlevel(efi, root, distro, compat_mode):
+def setup_lowlevel(efi, root, distro, compat_mode, upgraded=False):
     """Set up kernel and bootloader"""
     release = subproc.check_output(["uname", "--release"]).decode()[0:-1]
     eprint(f"Running kernel: { release }")
@@ -414,9 +502,12 @@ def setup_lowlevel(efi, root, distro, compat_mode):
     set_plymouth_theme()
     __update__(91)
     eprint("\n    ###    MAKING INITRAMFS    ###    ")
+    if not os.path.exists("/var/tmp"):
+        os.mkdir("/var/tmp")
+        os.chmod("/var/tmp", 0o777)
     subproc.check_call(["mkinitramfs", "-o", "/boot/initrd.img-" + release],
-                          stdout=stderr.buffer)
-    install_bootloader(efi, root, release, distro, compat_mode)
+                       stdout=stderr.buffer)
+    install_bootloader(efi, root, release, distro, compat_mode, upgraded)
     sleep(0.5)
     os.symlink("/boot/initrd.img-" + release, "/boot/initrd.img")
     os.symlink("/boot/vmlinuz-" + release, "/boot/vmlinuz")
@@ -551,7 +642,7 @@ def install(settings, distro):
     MainInstallation(processes_to_do, settings)
     handle_laptops(settings["USERNAME"])
     setup_lowlevel(settings["EFI"], settings["ROOT"], distro,
-                   settings["COMPAT_MODE"])
+                   settings["COMPAT_MODE"], settings["UPDATES"])
     verify(settings["USERNAME"], settings["ROOT"], distro)
     if "PURGE" in settings:
         purge_package(settings["PURGE"])

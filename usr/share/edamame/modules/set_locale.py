@@ -3,7 +3,7 @@
 #
 #  set_locale.py
 #
-#  Copyright 2024 Thomas Castleman <batcastle@draugeros.org>
+#  Copyright 2025 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -55,7 +55,10 @@ def set_locale(lang_set):
     for each in range(len(data) - 1, -1, -1):
         if lang_set + "_" not in data[each]:
             del data[each]
-    _setlocale(data[0])
+    if len(data) == 0:
+        eprint(f"No appropriate langauages found for: {lang_set}")
+    else:
+        _setlocale(data[0])
 
     eprint("    ###    set_locale.py STOPPED    ###    ")
 

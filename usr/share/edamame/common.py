@@ -3,7 +3,7 @@
 #
 #  common.py
 #
-#  Copyright 2024 Thomas Castleman <batcastle@draugeros.org>
+#  Copyright 2025 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -85,3 +85,23 @@ def item_in_list(item, array):
         if item == each:
             return True
     return False
+
+
+def determine_toolkit():
+    """Determine System UI toolkit"""
+    UI_by_DE = {
+            "gnome": "GTK",
+            "xfce": "GTK",
+            "lxde": "GTK",
+            "mate": "GTK",
+            "unity": "GTK",
+            "cinnamon": "GTK",
+            "pantheon": "GTK",
+            "kde": "Qt",
+            "lxqt": "Qt",
+            "lomiri": "Qt",
+            "dde": "Qt",
+            "deepin": "Qt"
+
+        }
+    return UI_by_DE[os.environ["XDG_CURRENT_DESKTOP"].lower()]

@@ -8,14 +8,15 @@ This list details which distros have been tested and are known working with `eda
  - [ ] `cd` into the folder: `cd edamame`
  - [ ] Make any necessary changes to the default config to get `edamame` to work.
  - [ ] Install Packages needed to build: `sudo apt install python3-dev libpython3-dev`
- - [ ] Build the package: `./build.sh`
- - [ ] Install the package: `sudo apt install ../edamame_*.deb`
+ - [ ] Build the package: `./build.sh --pool`
+ - [ ] Install the package: `sudo apt install ./build/*`
  - [ ] Run `edamame` in a terminal and try to install the OS!
 
 ## When testing, please do these things:
  - [ ] Install using the auto-partitioner (on both EFI and BIOS)
  - [ ] Install using the manual partitioner (on both EFI and BIOS)
  - [ ] Install with and without Restricted Extras enabled
+ - [ ] Install with and without Update During Install enabled
 
 ## For extra credit, try:
  - [ ] Installing using Quick Install

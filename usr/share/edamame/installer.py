@@ -3,7 +3,7 @@
 #
 #  installer.py
 #
-#  Copyright 2024 Thomas Castleman <batcastle@draugeros.org>
+#  Copyright 2025 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ import os
 import shutil
 import tarfile as tar
 import json
+import time
 import UI
 import modules
 import chroot
@@ -34,16 +35,37 @@ import common
 import auto_partitioner
 
 
-def __mount__(device, path_dir):
+def __mount__(device, path_dir, ui):
     """Mount device at path
     It would be much lighter weight to use ctypes to do this
     But, that keeps throwing an 'Invalid Argument' error.
     Calling Mount with check_call is the safer option.
     """
-    try:
-        check_call(["mount", device, path_dir])
-    except CalledProcessError:
-        pass
+    retry_count = 0
+    while True:
+        if retry_count > 5:
+            ui.error.show_error(f"\n\tCOULD NOT MOUNT {device} AT {path_dir}!\t\n")
+        breakout = False
+        try:
+            check_call(["mount", "-o", "rw", device, path_dir])
+        except CalledProcessError:
+            print("Mounting Drive Failed. Delaying and retrying...")
+            retry_count += 1
+            time.sleep(0.1)
+            continue
+        mountpoints = json.loads(check_output(["lsblk", "--json", "--output", "path,mountpoints", device]).decode())["blockdevices"]
+        for each in mountpoints:
+            if each["path"] == device:
+                if path_dir in each["mountpoints"]:
+                    breakout = True
+                    break
+        if breakout:
+            break
+        print("Drive Mounting failed silently. Delaying and Retrying...")
+        retry_count += 1
+        time.sleep(0.1)
+
+
 
 
 def __update__(percentage):
@@ -57,7 +79,7 @@ def __update__(percentage):
             progress.write(str(percentage))
 
 
-def install(settings, local_repo):
+def install(settings: dict, local_repo: str, ui_type: str) -> None:
     """Begin installation proceidure
 
     settings should be a dictionary with the following values:
@@ -85,6 +107,7 @@ def install(settings, local_repo):
     json.loads()["DATA"] to see an example of acceptable settings
     """
     common.eprint("    ###    installer.py STARTED    ###    ")
+    ui = UI.load_UI(ui_type)
     work_dir = "/tmp/quick-install_working-dir"
     # STEP 1: Partion and format the drive ( if needed )
     if settings["AUTO_PART"]:
@@ -104,7 +127,7 @@ def install(settings, local_repo):
         os.remove("/tmp/edamame-progress.log")
     __update__(12)
     # STEP 2: Mount the new partitions
-    __mount__(settings["ROOT"], "/mnt")
+    __mount__(settings["ROOT"], "/mnt", ui)
     if settings["EFI"] not in ("NULL", None, "", False):
         try:
             os.mkdir("/mnt/boot")
@@ -114,13 +137,13 @@ def install(settings, local_repo):
             os.mkdir("/mnt/boot/efi")
         except FileExistsError:
             pass
-        __mount__(settings["EFI"], "/mnt/boot/efi")
+        __mount__(settings["EFI"], "/mnt/boot/efi", ui)
     if settings["HOME"] not in ("NULL", None, ""):
         try:
             os.mkdir("/mnt/home")
         except FileExistsError:
             common.eprint("/mnt/home exists when it shouldn't. We have issues...")
-        __mount__(settings["HOME"], "/mnt/home")
+        __mount__(settings["HOME"], "/mnt/home", ui)
     if settings["SWAP"] != "FILE":
         # This can happen in the background. No biggie.
         Popen(["swapon", settings["SWAP"]])
@@ -133,7 +156,7 @@ def install(settings, local_repo):
         config = json.loads(file.read())
     if not os.path.exists(config["squashfs_Location"]):
         common.eprint("\n    SQUASHFS FILE DOES NOT EXIST    \n")
-        UI.error.show_error("\n\tSQUASHFS FILE DOES NOT EXIST\t\n")
+        ui.error.show_error("\n\tSQUASHFS FILE DOES NOT EXIST\t\n")
     __update__(17)
     os.chdir("/mnt")
     common.eprint("CLEANING INSTALLATION DIRECTORY")
@@ -180,7 +203,7 @@ def install(settings, local_repo):
                     "/mnt/tmp/edamame-progress.log")
     os.remove("/tmp/edamame-progress.log")
     os.symlink("/mnt/tmp/edamame-progress.log",
-            "/tmp/edamame-progress.log")
+               "/tmp/edamame-progress.log")
     __update__(32)
     # STEP 4: Update fstab
     common.eprint("    ###    Updating FSTAB    ###    ")
@@ -252,8 +275,7 @@ def install(settings, local_repo):
         common.eprint("    ###    SYSTEMD-BOOT NOT CONFIGURED. CORRECTING . . .    ###    ")
         check_call(["arch-chroot", "/mnt", "systemd-boot-manager", "-r"])
     try:
-        shutil.rmtree("/mnt/home/" + settings["USERNAME"] +
-                      "/.config/xfce4/panel/launcher-3")
+        shutil.rmtree(f"/mnt/home/{settings["USERNAME"]}/.config/xfce4/panel/launcher-3")
     except FileNotFoundError:
         pass
     __update__(100)

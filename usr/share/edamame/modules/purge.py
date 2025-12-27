@@ -3,7 +3,7 @@
 #
 #  purge.py
 #
-#  Copyright 2024 Thomas Castleman <batcastle@draugeros.org>
+#  Copyright 2025 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -23,9 +23,34 @@
 #
 """Make it easier to purge packages from the system"""
 import apt
+import os
 
 
-def purge_package(pkg_name):
+def cache_commit(cache):
+    """Run apt.cache.commit(), with error handling"""
+    try:
+        cache.commit()
+    except apt.cache.LockFailedException:
+        try:
+            os.mkdir("/var/cache")
+        except FileExistsError:
+            pass
+        try:
+            os.mkdir("/var/cache/apt")
+        except FileExistsError:
+            pass
+        try:
+            os.mkdir("/var/cache/apt/archives")
+        except FileExistsError:
+            pass
+        with open("/var/cache/apt/archives/lock", "w+") as file:
+            file.write("")
+        os.chmod("/var/cache/apt/archives/lock", 0o640)
+        os.chown("/var/cache/apt/archives/lock", 0, 0)
+        cache.commit()
+
+
+def purge_package(pkg_name: list) -> None:
     """Purge packages from system using apt
 
     arguments: pkg_name
@@ -39,14 +64,13 @@ def purge_package(pkg_name):
     cache.open()
     with cache.actiongroup():
         for pkg in pkg_name:
-            for each in cache:
-                if pkg == each.name:
-                    each.mark_delete()
-    cache.commit()
+            if pkg in cache:
+                cache[pkg].mark_delete()
+    cache_commit(cache)
     cache.close()
 
 
-def autoremove(cache):
+def autoremove(cache) -> None:
     """Auto-remove emulation using apt Python library"""
     # the autoremove function does not exist. So, emulate it
     cache.open()
@@ -54,4 +78,4 @@ def autoremove(cache):
         for each in cache:
             if each.is_auto_removable:
                 each.mark_delete()
-    cache.commit()
+    cache_commit(cache)

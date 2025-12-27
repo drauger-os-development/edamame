@@ -3,7 +3,7 @@
 #
 #  __init__.py
 #
-#  Copyright 2024 Thomas Castleman <batcastle@draugeros.org>
+#  Copyright 2025 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -22,9 +22,38 @@
 #
 #
 """UI for Edamame"""
-import UI.confirm as confirm
-import UI.error as error
-import UI.main as main
-import UI.progress as progress
-import UI.report as report
-import UI.success as success
+import os
+import importlib
+
+
+def load_UI(ui_type: str):
+    """Load the specified UI type"""
+    ui = ui_type.upper()
+    if os.path.exists(f"UI/{ui}_UI"):
+        return importlib.import_module(f"UI.{ui}_UI")
+    raise ImportError(f"Module {ui}_UI is not present!")
+
+
+def available_UIs() -> list:
+    """List available GUIs/toolkits"""
+    uis = os.listdir("UI")
+    output = [each.split("_")[0] for each in uis if "_UI" == each[-3:]]
+    return output
+
+
+def UI_in_use() -> str:
+    """Tell what UI toolkit is in use."""
+    desktop = os.getenv("XDG_CURRENT_DESKTOP")
+    if desktop.lower() in ("kde", "lxqt", "dde", "lomiri", "ukui"):
+        return "QT"
+    if desktop.lower() in ("gnome", "mate", "xfce", "lxde", "cinnamon", "unity", "budgie", "pantheon", "sugar", "phosh"):
+        return "GTK"
+
+
+def auto_load_ui():
+    """This function is equivlent to:
+        UI.load_UI(UI.UI_in_use())
+
+        If the UI for the currently in use toolkit does not exist, the same error as that one liner will be thrown.
+    """
+    return load_UI(UI_in_use())
