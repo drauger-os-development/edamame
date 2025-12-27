@@ -244,7 +244,10 @@ def install_extras():
     __eprint__("\t\t\t###    install_extras.py STARTED    ###    ")
     # Make sure our cache is up to date and open
     cache = apt.cache.Cache()
-    cache.update()
+    try:
+        cache.update()
+    except apt.cache.FetchFailedException:
+        subproc.check_call(["apt-get", "update"])
     cache.open()
     NVIDIA = False
     # Check PCI list
@@ -315,7 +318,10 @@ def install_extras():
             for each in standard_install_list:
                 __eprint__(f"Installing `{each}'...")
                 cache[each].mark_install()
-        cache_commit(cache)
+        try:
+            cache_commit(cache)
+        except apt.apt_pkg.Error:
+            subproc.check_call(["apt-get", "-o", 'Dpkg::Options::="--force-confold"', "--force-yes", "-y", "install"] + standard_install_list)
     except (apt.cache.FetchFailedException, apt.cache.LockFailedException) as e:
         __eprint__("\t\t\t### WARNING ###")
         __eprint__("INSTALLATION OF STANDARD RESTRICTED EXTRAS FAILED. CONTINUING TO DRIVERS...")
@@ -327,7 +333,10 @@ def install_extras():
                 for each in additional_install_list:
                     __eprint__(f"Installing `{each}'...")
                     cache[each].mark_install()
-            cache_commit(cache)
+            try:
+                cache_commit(cache)
+            except apt.apt_pkg.Error:
+            subproc.check_call(["apt-get", "-o", 'Dpkg::Options::="--force-confold"', "--force-yes", "-y", "install"] + additional_install_list)
     except (apt.cache.FetchFailedException, apt.cache.LockFailedException) as e:
         __eprint__("\t\t\t### WARNING ###")
         __eprint__("INSTALLATION OF DRIVERS FAILED.")
