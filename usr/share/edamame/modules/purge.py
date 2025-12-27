@@ -64,8 +64,8 @@ def purge_package(pkg_name: list) -> None:
     cache.open()
     with cache.actiongroup():
         for pkg in pkg_name:
-            if each in cache:
-                cache[each].mark_delete()
+            if pkg in cache:
+                cache[pkg].mark_delete()
     cache_commit(cache)
     cache.close()
 
