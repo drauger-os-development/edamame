@@ -80,20 +80,12 @@ def update_system():
     cache.open()
     try:
         cache.upgrade()
-    except apt.apt_pkg.Error:
+        cache_commit(cache)
+    except (apt.cache.FetchFailedException, apt.cache.LockFailedException, apt.apt_pkg.Error):
             try:
                 subproc.check_call(["apt-get", "-o", 'Dpkg::Options::="--force-confold"', "--force-yes", "-y", "upgrade"])
-            except apt.apt_pkg.Error:
+            except subproc.CalledProcessError:
                 print("ERROR: Possible held packages. Update may be partially completed.")
-    try:
-        cache_commit(cache)
-    except apt.cache.LockFailedException:
-        print("Could not lock dpkg. Updates failed...")
-    except apt.apt_pkg.Error:
-        try:
-            subproc.check_call(["apt-get", "-o", 'Dpkg::Options::="--force-confold"', "--force-yes", "-y", "upgrade"])
-        except apt.apt_pkg.Error:
-            print("ERROR: Possible held packages. Update may be partially completed.")
     purge.autoremove(cache)
     cache.close()
     update_flatpak()

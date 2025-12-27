@@ -318,14 +318,13 @@ def install_extras():
             for each in standard_install_list:
                 __eprint__(f"Installing `{each}'...")
                 cache[each].mark_install()
+        cache_commit(cache)
+    except (apt.cache.FetchFailedException, apt.cache.LockFailedException, apt.apt_pkg.Error):
         try:
-            cache_commit(cache)
-        except apt.apt_pkg.Error:
             subproc.check_call(["apt-get", "-o", 'Dpkg::Options::="--force-confold"', "--force-yes", "-y", "install"] + standard_install_list)
-    except (apt.cache.FetchFailedException, apt.cache.LockFailedException) as e:
-        __eprint__("\t\t\t### WARNING ###")
-        __eprint__("INSTALLATION OF STANDARD RESTRICTED EXTRAS FAILED. CONTINUING TO DRIVERS...")
-        __eprint__(f"ERROR WAS:\n{e}")
+        except subproc.CalledProcessError:
+            __eprint__("\t\t\t### WARNING ###")
+            __eprint__("INSTALLATION OF STANDARD RESTRICTED EXTRAS FAILED. CONTINUING TO DRIVERS...")
     try:
         if len(additional_install_list) > 0:
             __eprint__("Attempting to install restricted driver packages...")
@@ -333,14 +332,13 @@ def install_extras():
                 for each in additional_install_list:
                     __eprint__(f"Installing `{each}'...")
                     cache[each].mark_install()
-            try:
-                cache_commit(cache)
-            except apt.apt_pkg.Error:
-                subproc.check_call(["apt-get", "-o", 'Dpkg::Options::="--force-confold"', "--force-yes", "-y", "install"] + additional_install_list)
-    except (apt.cache.FetchFailedException, apt.cache.LockFailedException) as e:
-        __eprint__("\t\t\t### WARNING ###")
-        __eprint__("INSTALLATION OF DRIVERS FAILED.")
-        __eprint__(f"ERROR WAS:\n{e}")
+            cache_commit(cache)
+    except (apt.cache.FetchFailedException, apt.cache.LockFailedException, apt.apt_pkg.Error):
+        try:
+            subproc.check_call(["apt-get", "-o", 'Dpkg::Options::="--force-confold"', "--force-yes", "-y", "install"] + additional_install_list)
+        except subproc.CalledProcessError:
+            __eprint__("\t\t\t### WARNING ###")
+            __eprint__("INSTALLATION OF DRIVERS FAILED.")
     # Purge all the stuff we don't want
 
     __eprint__(f"Attempting to remove `gstreamer1.0-fluendo-mp3' if present, for better MP3 audio quality...")
