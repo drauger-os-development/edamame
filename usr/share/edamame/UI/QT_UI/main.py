@@ -1727,16 +1727,17 @@ size will be generated for you.""")
                 pass
             self.grid.addWidget(label, 1, 1, 1, 3)
             return
-        if ap.size_of_part(efi) < ap.get_min_efi_size():
-            label_string = \
+        if ap.is_EFI()
+            if ap.size_of_part(efi) < ap.get_min_efi_size():
+                label_string = \
         f"""EFI Partition is too small. Minimum EFI Partition size is { ap.get_min_efi_size() } MB"""
-            label = self.set_up_partitioner_label(label_string)
-            try:
-                self.grid.itemAtPosition(1, 1).widget().setParent(None)
-            except (TypeError, AttributeError):
-                pass
-            self.grid.addWidget(label, 1, 1, 1, 3)
-            return
+                label = self.set_up_partitioner_label(label_string)
+                try:
+                    self.grid.itemAtPosition(1, 1).widget().setParent(None)
+                except (TypeError, AttributeError):
+                    pass
+                self.grid.addWidget(label, 1, 1, 1, 3)
+                return
         if ((swap.upper() == "FILE") or (swap == "")):
             if ap.size_of_part(self.root_parts.currentText()) < ap.get_min_root_size(bytes=False):
                 label_string = \
