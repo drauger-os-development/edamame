@@ -1727,7 +1727,7 @@ size will be generated for you.""")
                 pass
             self.grid.addWidget(label, 1, 1, 1, 3)
             return
-        if ap.is_EFI()
+        if ap.is_EFI():
             if ap.size_of_part(efi) < ap.get_min_efi_size():
                 label_string = \
         f"""EFI Partition is too small. Minimum EFI Partition size is { ap.get_min_efi_size() } MB"""
