@@ -112,7 +112,10 @@ class MainInstallation():
             for each in to_del:
                 del working[each]
             # Second, check how many processes we have running against how many cores we have
-            if len(working) < os.cpu_count():
+            # The minus one here is to compensate for the master thread taking up a process.
+            # This does mean that dual-core CPUs will install the OS entirely sequentially, instead of in parallel,
+            # but it will also leave more resources so the computer does not push itself TOO hard.
+            if len(working) < (os.cpu_count() - 1):
                 # We have fewer processes than CPUs.
                 if len(processes_to_do) > len(working):
                     """

@@ -36,7 +36,7 @@
 
 using namespace std;
 
-str VERSION = "3.1.1";
+str VERSION = "3.1.5";
 str R = "\033[0;31m";
 str G = "\033[0;32m";
 str Y = "\033[1;33m";
@@ -44,7 +44,7 @@ str NC = "\033[0m";
 str HELP = "\n"
 "Edamame, Version " + VERSION + "\n"
 "\n"
-"\t    --gui               specify the GUI to use. May throw an error if given toolkit is not available."
+"\t    --gui               specify the GUI to use. May throw an error if given toolkit is not available.\n"
 "\t-h, --help              print this help dialoge.\n"
 "\t    --boot-time         launch Edamame in boot-time mode.\n"
 "\t-v, --version           print current version.\n"
