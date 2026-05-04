@@ -3,7 +3,7 @@
 #
 #  master.py
 #
-#  Copyright 2025 Thomas Castleman <batcastle@draugeros.org>
+#  Copyright 2026 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -69,15 +69,7 @@ def __update__(percentage):
 class MainInstallation():
     """Main Installation Procedure, minus low-level stuff"""
     def __init__(self, processes_to_do, settings):
-        # for each1 in processes_to_do:
-        #     process_new = getattr(MainInstallation, each1, self)
-        #     args_list = getfullargspec(process_new)[0]
-        #     args = []
-        #     for each in args_list:
-        #         args.append(settings[each])
-        #     globals()[each1] = multiprocessing.Process(target=process_new,
-        #                                                args=args)
-        #     globals()[each1].start()
+        """Install Drauger OS, using multi-processing. The idea is to get everything done as quick as possible."""
         offset = 39
         ending = 51
         iterator = round(ending / len(processes_to_do))
@@ -145,6 +137,18 @@ class MainInstallation():
             # This line is temporary, for debugging purposes.
             # eprint(f"Running Processes: {len(working)}\nProcesses to do: {len(processes_to_do) - len(working)}")
 
+    def sequental_install(processes_to_do, settings):
+        """Install Drauger OS, but instead of the multi-threaded approach above, do everything sequentially"""
+        for each in processes_to_do:
+            process_new = getattr(MainInstallation, new, self)
+            args_list = getfullargspec(process_new)[0]
+            args = []
+            for each in args_list:
+                args.append(settings[each])
+            # Not sure if this works. Keep an eye on it.
+            process_new(*args)
+            __update__(point + offset)
+            point += iterator
 
     def time_set(TIME_ZONE):
         """Set system time"""
@@ -642,7 +646,14 @@ def install(settings, distro):
     for each in range(len(processes_to_do) - 1, -1, -1):
         if processes_to_do[each][0] == "_":
             del processes_to_do[each]
-    MainInstallation(processes_to_do, settings)
+    if os.cpu_count() > 2:
+        try:
+            MainInstallation(processes_to_do, settings)
+        except ConnectionResetError:
+            eprint("WARNING: IT APPEARS MULTI-THREADED INSTALLATION FAILED. REATTEMPTING SEQUENTIALLY...")
+            MainInstallation.sequental_install(processes_to_do, settings)
+    else:
+        MainInstallation.sequental_install(processes_to_do, settings)
     handle_laptops(settings["USERNAME"])
     setup_lowlevel(settings["EFI"], settings["ROOT"], distro,
                    settings["COMPAT_MODE"], settings["UPDATES"])
