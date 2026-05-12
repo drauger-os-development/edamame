@@ -140,7 +140,7 @@ class MainInstallation():
     def sequental_install(processes_to_do, settings):
         """Install Drauger OS, but instead of the multi-threaded approach above, do everything sequentially"""
         for each in processes_to_do:
-            process_new = getattr(MainInstallation, new, self)
+            process_new = getattr(MainInstallation, each, self)
             args_list = getfullargspec(process_new)[0]
             args = []
             for each in args_list:
