@@ -137,7 +137,7 @@ class MainInstallation():
             # This line is temporary, for debugging purposes.
             # eprint(f"Running Processes: {len(working)}\nProcesses to do: {len(processes_to_do) - len(working)}")
 
-    def sequental_install(processes_to_do, settings):
+    def sequental_install(self, processes_to_do, settings):
         """Install Drauger OS, but instead of the multi-threaded approach above, do everything sequentially"""
         for each in processes_to_do:
             process_new = getattr(MainInstallation, each, self)
