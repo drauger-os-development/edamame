@@ -72,15 +72,16 @@ class MainInstallation():
         """Basic setup process"""
         self.processes_to_do = processes_to_do
         self.settings = settings
+        self.offset = 39
+        ending = 51
+        self.iterator = round(ending / len(self.processes_to_do))
+        # We COULD set point equal to iterator, but we don't want the iterator
+        # to change, so re-doing the math is safer, albiet slower.
+        self.point = round(ending / len(self.processes_to_do))
 
     def parallel_install(self):
         """Install Drauger OS, using multi-processing. The idea is to get everything done as quick as possible."""
-        offset = 39
-        ending = 51
-        iterator = round(ending / len(self.processes_to_do))
-        # We COULD set point equal to iterator, but we don't want the iterator
-        # to change, so re-doing the math is safer, albiet slower.
-        point = round(ending / len(self.processes_to_do))
+
         # while len(processes_to_do) > 0:
         #     for each in range(len(processes_to_do) - 1, -1, -1):
         #         if not globals()[processes_to_do[each]].is_alive():
@@ -104,8 +105,8 @@ class MainInstallation():
                     working[each].join()
                     del self.processes_to_do[self.processes_to_do.index(each)]
                     to_del.append(each)
-                    __update__(point + offset)
-                    point += iterator
+                    __update__(self.point + self.offset)
+                    self.point += self.iterator
             for each in to_del:
                 del working[each]
             # Second, check how many processes we have running against how many cores we have
@@ -152,8 +153,8 @@ class MainInstallation():
                 args.append(self.settings[each])
             # Not sure if this works. Keep an eye on it.
             process_new(*args)
-            __update__(point + offset)
-            point += iterator
+            __update__(self.point + self.offset)
+            self.point += self.iterator
 
     def time_set(TIME_ZONE):
         """Set system time"""
