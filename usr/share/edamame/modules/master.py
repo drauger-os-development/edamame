@@ -79,7 +79,7 @@ class MainInstallation():
         # to change, so re-doing the math is safer, albiet slower.
         self.point = round(ending / len(self.processes_to_do))
 
-    def parallel_install(self):
+    def _parallel_install(self):
         """Install Drauger OS, using multi-processing. The idea is to get everything done as quick as possible."""
 
         # while len(processes_to_do) > 0:
@@ -143,7 +143,7 @@ class MainInstallation():
             # This line is temporary, for debugging purposes.
             # eprint(f"Running Processes: {len(working)}\nProcesses to do: {len(processes_to_do) - len(working)}")
 
-    def sequental_install(self):
+    def _sequental_install(self):
         """Install Drauger OS, but instead of the multi-threaded approach above, do everything sequentially"""
         for each in self.processes_to_do:
             process_new = getattr(MainInstallation, each, self)
@@ -655,12 +655,12 @@ def install(settings, distro):
     installer = MainInstallation(processes_to_do, settings)
     if os.cpu_count() > 2:
         try:
-            installer.parallel_install()
+            installer._parallel_install()
         except ConnectionResetError:
             eprint("WARNING: IT APPEARS MULTI-THREADED INSTALLATION FAILED. REATTEMPTING SEQUENTIALLY...")
-            installer.sequental_install()
+            installer._sequental_install()
     else:
-        installer.sequental_install()
+        installer._sequental_install()
     handle_laptops(settings["USERNAME"])
     setup_lowlevel(settings["EFI"], settings["ROOT"], distro,
                    settings["COMPAT_MODE"], settings["UPDATES"])
