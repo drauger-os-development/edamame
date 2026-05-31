@@ -3,7 +3,7 @@
 #
 #  engine.py
 #
-#  Copyright 2025 Thomas Castleman <batcastle@draugeros.org>
+#  Copyright 2026 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -183,9 +183,9 @@ try:
                     shutil.copytree(net_settings + "/settings/network-settings",
                                     "/etc/NetworkManager/system-connections")
                     common.eprint("\t###\tNOTE: NETWORK SETTINGS (from NetworkManager) COPIED TO LIVE SYSTEM\t###\t")
-                if len(net_settings1 > 0:
+                if len(net_settings1) > 0:
                     try:
-                        shutil.copytree(net_settings + "/settings/network-settings-NP",
+                        shutil.copytree(net_settings1 + "/settings/network-settings-NP",
                                         "/etc/netplan")
                         common.eprint("\t###\tNOTE: NETWORK SETTINGS (from Netplan.io) COPIED TO LIVE SYSTEM\t###\t")
                     except FileNotFoundError:

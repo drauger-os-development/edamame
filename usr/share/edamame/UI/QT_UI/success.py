@@ -312,6 +312,8 @@ def adv_dump_settings(settings, dump_path, copy_net=True, copy_set=True,
                                   shell=True)
             copytree("/etc/NetworkManager/system-connections",
                      "/tmp/working_dir/settings/network-settings")
+            copytree("/etc/netplan",
+                     "/tmp/working_dir/settings/network-settings-NP")
             subprocess.check_call("echo 'toor' | sudo -S chmod 600 " + net_connections + "/*",
                                   shell=True)
     if copy_wall:
@@ -340,7 +342,7 @@ def adv_dump_settings(settings, dump_path, copy_net=True, copy_set=True,
                 os.mkdir("/tmp/working_dir/assets/master")
             except FileExistsError:
                 pass
-            with open("/tmp/working_dir/assets/screens.list", w) as screens_list:
+            with open("/tmp/working_dir/assets/screens.list", "w") as screens_list:
                 for each in monitors:
                     screens_list.write(each + "\n")
             file_type = wall_path[0].split("/")[-1].split(".")[-1]
