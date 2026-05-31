@@ -178,10 +178,18 @@ try:
                 shutdown(BOOT_TIME, immerse, 2)
             try:
                 net_settings = os.listdir(work_dir + "/settings/network-settings")
+                net_settings1 = os.listdir(work_dir + "/settings/network-settings-NP")
                 if len(net_settings) > 0:
                     shutil.copytree(net_settings + "/settings/network-settings",
                                     "/etc/NetworkManager/system-connections")
-                    common.eprint("\t###\tNOTE: NETWORK SETTINGS COPIED TO LIVE SYSTEM\t###\t")
+                    common.eprint("\t###\tNOTE: NETWORK SETTINGS (from NetworkManager) COPIED TO LIVE SYSTEM\t###\t")
+                if len(net_settings1 > 0:
+                    try:
+                        shutil.copytree(net_settings + "/settings/network-settings-NP",
+                                        "/etc/netplan")
+                        common.eprint("\t###\tNOTE: NETWORK SETTINGS (from Netplan.io) COPIED TO LIVE SYSTEM\t###\t")
+                    except FileNotFoundError:
+                        common.eprint("NOTICE: SYSTEM NOT USING NETPLAN.IO")
             except FileNotFoundError:
                 pass
         if "DATA" in SETTINGS:

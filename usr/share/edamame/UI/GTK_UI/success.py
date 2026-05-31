@@ -385,6 +385,8 @@ def adv_dump_settings(settings, dump_path, copy_net=True, copy_set=True,
                                   shell=True)
             copytree("/etc/NetworkManager/system-connections",
                      "/tmp/working_dir/settings/network-settings")
+            copytree("/etc/netplan",
+                     "/tmp/working_dir/settings/network-settings-NP")
             subprocess.check_call("echo 'toor' | sudo -S chmod 600 " + net_connections + "/*",
                                   shell=True)
     if copy_wall:
