@@ -3,7 +3,7 @@
 #
 #  master.py
 #
-#  Copyright 2025 Thomas Castleman <batcastle@draugeros.org>
+#  Copyright 2026 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -69,21 +69,19 @@ def __update__(percentage):
 class MainInstallation():
     """Main Installation Procedure, minus low-level stuff"""
     def __init__(self, processes_to_do, settings):
-        # for each1 in processes_to_do:
-        #     process_new = getattr(MainInstallation, each1, self)
-        #     args_list = getfullargspec(process_new)[0]
-        #     args = []
-        #     for each in args_list:
-        #         args.append(settings[each])
-        #     globals()[each1] = multiprocessing.Process(target=process_new,
-        #                                                args=args)
-        #     globals()[each1].start()
-        offset = 39
+        """Basic setup process"""
+        self.processes_to_do = processes_to_do
+        self.settings = settings
+        self.offset = 39
         ending = 51
-        iterator = round(ending / len(processes_to_do))
+        self.iterator = round(ending / len(self.processes_to_do))
         # We COULD set point equal to iterator, but we don't want the iterator
         # to change, so re-doing the math is safer, albiet slower.
-        point = round(ending / len(processes_to_do))
+        self.point = round(ending / len(self.processes_to_do))
+
+    def _parallel_install(self):
+        """Install Drauger OS, using multi-processing. The idea is to get everything done as quick as possible."""
+
         # while len(processes_to_do) > 0:
         #     for each in range(len(processes_to_do) - 1, -1, -1):
         #         if not globals()[processes_to_do[each]].is_alive():
@@ -98,29 +96,32 @@ class MainInstallation():
         This new spawner is designed to scale with how many cores a given CPU has, so we don't over extend our resources
         """
         working = {}
-        while len(processes_to_do) > 0:
+        while len(self.processes_to_do) > 0:
             # First, check if we have any processes that are completed that we need to close
             to_del = []
             for each in working:
                 if not working[each].is_alive():
                     # We have a process to clean up
                     working[each].join()
-                    del processes_to_do[processes_to_do.index(each)]
+                    del self.processes_to_do[self.processes_to_do.index(each)]
                     to_del.append(each)
-                    __update__(point + offset)
-                    point += iterator
+                    __update__(self.point + self.offset)
+                    self.point += self.iterator
             for each in to_del:
                 del working[each]
             # Second, check how many processes we have running against how many cores we have
-            if len(working) < os.cpu_count():
+            # The minus one here is to compensate for the master thread taking up a process.
+            # This does mean that dual-core CPUs will install the OS entirely sequentially, instead of in parallel,
+            # but it will also leave more resources so the computer does not push itself TOO hard.
+            if len(working) < (os.cpu_count() - 1):
                 # We have fewer processes than CPUs.
-                if len(processes_to_do) > len(working):
+                if len(self.processes_to_do) > len(working):
                     """
                         Processes that are spawned remain in the "to-do" list until done.
                         So, the to-do list is always greater than or equal in length to the list of currently running processes
                     """
                     new = None
-                    for each in processes_to_do:
+                    for each in self.processes_to_do:
                         if each not in working.keys():
                             new = each
                             break
@@ -130,7 +131,7 @@ class MainInstallation():
                     args_list = getfullargspec(process_new)[0]
                     args = []
                     for each in args_list:
-                        args.append(settings[each])
+                        args.append(self.settings[each])
                     working[new] = multiprocessing.Process(target=process_new, args=args)
                     working[new].start()
                 else:
@@ -142,6 +143,18 @@ class MainInstallation():
             # This line is temporary, for debugging purposes.
             # eprint(f"Running Processes: {len(working)}\nProcesses to do: {len(processes_to_do) - len(working)}")
 
+    def _sequental_install(self):
+        """Install Drauger OS, but instead of the multi-threaded approach above, do everything sequentially"""
+        for each in self.processes_to_do:
+            process_new = getattr(MainInstallation, each, self)
+            args_list = getfullargspec(process_new)[0]
+            args = []
+            for each in args_list:
+                args.append(self.settings[each])
+            # Not sure if this works. Keep an eye on it.
+            process_new(*args)
+            __update__(self.point + self.offset)
+            self.point += self.iterator
 
     def time_set(TIME_ZONE):
         """Set system time"""
@@ -639,7 +652,15 @@ def install(settings, distro):
     for each in range(len(processes_to_do) - 1, -1, -1):
         if processes_to_do[each][0] == "_":
             del processes_to_do[each]
-    MainInstallation(processes_to_do, settings)
+    installer = MainInstallation(processes_to_do, settings)
+    if os.cpu_count() > 2:
+        try:
+            installer._parallel_install()
+        except ConnectionResetError:
+            eprint("WARNING: IT APPEARS MULTI-THREADED INSTALLATION FAILED. REATTEMPTING SEQUENTIALLY...")
+            installer._sequental_install()
+    else:
+        installer._sequental_install()
     handle_laptops(settings["USERNAME"])
     setup_lowlevel(settings["EFI"], settings["ROOT"], distro,
                    settings["COMPAT_MODE"], settings["UPDATES"])

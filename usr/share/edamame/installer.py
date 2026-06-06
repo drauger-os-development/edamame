@@ -247,6 +247,12 @@ def install(settings: dict, local_repo: str, ui_type: str) -> None:
     shutil.rmtree("/mnt/etc/NetworkManager/system-connections")
     shutil.copytree("/etc/NetworkManager/system-connections",
                     "/mnt/etc/NetworkManager/system-connections")
+    try:
+        shutil.rmtree("/mnt/etc/netplan")
+        shutil.copytree("/etc/netplan",
+                        "/mnt/etc/netplan")
+    except FileNotFoundError:
+        common.eprint("NOTICE: SYSTEM NOT USING NETPLAN.IO")
     if os.path.exists(work_dir) and os.path.exists(work_dir + "/assets"):
         ls = os.listdir(work_dir + "/assets")
         os.mkdir("/mnt/user-data")

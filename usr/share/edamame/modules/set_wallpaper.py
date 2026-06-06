@@ -53,6 +53,8 @@ Not using Advanced Quick Install's Wallpaper functionality.""")
                 pass
             if "monitor0" not in screens:
                 screens.append("monitor0")
+
+            # move wallpaper file to ~/.config
             move("/user-data/" + each,
                  "/home/" + username + "/.config/" + each)
     if len(screens) == 0:

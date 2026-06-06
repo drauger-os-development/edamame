@@ -3,7 +3,7 @@
 #
 #  engine.py
 #
-#  Copyright 2025 Thomas Castleman <batcastle@draugeros.org>
+#  Copyright 2026 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -177,11 +177,17 @@ try:
 """)
                 shutdown(BOOT_TIME, immerse, 2)
             try:
-                net_settings = os.listdir(work_dir + "/settings/network-settings")
-                if len(net_settings) > 0:
-                    shutil.copytree(net_settings + "/settings/network-settings",
+                if len(os.listdir(work_dir + "/settings/network-settings")) > 0:
+                    shutil.copytree(work_dir + "/settings/network-settings",
                                     "/etc/NetworkManager/system-connections")
-                    common.eprint("\t###\tNOTE: NETWORK SETTINGS COPIED TO LIVE SYSTEM\t###\t")
+                    common.eprint("\t###\tNOTE: NETWORK SETTINGS (from NetworkManager) COPIED TO LIVE SYSTEM\t###\t")
+                if len(os.listdir(work_dir + "/settings/network-settings-NP")) > 0:
+                    try:
+                        shutil.copytree(work_dir + "/settings/network-settings-NP",
+                                        "/etc/netplan")
+                        common.eprint("\t###\tNOTE: NETWORK SETTINGS (from Netplan.io) COPIED TO LIVE SYSTEM\t###\t")
+                    except FileNotFoundError:
+                        common.eprint("NOTICE: SYSTEM NOT USING NETPLAN.IO")
             except FileNotFoundError:
                 pass
         if "DATA" in SETTINGS:
