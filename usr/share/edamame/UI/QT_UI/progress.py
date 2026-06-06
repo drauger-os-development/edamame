@@ -3,7 +3,7 @@
 #
 #  progress.py
 #
-#  Copyright 2025 Thomas Castleman <batcastle@draugeros.org>
+#  Copyright 2026 Thomas Castleman <batcastle@draugeros.org>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -143,7 +143,7 @@ def show_progress():
     signal.signal(signal.SIGTERM, handle_sig_term)
     app = QtWidgets.QApplication([sys.argv[0]])
     global window
-    window = Main(distro)
+    window = Main(app, distro=distro)
     window = QCommon.set_window_undecorated(window)
     window = QCommon.set_window_nonresizeable(window)
     window.show()
