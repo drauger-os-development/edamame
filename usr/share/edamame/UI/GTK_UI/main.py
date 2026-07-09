@@ -192,6 +192,7 @@ class Main(Gtk.Window):
         self.grid.attach(label, 1, 1, 4, 1)
 
         button1 = Gtk.Button.new_with_label("Normal Installation")
+        button1.set_tooltip_text("Select this for a standard installation with manual partitioning.")
         button1.connect("clicked", self.main_menu)
         button1 = self._set_default_margins(button1)
         self.grid.attach(button1, 4, 2, 1, 1)
@@ -202,11 +203,13 @@ class Main(Gtk.Window):
         self.grid.attach(button2, 1, 2, 1, 1)
 
         button3 = Gtk.Button.new_with_label("Quick Installation")
+        button3.set_tooltip_text("Select this to use an automated JSON config file for installation.")
         button3.connect("clicked", self.quick_install_warning)
         button3 = self._set_default_margins(button3)
         self.grid.attach(button3, 2, 2, 1, 1)
 
         button4 = Gtk.Button.new_with_label("OEM Installation")
+        button4.set_tooltip_text("Intended for manufacturers to prepare the system for end-users.")
         button4.connect("clicked", self.oem_startup)
         button4 = self._set_default_margins(button4)
         self.grid.attach(button4, 3, 2, 1, 1)
