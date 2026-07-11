@@ -209,7 +209,7 @@ An example of one of these can be found at /etc/edamame/quick-install-template.j
         self.grid.addWidget(button2, 2, 1, 1, 1)
 
         button3 = QtWidgets.QPushButton("Quick Installation")
-        button3.setToolTip("Select this to use an automated JSON config file for installation.")
+        button3.setToolTip("Select this to use a Quick Installation file (.json or .tar.xz) for automated setup.")
         button3.clicked.connect(self.quick_install_warning)
         button3 = self._set_default_margins(button3)
         self.grid.addWidget(button3, 2, 2, 1, 1)

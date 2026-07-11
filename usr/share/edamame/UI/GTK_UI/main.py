@@ -203,7 +203,7 @@ class Main(Gtk.Window):
         self.grid.attach(button2, 1, 2, 1, 1)
 
         button3 = Gtk.Button.new_with_label("Quick Installation")
-        button3.set_tooltip_text("Select this to use an automated JSON config file for installation.")
+        button3.set_tooltip_text("Select this to use a Quick Installation file (.json or .tar.xz) for automated setup.")
         button3.connect("clicked", self.quick_install_warning)
         button3 = self._set_default_margins(button3)
         self.grid.attach(button3, 2, 2, 1, 1)
