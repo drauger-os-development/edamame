@@ -198,6 +198,7 @@ An example of one of these can be found at /etc/edamame/quick-install-template.j
         self.grid.addWidget(label, 1, 1, 1, 4)
 
         button1 = QtWidgets.QPushButton("Normal Installation")
+        button1.setToolTip("Select this for a standard manual installation process.")
         button1.clicked.connect(self.main_menu)
         button1 = self._set_default_margins(button1)
         self.grid.addWidget(button1, 2, 4, 1, 1)
@@ -208,11 +209,13 @@ An example of one of these can be found at /etc/edamame/quick-install-template.j
         self.grid.addWidget(button2, 2, 1, 1, 1)
 
         button3 = QtWidgets.QPushButton("Quick Installation")
+        button3.setToolTip("Select this to use a Quick Installation file (.json or .tar.xz) for automated setup.")
         button3.clicked.connect(self.quick_install_warning)
         button3 = self._set_default_margins(button3)
         self.grid.addWidget(button3, 2, 2, 1, 1)
 
         button4 = QtWidgets.QPushButton("OEM Installation")
+        button4.setToolTip("Intended for manufacturers to prepare the system for end-users.")
         button4.clicked.connect(self.oem_startup)
         button4 = self._set_default_margins(button4)
         self.grid.addWidget(button4, 2, 3, 1, 1)
@@ -2250,3 +2253,7 @@ def make_kbd_names():
 
 if __name__ == '__main__':
     print(show_main())
+
+
+
+
