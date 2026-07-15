@@ -7,8 +7,8 @@ This list details which distros have been tested and are known working with `eda
  - [ ] Run `git clone https://github.com/drauger-os-development/edamame` to clone the repo
  - [ ] `cd` into the folder: `cd edamame`
  - [ ] Make any necessary changes to the default config to get `edamame` to work.
- - [ ] Install Packages needed to build: `sudo apt install python3-dev libpython3-dev`
- - [ ] Build the package: `./build.sh --pool`
+ - [ ] [OPTIONAL] Install Packages needed to build: `sudo apt install python3-dev libpython3-dev`
+ - [ ] Build the package: `./build.sh --pool`(If you skipped the above step, select "Do not compile")
  - [ ] Install the package: `sudo apt install ./build/*`
  - [ ] Run `edamame` in a terminal and try to install the OS!
 
@@ -31,3 +31,5 @@ This list details which distros have been tested and are known working with `eda
 ✅ **Drauger OS 7.6** - KNOWN WORKING
 
 ✅ **Drauger OS 7.7** - KNOWN WORKING
+
+✅ **Drauger OS 7.8** - KNOWN WORKING
